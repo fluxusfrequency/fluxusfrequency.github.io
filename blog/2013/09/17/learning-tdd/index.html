@@ -1,0 +1,430 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Learning TDD - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="We&rsquo;re now into the second week of gSchool. It has been an intense six days thus far. The Jumpstart Lab crew has really thrown us into the deep &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2013/09/17/learning-tdd">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Learning TDD</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-17T06:01:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>We&rsquo;re now into the second week of gSchool. It has been an intense six days thus far. The Jumpstart Lab crew has really thrown us into the deep end, expecting us to have completed five tutorials already. One more, <a href="http://tutorials.jumpstartlab.com/projects/event_reporter.html">EventReporter</a>, is due at the beginning of day nine.</p>
+
+<p>What we&rsquo;ve already done:</p>
+
+<ul>
+<li><a href="http://tutorials.jumpstartlab.com/projects/ruby_in_100_minutes.html">Ruby In 100 Minutes</a></li>
+<li><a href="http://tutorials.jumpstartlab.com/projects/eventmanager.html">EventManager</a></li>
+<li><a href="http://tutorials.jumpstartlab.com/projects/encryptor.html">Encryptor</a></li>
+<li><a href="http://tutorials.jumpstartlab.com/projects/microblogger.html">MicroBlogger</a></li>
+<li><a href="http://tutorials.jumpstartlab.com/academy/workshops/testing_event_manager.html">TDD With MiniTest And EventManager</a></li>
+</ul>
+
+
+<p>This last tutorial was yesterday&rsquo;s project. I was really excited to get into writing some tests. We talked about testing in class, and the consensus was that Test Driven Development did lots of good things for programmers. Some of the students&#8217; explanations of testing included: it helps make sure the application is working, it helps guide the developer to the next features that need to be implemented, it describes the application. I am excited to start including it in my workflow, because all of the error-driven clicking and typing I&rsquo;ve been doing up until now is getting really old.</p>
+
+<p>Before bootcamp started, I worked through all of these tutorials on my own, and wrote <a href="https://github.com/fluxusfrequency/treebook.git">my own copy</a> of the Treebook tutorial on <a href="http://www.teamtreehouse.com">Treehouse</a> as well. While completing Treebook, Jason Siefer walks you through a lot of TDD, first using MiniTest, and later Rspec and the Shoulda gem. Now that I&rsquo;m digging into testing without the support of a tutorial, I&rsquo;m trying to decide which syntax I like best for testing. Although it is the simplest, I&rsquo;m not a huge fan of code like this:</p>
+
+<figure class='code'><figcaption><span>EventReporter MiniTest</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/autorun&#39;</span>
+</span><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;../lib/event_reporter.rb&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">HappyPathTest</span> <span class="o">&lt;</span> <span class="no">MiniTest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>  <span class="kp">attr_accessor</span> <span class="ss">:reporter</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">setup</span>
+</span><span class='line'>    <span class="vi">@reporter</span> <span class="o">=</span> <span class="no">EventReporter</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_queue_count_defaults_to_zero</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">0</span><span class="p">,</span> <span class="n">reporter</span><span class="o">.</span><span class="n">queue_count</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_responds_to_find_by_first_name</span>
+</span><span class='line'>    <span class="n">reporter</span><span class="o">.</span><span class="n">find_by</span><span class="p">(</span><span class="ss">:first_name</span><span class="p">,</span> <span class="s2">&quot;John&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">63</span><span class="p">,</span> <span class="n">reporter</span><span class="o">.</span><span class="n">queue_count</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The syntax is just ugly, to me. I prefer this Rspec code I wrote for Treebook:</p>
+
+<figure class='code'><figcaption><span>Treebook Friendship Decorator Test</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;test_helper&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">UserFriendshipDecoratorTest</span> <span class="o">&lt;</span> <span class="no">Draper</span><span class="o">::</span><span class="no">TestCase</span>
+</span><span class='line'>  <span class="n">context</span> <span class="s2">&quot;#sub_message&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">setup</span> <span class="k">do</span>
+</span><span class='line'>      <span class="vi">@friend</span> <span class="o">=</span> <span class="n">create</span><span class="p">(</span><span class="ss">:user</span><span class="p">,</span> <span class="ss">first_name</span><span class="p">:</span> <span class="s1">&#39;Fred&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">context</span> <span class="s2">&quot;with a pending user friendship&quot;</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">setup</span> <span class="k">do</span>
+</span><span class='line'>        <span class="vi">@user_friendship</span> <span class="o">=</span> <span class="n">create</span><span class="p">(</span><span class="ss">:pending_user_friendship</span><span class="p">,</span> <span class="ss">friend</span><span class="p">:</span> <span class="vi">@friend</span><span class="p">)</span>
+</span><span class='line'>        <span class="vi">@decorator</span> <span class="o">=</span> <span class="no">UserFriendshipDecorator</span><span class="o">.</span><span class="n">decorate</span><span class="p">(</span><span class="vi">@user_friendship</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">should</span> <span class="s2">&quot;return the correct message&quot;</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">assert_equal</span> <span class="s2">&quot;Friend request pending.&quot;</span><span class="p">,</span> <span class="vi">@decorator</span><span class="o">.</span><span class="n">sub_message</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I noticed last night that my fellow student, Katrina Engelstad, tweeted a link to this <a href="http://www.mattsears.com/articles/2011/12/10/minitest-quick-reference">blog post</a> by Matt Sears. It looks like a useful reference for MiniTest. Here&rsquo;s a block of code from that page which shows a way to make MiniTest behave like Rspec:</p>
+
+<figure class='code'><figcaption><span>Describe Hipster</span><a href='http://www.mattsears.com/articles/2011/12/10/minitest-quick-reference'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/autorun&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">describe</span> <span class="no">Hipster</span><span class="p">,</span> <span class="s2">&quot;Demonstration of MiniTest&quot;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">before</span> <span class="k">do</span>
+</span><span class='line'>    <span class="vi">@hipster</span> <span class="o">=</span> <span class="no">Hipster</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">after</span> <span class="k">do</span>
+</span><span class='line'>    <span class="vi">@hipster</span><span class="o">.</span><span class="n">destroy!</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">subject</span> <span class="k">do</span>
+</span><span class='line'>    <span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">tap</span> <span class="k">do</span> <span class="o">|</span><span class="n">attributes</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">attributes</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;silly hats&quot;</span>
+</span><span class='line'>      <span class="n">attributes</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;skinny jeans&quot;</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">let</span><span class="p">(</span><span class="ss">:list</span><span class="p">)</span> <span class="p">{</span> <span class="nb">Array</span><span class="o">.</span><span class="n">new</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">describe</span> <span class="s2">&quot;when asked about the font&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">it</span> <span class="s2">&quot;should be helvetica&quot;</span> <span class="k">do</span>
+</span><span class='line'>      <span class="vi">@hipster</span><span class="o">.</span><span class="n">preferred_font</span><span class="o">.</span><span class="n">must_equal</span> <span class="s2">&quot;helvetica&quot;</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">describe</span> <span class="s2">&quot;when asked about mainstream&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">it</span> <span class="s2">&quot;won&#39;t be mainstream&quot;</span> <span class="k">do</span>
+</span><span class='line'>      <span class="vi">@hipster</span><span class="o">.</span><span class="n">mainstream?</span><span class="o">.</span><span class="n">wont_equal</span> <span class="kp">true</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, I&rsquo;ve been tantalized by the possibilities of <a href="http://cukes.info/">Cucumber</a>. I haven&rsquo;t had time to dig into this testing approach yet, but the prospect of writing language like this is very appealing:</p>
+
+<figure class='code'><figcaption><span>How To Test With Cucumber</span><a href='https://github.com/plataformatec/devise/wiki/How-To:-Test-with-Cucumber'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Scenario</span> <span class="ss">Outline</span><span class="p">:</span> <span class="no">Creating</span> <span class="n">a</span> <span class="kp">new</span> <span class="n">account</span>
+</span><span class='line'>    <span class="no">Given</span> <span class="n">I</span> <span class="n">am</span> <span class="ow">not</span> <span class="n">authenticated</span>
+</span><span class='line'>    <span class="no">When</span> <span class="n">I</span> <span class="n">go</span> <span class="n">to</span> <span class="n">register</span> <span class="c1"># define this path mapping in features/support/paths.rb, usually as &#39;/users/sign_up&#39;</span>
+</span><span class='line'>    <span class="no">And</span> <span class="n">I</span> <span class="n">fill</span> <span class="k">in</span> <span class="s2">&quot;user_email&quot;</span> <span class="n">with</span> <span class="s2">&quot;&lt;email&gt;&quot;</span>
+</span><span class='line'>    <span class="no">And</span> <span class="n">I</span> <span class="n">fill</span> <span class="k">in</span> <span class="s2">&quot;user_password&quot;</span> <span class="n">with</span> <span class="s2">&quot;&lt;password&gt;&quot;</span>
+</span><span class='line'>    <span class="no">And</span> <span class="n">I</span> <span class="n">fill</span> <span class="k">in</span> <span class="s2">&quot;user_password_confirmation&quot;</span> <span class="n">with</span> <span class="s2">&quot;&lt;password&gt;&quot;</span>
+</span><span class='line'>    <span class="no">And</span> <span class="n">I</span> <span class="n">press</span> <span class="s2">&quot;Sign up&quot;</span>
+</span><span class='line'>    <span class="no">Then</span> <span class="n">I</span> <span class="n">should</span> <span class="n">see</span> <span class="s2">&quot;logged in as &lt;email&gt;&quot;</span> <span class="c1"># your work!</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="ss">Examples</span><span class="p">:</span>
+</span><span class='line'>      <span class="o">|</span> <span class="n">email</span>           <span class="o">|</span> <span class="n">password</span>   <span class="o">|</span>
+</span><span class='line'>      <span class="o">|</span> <span class="n">testing</span><span class="vi">@man</span><span class="o">.</span><span class="n">net</span> <span class="o">|</span> <span class="n">secretpass</span> <span class="o">|</span>
+</span><span class='line'>      <span class="o">|</span> <span class="n">foo</span><span class="vi">@bar</span><span class="o">.</span><span class="n">com</span>     <span class="o">|</span> <span class="n">fr33z3</span>     <span class="o">|</span>
+</span><span class='line'>
+</span><span class='line'><span class="ss">Scenario</span><span class="p">:</span> <span class="no">Willing</span> <span class="n">to</span> <span class="n">edit</span> <span class="n">my</span> <span class="n">account</span>
+</span><span class='line'>    <span class="no">Given</span> <span class="n">I</span> <span class="n">am</span> <span class="n">a</span> <span class="kp">new</span><span class="p">,</span> <span class="n">authenticated</span> <span class="n">user</span> <span class="c1"># beyond this step, your work!</span>
+</span><span class='line'>    <span class="no">When</span> <span class="n">I</span> <span class="n">want</span> <span class="n">to</span> <span class="n">edit</span> <span class="n">my</span> <span class="n">account</span>
+</span><span class='line'>    <span class="no">Then</span> <span class="n">I</span> <span class="n">should</span> <span class="n">see</span> <span class="n">the</span> <span class="n">account</span> <span class="n">initialization</span> <span class="n">form</span>
+</span><span class='line'>    <span class="no">And</span> <span class="n">I</span> <span class="n">should</span> <span class="n">see</span> <span class="s2">&quot;Your account has not been initialized yet. Do it now!&quot;</span>
+</span><span class='line'>    <span class="c1"># And more view checking stuff</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For now, even though I think it&rsquo;s ugly, I&rsquo;m going to stick to MiniTest for the &ldquo;TDD with MiniTest and EventManager&rdquo; and EventReporter tutorials, since I am still getting comfortable with TDD. Overlearning MiniTest will be a good foundation to have, even if I end up using Rspec or Cucumber in the future. So long for now! I&rsquo;m off to go implement some fifty odd tests for EventReporter.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-17T06:01:00-06:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2013/09/17/learning-tdd/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2013/09/17/learning-tdd/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/09/11/object-oriented-programming/" title="Previous Post: Object Oriented Programming">&laquo; Object Oriented Programming</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/09/19/fun-with-terminal/" title="Next Post: Fun with terminal">Fun with terminal &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/09/04/looking-for-a-needle-in-a-haystack-with-ack/">Looking For A Needle In A Haystack! (or Using Ack To Improve Your Development Workflow)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/24/angular-js-unit-testing-for-real-though/">AngularJS Unit Testing, For Real Though</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/05/20/five-capybara-hacks-to-make-your-testing-experience-less-painful/">Five Capybara Hacks To Make Your Testing Experience Less Painful</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/14/service-oriented-architecture/">Service Oriented Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/31/building-a-binary-search/">Building a Binary Search</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,1189 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Refactoring 1: Extract Method - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="I&rsquo;m reading Refactoring Ruby by Jay Fields, Sean Harvie, Martin Fowler and Kent Beck. As I&rsquo;m heading into the last couple of months at &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2014/01/10/refactoring-1-extract-method">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Refactoring 1: Extract Method</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-10T09:07:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I&rsquo;m reading <a href="http://martinfowler.com/books/refactoringRubyEd.html">Refactoring Ruby</a> by Jay Fields, Sean Harvie, Martin Fowler and Kent Beck. As I&rsquo;m heading into the last couple of months at gSchool, I want to clean up some of the code I wrote, and practice my refactoring skills. I&rsquo;ll be doing a series of articles detailing the strategies I learn. This is the first.</p>
+
+<p>Today I&rsquo;ll be talking about the &ldquo;Extract Method&rdquo; strategy. Here&rsquo;s how the book describes it:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>1. Create a new method, and name it after the intention of the method (name it by what it does, not by how it does it).
+</span><span class='line'>If the code you want to extract is very simple, such as a single message or function call, you should extract it if the name of the new method reveals the intention of the code in a better way. If you can’t come up with a more meaningful name, don’t extract the code.
+</span><span class='line'>
+</span><span class='line'>2. Copy the extracted code from the source method into the new target method.
+</span><span class='line'>
+</span><span class='line'>3. Scan the extracted code for references to any variables that are local in scope to the source method. These are local variables and parameters to the method.
+</span><span class='line'>
+</span><span class='line'>4. See whether any temporary variables are used only within this extracted code. If so, declare them in the target method as temporary variables.
+</span><span class='line'>
+</span><span class='line'>5. Look to see whether any of these local-scope variables are modified by the extracted code. If one variable is modified, see whether you can treat the extracted code as a query and assign the result to the variable con- cerned. If this is awkward, or if there is more than one such variable, you can’t extract the method as it stands. You may need to use Split Tempo- rary Variable and try again. You can eliminate temporary variables with Replace Temp with Query (see the discussion in the examples).
+</span><span class='line'>
+</span><span class='line'>6. Pass into the target method as parameters local-scope variables that are read from the extracted code.
+</span><span class='line'>
+</span><span class='line'>7. Replace the extracted code in the source method with a call to the target method.
+</span><span class='line'>If you moved any temporary variables over to the target method, look to see whether they were declared outside the extracted code. If so, you can now remove the declaration.
+</span><span class='line'>
+</span><span class='line'>8. Test.
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here&rsquo;s some code from a Sinatra app I wrote early on in gSchool, called <a href="http://ideabox-flux.herokuapp.com">IdeaBox</a>. For this project, we couldn&rsquo;t use ActiveRecord or DataMapper, but had to hand build an ORM.</p>
+
+<p> I selected these methods from my Finders module. They work together to search through a YAML file for records that match a search string. The <code>find_raw</code> method looked really long and complex, so I thought this would be a good place to do some refactoring.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Finders</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">downcase</span>
+</span><span class='line'>    <span class="n">find_raw</span><span class="p">({</span><span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;tags&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">})</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_raw</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">begin</span>
+</span><span class='line'>      <span class="n">found</span> <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>      <span class="n">query_hash</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">key</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">query_string</span> <span class="o">=</span> <span class="n">query_hash</span><span class="o">[</span><span class="n">key</span><span class="o">]</span>
+</span><span class='line'>        <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
+</span><span class='line'>          <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
+</span><span class='line'>            <span class="n">idea</span><span class="o">[</span><span class="n">key</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query_string</span><span class="p">)</span>
+</span><span class='line'>          <span class="k">end</span>
+</span><span class='line'>          <span class="n">found</span> <span class="o">&lt;&lt;</span> <span class="n">result</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>      <span class="n">found</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
+</span><span class='line'>        <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>      <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">rescue</span>
+</span><span class='line'>      <span class="o">[]</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>My first step was to check the tests for the method.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SearchingTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_it_can_search_for_ideas_with_title_description_or_tags</span>
+</span><span class='line'>    <span class="no">IdeaStore</span><span class="o">.</span><span class="n">create</span><span class="p">({</span>
+</span><span class='line'>      <span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;Recreation&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;Bicycles In The Park&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="s1">&#39;tags&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;bike&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="p">})</span>
+</span><span class='line'>    <span class="no">IdeaStore</span><span class="o">.</span><span class="n">create</span><span class="p">({</span>
+</span><span class='line'>      <span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;Sundays&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;In the park with George&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="s1">&#39;tags&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;gerschwin&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="p">})</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">2</span><span class="p">,</span> <span class="no">IdeaStore</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="s2">&quot;park&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">length</span>
+</span><span class='line'>    <span class="n">assert_kind_of</span> <span class="no">Idea</span><span class="p">,</span> <span class="no">IdeaStore</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="s2">&quot;Gerschwin&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To be thorough, I added a a couple of assertions, one to test the title field search, one for cases where there&rsquo;s nothing in the database, and one for a nil search.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">test_search_for_can_find_ideas_by_title_description_or_tags</span>
+</span><span class='line'>    <span class="no">IdeaStore</span><span class="o">.</span><span class="n">create</span><span class="p">({</span>
+</span><span class='line'>      <span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;Recreation&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;Bicycles In The Park&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="s1">&#39;tags&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;bike&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="p">})</span>
+</span><span class='line'>    <span class="no">IdeaStore</span><span class="o">.</span><span class="n">create</span><span class="p">({</span>
+</span><span class='line'>      <span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;Sundays&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;In the park with George&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="s1">&#39;tags&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;gerschwin&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="p">})</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">1</span><span class="p">,</span> <span class="no">IdeaStore</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="s2">&quot;Recreation&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">length</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">2</span><span class="p">,</span> <span class="no">IdeaStore</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="s2">&quot;park&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">length</span>
+</span><span class='line'>    <span class="n">assert_kind_of</span> <span class="no">Idea</span><span class="p">,</span> <span class="no">IdeaStore</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="s2">&quot;Gerschwin&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_search_for_doesnt_blow_up_on_nil</span>
+</span><span class='line'>    <span class="no">IdeaStore</span><span class="o">.</span><span class="n">create</span><span class="p">({})</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="o">[]</span><span class="p">,</span> <span class="no">IdeaStore</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="s2">&quot;anything&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="o">[]</span><span class="p">,</span> <span class="no">IdeaStore</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="kp">nil</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This last test broke on <code>undefined method</code>downcase&#8217; for nil`, so I updated the search_for method to protect against nil, and also return empty searched don&rsquo;t yield any results.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="o">[]</span> <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">to_s</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">downcase</span>
+</span><span class='line'>    <span class="n">find_raw</span><span class="p">({</span><span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;tags&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">})</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With tests in place to make sure that I wouldn&rsquo;t break any of the existing functionality, I began to make changes. My first step was to rename the find_raw method to find_yaml_data, reflecting its real intention. I then had to change the method call in <code>search_for</code>.</p>
+
+<p>Beginning the extraction, I created a new method called find_in_database_for_mutliple_queries (step 1) and pulled the code from find_yaml_data into it (step 2).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="o">[]</span> <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">to_s</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">downcase</span>
+</span><span class='line'>    <span class="n">find_yaml_data</span><span class="p">({</span><span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;tags&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">})</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_yaml_data</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">begin</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">found</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
+</span><span class='line'>        <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>      <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">rescue</span>
+</span><span class='line'>      <span class="o">[]</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_multiple_queries_in_database</span>
+</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>    <span class="n">query_hash</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">key</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">query_string</span> <span class="o">=</span> <span class="n">query_hash</span><span class="o">[</span><span class="n">key</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
+</span><span class='line'>          <span class="n">idea</span><span class="o">[</span><span class="n">key</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query_string</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>        <span class="n">found</span> <span class="o">&lt;&lt;</span> <span class="n">result</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">found</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In step 3, I looked at the original method and found that the result of the code now living in <code>find_multiple_queries_in_database</code> was being used on the next line:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="n">found</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
+</span><span class='line'>    <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>However, I didn&rsquo;t see any variables used only in the new code that needed to be moved over (step 4), because I&rsquo;d already moved <code>found = []</code>. I could therefore safely skip step 5, which helps deal with any such variables.</p>
+
+<p>Turning my attention to the new method, I identified the <code>query_hash</code> variable as a problem, because the new method didn&rsquo;t know about it. Step 6 has you turn local variables like these into parameters to the new method. Here, I decided to rename it from <code>query_hash</code> to <code>queries</code>, because the fact that it&rsquo;s a hash is an implementation detail.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>    <span class="n">queries</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">key</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">query_string</span> <span class="o">=</span> <span class="n">query_hash</span><span class="o">[</span><span class="n">key</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
+</span><span class='line'>          <span class="n">idea</span><span class="o">[</span><span class="n">key</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query_string</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>        <span class="n">found</span> <span class="o">&lt;&lt;</span> <span class="n">result</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">found</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, in step 7, I made a call to the new method from the body of the old, and assigned it to the local variable needed to pass it to the next line.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">find_yaml_data</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">begin</span>
+</span><span class='line'>      <span class="n">found</span> <span class="o">=</span> <span class="n">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">found</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
+</span><span class='line'>        <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>      <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">rescue</span>
+</span><span class='line'>      <span class="o">[]</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>At this point, I went ahead and ran the tests (step 8). They were failing, but I couldn&rsquo;t tell why because of the begin/end block. I decided to remove it. I wrote it when I was still pretty new to programming, and was afraid of nil.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">find_yaml_data</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="n">find_multiple_queries_in_database</span>
+</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
+</span><span class='line'>      <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Running the tests again, I could now see the error: <code>undefined local variable or method</code>query_hash&#8217;<code>. I saw that I had forgotten to rename the variable in the new method from</code>query_hash<code>to</code>queries`, so I fixed it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>    <span class="n">queries</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">key</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">query_string</span> <span class="o">=</span> <span class="n">queries</span><span class="o">[</span><span class="n">key</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
+</span><span class='line'>          <span class="n">idea</span><span class="o">[</span><span class="n">key</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query_string</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>        <span class="n">found</span> <span class="o">&lt;&lt;</span> <span class="n">result</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">found</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>All of the tests now passed. Looking at my code, I now had:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="o">[]</span> <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">to_s</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">downcase</span>
+</span><span class='line'>    <span class="n">find_yaml_data</span><span class="p">({</span><span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;tags&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">})</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_yaml_data</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="n">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
+</span><span class='line'>      <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>    <span class="n">queries</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">key</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">query_string</span> <span class="o">=</span> <span class="n">queries</span><span class="o">[</span><span class="n">key</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
+</span><span class='line'>          <span class="n">idea</span><span class="o">[</span><span class="n">key</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query_string</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>        <span class="n">found</span> <span class="o">&lt;&lt;</span> <span class="n">result</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">found</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I still wasn&rsquo;t happy with the complexity, so I decided to extract some more methods. I went after this bit in <code>find_yaml_data</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="n">found</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
+</span><span class='line'>    <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I extracted it, following the same process:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="c1"># Step 1: Create a new method</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">build_ideas_from_raw_data</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Step 2: Copy over the code</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">build_ideas_from_raw_data</span>
+</span><span class='line'>    <span class="n">found</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
+</span><span class='line'>      <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Step 3: Look for local variables in the source method</span>
+</span><span class='line'>  <span class="c1"># Here, there&#39;s one called &#39;found&#39;</span>
+</span><span class='line'>  <span class="n">found</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
+</span><span class='line'>    <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Step 4: Look for temporary variables in the extracted code.</span>
+</span><span class='line'>  <span class="c1"># There aren&#39;t any.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Step 5: If any temps are modified, replace them with queries.</span>
+</span><span class='line'>  <span class="c1"># Again, there aren&#39;t any.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Step 6: Pass locals into the new method as parameters.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">data</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">build_idea_from_data</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Step 7: Replace extracted code with a call to</span>
+</span><span class='line'>  <span class="c1"># the new method in the source method.</span>
+</span><span class='line'>  <span class="c1"># I also renamed the temp from &#39;found&#39; to &#39;ideas&#39; for clarity.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_yaml_data</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="n">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">ideas</span> <span class="o">=</span> <span class="n">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">ideas</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Step 8 is to test. All green! Taking another look at the whole thing, I now had this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>   <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span class='line'>     <span class="k">return</span> <span class="o">[]</span> <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">to_s</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>
+</span><span class='line'>     <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">downcase</span>
+</span><span class='line'>     <span class="n">find_yaml_data</span><span class="p">({</span><span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;tags&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">})</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">def</span> <span class="nf">find_yaml_data</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
+</span><span class='line'>     <span class="n">found</span> <span class="o">=</span> <span class="n">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
+</span><span class='line'>     <span class="n">ideas</span> <span class="o">=</span> <span class="n">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
+</span><span class='line'>     <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">ideas</span><span class="p">)</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">def</span> <span class="nf">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">data</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">build_idea_from_data</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">def</span> <span class="nf">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
+</span><span class='line'>     <span class="n">found</span> <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>     <span class="n">queries</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">key</span><span class="o">|</span>
+</span><span class='line'>       <span class="n">query_string</span> <span class="o">=</span> <span class="n">queries</span><span class="o">[</span><span class="n">key</span><span class="o">]</span>
+</span><span class='line'>       <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
+</span><span class='line'>         <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
+</span><span class='line'>           <span class="n">idea</span><span class="o">[</span><span class="n">key</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query_string</span><span class="p">)</span>
+</span><span class='line'>         <span class="k">end</span>
+</span><span class='line'>         <span class="n">found</span> <span class="o">&lt;&lt;</span> <span class="n">result</span>
+</span><span class='line'>       <span class="k">end</span>
+</span><span class='line'>     <span class="k">end</span>
+</span><span class='line'>     <span class="n">found</span>
+</span><span class='line'>   <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>My next thought was to clean up <code>find_multiple_queries_in_database</code>. I started by replacing the #each call with a #map instead. This let me remove all references to the <code>found</code> local variable, and cleaned the whole thing up considerably.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">queries</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">key</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">query_string</span> <span class="o">=</span> <span class="n">queries</span><span class="o">[</span><span class="n">key</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
+</span><span class='line'>          <span class="n">idea</span><span class="o">[</span><span class="n">key</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query_string</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Reflecting further, I saw that the hash I was creating in the <code>search_for</code> method was unneccesary, as all of the values were the same. I moved the keys out into an array, and adjusted the <code>find_yaml_data</code> method to accept a string rather than a hash.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="o">[]</span> <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">to_s</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">downcase</span>
+</span><span class='line'>    <span class="n">find_yaml_data</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">fields_to_search</span>
+</span><span class='line'>    <span class="o">[</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;tags&quot;</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_yaml_data</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="n">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">ideas</span> <span class="o">=</span> <span class="n">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">ideas</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Running the tests, this wasn&rsquo;t working, as the <code>find_multiple_queries_in_database</code> method still expected a hash. I changed it as well:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">find_mutliple_queries_in_database</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">fields_to_search</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">field</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">find_query_in_database</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I didn&rsquo;t like the name anymore, so I changed it to search_fields_for_query. This last refactoring was a sweeping change, and removing the hash cleaned up a lot of things. All of the tests were still green. The code now looked like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="o">[]</span> <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">to_s</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">downcase</span>
+</span><span class='line'>    <span class="n">find_yaml_data</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">fields_to_search</span>
+</span><span class='line'>    <span class="o">[</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;tags&quot;</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_yaml_data</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="n">search_fields_for_query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">ideas</span> <span class="o">=</span> <span class="n">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">ideas</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">data</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
+</span><span class='line'>      <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">search_fields_for_query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">fields_to_search</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">field</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
+</span><span class='line'>          <span class="n">idea</span><span class="o">[</span><span class="n">field</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">downcase</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I could see that <code>search_fields_for_query</code> still had another candidate for extraction, so I went ahead with it, following the same steps:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">search_fields_for_query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">fields_to_search</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">field</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">find_query_in_database</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_query_in_database</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">idea</span><span class="o">[</span><span class="n">field</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I then realized that I could push the #downcase call from <code>search_for</code> fown into the database query. This cleaned up the former nicely:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="o">[]</span> <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">to_s</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>    <span class="n">find_yaml_data</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_query_in_database</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">idea</span><span class="o">[</span><span class="n">field</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">downcase</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Since search_for was now just delegating to <code>find_yaml_data</code>, I deleted the latter and pulled its code into <code>search_for</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="o">[]</span> <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">to_s</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="n">search_fields_for_query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">ideas</span> <span class="o">=</span> <span class="n">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">ideas</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As a finishing touch, I pulled the transformation of raw data into an object out of <code>build_ideas_from_raw_data</code> and into a new method. This increased the lines of code, but I thought it was clearer, and the new method could potentially be reused elsewhere.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="c1"># Before</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">data</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
+</span><span class='line'>     <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># After</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">data</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">build_idea_from_data</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">build_idea_from_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>    <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>All tests still green. Here&rsquo;s the final result:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="o">[]</span> <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">to_s</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="n">search_fields_for_query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">ideas</span> <span class="o">=</span> <span class="n">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">ideas</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">search_fields_for_query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">fields_to_search</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">field</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">find_query_in_database</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">fields_to_search</span>
+</span><span class='line'>    <span class="o">[</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;tags&quot;</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_query_in_database</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">idea</span><span class="o">[</span><span class="n">field</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">downcase</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">data</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">build_idea_from_data</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">build_idea_from_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>    <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Ahh, much better. Thanks, Extract Method strategy!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-10T09:07:00-07:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2014/01/10/refactoring-1-extract-method/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2014/01/10/refactoring-1-extract-method/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/01/03/looking-ahead-to-the-last-two-months-of-gschool/" title="Previous Post: Looking Ahead to the Last Two Months of gSchool">&laquo; Looking Ahead to the Last Two Months of gSchool</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/01/17/refactoring-2-replace-method-with-method-object/" title="Next Post: Refactoring 2: Replace Method with Method Object">Refactoring 2: Replace Method with Method Object &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/09/04/looking-for-a-needle-in-a-haystack-with-ack/">Looking For A Needle In A Haystack! (or Using Ack To Improve Your Development Workflow)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/24/angular-js-unit-testing-for-real-though/">AngularJS Unit Testing, For Real Though</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/05/20/five-capybara-hacks-to-make-your-testing-experience-less-painful/">Five Capybara Hacks To Make Your Testing Experience Less Painful</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/14/service-oriented-architecture/">Service Oriented Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/31/building-a-binary-search/">Building a Binary Search</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

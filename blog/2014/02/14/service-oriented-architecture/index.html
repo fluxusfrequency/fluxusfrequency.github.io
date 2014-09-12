@@ -1,0 +1,485 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Service Oriented Architecture - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="We just finished up our penultimate project at gSchool, an application built using a Service Oriented Architecture (SOA). The project ideas were &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2014/02/14/service-oriented-architecture">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Service Oriented Architecture</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-14T06:40:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>We just finished up our penultimate project at gSchool, an application built using a Service Oriented Architecture (SOA). The project ideas were generated in small groups, and focused a the theme of health and wellness. Once the ideas were decided, our teacher Jeff Casimir generated a randomized list of the students, and we drafted projects.</p>
+
+<p>I went first, and selected an idea that was close to my heart: an app to help home vegetable gardeners plan out their beds for the season. Having spent several years as an organic farm worker, garden company owner, and home garden hobbyist, I was excited to use this app. Every spring, before the ground warms up, my partner and I sit down with a pencel and graph paper to plan out the different beds in my garden: what will go where, how it will be spaced, when it will be harvested, and what we&rsquo;ll plant there afterwards.</p>
+
+<p>I had big hopes for our project, dubbed <a href="http://plantingseason.tk">Planting Season</a> (<a href="https://github.com/VirginSoil">code</a>). A user would have several gardens, each with many beds. The app would keep track of her plans from month to month, and she would be able to click on a month to see what she&rsquo;d planned to plant there, which spots were empty, and which plants were ready for harvest. It would find her USDA Hardiness Zone and suggest plants well-suited to grow there. If there was impending frost, or a bed needed water, it would send her a text message, email, or a Google voice message.</p>
+
+<p>Ah, the dreams of the young and inexperienced&hellip;</p>
+
+<h2>Planting Season&rsquo;s Structure</h2>
+
+<p>Two of my group members had just completed <a href="https://github.com/foofoberry">FooFoBerry</a>, an SOA app that exposed and consumed APIs from various project management tools, such as GitHub, Travis, and Code Climate. With their experience setting up services, I figured that getting the project up and running would be a breeze. In practice, it was more challenging than I expected.</p>
+
+<p>I&rsquo;m a big fan of a &ldquo;lean startup&rdquo; / &ldquo;minimum viable product&rdquo; approach in my projects. I like to get a simple product up as fast as possible, then expand on it, adding value. Given that we had three weeks, we planned three iterations for Planting Season:</p>
+
+<p>Week 1 - Put up a landing page where users could enter their email to be notified when the app was ready.</p>
+
+<p>Week 2 - Change the landing page to allow users to sign up or sign in, then send them to a dashboard page, where they could add and remove plants from a single garden.</p>
+
+<p>Week 3 - Add functionality for multiple beds, text and email weather notifications, and a timeline for the garden through the year.</p>
+
+<p>With this functionality in mind, we decided to build the following services:</p>
+
+<ol>
+<li>Landing Page App</li>
+<li>User Authentication App</li>
+<li>Client-Facing Dashboard (&ldquo;Coordinator&rdquo;) App</li>
+<li>RESTful JSON API with Bed and Plant data</li>
+<li>A gem to facilitate communication between the Dashboard and the API</li>
+<li>External Services - Weather and Geolocation APIs</li>
+</ol>
+
+
+<p>Here&rsquo;s how the project ended up looking in the end:</p>
+
+<p><br /></p>
+
+<p><img class="center" src="http://s5.postimg.org/w893s8cuf/planting_season_graph.png" title="Planting Season Project Structure" alt="A web application diagram"></p>
+
+<h2>Project Management &amp; Workflow</h2>
+
+<p>Over the course of gSchool, I&rsquo;ve been learning a lot about the social aspect programming. I worked solo in my ealiest projects, then graduated to pairing, and later went on to work in groups of three or four. In the beginning, I was just doing my own thing, but as I started getting into the larger groups, project management became a key skill. I&rsquo;ve found myself in the role of Project Manager in many successive projects. The first couple of times were messy: I didn&rsquo;t make enough space for people to express how they were <em>feeling</em> at our standups, our iteration planning was nonexistent, and I didn&rsquo;t understand how to use Pivotal Tracker at all. As I learned from these experiences, I began to firmly value things like daily standups with technical <em>and</em> emotional checkins, persona and wireframing UX design, iteration planning, proper use of Pivotal Tracker, consistent version control practices, and continuous integration.</p>
+
+<p>We started Planting Season with the best of intentions, but this time around, it proved harder to practice these strategies than I hoped. At our checkins, it was clear that we were all feeling unfocused and pulled in different directions by job applications and interviews, burnout, and Jeff&rsquo;s absence after his wife gave birth to their latest addition to the family. We planned our iterations, but we didn&rsquo;t meet the first one because a couple of us were out of town or at interviews. Soon we fell behind. On top of that, Pivotal Tracker stopped letting us edit our stories, because our free trial was expired. The Travis CI specs wouldn&rsquo;t pass, because the specs couldn&rsquo;t talk to the API (more on this in a minute). Of all the agile practices we hoped to use, only the UX planning went well.</p>
+
+<h2>Nginx, Passenger, and VPS Woes</h2>
+
+<p>Our troubles were compounded by the difficulty of getting our services to talk to each other. Our plan was to run Foreman locally, booting our apps onto different ports on localhost, then use Nginx to route everything through different namespaced routes on port 8080. Getting Foreman up and running was easy enough, but Nginx was a bear to configure. Meanwhile, getting Phusion Passenger and Nginx to play nicely on our VPS was also a struggle. It turns out that you have to install Passenger first, then add Nginx as an extension to it. If you install Nginx first, you end up with two conflicting versions. Additionally, one of our team mates was having RVM issues, and had to reinstall Ruby and all of his gems twice.</p>
+
+<p>In the second week, we lost two solid days of of development time to the fight with the Nginx config file, Passenger, and RVM.</p>
+
+<p>For posterity&rsquo;s sake, here&rsquo;s a snapshot of the <code>nginx.conf</code> file that finally worked for local production:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>worker_processes  1<span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>error_log  logs/error.log<span class="p">;</span>
+</span><span class='line'><span class="c">#pid        logs/nginx.pid;</span>
+</span><span class='line'>
+</span><span class='line'>events <span class="o">{</span>
+</span><span class='line'>    worker_connections  1024<span class="p">;</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>http <span class="o">{</span>
+</span><span class='line'>    include       mime.types<span class="p">;</span>
+</span><span class='line'>    default_type  application/octet-stream<span class="p">;</span>
+</span><span class='line'>    <span class="c">#passenger_root /usr/local/opt/passenger/libexec/lib/phusion_passenger/locations.ini;</span>
+</span><span class='line'>    <span class="c">#passenger_ruby /usr/bin/ruby;</span>
+</span><span class='line'>
+</span><span class='line'>    server <span class="o">{</span>
+</span><span class='line'>        listen       8080<span class="p">;</span>
+</span><span class='line'>        server_name  localhost<span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># PLANTING SEASON</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># Landing Page</span>
+</span><span class='line'>        location / <span class="o">{</span>
+</span><span class='line'>          proxy_pass        http://127.0.0.1:3000<span class="p">;</span>
+</span><span class='line'>          proxy_set_header  X-Real-IP  <span class="nv">$remote_addr</span><span class="p">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># Auth</span>
+</span><span class='line'>        location /auth <span class="o">{</span>
+</span><span class='line'>          proxy_pass        http://127.0.0.1:3001<span class="p">;</span>
+</span><span class='line'>          proxy_set_header  X-Real-IP  <span class="nv">$remote_addr</span><span class="p">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># Coordinator</span>
+</span><span class='line'>        location /dashboard <span class="o">{</span>
+</span><span class='line'>          proxy_pass        http://127.0.0.1:3002<span class="p">;</span>
+</span><span class='line'>          proxy_set_header  X-Real-IP  <span class="nv">$remote_addr</span><span class="p">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># API</span>
+</span><span class='line'>        location /api <span class="o">{</span>
+</span><span class='line'>          proxy_pass        http://127.0.0.1:3003<span class="p">;</span>
+</span><span class='line'>          proxy_set_header  X-Real-IP  <span class="nv">$remote_addr</span><span class="p">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Testing Troubles</h2>
+
+<p>Once we had the services running on a single port, we figured everything would be gravy. We added the VCR gem to save the results of our API calls, and began testing. We covered the landing page, auth app, and our gem.</p>
+
+<p>Then I started to dig in on some Capybara tests for the coordinator app, and had some major headaches. In order to view the dashboard, I needed to set a signed cookie to simulate the authorization app. Easy enough. All you have to do is use:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">page</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">browser</span><span class="o">.</span><span class="n">set_cookie</span> <span class="s1">&#39;user_id=1&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That is, unless you&rsquo;re using Poltergeist for a JS driver. Then, you clearly use:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">page</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">set_cookie</span><span class="p">(</span><span class="s2">&quot;user_id&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But now, I had a different problem:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>Failure/Error: within <span class="s1">&#39;#bed-functions&#39;</span> <span class="k">do</span>
+</span><span class='line'>     Capybara::ElementNotFound:
+</span><span class='line'>       Unable to find css <span class="s2">&quot;#bed-functions&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Using the launchy gem and <code>save_and_open_page</code>, <code>#bed-functions</code> was there, all right. I could feel another configuration battle coming on as we headed into the third week.</p>
+
+<h2>Getting Back on the Horse</h2>
+
+<p>On Monday morning of the week the project was due, we had little to show for our two weeks of work. There were services, but they couldn&rsquo;t talk to each other on the server. There were mock-ups, but the CSS wasn&rsquo;t in the views yet. The tests were thin. We had a meeting with Jeff, and told him we planned to bolster the test coverage and solidify what we already had. His advice: &ldquo;that would be  a good idea if you had a thing, but right now you don&rsquo;t. You might want to make a thing first.&rdquo;</p>
+
+<p>So we saddled up, and the cowboy coding began.</p>
+
+<h2>jQuery Sparkle</h2>
+
+<p>The next two days were actually pretty fun, if a little painful (coding without tests makes me uncomfortable). We got the CSS hooked up, integrated with the weather service, and added a healthy dose of JavaScript to the dashboard. Although we would have liked to explore Ember.js, we decided to stick to plain old jQuery in the interest of time. We quickly coded 275 lines of jQuery sparkle, and we had a thing! If you&rsquo;re interested, go <a href="http://plantingseason.tk/">check out</a> what we made!</p>
+
+<p>My favorite part was adding the ability to click and drag on the garden bed squares for multi-selection. Here&rsquo;s what that looks like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">$</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nb">window</span><span class="p">.</span><span class="nx">isMouseDown</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;td&#39;</span><span class="p">).</span><span class="nx">mousedown</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span>
+</span><span class='line'>    <span class="nb">window</span><span class="p">.</span><span class="nx">isMouseDown</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">element</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">currentTarget</span><span class="p">);</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">thisClass</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">toggleSquare</span><span class="p">(</span><span class="nx">thisClass</span><span class="p">,</span> <span class="nx">element</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;td&#39;</span><span class="p">).</span><span class="nx">mouseenter</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">isMouseDown</span><span class="p">){</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">element</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">currentTarget</span><span class="p">);</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">thisClass</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">);</span>
+</span><span class='line'>      <span class="nx">toggleSquare</span><span class="p">(</span><span class="nx">thisClass</span><span class="p">,</span> <span class="nx">element</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">mouseup</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nb">window</span><span class="p">.</span><span class="nx">isMouseDown</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you want to see more of what we did with the JS, you can check out the <a href="https://github.com/VirginSoil/planting_season_coordinator/tree/master/app/assets/javascripts">code on GitHub</a>.</p>
+
+<h2>Conclusion</h2>
+
+<p>From the beginning of gSchool, the SOA project was one of the things I was looking forward to the most. Although Jeff said he thought that it was probably &ldquo;not a reasonable thing&rdquo; to start a project from the beginning with SOA, I set out with the highest of expectations. But the problems along the way were numerous.</p>
+
+<p>The job search was a distraction. But more troubling to me was the difficulty of testing. I&rsquo;ve gotten really comfortable with using Travis CI, and driving my development with Pivotal Tracker user stories translated into Capybara feature tests. It was really hard to do with services. Between setting up Passenger and Nginx and the testing troubles, we lost a <em>lot</em> of time on configuration.</p>
+
+<p>Reflecting on the experience, I&rsquo;d say that SOA is probably a practice better left until it is needed. If I were in charge building a new app for a startup, I would still start by iterate on delivering business value with successive MVPs. When I began to feel the pain of scaling, then I would think about splitting off services.</p>
+
+<p>However, it&rsquo;s possible that I&rsquo;ve only come to this conclusion because the process was so painful. There&rsquo;s another way of looking at this.</p>
+
+<p>Here&rsquo;s a lesson that I&rsquo;ve learned about programming again and again over the last six months:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">The</span> <span class="nx">first</span> <span class="nx">time</span> <span class="nx">you</span> <span class="k">do</span> <span class="nx">something</span> <span class="nx">it</span> <span class="nx">is</span> <span class="nx">hard</span> <span class="nx">and</span> <span class="nx">doesn</span><span class="err">&#39;</span><span class="nx">t</span> <span class="nx">make</span> <span class="nx">any</span> <span class="nx">sense</span><span class="p">.</span>
+</span><span class='line'><span class="nx">The</span> <span class="nx">second</span> <span class="nx">time</span> <span class="nx">you</span> <span class="k">do</span> <span class="nx">it</span><span class="p">,</span> <span class="nx">it</span> <span class="nx">seems</span> <span class="nx">vaguely</span> <span class="nx">familiar</span><span class="p">,</span> <span class="nx">and</span> <span class="nx">makes</span> <span class="nx">a</span> <span class="nx">little</span> <span class="nx">bit</span> <span class="nx">of</span> <span class="nx">sense</span><span class="p">.</span>
+</span><span class='line'><span class="nx">From</span> <span class="nx">then</span> <span class="nx">on</span><span class="p">,</span> <span class="nx">it</span> <span class="nx">makes</span> <span class="nx">sense</span> <span class="nx">and</span> <span class="nx">feels</span> <span class="nx">natural</span> <span class="nx">to</span> <span class="k">do</span> <span class="nx">it</span><span class="p">.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If this is true (which it seems to be for me), then it might actually make sense to build apps using services from the get go, if you expect them to have to scale down the road. I&rsquo;d love to nail down a workflow for getting Passenger, Foreman, and Nginx set up in less than 30 minutes. I&rsquo;d also like to learn how to better test services and get them set up with continuous integration. I think that if I understood these things, SOA would be a tool I&rsquo;d be a lot more likely to reach for.</p>
+
+<p>If you have any tips about these two aspects of services, let&rsquo;s talk! Tweet at me: @fluxusfrequency.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-14T06:40:00-07:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2014/02/14/service-oriented-architecture/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2014/02/14/service-oriented-architecture/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/01/31/building-a-binary-search/" title="Previous Post: Building a Binary Search">&laquo; Building a Binary Search</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/05/20/five-capybara-hacks-to-make-your-testing-experience-less-painful/" title="Next Post: Five Capybara Hacks To Make Your Testing Experience Less Painful">Five Capybara Hacks To Make Your Testing Experience Less Painful &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/09/04/looking-for-a-needle-in-a-haystack-with-ack/">Looking For A Needle In A Haystack! (or Using Ack To Improve Your Development Workflow)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/24/angular-js-unit-testing-for-real-though/">AngularJS Unit Testing, For Real Though</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/05/20/five-capybara-hacks-to-make-your-testing-experience-less-painful/">Five Capybara Hacks To Make Your Testing Experience Less Painful</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/14/service-oriented-architecture/">Service Oriented Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/31/building-a-binary-search/">Building a Binary Search</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

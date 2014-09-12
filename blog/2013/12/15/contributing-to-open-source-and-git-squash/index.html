@@ -1,0 +1,357 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Contributing to Open Source &amp; Git Squash - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="Open Source I&rsquo;ve been really interested in contributing to open source lately. In part, because it seems like a really good way to learn about &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2013/12/15/contributing-to-open-source-and-git-squash">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Contributing to Open Source &amp; Git Squash</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-15T21:01:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>Open Source</h2>
+
+<p>I&rsquo;ve been really interested in contributing to open source lately. In part, because it seems like a really good way to learn about the gems I use. Also, because I am on a campaign of giving right now in my life, and contributing is an easy way to do so in computer code (which is basically all I do/breathe/sleep right now).</p>
+
+<p>I started off with something small, a contribution to the <a href="http://emberjs.com/guides/">Ember.js guides</a>. I noticed that there was an inconsistency in one step of the tutorial: sometimes they called the everyProperty() method, and other times they called everyBy(). I corrected it to use everyProperty() throughout and submitted. Even though my pull request was not accepted, because the latter method was deprecated in favor of the former, it was a magical experience. The people working on Ember were talking to me! And I was helping them make Ember better! I was feeling into it.</p>
+
+<p>Over the next month or so, I submitted some other documentation pull requests. I had pull requests accepted to Sinatra, Express.js, and even Rails! After being scolded for not including &ldquo;[ci skip]&rdquo; in my commit message (to prevent the continuous integration build from running for a simple documentation fix), I got a tip in the form of less than 1% of a Bitcoin. This was getting exciting.</p>
+
+<p>Emboldened, I decided to try for something bigger. As I was reading Addy Osmani&rsquo;s <a href="http://addyosmani.github.io/backbone-fundamentals/">Developing Backbone.js Applications</a>, I noticed that a portion of the chapter on Marionette was not working. I dug into the source code for the book and for the Marionette example, and discovered they didn&rsquo;t match. I updated the book and submitted a pull request. Several days later, it was merged. I contributed to a book! Cool!</p>
+
+<p>About this time, I saw that one of my classmates&#8217; mentors, Austen Ito, was doing the <a href="http://24pullrequests.com/">24 Pull Requests</a> challenge, submitting a pull request every day in December up until Christmas. I decided to jump on board.</p>
+
+<p>In my pursuit of Rails Ninja status, I&rsquo;d been working on learning how to use engines. Ryan Bigg&rsquo;s <a href="https://leanpub.com/multi-tenancy-rails">Multitenancy with Rails</a> and José Valim&rsquo;s <a href="http://pragprog.com/book/jvrails2/crafting-rails-4-applications">Crafting Rails 4 Applications</a> got me off to a good start. An excellent start, actually. I decided to go further with my favorite source for Rails research, <a href="http://guides.rubyonrails.org">The Rails Guides</a>. I was disappointed to find that the engine guide was pretty hard to read, mostly due to a lot of run-on sentences. I decided to edit the whole thing as I went.</p>
+
+<h2>Git Squash</h2>
+
+<p>Things weren&rsquo;t as easy with this pull request. As I went through and made spelling and grammar fixes, I also removed some word wrapping. I submitted the pull request. The Rails contributors on Github were very nice, but were hoping I could change about seven things. I did, and submitted a new commit. Then they asked me to fix the wrapping in a separate commit, so I did that. Now I was up to four commits, when I should really only have two.</p>
+
+<p>How did that git squashing thing work again?</p>
+
+<p>I could have created a new branch, cherry-picked my commits, and submitted a new pull request. But I was feeling stubborn, and wanted to figure out squashing. I asked many of my friends and teachers. We tried <code>git rebase -i</code>, like all of the articles we found online suggested, but it wasn&rsquo;t working. I&rsquo;d either end up with the same commits, or lost in some kind of detached head rebasing state that I couldn&rsquo;t resolve. <a href="http://www.ndpsoftware.com/git-cheatsheet.html">My favorite guide to git</a> was no help. Even <code>git reflog</code> wasn&rsquo;t pointing the way out.</p>
+
+<p>In the end, Katrina Owen came to the rescue (via email, from home). Here was my message to her:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>Hey Katrina,
+</span><span class='line'>
+</span><span class='line'>Thanks for helping. I was trying to use git rebase -i for this, but not getting the results I wanted.
+</span><span class='line'>
+</span><span class='line'>I'm contributing edits to the rails guide for engines. I was asked to revise my original commit, then squash it. I was also asked to send a separate commit with word wrapping.
+</span><span class='line'>
+</span><span class='line'>Here's the history of the branch I'm working on:
+</span><span class='line'>
+</span><span class='line'>* 0cdcf46 2013-12-11 | Word wrap to engines guide \[ci skip] (HEAD, patch-4) [Ben Lewis]
+</span><span class='line'>* 492ac2a 2013-12-11 | Revision to guide edits (origin/patch-4) [Ben Lewis]
+</span><span class='line'>* b55a803 2013-12-04 | Clarification, grammar fixes, punctuation, and capitalization \[ci skip] [Ben Lewis]
+</span><span class='line'>* 49ed8a1 2013-12-04 | Run Travis tests using Ruby 2.1.0-preview2 too [Santiago Pastorino]
+</span><span class='line'>
+</span><span class='line'>I need to squash them so that I only have 0cdcf46 and 492ac2a (although I would like to take the message from b55a803). Here's what I want to see:
+</span><span class='line'>
+</span><span class='line'>* 0cdcf46 2013-12-11 | Word wrap to engines guide \[ci skip] (HEAD, patch-4) [Ben Lewis]
+</span><span class='line'>* 492ac2a 2013-12-11 | Clarification, grammar fixes, punctuation, and capitalization \[ci skip] [Ben Lewis]
+</span><span class='line'>* 49ed8a1 2013-12-04 | Run Travis tests using Ruby 2.1.0-preview2 too [Santiago Pastorino]
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>What should I do?
+</span><span class='line'>
+</span><span class='line'>Thanks!
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here&rsquo;s what she replied:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>A separate commit, or a separate pull request?
+</span><span class='line'>
+</span><span class='line'>If it's a separate pull request, here's how I'd do it:
+</span><span class='line'>
+</span><span class='line'>Create a separate branch from the most recent upstream master,
+</span><span class='line'>and then do:
+</span><span class='line'>
+</span><span class='line'>   git cherry-pick 0cdcf46
+</span><span class='line'>
+</span><span class='line'>Then you can submit that branch as a separate pull request.
+</span><span class='line'>
+</span><span class='line'>On your branch that you've been working on, you could get rid
+</span><span class='line'>of the most recent commit with
+</span><span class='line'>
+</span><span class='line'>   git reset --hard HEAD~1
+</span><span class='line'>
+</span><span class='line'>Then you can rebase -i with:
+</span><span class='line'>
+</span><span class='line'>   git rebase -i HEAD~4 # or something
+</span><span class='line'>
+</span><span class='line'>Next to the second commit that you want to squash into the first commit,
+</span><span class='line'>replace 'pick' with 'squash'.
+</span><span class='line'>
+</span><span class='line'>Then write and quit, and it will re-open a new editor and ask you to fix
+</span><span class='line'>the message. It will give you both of the previous ones, and you can
+</span><span class='line'>pick one or the other or write a whole new message.
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It was an easy fix: just use the HEAD~X for the number of commits you want to work with. Worked like a charm! I was able to squash the commits just as I wanted, and resubmit them. Next up, I had to remove the wrapping changes from the first commit (b55a803). This was a good chance to practice squashing again. This time around, I did end up using some cherry-picking magic from a separate branch, but I was still able to squash my commits. Success!</p>
+
+<p>It&rsquo;s crazy how hard it has been to get used to git. Probably, a lot of the overwhelm comes from <a href="https://www.codefellows.org/blogs/this-is-why-learning-rails-is-hard">all of the other things</a> I have been learning at the same time. Anyway, now I know how to squash.</p>
+
+<h2>Moving Forward</h2>
+
+<p>I&rsquo;m really interested in contributing some actual code to projects. I&rsquo;ve been looking around at the issues on Rails, Sorcery, Mechanize, and other popular gems, but I often find that they&rsquo;re way over my head. I was able to fix a small todo in the <a href="http://www.exercism.io">Exercism</a> source code, but beyond that, I&rsquo;m pretty much lost. If anyone reading this has any good leads for something that an advanced beginner can do (somewhere between documentation edits and http response parsing level insanity) please hit me up on Twitter!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-15T21:01:00-07:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2013/12/15/contributing-to-open-source-and-git-squash/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2013/12/15/contributing-to-open-source-and-git-squash/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/12/06/multitenancy-and-legacy-code/" title="Previous Post: Multitenancy and Legacy Code">&laquo; Multitenancy and Legacy Code</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/12/30/how-to-find-big-directories-in-os-x-darwin-linux/" title="Next Post: How To Find Big Directories in OS X (Darwin Linux)">How To Find Big Directories in OS X (Darwin Linux) &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/09/04/looking-for-a-needle-in-a-haystack-with-ack/">Looking For A Needle In A Haystack! (or Using Ack To Improve Your Development Workflow)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/24/angular-js-unit-testing-for-real-though/">AngularJS Unit Testing, For Real Though</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/05/20/five-capybara-hacks-to-make-your-testing-experience-less-painful/">Five Capybara Hacks To Make Your Testing Experience Less Painful</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/14/service-oriented-architecture/">Service Oriented Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/31/building-a-binary-search/">Building a Binary Search</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
