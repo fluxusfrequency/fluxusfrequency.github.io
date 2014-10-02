@@ -4,7 +4,7 @@
   <title><![CDATA[Fluxus Frequency]]></title>
   <link href="http://fluxusfrequency.github.io/atom.xml" rel="self"/>
   <link href="http://fluxusfrequency.github.io/"/>
-  <updated>2014-09-12T06:45:49-06:00</updated>
+  <updated>2014-10-02T08:42:36-06:00</updated>
   <id>http://fluxusfrequency.github.io/</id>
   <author>
     <name><![CDATA[Ben Lewis]]></name>
@@ -12,6 +12,42 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    
+    <title type="html"><![CDATA[Wrapping Your API In A Custom Ruby Gem]]></title>
+    <link href="http://fluxusfrequency.github.io/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/"/>
+    
+    <updated>2014-10-02T07:03:19-06:00</updated>
+    <id>http://fluxusfrequency.github.io/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem</id>
+    
+    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2014/wrapping-your-api-in-a-ruby-gem">Engine Yard</a>.</p>
+
+<p>In the modern web, API-based projects are becoming the norm. Why? For one thing, APIs are necessary to serve Single Page Applications, which are all the rage right now. From a business standpoint, APIs give companies a new way to charge others for access to their data. If you are part of a company that offers such a service, a great way to generate interest in your API is to offer a Ruby gem that makes fetching and consuming your data easy for Ruby developers.</p>
+
+<p><a href="https://blog.engineyard.com/2014/wrapping-your-api-in-a-ruby-gem">Read more</a></p>
+]]></content>
+    
+  </entry>
+  
+  <entry>
+    
+    <title type="html"><![CDATA[Using Services to Keep Your Rails Controllers Clean and DRY]]></title>
+    <link href="http://fluxusfrequency.github.io/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/"/>
+    
+    <updated>2014-09-25T07:02:57-06:00</updated>
+    <id>http://fluxusfrequency.github.io/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry</id>
+    
+    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2014/keeping-your-rails-controllers-dry-with-services">Engine Yard</a>.</p>
+
+<p>It also appeared in <a href="http://rubyweekly.com/issues/214">Ruby Weekly</a>.</p>
+
+<p>We&rsquo;ve heard it again and again, like a nagging schoolmaster: keep your Rails controllers skinny. Yeah, yeah, we know. But easier said than done, sometimes. Things get complex. We need to talk to some other parts of our codebase or to external APIs to get the job done. Mailers. Stripe. External APIs. All that code starts to add up.</p>
+
+<p><a href="https://blog.engineyard.com/2014/keeping-your-rails-controllers-dry-with-services">Read more</a></p>
+]]></content>
+    
+  </entry>
   
   <entry>
     
@@ -41,6 +77,8 @@
     <id>http://fluxusfrequency.github.io/blog/2014/07/24/angular-js-unit-testing-for-real-though</id>
     
     <content type="html"><![CDATA[<p>This post originally appeared on the <a href="http://quickleft.com/blog/angularjs-unit-testing-for-real-though">Quick Left Blog</a>.</p>
+
+<p>It also appeared as a featured article in <a href="http://javascriptweekly.com/issues/192">JavaScript Weekly</a>.</p>
 
 <p>When it comes to contemporary web development, AngularJS is the new hotness. Its unique approach to HTML compilation and two-way data binding make it an effective tool for efficiently building client-side web apps. But when it comes to the testing, many tutorials on the interwebs hand-wave testing. This article covers some of the &ldquo;gotchas&rdquo; you&rsquo;ll come across when trying to test Angular. Let&rsquo;s build our chops, so we can get into a &ldquo;Red-Green-Refactor&rdquo; flow when testing Angular.</p>
 
@@ -5728,253 +5766,6 @@ Calling typeof on it will return &lsquo;object&rsquo;. It is best to test for nu
 <li>sin()</li>
 <li>sort()</li>
 <li>tan()</li>
-</ul>
-
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[Getting Started With Rails]]></title>
-    <link href="http://fluxusfrequency.github.io/blog/2013/11/08/getting-started-with-rails/"/>
-    
-    <updated>2013-11-08T10:15:00-07:00</updated>
-    <id>http://fluxusfrequency.github.io/blog/2013/11/08/getting-started-with-rails</id>
-    
-    <content type="html"><![CDATA[<p>This week at gSchool, we&rsquo;re digging into our first major Rails project, <a href="http://tutorials.jumpstartlab.com/projects/dinner_dash.html">Dinner Dash</a>. It&rsquo;s been a challenging transition.</p>
-
-<h2>Rails Challenges</h2>
-
-<p>Although I know some Ruby, and I know how to drive development with tests, using Rails is a whole new ball game. There are so many new words! From ActiveRecord associations, to &ldquo;form_for&rdquo; and &ldquo;button_to&rdquo;, to strong params, there&rsquo;s a huge library of methods I don&rsquo;t know.</p>
-
-<p>One particularly difficult challenge for me this week was figuring out how to properly use &ldquo;form_for&rdquo;. I was having a little trouble with forms and HTTP routes. I know how to write an update form like this in HTML:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">&quot;/ideas&quot;</span> <span class="na">method=</span><span class="s">&#39;POST&#39;</span><span class="nt">&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&#39;text&#39;</span> <span class="na">name=</span><span class="s">&#39;idea[title]&#39;</span> <span class="na">placeholder=</span><span class="s">&quot;Title&quot;</span> <span class="na">value=</span><span class="s">&quot;title&quot;</span><span class="nt">&gt;&lt;input/&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;_method&quot;</span> <span class="na">value=</span><span class="s">&quot;PUT&quot;</span><span class="nt">&gt;&lt;input/&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&#39;submit&#39;</span> <span class="na">value=</span><span class="s">&#39;Submit&#39;</span><span class="nt">&gt;&lt;input/&gt;</span>
-</span><span class='line'><span class="nt">&lt;/form&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>But I was having a lot of trouble submitting PUT and DELETE verbs with &ldquo;form_for&rdquo; in Rails.</p>
-
-<p>I was trying to create a form with some code like this, but it wasn&rsquo;t really working out:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='erb'><span class='line'><span class="cp">&lt;%=</span> <span class="n">form_for</span> <span class="ss">:idea</span><span class="p">,</span> <span class="p">(</span><span class="ss">action</span><span class="p">:</span> <span class="ss">:put</span><span class="p">)</span><span class="sc">??</span> <span class="k">do</span> <span class="o">|</span><span class="n">f</span><span class="o">|</span> <span class="cp">%&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x">  &lt;p&gt;</span>
-</span><span class='line'><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">f</span><span class="o">.</span><span class="n">label</span> <span class="ss">:title</span> <span class="cp">%&gt;</span><span class="x">&lt;br&gt;</span>
-</span><span class='line'><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">f</span><span class="o">.</span><span class="n">text_field</span> <span class="ss">:title</span> <span class="cp">%&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x">  &lt;/p&gt;</span>
-</span><span class='line'><span class="x">  &lt;p&gt;</span>
-</span><span class='line'><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">f</span><span class="o">.</span><span class="n">submit</span> <span class="cp">%&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x">  &lt;/p&gt;</span>
-</span><span class='line'><span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span><span class="x"></span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Franklin eventually straigtened us out with a different approach, which he described as the &ldquo;Rails-y way&rdquo; to do it:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='erb'><span class='line'><span class="cp">&lt;%=</span> <span class="n">link_to</span> <span class="s2">&quot;Title&quot;</span><span class="p">,</span> <span class="n">ideas_path</span><span class="p">,</span> <span class="nb">method</span><span class="p">:</span> <span class="ss">:put</span> <span class="cp">%&gt;</span><span class="x"></span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I assume there will be many more &ldquo;Rails-y&rdquo; idioms to learn in my near future.</p>
-
-<h2>Organizing Our Workgroup</h2>
-
-<p>My group for this project is comprised of four people: myself, Bree, Nikhil, and Tyler. So far, we&rsquo;ve been working really well together. We&rsquo;re using <a href="https://www.pivotaltracker.com">Pivotal Tracker</a> and <a href="https://campfirenow.com/">Campfire</a> (this is my first time for both) to drive our development and communication. I&rsquo;ve found it hard to get used to Pivotal Tracker. Although I enjoyed learning how to write epics and stories in <a href="https://github.com/cucumber/cucumber/wiki/Gherkin">Gherkin</a>, I&rsquo;m used to thinking through problems one step at a time in coding. Having to go back to the website and refer to what&rsquo;s in the &lsquo;Current&rsquo; or &lsquo;Icebox&rsquo; list interrupts my flow.</p>
-
-<p>I&rsquo;m also not yet at the point of driving everything with <a href="https://github.com/jnicklas/capybara">Capybara</a>. Although we&rsquo;re testing our models before we implement them, we aren&rsquo;t doing any integration tests in advance. Maybe if we were to transform our Gherkin stories into Cucumber, it would be an easy transition. I&rsquo;m a little shy, though, since it always takes a while to get to know a new testing framework.</p>
-
-<p>Here&rsquo;s one testing success, though: we&rsquo;ve integrated <a href="https://github.com/guard/guard">Guard</a> into our workflow. This is the first time any of us have used it successfully.</p>
-
-<p>I&rsquo;m also trying to itegrate some of the lessons learned from <a href="http://www.therailsview.com/">The Rails View</a>, which I&rsquo;m currently reading. In this project, I&rsquo;m trying to take on a lot of responsibility for the view layer, because I don&rsquo;t feel strong in design and would like to get better. Here&rsquo;s our current view, four days in. Unfortunately, it&rsquo;s mostly Bootstrap. I&rsquo;m planning to shine it up a bit this weekend.</p>
-
-<p><img src="http://s5.postimg.org/8g4kan24n/Ono_Burrito_Beta_Site.png" title="Ono Burrito" alt="Screenshot of a website in development"></p>
-
-<h2>Coming Back to Rails</h2>
-
-<p>Before gSchool, I did a few Rails tutorials online. Coming back to it now, after all the work we&rsquo;ve done with Ruby, hand-built model associations, and SQL, I feel very positive. I may not know what I&rsquo;m doing yet, but it&rsquo;s a lot easier to figure things out, now that I have a context for them. Categorizing confusing bits of code into categories comes much more quickly now. SQL, database tables, models, controllers, views, templates, Ruby expressions, Rails helpers&hellip;these ideas have a lot more meaning than they did before. This means I&rsquo;m able to bounce back from confusion much more quickly.</p>
-
-<h2>Moving Forward</h2>
-
-<p>I&rsquo;m excited to get up to speed in Rails. Our group was able to build out a complete restauarant site, with basic users and ordering functionality, all in the course of a few days. No wonder they say it&rsquo;s easy to get up and running quickly with Rails!</p>
-
-<p>I&rsquo;ve also been working with my mentor (the most awesome Mike Pack) on building a basic API in Rails, as a service for a Backbone.js app on the front end. It will eventually be an online recipe book, with Facebook and Instagram integration. I&rsquo;m really excited to continue working on it.</p>
-
-<h2>Wrapping Up</h2>
-
-<p>I&rsquo;m feeling a little bit intimidated by Rails at the moment, because there&rsquo;s so much to learn. But I&rsquo;m not worried: I relish the challenge of learning how to use a new tool, which is one of the reasons I got into programming in the first place. Plus, there are so many quality resources out there for learning Rails, I&rsquo;m sure I&rsquo;ll be up to speed in no time.</p>
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[RESTful Architecture]]></title>
-    <link href="http://fluxusfrequency.github.io/blog/2013/11/06/restful-archicture/"/>
-    
-    <updated>2013-11-06T06:11:00-07:00</updated>
-    <id>http://fluxusfrequency.github.io/blog/2013/11/06/restful-archicture</id>
-    
-    <content type="html"><![CDATA[<p>The gSchool students began our first big Rails project this week. We&rsquo;re building a restaurant site with online ordering. The project is called <a href="http://tutorials.jumpstartlab.com/projects/dinner_dash.html">Dinner Dash</a>.</p>
-
-<p>In support of learning Rails, Jeff gave a talk on how RESTful Archecture should look in a Rails application. Here are my notes on what he said. I broke it down into CRUD (Create, Read, Update, Destroy) operations.</p>
-
-<p>I&rsquo;ve shown the HTTP request verbs and routes and the controller methods that match them. It should be noted that GET will display request params in its URL, while POST requests will carry request params hidden in the body of the HTTP request.</p>
-
-<p>For the examples, I used &lsquo;articles&rsquo; as a resource. For single records, I referred to an article with an id of 1, although many different ids would actually exist. I also assumed that strong params are defined in a method called &lsquo;article_params&rsquo; in the Articles Controller. These patterns came from the Jumpstart Lab <a href="tutorials.jumpstartlab.com/projects/blogger.html">Blogger Tutorial</a>.</p>
-
-<p><br/></p>
-
-<h2>Setting Up The Router</h2>
-
-<p>In config/routes.rb:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">resources</span> <span class="ss">:articles</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><br/></p>
-
-<h2>Create</h2>
-
-<h3>Creating A Single Record</h3>
-
-<ul>
-<li>GET &lsquo;/articles/new&rsquo; (displays the new article form)</li>
-<li>POST &lsquo;/articles/new&rsquo;</li>
-</ul>
-
-
-<p>In app/controllers/articles_controller.rb:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">create</span>
-</span><span class='line'>  <span class="vi">@article</span> <span class="o">=</span> <span class="no">Article</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">article_params</span><span class="p">)</span>
-</span><span class='line'>  <span class="vi">@article</span><span class="o">.</span><span class="n">save</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><br /></p>
-
-<h2>Read</h2>
-
-<h3>Reading Multiple Records</h3>
-
-<ul>
-<li>GET &lsquo;/articles&rsquo;</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">index</span>
-</span><span class='line'>  <span class="vi">@articles</span> <span class="o">=</span> <span class="no">Article</span><span class="o">.</span><span class="n">all</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Reading A Single Record</h3>
-
-<ul>
-<li>GET &lsquo;/articles/1&rsquo;</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">show</span>
-</span><span class='line'>  <span class="vi">@article</span> <span class="o">=</span> <span class="no">Article</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:id</span><span class="o">]</span><span class="p">)</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><br /></p>
-
-<h2>Update</h2>
-
-<h3>Updating A Single Record</h3>
-
-<ul>
-<li>GET &lsquo;/articles/1/edit&rsquo; (displays the edit form)</li>
-<li>PUT &lsquo;/articles/1&rsquo;</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">update</span>
-</span><span class='line'>  <span class="vi">@article</span> <span class="o">=</span> <span class="no">Article</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:id</span><span class="o">]</span><span class="p">)</span>
-</span><span class='line'>  <span class="vi">@article</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">article_params</span><span class="p">)</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><br /></p>
-
-<h2>Destroy</h2>
-
-<h3>Deleting A Single Record</h3>
-
-<ul>
-<li>DELETE &lsquo;/articles/1&rsquo;</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">destroy</span>
-</span><span class='line'>  <span class="vi">@article</span> <span class="o">=</span> <span class="no">Article</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:id</span><span class="o">]</span><span class="p">)</span>
-</span><span class='line'>  <span class="vi">@article</span><span class="o">.</span><span class="n">destroy</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><br/></p>
-
-<h2>Search</h2>
-
-<h3>Searching With A Filter</h3>
-
-<ul>
-<li>GET &lsquo;/articles?author_id=6&rsquo;</li>
-</ul>
-
-
-<h3>Saved Searches</h3>
-
-<ul>
-<li>POST &lsquo;/searches&rsquo; (creates the search)</li>
-<li>GET &lsquo;/searches/12&rsquo; (accesses the saved search)</li>
 </ul>
 
 ]]></content>

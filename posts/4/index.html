@@ -9,7 +9,7 @@
   <meta name="author" content="Ben Lewis">
 
   
-  <meta name="description" content="This week, my classmates and I attended our first Ruby conference. On Thursday and Friday, we headed up to Boulder for Rocky Mountain Ruby (RMR). I &hellip;">
+  <meta name="description" content="We&rsquo;ve spent the last week and a half at gSchool working on the next hardest thing to EventReporter (from week two): SalesEngine. The Code and &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,401 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/04/sales-engine-retrospective/">Sales Engine Retrospective</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-04T09:08:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>We&rsquo;ve spent the last week and a half at gSchool working on the next hardest thing to EventReporter (from week two): <a href="http://tutorials.jumpstartlab.com/projects/sales_engine.html">SalesEngine</a>.</p>
+
+<h2>The Code and The Problem</h2>
+
+<p>This project built on our skills of creating collections of objects, and building classes that inherit multiple attributes from CSV rows. This time, instead of one class, we had six: Customers, Invoices, InvoiceItems, Items, Merchants, and Transactions. Using six corresponding CSV files, we had to build basic class definitions for each and repositories to hold data about the collections found in the CSV files.</p>
+
+<p>It was easy enough to stitch those together in a basic way, but the real challenge was finding ways to implement the &ldquo;business intelligence&rdquo; parts of the assignment. In these places, classes had to reach across many other classes to access data. It was very difficult to make this work correctly. Jeff told us there was really no good solution to the problem using pure Ruby. You either have to create a database class that ends up being a global variable, or pass information between many classes, creating high coupling. I assume that we&rsquo;re being asked to feel this pain so we will be very thankful when we&rsquo;re finally introduced to databases and/or ActiveRecord. I was really hurting for an SQL INNER JOIN.</p>
+
+<p>Here&rsquo;s an example of one of the problems we faced:</p>
+
+<p>The ItemRepository needs to have a method called most_revenue(x) that returns the top x Item instances ranked by total revenue generated. But the Item itself doesn&rsquo;t have an attribute for revenue. You have to access that through the InvoiceItem class, which must be accessed via an Invoice. Therefore, for the ItemRepository to find out the Item with the most revenue, it has to talk to the Invoice, which can then find the InvoiceItems.</p>
+
+<p>Reaching across classes like this is very difficult, and the process of figuring it out was a good lesson in following the <a href="http://devblog.avdi.org/2011/07/05/demeter-its-not-just-a-good-idea-its-the-law/">Law of Demeter</a>.</p>
+
+<p>It was really tempting to write code like this:</p>
+
+<figure class='code'><figcaption><span>ItemRepository#most_revenue(x) - Bad Implementation</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SalesEngine</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">ItemRepository</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># some code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">most_revenue</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">sum</span> <span class="o">=</span> <span class="no">BigDecimal</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">item</span><span class="o">.</span><span class="n">invoice</span><span class="o">.</span><span class="n">invoice_items</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">invoice_item</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">sum</span> <span class="o">+=</span> <span class="no">BigDecimal</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">invoice_item</span><span class="o">.</span><span class="n">total</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">result</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">sort</span><span class="o">.</span><span class="n">reverse</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># some more code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The problem with this code is that it has to iterate through all of the Items (there are 2,484 of them), and iterate through each of their Invoices, then each Invoice&rsquo;s InvoiceItems, totalling each one, to get the result. A better solution is to leave the lookups to each class, never going more than one level deep to get information. It also helps to use the Enumerable#group_by to store the total for each item in a hash for a faster lookup. Here&rsquo;s what that looks like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="p">{</span><span class="mi">5243</span> <span class="o">=&gt;</span> <span class="c1">#&lt;Merchant 1&gt;, 1523 =&gt; #&lt;Merchant 2&gt;, etc...}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can then easily lookup the Merchant with the greatest revenue.
+Here was my eventual solution to this problem, using #group_by:</p>
+
+<figure class='code'><figcaption><span>ItemRepository#most_revenue(x) - Better Implementation</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SalesEngine</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">ItemRepository</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># some code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">most_revenue</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">sorted_totals</span> <span class="o">=</span> <span class="n">items_grouped_by_revenue</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">sort</span><span class="o">.</span><span class="n">reverse</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">most_revenue</span> <span class="o">=</span> <span class="n">sorted_totals</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">total</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">items_grouped_by_revenue</span><span class="o">[</span><span class="n">total</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">most_revenue</span><span class="o">.</span><span class="n">flatten</span><span class="o">[</span><span class="mi">0</span><span class="p">,</span><span class="n">x</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">items_grouped_by_revenue</span>
+</span><span class='line'>    <span class="n">items</span><span class="o">.</span><span class="n">group_by</span> <span class="p">{</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span> <span class="n">item</span><span class="o">.</span><span class="n">revenue</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># some more code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">SalesEngine</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">Item</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># some code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">revenue</span>
+</span><span class='line'>    <span class="n">total_up</span><span class="p">(</span><span class="n">successful_invoice_items</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">total_up</span><span class="p">(</span><span class="n">invoice_items</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">sum</span> <span class="o">=</span> <span class="n">invoice_items</span><span class="o">.</span><span class="n">collect</span> <span class="p">{</span> <span class="o">|</span><span class="n">invoice_item</span><span class="o">|</span> <span class="n">invoice_item</span><span class="o">.</span><span class="n">total</span> <span class="p">}</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="ss">:+</span><span class="p">)</span>
+</span><span class='line'>    <span class="no">BigDecimal</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">sum</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># some code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Pairing</h2>
+
+<p>SalesEngine was meant to be a pairing project. I started off pairing with my classmate Louisa Barrett. Things started off well. We created a skeleton of the project, then split up the work of building the basic classes. We did the same with the tests, the repositories and the repository tests. But when it came time to implement searching and business intelligence methods, Louisa started having trouble. She said she &ldquo;hit a wall&rdquo;. At this point, she paired with another classmate who was feeling the same way, and I went on by myself.</p>
+
+<p>I think the difference between us was that she is a novice and I&rsquo;m an advanced beginner, labels from Andy Hunt’s <a href="http://pragprog.com/book/ahptl/pragmatic-thinking-and-learning">Pragmatic Thinking &amp; Learning</a>. Our teacher, Katrina Owen, recently explored how these levels of learning are playing out at gSchool on the <a href="http://jumpstartlab.com/news/archives/2013/10/03/pragmatic-learning-at-gschool-part-i">Jumpstart Lab blog</a>.</p>
+
+<p>I don&rsquo;t mind working alone. I do well with challenges on my own. It&rsquo;s also easier when you don&rsquo;t have to compromise your ideas of what should come next. But sometimes, I did feel a little jealous of some of my advanced beginner classmates that were paired together. It looked like they were learning a lot from each other. Hopefully, I&rsquo;ll get to pair with someone on the next project.</p>
+
+<h2>The Rebuild</h2>
+
+<p>The day before the project was due, I was starting to hit a wall. I&rsquo;d finished implementing all the features, so I ran the spec harness. There were over thirty failures. Franklin looked at my code and rewrote huge chunks of it. I started to lose confidence in my archtecture.</p>
+
+<p>At 6:00 the night before it was due, I decided to tear it down and rebuild. It actually went pretty quickly, now that I knew what everything would look like. I built up all the classes and repos again. I recreated the SalesEngine class and the Database. I was practicing TDD with MiniTest all the way. I ran the spec with the business intelligence tests commented out. Everything passed, except a few places where I had typos. I fixed them, and everything in my tests and the spec was green.</p>
+
+<p>My next step was to take all of the specs for business intelligence, and rewrite them as an integration test in Minitest. I rewrote all the tests and skipped them, then started passing them one at a time. But there was a problem. It was running <em>really</em> slow, because it was loading up all six CSV files before each test (in the setup method). I wanted a way to do &ldquo;before all&rdquo; like you can in Rspec, but was having trouble finding it. Finally I found a hack online using class variables. Katrina says there&rsquo;s a better way, that she&rsquo;ll show me soon. In the meantime, here&rsquo;s what I did:</p>
+
+<figure class='code'><figcaption><span>Integration Test - &#8220;Before All&#8221; Hack</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="s1">&#39;minitest&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/autorun&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/pride&#39;</span>
+</span><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;../../lib/sales_engine.rb&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">BusinessIntelligenceTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">before_suite</span>
+</span><span class='line'>    <span class="no">SalesEngine</span><span class="o">::</span><span class="no">Database</span><span class="o">.</span><span class="n">startup</span><span class="p">(</span><span class="s1">&#39;./data&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="vc">@@database</span> <span class="o">=</span> <span class="no">SalesEngine</span><span class="o">::</span><span class="no">Database</span>
+</span><span class='line'>    <span class="vc">@@customer_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">customer_repository</span>
+</span><span class='line'>    <span class="vc">@@invoice_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">invoice_repository</span>
+</span><span class='line'>    <span class="vc">@@invoice_item_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">invoice_item_repository</span>
+</span><span class='line'>    <span class="vc">@@item_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">item_repository</span>
+</span><span class='line'>    <span class="vc">@@merchant_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">merchant_repository</span>
+</span><span class='line'>    <span class="vc">@@transaction_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">transaction_repository</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">before_suite</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_the_customer_transactions_method_successfully_returns_transactions</span>
+</span><span class='line'>    <span class="n">customer</span> <span class="o">=</span> <span class="vc">@@customer_repository</span><span class="o">.</span><span class="n">find_by_id</span> <span class="mi">2</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">1</span><span class="p">,</span> <span class="n">customer</span><span class="o">.</span><span class="n">transactions</span><span class="o">.</span><span class="n">length</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="no">SalesEngine</span><span class="o">::</span><span class="no">Transaction</span><span class="p">,</span> <span class="n">customer</span><span class="o">.</span><span class="n">transactions</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">class</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_the_customer_favorite_merchant_method_successfully_returns_a_merchant</span>
+</span><span class='line'>    <span class="n">skip</span>
+</span><span class='line'>    <span class="n">customer</span> <span class="o">=</span> <span class="vc">@@customer_repository</span><span class="o">.</span><span class="n">find_by_id</span> <span class="mi">2</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="s2">&quot;Shields, Hirthe and Smith&quot;</span><span class="p">,</span> <span class="n">customer</span><span class="o">.</span><span class="n">favorite_merchant</span><span class="o">.</span><span class="n">name</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># many tests omitted</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This approach really paid off. I passed all of the spec tests one at a time, before finally unleashing the spec on it. In the end, there were still two tests failing. One of them was a problem with the spec itself. The other I haven&rsquo;t solved yet, but will in the next couple of days.</p>
+
+<p>In the end, I rebuilt the whole project between 6PM and noon the following day. I think it was a really great exercise to start over. I understood everything I was doing the second time through, and did it without reaching through the classes. One thing I really appreciated was that if you&rsquo;re going to run a spec harness, you might as well write your app around it from the start.</p>
+
+<p>In all, the second time around went quickly because I knew what I was building. I also solidified a lot of the things I&rsquo;d learned by repeating them. I&rsquo;m glad that I did it.</p>
+
+<h2>gSchool Progress</h2>
+
+<p>We&rsquo;re now four weeks into the program at gSchool. I&rsquo;ve mastered more than I would have predicted. Well, maybe not quite &lsquo;mastered&rsquo;. I do feel like I have a firm grasp of some things in Ruby: control flow, collections, classes, methods, and where to find help. Other things I understand, and can use somewhat, but don&rsquo;t have full mastery of: enumerables, procs, lambdas, and throwing exceptions.</p>
+
+<h2>The Future</h2>
+
+<p>In five months, I believe I&rsquo;ll feel fully confident in Ruby skills. I&rsquo;m really looking forward to digging into Rack, Sinatra, Rails, APIs, and front end skills in the coming weeks. Using Ruby in the context of building web apps is going to awesome. Also, now that I understand how programming languages work, I&rsquo;ll probably sample some other languages. Ruby is my focus right now, but I can definitely see myself dipping my toes into Javascript, Go, Python, and maybe some C down the line.</p>
+
+<p>When gSchool is over, I&rsquo;m most interested in getting a job for a consultancy. At this point in my development, I have my eyes on companies like Thoughtbot and Pivotal Labs, where the pursuit of programming as a discipline is a central tenet of the company culture. I&rsquo;m curious to see if my ideas about where I would fit in the industry will change as I learn more about it between now and March.</p>
+
+<h2>My Learning Style</h2>
+
+<p>So far in this program, I&rsquo;ve spent a lot of time learning on my own. Twice in a row, I&rsquo;ve lost my pair halfway through a project (was it something I said?). But that doesn&rsquo;t bother me. After college, I made it a point to keep teaching myself, so I&rsquo;ve also become quite adept at self-directed learning. Some of the stragies I use that have been working well at gSchool include: sketching out the big picture before digging in on a project, using the Ruby documentation extensively, asking for help from teachers or advanced classmates when I need it, and watching my Twitter feed/trolling the web for interesting GitHub repos, screencasts, and tutorials that will improve my understanding and workflow.</p>
+
+<p>The community in gSchool is really awesome; I feel like I&rsquo;m really in my element here. I got a little taste of pairing with Rolen Le early on, but haven&rsquo;t had many other chances to screenshare since then. I&rsquo;d really like to do it more in the future. I&rsquo;ll bet that watching and hearing someone else think through problems will help me see approaches I wouldn&rsquo;t have come up with on my own. Eventually, I hope I have a chance to screenshare with all of my classmates, especially those that have more experience than me.</p>
+
+<p>One thing that has been sometimes difficult are full class sessions covering a fairly basics topic that I already feel comfortable with. In these cases, I&rsquo;ve found it hard to maintain focus. I feel that I would probably get more out of splitting off from the class and researching topics on my own during these sessions.</p>
+
+<h2>Wrap-up</h2>
+
+<p>Now that SalesEngine has been turned in, it will be tempting to move on to the next thing and not look back. However, after doing the rebuild, I still have a couple of tests failing, and I want them green. The spec is still taking me a really long time to run, so I want to finish implementing the faster hash lookups that Franklin Webber showed us in the code review (see the code example above). I&rsquo;ll also probably run Cane and Reek to double check that my code is well-formatted. As I was telling another student, a project is never really &lsquo;done&rsquo;. There are always more things that could be done to improve or extend it. After tying up these loose ends, I&rsquo;ll probably move on to the next project. Bootcamp is fast paced. But I&rsquo;ll also be interested to go back and read my code five months from now.</p>
+
+<p>In Katrina&rsquo;s blog post, she described the first few tutorials that we did as a &ldquo;guided tour of the universe&rdquo;. SalesEngine was our chance to find out how to pull all of the stars and planets together to create a galaxy. I felt like I was stretched in a <em>really</em> good way in this project, having to put all of the abstractions of pure Ruby together into something that made sense. If I look through the table of contents of Eloquent Ruby, I feel like I understand what all of the expressions, objects, and classes <em>are</em>. Many of them are tools I feel ready to use at any time, others I have at least touched. Now that I have seen each structure used in context, it has a much deeper meaning. Thanks to this project, the universe that is Ruby language makes a lot more sense to me.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/03/the-history-of-programming-in-the-life-of-russ-lewis/">The History of Programming in the Life of Russ Lewis</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-03T20:35:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><img class="right" src="http://s10.postimg.org/4iwbju155/SAGE_console.jpg" title="SAGE Console" alt="A computer from 1955"></p>
+
+<p>My full name is Russell Benjamin Buller Lewis. I&rsquo;m the fourth of the Russell Lewises. I&rsquo;m the first son of the first son of the first son, and we&rsquo;re all named Russell Lewis. Russell II, Russell III and I are all computer programmers. A couple of days ago I asked my grandpa about the early days, and here&rsquo;s what he sent me. I think it&rsquo;s a fascinating history of computers told from one man&rsquo;s perspective, so I thought I would share it.</p>
+
+<p>I highly recommend checking out the links. If you&rsquo;re interested in old computers, check out the <a href="http://oldcomputers.net/">Obsolete Technology Website</a>, and definitely click on &ldquo;view all 100 old computers&rdquo;. Also, I just had had to share this photo of the SAGE console. It had a light gun (think Nintendo NES Zapper), cigarette lighter, and ashtray!</p>
+
+<p>::::::::</p>
+
+<p>Hi Ben,</p>
+
+<p>I&rsquo;m glad you&rsquo;re enjoying your programming. I&rsquo;ve always found it fascinating. You come from a long line of programmers, so I&rsquo;m not surprised you&rsquo;re having fun. To answer your question: we&rsquo;ll talk more about this when you&rsquo;re here, but I need to think for a while to remember what all happened, so I&rsquo;ll try to refresh my own memory:</p>
+
+<p>When I was a first lieutenant, and operations officer at the radar site at Rapid City, SD, in 1955, I was sent to RAND Corporation at Santa Monica for a couple weeks to be the boss of a control team that was a guinea pig team for the people who were developing the <a href="http://en.wikipedia.org/wiki/Semi-Automatic_Ground_Environment">Semi-Automatic Ground Environment System (SAGE)</a>. SAGE used huge first-generation computers to gather data from all the radar sites in a NORAD region and display the results in a single place. RAND was building a system to simulate bomber raids for SAGE training. I became very interested in computers during that couple of weeks. The place was fascinating. <a href="http://en.wikipedia.org/wiki/John_von_Neumann">John von Neuman</a> was hanging out at RAND, and in the RAND bookstore you could buy a copy of his book on game theory for peanuts.</p>
+
+<p>I didn&rsquo;t get back into computers until 1965, after I came back from Vietnam and went to NORAD headquarters. I was in Operations Plans, and we were dealing with the specifications for the second generation of computers for Cheyenne Mountain. I had a lot of years experience with radar operations by then, and I&rsquo;d spent a lot of time reading about computers. I ended up being the guy who could interpret between the operations staff and the data processing staff. Along the way, I, and a close Canadian friend got sent to IBM at San Jose to learn about the IBM 360, which was the first computer that could multi-task. I got introduced to IBM&rsquo;s <a href="http://whatis.techtarget.com/definition/PL-I">PL/1</a>, a programming language that was about halfway between FORTRAN and COBOL, and learned to do a little programming in it.</p>
+
+<p>One of the problems NORAD had was the survivability of reports on operational status during a nuclear attack. They were depending on telephone calls and teletype messages through communications that might cease to exist at the very start of an attack. I suggested we try to build a system that could store and forward reports from the field, so that if one communications node found that the node it was trying to reach was out, it could send the report through a different route. Sound like the internet? Exactly. But that was long before anybody had thought of an internet.</p>
+
+<p>So I came up with a way to encode status reports in a very abbreviated code that could be interfaced with the Cheyenne Mountain computer system. We still depended on 100 baud teletypes, paper tape punches and readers, and punch cards, so I learned to work a keypunch &ndash; got damn good at it too. I had a room with a keypunch, card to tape converters and tape to card converters we rented from IBM. I don&rsquo;t remember exactly what the problem was, but I wanted to program a card to tape converter to do something that the IBM salesman researched for me and reported was impossible. I figured out a way to do it, and not long after that I got a job offer from IBM. But after two wars I didn&rsquo;t want to give up my retirement, so I turned them down.</p>
+
+<p>While all this was going on, a couple of us were traveling to various companies that were developing small computers for the government, looking for the kind of computers we could use as nodes in a survivable store-and-forward system. We finally found a small computer that a company had developed for the marines. It didn&rsquo;t quite fit the job the marines wanted it to do, so they&rsquo;d turned it down, but it fit our needs quite well. With that system we could convert data from the SAGE computers to tones with a modulator, and convert it back to digital pulses at the NORAD end with a demodulator. Sound familiar? That idea is where the word &ldquo;modem&rdquo; came from. When people first started working with the internet, they used to have a modem plugged into their phones. When you wanted to get on line you first dialed your service&rsquo;s modem. When you heard modem tones you put your handset into your modem and got back on your computer. Modems are long gone. What you hook your computer up to nowadays doesn&rsquo;t modulate or demodulate. That box is a digital bridge. But we still call it a modem.</p>
+
+<p>Anyhow, I finally wrote up the whole proposal. It went up the chain of command and got sent to some civilian contractors for evaluation. It came back approved, but it never got funded. That was in the middle sixties. Not long after that <a href="http://personalpages.manchester.ac.uk/staff/m.dodge/cybergeography/atlas/historical.html">ARPANET</a> appeared, and I&rsquo;ll always wonder if my OPSTAR (operational status and reporting system) gave the guys at Lincoln Labs some of their ideas. Packet switching is the heart of ARPANET and the internet, and my system didn&rsquo;t include packet switching. It depended on short bursts of encoded data. But the idea of nodal networking is the same.</p>
+
+<p>I didn&rsquo;t start writing code for real until after I retired in 1977. A couple months after I got home, Radio Shack came out with the <a href="http://oldcomputers.net/trs80i.html">TRS-80 Model 1</a>. I bought one that had 16k of 8-bit memory, and, a couple months later upgraded it to 32k. I learned BASIC, which was interpreted, and pretty slow. TRSDOS, which was Radio Shack&rsquo;s operating system was really crappy, but an outfit outside Denver called Apparat came up with NEWDOS/80, which was a lot better. But even on NEWDOS/80, interpreted BASIC was too slow for some things, so I learned <a href="http://sgate.emt.bme.hu/patai/publications/z80guide/">Z80</a> assembly language. That was a toughie because there weren&rsquo;t any books on the subject. All I had was a set of specifications that more or less told what various commands did. The biggest thing I built in BASIC was a system for a local business broker that handled businesses for sale all over the country. The system I built for them would compare prospective buyers with available businesses once a month. For each match it would print out a letter to the business telling them about the buyer, and a letter to the buyer, which would be attached to a brochure on the business. Much later on I converted this system to C, and then, when Windows came out, to VB. In the end I even set up the buyer side so the system spit out a .PDF brochure on the business and saved Andy, the owner of the company, the price of printing all those brochures. He was able to sell the printing shop he&rsquo;d bought to print them.</p>
+
+<p>Finally, once the IBM PC came out, Microsoft got rolling and came up with a good FORTRAN. So I learned that and did some pretty extensive programming in it. A little later Microsoft came out with COBOL. I got that and learned it. I don&rsquo;t remember how I came into contact with the guy &ndash; don&rsquo;t remember his name &ndash; who owned the school that later became Colorado Tech. He asked me to write a billing system for the school, and asked if Dr. John Zingg, the guy in charge of the computer science department could help out. Turns out John was a retired lieutenant colonel who&rsquo;d set up the computer science department at the AF Academy. I built the billing system in COBOL, and got conned by John into going back to school for a while. I had to take beginning computer science, which was a bit ridiculous since the instructor would ask me questions instead of the other way around. They had a programming language called Karl the Robot. You had to make Karl move around in a maze and pick up things, and Karl could only turn left. The language was a variant of Pascal, which I&rsquo;d had some experience with, so one day I wrote a universal solution. With my solution I could just turn Karl loose and he&rsquo;d sweep the maze and find anything. I found out later that a couple instructors had secretly broken into my account to find out how I did that. Actually, it was pretty simple.</p>
+
+<p>A little before I got involved in the school thing I bought a copy of <a href="http://www.amazon.com/C-Programming-Language-2nd-Edition/dp/0131103628">The C Programming Language by Brian Kernighan and Dennis Ritchie</a>. <a href="http://en.wikipedia.org/wiki/Dennis_Ritchie">Richie</a> had been the inventor of C, and Kernighan was a very fine computer scientist and tech writer who&rsquo;d been in on the development of Unix and C along with Richie and <a href="http://en.wikipedia.org/wiki/Ken_Thompson">Ken Thompson</a>, who was the real inventor of Unix (Ben&rsquo;s Comment - He also co-invented Go!). All three were at Bell Labs, which, in those days was a powerhouse in computer science. I was fascinated by C. You could build a library of functions and link them. An incredible time saver. Also, it was elegant: Since in C, strings always ended with a zero, which could be interpreted as a null, you could copy one string to another with two pointers. Where the pointer <em>p points to the string to be copied and </em>q points to the string to be filled: (while <em>p) </em>q++ = *p++;</p>
+
+<p>I got a C compiler and started doing serious work in C. After I&rsquo;d been at it a while, John asked me if I&rsquo;d teach a class in C at the school, so I did. But I was working on a revision for my business broker at the same time and taking a course in advanced calculus. I had to drop the calculus class because I was completely out of time. After I&rsquo;d finished the C class the dean asked me to come on full-time, but since the pay was peanuts I was losing too much money for each hour I put into the course instead of into commercial work. I declined reluctantly because I&rsquo;ve always loved teaching.</p>
+
+<p>The next big thing was the &ldquo;Tunes&rdquo; project. Back in the seventies two doctors and one accountant started an HMO named Peak Health. Each of them put in $10,000 and hoped to multiply their investment by 100 in ten years. Eight years later they sold the company for, if I remember correctly, 80 million. A guy named Steve Hyde was the accountant. Steve decided to start a company that would let you order a music tape with the music you wanted on it. So in the early eighties Steve hired Bill Witt, a close friend of mine and a superb computer hardware engineer to put together a room full of disk recorders, run their output through a unique analog switch designed and built by another brilliant hardware guy whose name I&rsquo;ve forgotten, and send the output to a bank of tape recorders. I was hired to build all the software. Our main machine ran Unix, and my main project was a scheduler that would take an order in digital format, pick out the tunes from the disks and send them to the appropriate recorder. I built it on the same principle the Unix scheduler is built on, though I&rsquo;ve now forgotten the details. Technically, the whole thing was a huge success, but the marketing was a fiasco, so it went under.</p>
+
+<p>Toward the end of the Tunes thing I got really interested in C++ and learned it. Object-oriented programming was a revelation, and, obviously the only way programming was going to be able to keep up with future developments. After Tunes crumped, Bill Witt got a job at Cirrus Logic&rsquo;s R&amp;D branch, which, in those days, was in Broomfield. Cirrus was building a new disk drive that could be programmed in firmware by the vendor. They needed a graphical interface for the programming steps &ndash; this was still in DOS days &ndash; shortly before Windows came out. Bill suggested they hire me to do the interface. I did it in C++. That was a lot of fun and turned out to be quite successful. Then they decided their own programmers needed to learn C++, so they hired me to teach a class in it. I drove up there twice a week for about four weeks and taught the class &ndash; about two hours for each session.</p>
+
+<p>While that was still going on, Windows was becoming the new big thing. So I switched to Visual Basic, since it was the only reasonable way to program Windows. I re-built the business broker&rsquo;s stuff in it, and wrote a lot of shareware in between that and other little jobs I took on &ndash; like one for the guy who had a plan for handicapping horses and wanted it automated. Some of the shareware is still being used, and I get emails from people using my general ledger when they change computers.</p>
+
+<p>Finally, your uncle Tom was going to have to hire a new person just to do the paperwork for new reporting requirements the state came up with in connection with contamination remediation. He told me about it and I suggested we automate the reporting. That&rsquo;s a long story, but I built a system that saved him from hiring the extra person. I sold a few copies to other engineers in the state doing the same kind of work, but finally the state got interested in the software and I sold the whole package to them.</p>
+
+<p>That&rsquo;d be the end of the story except that recently I decided I wanted to rebuild a web site analyzer I&rsquo;d built for one of my webs in VB6. You can&rsquo;t run VB6 on Windows 7, though I could have run it on the XP emulator on Windows 7 Ultimate, which is what I have. So I downloaded Microsoft&rsquo;s free Visual Studio Express 2012 and learned C#. I&rsquo;d tried C# five years ago but never got serious about it. Now I&rsquo;m serious about it. It&rsquo;s really just C++ on steroids, so it&rsquo;s not hard for me to learn. So I now have a new web analyzer that&rsquo;s much more flexible and infinitely faster than the VB version.</p>
+
+<p>Sorry to go on and on, but I realized I needed to get all this straight in my own head before I could talk about it.</p>
+
+<p>Love you,</p>
+
+<p>Grandpa.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -867,6 +1262,14 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/">Using Services to Keep Your Rails Controllers Clean and DRY</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/09/04/looking-for-a-needle-in-a-haystack-with-ack/">Looking For A Needle In A Haystack! (or Using Ack To Improve Your Development Workflow)</a>
       </li>
     
@@ -876,14 +1279,6 @@
     
       <li class="post">
         <a href="/blog/2014/05/20/five-capybara-hacks-to-make-your-testing-experience-less-painful/">Five Capybara Hacks To Make Your Testing Experience Less Painful</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/02/14/service-oriented-architecture/">Service Oriented Architecture</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/01/31/building-a-binary-search/">Building a Binary Search</a>
       </li>
     
   </ul>

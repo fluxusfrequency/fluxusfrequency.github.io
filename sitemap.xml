@@ -3,6 +3,22 @@
   
   
   <url>
+    <loc>http://fluxusfrequency.github.io/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/</loc>
+    
+    <lastmod>2014-10-02T07:03:19-06:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://fluxusfrequency.github.io/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/</loc>
+    
+    <lastmod>2014-09-25T07:02:57-06:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
     <loc>http://fluxusfrequency.github.io/blog/2014/09/04/looking-for-a-needle-in-a-haystack-with-ack/</loc>
     
     <lastmod>2014-09-04T06:19:42-06:00</lastmod>
@@ -293,21 +309,21 @@
   
   <url>
     <loc>http://fluxusfrequency.github.io/blog/archives/</loc>
-    <lastmod>2014-09-12T06:45:49-06:00</lastmod>
+    <lastmod>2014-10-02T08:42:36-06:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>http://fluxusfrequency.github.io/</loc>
-    <lastmod>2014-09-12T06:45:49-06:00</lastmod>
+    <lastmod>2014-10-02T08:42:36-06:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   
   <url>
     <loc>http://fluxusfrequency.github.io/about/</loc>
-    <lastmod>2014-09-12T06:45:49-06:00</lastmod>
+    <lastmod>2014-10-02T08:42:36-06:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
