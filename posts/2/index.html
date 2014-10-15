@@ -9,7 +9,7 @@
   <meta name="author" content="Ben Lewis">
 
   
-  <meta name="description" content="I&rsquo;m reading Refactoring Ruby by Jay Fields, Sean Harvie, Martin Fowler and Kent Beck. As I&rsquo;m heading into the last couple of months at &hellip;">
+  <meta name="description" content="As I mentioned last week, I&rsquo;m doing a series of posts on refactoring. As gSchool wraps up, I&rsquo;m working on my refactoring skills, so that &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,733 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/01/17/refactoring-2-replace-method-with-method-object/">Refactoring 2: Replace Method With Method Object</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-17T09:06:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>As I mentioned last week, I&rsquo;m doing a series of posts on refactoring. As gSchool wraps up, I&rsquo;m working on my refactoring skills, so that I&rsquo;ll be a better developer when I get my first job. I&rsquo;m trying some of the strategies outlined in the book <a href="http://martinfowler.com/books/refactoringRubyEd.html">Refactoring Ruby</a>.</p>
+
+<p>Today I&rsquo;ll be trying out a strategy called Replace Method with Method Object. This is a good approach to take when you have a long method with many variables in it, and using <a href="http://fluxusfrequency.github.io/blog/2014/01/10/refactoring-1-extract-method/">Extract Method</a> wouldn&rsquo;t be practical. Essentially, it consists of removing the method from its class and turning it into a class of its own. From there, you can more easily refactor using Extract Method and other simple strategies.</p>
+
+<p>Here are the steps as outlined in the book:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>1. Create a new class, name it after the method.
+</span><span class='line'>
+</span><span class='line'>2. Give the new class an attribute for the object that hosted the original method (the source object) and an attribute for each temporary vairable and each parameter in the method.
+</span><span class='line'>
+</span><span class='line'>3. Give the new class a constructor that takes the source object and each parameter.
+</span><span class='line'>
+</span><span class='line'>4. Give the new class a method named "compute".
+</span><span class='line'>
+</span><span class='line'>5. Copy the body of the original method into "compute". Use the source object instance variable for any invocations of methods on the original subject.
+</span><span class='line'>
+</span><span class='line'>6. Test.
+</span><span class='line'>
+</span><span class='line'>7. Replace the old method with one that creates the new method and call "compute".
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Mancala</h2>
+
+<p>I took a look around my Github repositories, and found this little wonder from a <a href="https://github.com/fluxusfrequency/mancala">Mancala</a> app I wrote in Ruby Processing during the first month of gSchool.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">MancalaKalahRules</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">distribute_beads_for_player</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">next_pit_id</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">first_pit_id</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@i</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">while</span> <span class="vi">@i</span> <span class="o">&lt;=</span> <span class="n">count</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">execute_store_logic</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">break</span> <span class="k">if</span> <span class="vi">@i</span> <span class="o">==</span> <span class="n">count</span>
+</span><span class='line'>      <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add_bead_to_pit</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">next_pit_id</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">if</span> <span class="vi">@i</span> <span class="o">==</span> <span class="n">count</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="n">landing_spot</span> <span class="o">=</span> <span class="n">next_pit_id</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="n">landing_spot</span> <span class="o">=</span> <span class="mi">12</span> <span class="k">if</span> <span class="n">landing_spot</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">landed_on_empty?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_all_pit_ids_on_players_side</span><span class="p">(</span><span class="n">player</span><span class="p">)</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
+</span><span class='line'>          <span class="n">take_both_sides</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
+</span><span class='line'>          <span class="k">break</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>      <span class="vi">@i</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What a mess.</p>
+
+<h2>Setting Up Tests</h2>
+
+<p>To begin the refactoring process, I had to make sure the tests were in place first. This was fairly difficult, as this method is highly coupled to other methods throughout the app. For testing purposes, I added a couple of stubbed methods to <code>KalahRules</code>, and created dummy <code>App</code> and <code>Model</code> classes with stubbed methods of their own. Also, <code>distribute_beads_for_player</code> did not return anything meaningful, so I changed it to do return the value of <code>@i</code>.</p>
+
+<p>In the end, here&rsquo;s the code I used to make the test pass:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/autorun&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/pride&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;./kalah_rules&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">KalahRulesTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_distribute_beads_for_player_returns_the_correct_count</span>
+</span><span class='line'>    <span class="n">rules</span> <span class="o">=</span> <span class="no">MancalaKalahRules</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="n">app</span> <span class="o">=</span> <span class="no">App</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="nb">id</span> <span class="o">=</span> <span class="mi">2</span>
+</span><span class='line'>    <span class="n">player</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class='line'>    <span class="n">count</span> <span class="o">=</span> <span class="mi">10</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">expected</span> <span class="o">=</span> <span class="mi">9</span>
+</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="n">rules</span><span class="o">.</span><span class="n">distribute_beads_for_player</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="n">expected</span><span class="p">,</span> <span class="n">result</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">MancalaKalahRules</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">distribute_beads_for_player</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">next_pit_id</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">first_pit_id</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@i</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">while</span> <span class="vi">@i</span> <span class="o">&lt;=</span> <span class="n">count</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">execute_store_logic</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">break</span> <span class="k">if</span> <span class="vi">@i</span> <span class="o">==</span> <span class="n">count</span>
+</span><span class='line'>      <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add_bead_to_pit</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">next_pit_id</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">if</span> <span class="vi">@i</span> <span class="o">==</span> <span class="n">count</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="n">landing_spot</span> <span class="o">=</span> <span class="n">next_pit_id</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="n">landing_spot</span> <span class="o">=</span> <span class="mi">12</span> <span class="k">if</span> <span class="n">landing_spot</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">landed_on_empty?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_all_pit_ids_on_players_side</span><span class="p">(</span><span class="n">player</span><span class="p">)</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
+</span><span class='line'>          <span class="n">take_both_sides</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
+</span><span class='line'>          <span class="k">break</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>      <span class="vi">@i</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="vi">@i</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">execute_store_logic</span><span class="p">(</span><span class="n">pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">take_both_sides</span><span class="p">(</span><span class="n">spot</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">landed_on_empty?</span><span class="p">(</span><span class="n">spot</span><span class="p">)</span>
+</span><span class='line'>    <span class="kp">true</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">App</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">model</span>
+</span><span class='line'>    <span class="no">Model</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Model</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_next_pit_by_id</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
+</span><span class='line'>    <span class="mi">3</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">add_bead_to_pit</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_all_pit_ids_on_players_side</span><span class="p">(</span><span class="n">player</span><span class="p">)</span>
+</span><span class='line'>    <span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>All green! Time to start refactoring!</p>
+
+<p><img src="http://s5.postimg.org/540zghpmv/All_green_before_refactor.png" title="All Green Before Refactor" alt="A set of passing Ruby tests"></p>
+
+<h2>Applying the Strategy</h2>
+
+<p>Step 1: Create a new class named after the method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributor</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Step 2: Give the new class an attribute of the source object and its parameters.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributor</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Step 3: Give the new class a constructor that takes the new attributes. I chose to add attr_readers as well:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributor</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:rules</span><span class="p">,</span>
+</span><span class='line'>              <span class="ss">:app</span><span class="p">,</span>
+</span><span class='line'>              <span class="ss">:first_pit_id</span><span class="p">,</span>
+</span><span class='line'>              <span class="ss">:player</span><span class="p">,</span>
+</span><span class='line'>              <span class="ss">:count</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@rules</span> <span class="o">=</span> <span class="n">rules</span>
+</span><span class='line'>    <span class="vi">@app</span> <span class="o">=</span> <span class="n">app</span>
+</span><span class='line'>    <span class="vi">@first_pit_id</span> <span class="o">=</span> <span class="n">first_pit_id</span>
+</span><span class='line'>    <span class="vi">@player</span> <span class="o">=</span> <span class="n">player</span>
+</span><span class='line'>    <span class="vi">@count</span> <span class="o">=</span> <span class="n">count</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Step 4: Give the new class a <em>compute</em> method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributor</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Code omitted for brevity</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">compute</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Step 5: Copy the original method into <em>compute</em>. I also copied in the stubbed methods for testing purposes.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributor</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Code omitted for brevity</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">compute</span>
+</span><span class='line'>    <span class="n">next_pit_id</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">first_pit_id</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@i</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">while</span> <span class="vi">@i</span> <span class="o">&lt;=</span> <span class="n">count</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">execute_store_logic</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">break</span> <span class="k">if</span> <span class="vi">@i</span> <span class="o">==</span> <span class="n">count</span>
+</span><span class='line'>      <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add_bead_to_pit</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">next_pit_id</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">if</span> <span class="vi">@i</span> <span class="o">==</span> <span class="n">count</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="n">landing_spot</span> <span class="o">=</span> <span class="n">next_pit_id</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="n">landing_spot</span> <span class="o">=</span> <span class="mi">12</span> <span class="k">if</span> <span class="n">landing_spot</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">landed_on_empty?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_all_pit_ids_on_players_side</span><span class="p">(</span><span class="n">player</span><span class="p">)</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
+</span><span class='line'>          <span class="n">take_both_sides</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
+</span><span class='line'>          <span class="k">break</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>      <span class="vi">@i</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="vi">@i</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">execute_store_logic</span><span class="p">(</span><span class="n">pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">take_both_sides</span><span class="p">(</span><span class="n">spot</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">landed_on_empty?</span><span class="p">(</span><span class="n">spot</span><span class="p">)</span>
+</span><span class='line'>    <span class="kp">true</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Step 6: Test. I tested the newly created <code>BeadDistributor</code> class:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributorTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_compute_returns_the_correct_count</span>
+</span><span class='line'>    <span class="n">rules</span> <span class="o">=</span> <span class="no">MancalaKalahRules</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="n">app</span> <span class="o">=</span> <span class="no">App</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="nb">id</span> <span class="o">=</span> <span class="mi">2</span>
+</span><span class='line'>    <span class="n">player</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class='line'>    <span class="n">count</span> <span class="o">=</span> <span class="mi">10</span>
+</span><span class='line'>    <span class="n">distributor</span> <span class="o">=</span> <span class="no">BeadDistributor</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">expected</span> <span class="o">=</span> <span class="mi">9</span>
+</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="n">distributor</span><span class="o">.</span><span class="n">compute</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="n">expected</span><span class="p">,</span> <span class="n">result</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>All green!</p>
+
+<p><img src="http://s5.postimg.org/s81g92sxz/All_green_after_refactor.png" title="All Green After Refactor" alt="A set of passing Ruby tests"></p>
+
+<p>Step 7: Replace the old method by instantiating the new object, passing the old object into it, and calling <em>compute</em>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">MancalaKalahRules</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">distribute_beads_for_player</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>    <span class="no">BeadDistributor</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>At this point, I ran the test2 again. The original one passed! Yay!</p>
+
+<p><img src="http://s5.postimg.org/f55tpt2pz/Still_green.png" title="Still Green" alt="Another set of passing Ruby tests"></p>
+
+<p>After completing the object extraction, I was free to refactor the new BeadDistributor using more common strategies. Here&rsquo;s what I ended up with:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributor</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:rules</span><span class="p">,</span>
+</span><span class='line'>              <span class="ss">:app</span><span class="p">,</span>
+</span><span class='line'>              <span class="ss">:first_pit_id</span><span class="p">,</span>
+</span><span class='line'>              <span class="ss">:player</span><span class="p">,</span>
+</span><span class='line'>              <span class="ss">:count</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@rules</span> <span class="o">=</span> <span class="n">rules</span>
+</span><span class='line'>    <span class="vi">@app</span> <span class="o">=</span> <span class="n">app</span>
+</span><span class='line'>    <span class="vi">@first_pit_id</span> <span class="o">=</span> <span class="n">first_pit_id</span>
+</span><span class='line'>    <span class="vi">@player</span> <span class="o">=</span> <span class="n">player</span>
+</span><span class='line'>    <span class="vi">@count</span> <span class="o">=</span> <span class="n">count</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">compute</span>
+</span><span class='line'>    <span class="n">fix_landing_on_spot_12</span>
+</span><span class='line'>    <span class="n">take_both_if_own_empty</span>
+</span><span class='line'>    <span class="n">distribute_beads</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">distribute_beads</span>
+</span><span class='line'>    <span class="p">(</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">times</span> <span class="k">do</span> <span class="o">|</span><span class="n">i</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">rules</span><span class="o">.</span><span class="n">execute_store_logic</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">app</span><span class="o">.</span><span class="n">add_bead_to_model</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">next_pit_id</span>
+</span><span class='line'>    <span class="n">app</span><span class="o">.</span><span class="n">find_next_pit_in_model</span><span class="p">(</span><span class="n">first_pit_id</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">take_both_if_own_empty</span>
+</span><span class='line'>    <span class="n">rules</span><span class="o">.</span><span class="n">take_both_sides</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span> <span class="k">if</span> <span class="n">landed_on_players_own_empty_pit?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">landed_on_players_own_empty_pit?</span>
+</span><span class='line'>    <span class="n">rules</span><span class="o">.</span><span class="n">landed_on_empty?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">app</span><span class="o">.</span><span class="n">check_if_pit_belongs_to_player</span><span class="p">(</span><span class="n">player</span><span class="p">,</span> <span class="n">landing_spot</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">landing_spot</span>
+</span><span class='line'>    <span class="vi">@landing_spot</span> <span class="o">||=</span> <span class="n">next_pit_id</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">fix_landing_on_spot_12</span>
+</span><span class='line'>    <span class="vi">@landing_spot</span> <span class="o">=</span> <span class="mi">12</span> <span class="k">if</span> <span class="n">landing_spot</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">MancalaKalahRules</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">distribute_beads_for_player</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>    <span class="no">BeadDistributor</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">execute_store_logic</span><span class="p">(</span><span class="n">pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">take_both_sides</span><span class="p">(</span><span class="n">spot</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">landed_on_empty?</span><span class="p">(</span><span class="n">spot</span><span class="p">)</span>
+</span><span class='line'>    <span class="kp">true</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">App</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">model</span>
+</span><span class='line'>    <span class="no">Model</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">add_bead_to_model</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">model</span><span class="o">.</span><span class="n">add_bead_to_pit</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_next_pit_in_model</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">check_if_pit_belongs_to_player</span><span class="p">(</span><span class="n">player</span><span class="p">,</span> <span class="n">landing_spot</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">model</span><span class="o">.</span><span class="n">find_all_pit_ids_on_players_side</span><span class="p">(</span><span class="n">player</span><span class="p">)</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Model</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_next_pit_by_id</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
+</span><span class='line'>    <span class="mi">3</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">add_bead_to_pit</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_all_pit_ids_on_players_side</span><span class="p">(</span><span class="n">player</span><span class="p">)</span>
+</span><span class='line'>    <span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Running the tests one more time, I saw that everything was still green. Although I could have gone on to refactor some of the other methods in the original class that <code>distribute_beads_for_player</code> was coupled to, I decided to call it a day.</p>
+
+<p><img src="http://s5.postimg.org/8fza9shdz/Final_green.png" title="Final Green" alt="Another set of passing Ruby tests"></p>
+
+<h2>Conclusion</h2>
+
+<p>I enjoyed the Replace Method with Method Object strategy. It&rsquo;s a pretty cool way to think about the microcosm/macrocosm relationship between methods and objects. Although it&rsquo;s not probably useful for every refactoring case, I imagine it would come in really handy when cleaning up a hairy method like <code>distribute_beads_for_player</code>. I&rsquo;m learning a lot from Refactoring Ruby, and I&rsquo;m looking forward to seeing what other strategies it offers.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2160,966 +2887,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/11/10/javascript-enlightenment/">JavaScript Enlightenment</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-11-10T21:30:00-07:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I read <a href="http://www.javascriptenlightenment.com/">JavaScript Enlightenment</a> by Cory Lindley over the weekend. It was the perfect thing for me right now, as an advanced beginner. It really breaks down all the parts of tha langauge in an understandable way. I feel like I get the &lsquo;big picture&rsquo; much better after having read it. Here are some notes I took along the way.</p>
-
-<h1>Explanations</h1>
-
-<h2>Objects</h2>
-
-<p>In javascript, object is king.
-An object is a set of properties with keys and values.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObject</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Object</span><span class="p">();</span>
-</span><span class='line'><span class="nx">myObject</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="err">“</span><span class="nx">Ben</span><span class="err">”</span><span class="p">;</span>
-</span><span class='line'><span class="nx">myObject</span><span class="p">.</span><span class="nx">age</span> <span class="o">=</span> <span class="mi">29</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Javascript’s Native Object Constructors</h2>
-
-<p>These are the nine object constructors built into JavaScript:</p>
-
-<ul>
-<li>Number()</li>
-<li>String()</li>
-<li>Boolean()</li>
-<li>Object()</li>
-<li>Array()</li>
-<li>Function()</li>
-<li>Date()</li>
-<li>RegExp()</li>
-<li>Error()</li>
-</ul>
-
-
-<p>There’s also Math, which is not a constructor. It acts like an instantiated object.</p>
-
-<p>Thus, you can do:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>But NOT:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myMath</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="k">new</span><span class="p">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Contructors &amp; Instantiating With Constructors</h2>
-
-<p>Every object can be built with a constructor. You instantiate the object with the ‘new’ keyword.</p>
-
-<p>Here’s the syntax:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObject</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Object</span><span class="p">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You can also define your own constructors, like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Person</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span><span class="nx">age</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>     <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="nx">name</span><span class="p">;</span>
-</span><span class='line'>     <span class="k">this</span><span class="p">.</span><span class="nx">age</span> <span class="o">=</span> <span class="nx">age</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// People can be instantiated like this:</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">Ben</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Person</span><span class="p">(</span><span class="err">“</span><span class="nx">Ben</span><span class="err">”</span><span class="p">,</span> <span class="mi">29</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Object Literal Notation</h2>
-
-<p>Instead of using the new keyword, you can create an object with the literal syntax:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="o">*</span><span class="kd">var</span> <span class="nx">myNumber</span> <span class="o">=</span> <span class="mi">23</span><span class="p">;</span>
-</span><span class='line'><span class="o">*</span><span class="kd">var</span> <span class="nx">myString</span> <span class="o">=</span> <span class="err">“</span><span class="nx">Hello</span><span class="p">,</span> <span class="nx">world</span><span class="o">!</span><span class="err">”</span><span class="p">;</span>
-</span><span class='line'><span class="o">*</span><span class="kd">var</span> <span class="nx">myBoolean</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">myObject</span> <span class="o">=</span> <span class="p">{};</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">myArray</span> <span class="o">=</span> <span class="p">[];</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">myFunction</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){};</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">myRegExp</span> <span class="o">=</span> <span class="sr">/.*/</span><span class="p">;</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">myError</span> <span class="o">=</span> <span class="p">(</span><span class="err">‘</span><span class="nx">crap</span><span class="o">!</span><span class="err">’</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>* These tjree literals do NOT return an object, but a Javascript primitive. Their constructors DO return objects.
-A primitive is an irreducible value.
-If they are later treated as an object, for example by calling a method on them, they are temporarily wrapped in an object.</p>
-
-<h2>The Third Notation</h2>
-
-<p>Another way to create a primitive (does not use the new keyword):</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myNumber</span> <span class="o">=</span> <span class="nb">Number</span><span class="p">(</span><span class="mi">23</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">myString</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">myBoolean</span> <span class="o">=</span> <span class="nb">Boolean</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Complex Objects</h2>
-
-<p>Objects that contain multiple values, which can be primitives or other complex objects.
-These are objects created created with the new keyword, or literal notation (and are NOT one of the primitives).</p>
-
-<p>They are also known as “composite objects” or a “reference types”.
-These objects store an address reference to an object.
-If you copy them, the copies are also references to the same address.
-Therefore, they will all mutate if the object is changed.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarC</span> <span class="o">=</span> <span class="p">{</span><span class="nx">name</span><span class="o">:</span> <span class="err">“</span><span class="nx">Ben</span><span class="err">”</span><span class="p">};</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">myVarD</span> <span class="o">=</span> <span class="nx">myVarC</span><span class="p">;</span>
-</span><span class='line'><span class="nx">myVarC</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="err">“</span><span class="nx">John</span><span class="err">”</span><span class="p">;</span>
-</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarD</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="err">“</span><span class="nx">John</span><span class="err">&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Complex Objects - Native Properties</h2>
-
-<h3>&lsquo;constructor&rsquo;</h3>
-
-<p>In addition to their basic property keys, all instantiated objects have a property called &lsquo;constructor&rsquo;.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarE</span> <span class="o">=</span> <span class="p">{</span><span class="nx">age</span><span class="o">:</span> <span class="mi">29</span><span class="p">};</span>
-</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarE</span><span class="p">.</span><span class="nx">constructor</span><span class="p">);</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="nb">Object</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>&lsquo;instanceof&rsquo;</h3>
-
-<p>The type of an instantiated object can be checked with &lsquo;instanceof&rsquo;.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">MyVarF</span> <span class="o">=</span> <span class="p">{</span><span class="nx">gender</span><span class="o">:</span> <span class="err">“</span><span class="nx">male</span><span class="err">”</span><span class="p">};</span>
-</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarF</span> <span class="k">instanceof</span> <span class="nb">Object</span><span class="p">();)</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="nx">True</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Instance Properties</h3>
-
-<p>Instances of a constructor can be given their own properties. This includes objects created from the nine native constructors, but does not include primitives.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarG</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Boolean</span><span class="p">();</span>
-</span><span class='line'><span class="nx">myVarG</span><span class="p">.</span><span class="nx">prop</span> <span class="o">=</span> <span class="err">“</span><span class="nx">test</span><span class="err">”</span><span class="p">;</span>
-</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarG</span><span class="p">.</span><span class="nx">prop</span><span class="p">);</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="err">“</span><span class="nx">test</span><span class="err">”</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarH</span> <span class="o">=</span> <span class="err">“</span><span class="nx">hello</span><span class="err">”</span><span class="p">;</span>
-</span><span class='line'><span class="nx">myVarH</span><span class="p">.</span><span class="nx">prop</span> <span class="o">=</span> <span class="err">“</span><span class="nx">world</span><span class="p">;</span>
-</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarH</span><span class="p">.</span><span class="nx">prop</span><span class="p">);</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="kc">undefined</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Accessing Properties</h3>
-
-<p>Dot notation vs. Bracket notation:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">myVarJ</span><span class="p">.</span><span class="nx">prop1</span> <span class="o">=</span> <span class="err">“</span><span class="nx">test</span><span class="err">”</span>
-</span><span class='line'><span class="nx">myVarJ</span><span class="p">[</span><span class="err">‘</span><span class="nx">prop2</span><span class="err">’</span><span class="p">]</span> <span class="o">=</span> <span class="err">“</span><span class="nx">bar</span><span class="err">”</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Bracket notation has two advantages: it can be used to concatenate strings in the property name, and it can use reserved words.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// Dot Notation</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">str</span> <span class="mi">1</span> <span class="o">=</span> <span class="err">“</span><span class="nx">foo</span><span class="err">”</span><span class="p">;</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">str2</span> <span class="o">=</span> <span class="err">“</span><span class="nx">bar</span><span class="err">”</span><span class="p">;</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">myVarK</span><span class="p">[</span><span class="nx">str1</span> <span class="o">+</span> <span class="nx">str2</span><span class="p">]</span> <span class="o">=</span> <span class="err">“</span><span class="nx">baz</span><span class="err">”</span><span class="p">;</span>
-</span><span class='line'><span class="nx">myVarK</span><span class="p">.</span><span class="nx">foobar</span><span class="p">;</span>
-</span><span class='line'><span class="o">=&gt;</span><span class="err">”</span><span class="nx">baz</span><span class="err">&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// Bracket Notation</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">myVarL</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="err">“</span><span class="nx">Algebra</span><span class="err">”</span><span class="p">;</span>
-</span><span class='line'><span class="nx">myVarL</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">];</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="err">“</span><span class="nx">Algebra</span><span class="err">”</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Deleting Properties</h3>
-
-<p>There is only only way to delete a property, which is to use the <em>delete</em> keyword.
-Setting it to null or undefined will not remove it.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="k">delete</span> <span class="nx">myVarL</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>hasOwnProperty()</h3>
-
-<p>This method can be used to check if a property belongs to a given object. It may return false when an object&rsquo;s constructor does have the property; it only tells whether the object itself has the property.</p>
-
-<h3>The Prototype Property</h3>
-
-<p>All instances of a constructor contain this property. The properties of the &lsquo;prototype&rsquo; property itself are inherited by instances of the constructor.
-Object.prototype is at the top of the inheritance chain, so all objects inherit from it. It is a very bad idea to change Object.prototype&rsquo;s properties.</p>
-
-<h3>The &lsquo;in&rsquo; Keyword</h3>
-
-<p>Checks for a property in an object. Similar to hasOwnProperty(), but it <em>does</em> look up the inheritance chain.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVar</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;hello&#39;</span><span class="p">,</span> <span class="s1">&#39;world&#39;</span><span class="p">];</span>
-</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;toString&#39;</span> <span class="k">in</span> <span class="nx">myVar</span><span class="p">);</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="kc">true</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Inheritance and Looping</h2>
-
-<p>If you run a for/in loop on the properties of an object, it will return inherited properties unless you use a guard clause checking each property with hasOwnProperty().</p>
-
-<h2>Host Objects</h2>
-
-<p>These objects are provided by the JavaScript environment. Examples include &lsquo;window&rsquo; and &lsquo;document&rsquo; in the browser.</p>
-
-<h2>The &lsquo;this&rsquo; Keyword</h2>
-
-<p>The &lsquo;this&rsquo; keyword is available within the scope of a function, but it refers to the object which called the current function. It does not refer to the function itself, but its containing object.</p>
-
-<p>&lsquo;this&rsquo; acts like any other variable, only it can&rsquo;t be modified.</p>
-
-<p>In EcmaScript 3, calling &lsquo;this&rsquo; from a nested function referred to the Head Object. This was a serious mistake that was fixed in ES5. As a workaround, programmers used a variable &lsquo;that&rsquo; to keep track of the value of &lsquo;this&rsquo; inside of nested functions.</p>
-
-<p>&lsquo;this&rsquo; can be overridden with call() and apply(), which redefine &lsquo;this&rsquo; to be their first parameter (the object they are targetting).</p>
-
-<p>When using a constructor to create an instance, &lsquo;this&rsquo; refers to the object-to-be (the instance that has not yet been created). This pattern works for both properties and methods.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Person</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="nx">name</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Scope</h2>
-
-<p>There are three kinds of scope in JavaScript:</p>
-
-<ol>
-<li>Global Scope</li>
-<li>Function Scope</li>
-<li>Eval Scope</li>
-</ol>
-
-
-<p>There is no scope created by &lsquo;for&rsquo; or &lsquo;while&rsquo; loops, nor by &lsquo;if&rsquo;.</p>
-
-<p>If a variable is declared without the keyword &lsquo;var&rsquo;, it is created in the global scope. This is to be avoided.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">myVar</span> <span class="o">=</span> <span class="s2">&quot;hello&quot;</span><span class="p">;</span> <span class="c1">// this is global</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">myVar2</span> <span class="o">=</span> <span class="s2">&quot;world&quot;</span><span class="p">;</span> <span class="c1">// this is local</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Lexical Scoping</h3>
-
-<p>Objects can look up the inheritance chain to find properties, functions, and methods, but they cannot look into their childrens&#8217; scopes. When looking for a value up the inheritance chain, the first found value is returned. Any values in higher scopes are &lsquo;shadowed&rsquo;, or &lsquo;masked&rsquo; by the value found in the lowest scope.</p>
-
-<p>Priority of inheritance is defined in the definition (the code), not the state of objects at the time of invocation.</p>
-
-<h2>Prototype</h2>
-
-<p>Prototype is a property found in instances created by the Function() constructor. These functions can be used as constructors themselves.</p>
-
-<p>Why should you care?</p>
-
-<ol>
-<li>Prototype is what the nine native constructors use to pass methods to their object children.</li>
-<li>You can use prototypes to orchestrate inheritance.</li>
-<li>You may inherit code that uses it.</li>
-<li>It&rsquo;s efficient in that all instances of an object can share a method defined in only one place: the prototype object.</li>
-</ol>
-
-
-<p>The prototype property is basically a container (an object) for properties and methods you want instances of a given object to inherit. They will inherit the current value of the property (it is updated dynamically).</p>
-
-<p>The values passed into prototype must be complex (not JavaScript primitives).</p>
-
-<p>Instances of an object access the prototype&rsquo;s host object with their &lsquo;constructor&rsquo; property.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myArray</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">();</span>
-</span><span class='line'><span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">foo</span> <span class="o">=</span> <span class="s1">&#39;bar&#39;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">myArray</span><span class="p">.</span><span class="nx">constructor</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">foo</span><span class="p">;</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="s1">&#39;bar&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// This is the same as line 4. The &#39;foo&#39; property is found by inheritance.</span>
-</span><span class='line'><span class="nx">myArray</span><span class="p">.</span><span class="nx">foo</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>All objects have a common highest ancestor: Object.prototype. Overriding the &lsquo;prototype&rsquo; property on Object will break its functionality.</p>
-
-<p><br/></p>
-
-<hr />
-
-
-<p><br/></p>
-
-<h1>The Parts of JavaScript</h1>
-
-<h2>The Head/Global Object</h2>
-
-<p>This object represents the highest scope in a given JavaScript environment. In the browser, it is &lsquo;window&rsquo;. It contains ALL objects in the environment.</p>
-
-<p>Global properties and variables are contained in the Head Object, and are accessible from any other scope through inheritance.</p>
-
-<p>The Head Object can be referenced by referring to &lsquo;window&rsquo;, or using the keyword &lsquo;this&rsquo; from the global scope. Thus, its scope is implied from outside of a function.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// These mean the same thing:</span>
-</span><span class='line'><span class="nx">alert</span><span class="p">();</span>
-</span><span class='line'><span class="nb">window</span><span class="p">.</span><span class="nx">alert</span><span class="p">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Global Functions</h3>
-
-<p>These are provided by the environment.</p>
-
-<ul>
-<li>decodeURI()</li>
-<li>decodeURIComponent()</li>
-<li>encodeURI()</li>
-<li>encodeURIComponent()</li>
-<li>eval()</li>
-<li>isFinite()</li>
-<li>isNaN()</li>
-<li>parseFloat()</li>
-<li>parseInt()</li>
-</ul>
-
-
-<h2>Object()</h2>
-
-<p>Gives an empty object container. Creating objects with a literal is the preferred syntax.</p>
-
-<h3>Parameters</h3>
-
-<p>Object() takes a parameter that is a value. It is null/undefined by default.</p>
-
-<h3>Properties and Methods</h3>
-
-<p>Note: ALL JavaScript objects inherit the following properties and methods from Object.prototype.</p>
-
-<p>When defining property keys, one can use dot notation or bracket notation. Bracket notation is more flexible, because it allows for the use of concatenation and reserved words.</p>
-
-<h4>Properties</h4>
-
-<ul>
-<li>prototype</li>
-</ul>
-
-
-<h4>Instance Properties</h4>
-
-<ul>
-<li>constructor</li>
-</ul>
-
-
-<h4>Instance Methods</h4>
-
-<ul>
-<li>hasOwnProperty()</li>
-<li>isPrototypeOf()</li>
-<li>propertyIsEnumerable()</li>
-<li>toLocaleString()</li>
-<li>toString()</li>
-<li>valueOf()</li>
-</ul>
-
-
-<p><br /></p>
-
-<h2>Function()</h2>
-
-<p>Functions always return a value. This will be &lsquo;undefined&rsquo; if another return value is not specified.</p>
-
-<p>Functions define a new scope. Variables within it cannot be seen from objects containing the function, but they <em>can</em> be seen by objects it contains. This is called &lsquo;lexical scoping&rsquo;.</p>
-
-<p>There are three ways to define a new function:</p>
-
-<ol>
-<li>With the constructor: var myFunction = new Function(){};</li>
-<li>With a literal, as an expression: var myFunction = function(){};</li>
-<li>With a literal, as a statement: function myFunction(){};</li>
-</ol>
-
-
-<p>Functions are &lsquo;first class citizens&rsquo; in JavaScript. They are objects, they can be stored, they have properties, and they can be passed into other functions (higher-order functions).</p>
-
-<h3>Invoking Functions</h3>
-
-<p>Functions are invoked with (). This can be done in three ways:</p>
-
-<ol>
-<li>As a function - func();</li>
-<li>As a method - when attached to an object - myVar.func();</li>
-<li>Using apply() or call()</li>
-<li>As a constructor:</li>
-</ol>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Cody</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){};</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">cody</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Cody</span><span class="p">();</span>
-</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">cody</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Anonymous Functions</h3>
-
-<p>Functions not given an identifier are anonymous.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">function</span><span class="p">(){};</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Self-Invoking Functions</h3>
-
-<p>Functions that call themselves immediately upon definition. This doesn&rsquo;t work with the Function() constructor.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myFunction</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">input</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">input</span><span class="p">)</span>
-</span><span class='line'><span class="p">}();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Self-Invoking Anonymous Functions</h3>
-
-<p>Functions with no identifier that immediately call themselves. These often wrap code to keep it from polluting the global object. Note that it must be wrapped in additional parentheses.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
-</span><span class='line'>  <span class="c1">// code goes here</span>
-</span><span class='line'><span class="p">})();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Hoisting</h3>
-
-<p>A function can be invoked before it is defined, because JavaScript collects the functions before runtime. This is called hoisting. It does not work with function expressions.</p>
-
-<h3>Recursion</h3>
-
-<p>Functions may call themselves while executing. This is called recursion.</p>
-
-<h3>Parameters</h3>
-
-<p>When creating a function with the constructor, the last param passed in becomes the inside of the function.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myFunction</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Function</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;return foo+bar&#39;</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You can create a function with too few parameters. The missing ones will be treated as &lsquo;undefined.&rsquo;</p>
-
-<p>You can also create a function with too many parameters. The extras will be ignored, although they are accessible from the &lsquo;arguments&rsquo; property.</p>
-
-<h3>Properties and Methods</h3>
-
-<h4>Properties</h4>
-
-<ul>
-<li>prototype</li>
-</ul>
-
-
-<h4>Instance Properties</h4>
-
-<ul>
-<li>constructor</li>
-<li>length</li>
-<li>arguments</li>
-</ul>
-
-
-<p>Arguments has a property &lsquo;callee&rsquo; that contains a reference to the function currently executing. This can be used in creating recursive functions.</p>
-
-<p>Arguments also has a property &lsquo;length&rsquo;, containing the number of arguments at invocation. This property is being depricated in favor of arguments.callee.length.</p>
-
-<p><br /></p>
-
-<h4>Instance Methods</h4>
-
-<ul>
-<li>apply()</li>
-<li>call()</li>
-<li>toString()</li>
-</ul>
-
-
-<p><br /></p>
-
-<h2>Array()</h2>
-
-<p>A special type of object with a couple of extra functions.</p>
-
-<h3>Parameters</h3>
-
-<p>Any comma-separated parameters passed in will become elements in the array.
-If a single integer is passed alone, it will define the length of the array instead of an element value. If you define a high index, the elements before it will be filled in with &lsquo;undefined&rsquo;. Setting an array&rsquo;s length can add or remove values automatically.</p>
-
-<h3>Properties and Methods</h3>
-
-<h4>Properties</h4>
-
-<ul>
-<li>prototype</li>
-</ul>
-
-
-<h4>Instance Properties</h4>
-
-<ul>
-<li>constructor</li>
-<li>index</li>
-<li>input</li>
-<li>length</li>
-</ul>
-
-
-<h4>Instance Methods</h4>
-
-<ul>
-<li>pop()</li>
-<li>push()</li>
-<li>reverse()</li>
-<li>shift()</li>
-<li>sort()</li>
-<li>splice()</li>
-<li>unshift()</li>
-<li>concat()</li>
-<li>join()</li>
-<li>slice()</li>
-</ul>
-
-
-<p><br/></p>
-
-<h2>String()</h2>
-
-<h3>Creating Strings</h3>
-
-<p>This will create a string object.
-It is best to avoid this syntax due to potential problems with typeof.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObj</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">String</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span> <span class="c1">// constructor function</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>These two create a primitive:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myString</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span> <span class="c1">// without new keyword</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">myString</span> <span class="o">=</span> <span class="s1">&#39;foo&#39;</span> <span class="c1">// literal</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Parameters</h3>
-
-<p>Takes one parameter: the string value being created.</p>
-
-<h3>Properties and Methods</h3>
-
-<h4>Properties</h4>
-
-<ul>
-<li>prototype</li>
-</ul>
-
-
-<h4>Methods</h4>
-
-<ul>
-<li>fromCharChode()</li>
-</ul>
-
-
-<h4>Instance Properties</h4>
-
-<ul>
-<li>constructor</li>
-<li>length</li>
-</ul>
-
-
-<h4>Instance Methods</h4>
-
-<ul>
-<li>charAt()</li>
-<li>charCodeAt()</li>
-<li>concat()</li>
-<li>indexOf()</li>
-<li>lastIndexOf()</li>
-<li>localeCompare()</li>
-<li>match()</li>
-<li>quote()</li>
-<li>replace()</li>
-<li>search()</li>
-<li>slice()</li>
-<li>split()</li>
-<li>substr()</li>
-<li>substring()</li>
-<li>toLocaleLowerCase()</li>
-<li>toLocaleUpperCase()</li>
-<li>toLowerCase()</li>
-<li>toUpperCase()</li>
-<li>valueOf()</li>
-</ul>
-
-
-<p><br /></p>
-
-<h2>Number()</h2>
-
-<h3>Creating Numbers</h3>
-
-<p>This will create a number object.
-It is best to avoid this syntax due to potential problems with typeof.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObj</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Number</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="c1">// constructor function</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>These two create a primitive:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myNumber</span> <span class="o">=</span> <span class="nb">Number</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span> <span class="c1">// without new keyword</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">myNumber</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span> <span class="c1">// literal</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Parameters</h3>
-
-<p>Takes one parameter: the number value being created.</p>
-
-<h3>Properties and Methods</h3>
-
-<h4>Properties</h4>
-
-<ul>
-<li>MAX_VALUE</li>
-<li>MIN_VALUE</li>
-<li>NaN</li>
-<li>NEGATIVE_INFINITY</li>
-<li>POSITIVE_INFINITY</li>
-<li>prototype</li>
-</ul>
-
-
-<h4>Instance Properties</h4>
-
-<ul>
-<li>constructor</li>
-</ul>
-
-
-<h4>Instance Methods</h4>
-
-<ul>
-<li>toExponential()</li>
-<li>toFixed()</li>
-<li>toLocaleString()</li>
-<li>toPrecision()</li>
-<li>toString()</li>
-<li>valueOf()</li>
-</ul>
-
-
-<p><br /></p>
-
-<h2>Boolean()</h2>
-
-<h3>Creating Booleans</h3>
-
-<p>This will create a boolean object.
-It is best to avoid this syntax due to potential problems with typeof.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObj</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Boolean</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="c1">// constructor function</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">These</span> <span class="nx">two</span> <span class="nx">create</span> <span class="nx">a</span> <span class="nx">primitive</span><span class="o">:</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">myBoolean</span> <span class="o">=</span> <span class="nb">Boolean</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span> <span class="c1">// without new keyword</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">myBoolean</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span> <span class="c1">// literal</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Parameters</h3>
-
-<p>Takes one parameter to be converted into a boolean.</p>
-
-<p>The only false values are: 0, -0, null, false, NaN, undefined, and &ldquo;&rdquo;.</p>
-
-<h3>Properties and Methods</h3>
-
-<h4>Properties</h4>
-
-<ul>
-<li>prototype</li>
-</ul>
-
-
-<h4>Instance Properties</h4>
-
-<ul>
-<li>constructor</li>
-</ul>
-
-
-<h4>Instance Methods</h4>
-
-<ul>
-<li>toSource()</li>
-<li>toString()</li>
-<li>valueOf()</li>
-</ul>
-
-
-<h4>Notes</h4>
-
-<p>If you create a false boolean object with a constructor, it creates an object. Objects convert to true. Thus do not use the constructor with false booleans.</p>
-
-<p><br /></p>
-
-<h2>Primitives: String, Number, and Boolean</h2>
-
-<p>A primitive is an irreducible value.
-The Primitives are: number, string, boolean, null, and undefined.</p>
-
-<p>Primitives are stored in memory with their value:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarA</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">myVarB</span> <span class="o">=</span> <span class="nx">myVarA</span><span class="p">;</span>
-</span><span class='line'><span class="nx">myVarA</span> <span class="o">=</span> <span class="mi">13</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">myVarA</span> <span class="o">===</span> <span class="mi">13</span><span class="p">;</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="kc">true</span>
-</span><span class='line'><span class="nx">myVarB</span> <span class="o">===</span> <span class="mi">12</span><span class="p">;</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="kc">true</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>It is best to write these using the literal form. Using a constructor will result in a typeof result of &ldquo;object&rdquo; instead of the actual type.</p>
-
-<h3>Object Wrappers</h3>
-
-<p>When you call a property or method on a primitive, it is wrapped in a temporary object.
-The temporary object is discarded once the properties have been accessed.</p>
-
-<p><br /></p>
-
-<h2>Null</h2>
-
-<p>Use null to indicate that an object property doesn&rsquo;t have a value.
-It means that a value is expected but not yet available.
-Calling typeof on it will return &lsquo;object&rsquo;. It is best to test for null with ===.</p>
-
-<p><br /></p>
-
-<h2>Undefined</h2>
-
-<p>Used in two ways:</p>
-
-<ul>
-<li>Indicate that a variable has no assigned value.</li>
-<li>Indicate that an object property you want to access is not defined or named, and can&rsquo;t be found in the prototype lookup chain.</li>
-</ul>
-
-
-<p>It is best to let JavaScript itself use undefined. Don&rsquo;t use it yourself.</p>
-
-<p><br /></p>
-
-<h2>Math</h2>
-
-<p>This is a built-in, static object. It is not a constructor and cannot be instantiated.</p>
-
-<h3>Properties and Methods</h3>
-
-<h4>Properties</h4>
-
-<ul>
-<li>E</li>
-<li>LN2</li>
-<li>LN10</li>
-<li>LOG2E</li>
-<li>LOG10E</li>
-<li>PI</li>
-<li>SQRT1_2</li>
-<li>SQRT2</li>
-</ul>
-
-
-<h4>Methods</h4>
-
-<ul>
-<li>abs()</li>
-<li>acos()</li>
-<li>asin()</li>
-<li>atan()</li>
-<li>atan2()</li>
-<li>ceil()</li>
-<li>cos()</li>
-<li>exp()</li>
-<li>floor()</li>
-<li>log()</li>
-<li>max()</li>
-<li>min()</li>
-<li>pow()</li>
-<li>random()</li>
-<li>sin()</li>
-<li>sort()</li>
-<li>tan()</li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="3">&larr; Older</a>
@@ -3137,6 +2904,10 @@ Calling typeof on it will return &lsquo;object&rsquo;. It is best to test for nu
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
       </li>
     
@@ -3150,10 +2921,6 @@ Calling typeof on it will return &lsquo;object&rsquo;. It is best to test for nu
     
       <li class="post">
         <a href="/blog/2014/07/24/angular-js-unit-testing-for-real-though/">AngularJS Unit Testing, For Real Though</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/05/20/five-capybara-hacks-to-make-your-testing-experience-less-painful/">Five Capybara Hacks To Make Your Testing Experience Less Painful</a>
       </li>
     
   </ul>

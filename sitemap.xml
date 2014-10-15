@@ -3,6 +3,14 @@
   
   
   <url>
+    <loc>http://fluxusfrequency.github.io/blog/2014/10/15/getting-started-with-active-job/</loc>
+    
+    <lastmod>2014-10-15T06:40:09-06:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
     <loc>http://fluxusfrequency.github.io/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/</loc>
     
     <lastmod>2014-10-02T07:03:19-06:00</lastmod>
@@ -309,21 +317,21 @@
   
   <url>
     <loc>http://fluxusfrequency.github.io/blog/archives/</loc>
-    <lastmod>2014-10-02T08:42:36-06:00</lastmod>
+    <lastmod>2014-10-15T06:42:11-06:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>http://fluxusfrequency.github.io/</loc>
-    <lastmod>2014-10-02T08:42:36-06:00</lastmod>
+    <lastmod>2014-10-15T06:42:11-06:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   
   <url>
     <loc>http://fluxusfrequency.github.io/about/</loc>
-    <lastmod>2014-10-02T08:42:36-06:00</lastmod>
+    <lastmod>2014-10-15T06:42:11-06:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
