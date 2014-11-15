@@ -1,0 +1,906 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Refactoring 2: Replace Method with Method Object - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="As I mentioned last week, I&rsquo;m doing a series of posts on refactoring. As gSchool wraps up, I&rsquo;m working on my refactoring skills, so that &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2014/01/17/refactoring-2-replace-method-with-method-object">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Refactoring 2: Replace Method With Method Object</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-17T09:06:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>As I mentioned last week, I&rsquo;m doing a series of posts on refactoring. As gSchool wraps up, I&rsquo;m working on my refactoring skills, so that I&rsquo;ll be a better developer when I get my first job. I&rsquo;m trying some of the strategies outlined in the book <a href="http://martinfowler.com/books/refactoringRubyEd.html">Refactoring Ruby</a>.</p>
+
+<p>Today I&rsquo;ll be trying out a strategy called Replace Method with Method Object. This is a good approach to take when you have a long method with many variables in it, and using <a href="http://fluxusfrequency.github.io/blog/2014/01/10/refactoring-1-extract-method/">Extract Method</a> wouldn&rsquo;t be practical. Essentially, it consists of removing the method from its class and turning it into a class of its own. From there, you can more easily refactor using Extract Method and other simple strategies.</p>
+
+<p>Here are the steps as outlined in the book:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>1. Create a new class, name it after the method.
+</span><span class='line'>
+</span><span class='line'>2. Give the new class an attribute for the object that hosted the original method (the source object) and an attribute for each temporary vairable and each parameter in the method.
+</span><span class='line'>
+</span><span class='line'>3. Give the new class a constructor that takes the source object and each parameter.
+</span><span class='line'>
+</span><span class='line'>4. Give the new class a method named "compute".
+</span><span class='line'>
+</span><span class='line'>5. Copy the body of the original method into "compute". Use the source object instance variable for any invocations of methods on the original subject.
+</span><span class='line'>
+</span><span class='line'>6. Test.
+</span><span class='line'>
+</span><span class='line'>7. Replace the old method with one that creates the new method and call "compute".
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Mancala</h2>
+
+<p>I took a look around my Github repositories, and found this little wonder from a <a href="https://github.com/fluxusfrequency/mancala">Mancala</a> app I wrote in Ruby Processing during the first month of gSchool.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">MancalaKalahRules</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">distribute_beads_for_player</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">next_pit_id</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">first_pit_id</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@i</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">while</span> <span class="vi">@i</span> <span class="o">&lt;=</span> <span class="n">count</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">execute_store_logic</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">break</span> <span class="k">if</span> <span class="vi">@i</span> <span class="o">==</span> <span class="n">count</span>
+</span><span class='line'>      <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add_bead_to_pit</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">next_pit_id</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">if</span> <span class="vi">@i</span> <span class="o">==</span> <span class="n">count</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="n">landing_spot</span> <span class="o">=</span> <span class="n">next_pit_id</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="n">landing_spot</span> <span class="o">=</span> <span class="mi">12</span> <span class="k">if</span> <span class="n">landing_spot</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">landed_on_empty?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_all_pit_ids_on_players_side</span><span class="p">(</span><span class="n">player</span><span class="p">)</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
+</span><span class='line'>          <span class="n">take_both_sides</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
+</span><span class='line'>          <span class="k">break</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>      <span class="vi">@i</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What a mess.</p>
+
+<h2>Setting Up Tests</h2>
+
+<p>To begin the refactoring process, I had to make sure the tests were in place first. This was fairly difficult, as this method is highly coupled to other methods throughout the app. For testing purposes, I added a couple of stubbed methods to <code>KalahRules</code>, and created dummy <code>App</code> and <code>Model</code> classes with stubbed methods of their own. Also, <code>distribute_beads_for_player</code> did not return anything meaningful, so I changed it to do return the value of <code>@i</code>.</p>
+
+<p>In the end, here&rsquo;s the code I used to make the test pass:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/autorun&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/pride&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;./kalah_rules&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">KalahRulesTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_distribute_beads_for_player_returns_the_correct_count</span>
+</span><span class='line'>    <span class="n">rules</span> <span class="o">=</span> <span class="no">MancalaKalahRules</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="n">app</span> <span class="o">=</span> <span class="no">App</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="nb">id</span> <span class="o">=</span> <span class="mi">2</span>
+</span><span class='line'>    <span class="n">player</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class='line'>    <span class="n">count</span> <span class="o">=</span> <span class="mi">10</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">expected</span> <span class="o">=</span> <span class="mi">9</span>
+</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="n">rules</span><span class="o">.</span><span class="n">distribute_beads_for_player</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="n">expected</span><span class="p">,</span> <span class="n">result</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">MancalaKalahRules</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">distribute_beads_for_player</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">next_pit_id</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">first_pit_id</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@i</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">while</span> <span class="vi">@i</span> <span class="o">&lt;=</span> <span class="n">count</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">execute_store_logic</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">break</span> <span class="k">if</span> <span class="vi">@i</span> <span class="o">==</span> <span class="n">count</span>
+</span><span class='line'>      <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add_bead_to_pit</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">next_pit_id</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">if</span> <span class="vi">@i</span> <span class="o">==</span> <span class="n">count</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="n">landing_spot</span> <span class="o">=</span> <span class="n">next_pit_id</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="n">landing_spot</span> <span class="o">=</span> <span class="mi">12</span> <span class="k">if</span> <span class="n">landing_spot</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">landed_on_empty?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_all_pit_ids_on_players_side</span><span class="p">(</span><span class="n">player</span><span class="p">)</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
+</span><span class='line'>          <span class="n">take_both_sides</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
+</span><span class='line'>          <span class="k">break</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>      <span class="vi">@i</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="vi">@i</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">execute_store_logic</span><span class="p">(</span><span class="n">pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">take_both_sides</span><span class="p">(</span><span class="n">spot</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">landed_on_empty?</span><span class="p">(</span><span class="n">spot</span><span class="p">)</span>
+</span><span class='line'>    <span class="kp">true</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">App</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">model</span>
+</span><span class='line'>    <span class="no">Model</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Model</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_next_pit_by_id</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
+</span><span class='line'>    <span class="mi">3</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">add_bead_to_pit</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_all_pit_ids_on_players_side</span><span class="p">(</span><span class="n">player</span><span class="p">)</span>
+</span><span class='line'>    <span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>All green! Time to start refactoring!</p>
+
+<p><img src="http://s5.postimg.org/540zghpmv/All_green_before_refactor.png" title="All Green Before Refactor" alt="A set of passing Ruby tests"></p>
+
+<h2>Applying the Strategy</h2>
+
+<p>Step 1: Create a new class named after the method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributor</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Step 2: Give the new class an attribute of the source object and its parameters.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributor</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Step 3: Give the new class a constructor that takes the new attributes. I chose to add attr_readers as well:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributor</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:rules</span><span class="p">,</span>
+</span><span class='line'>              <span class="ss">:app</span><span class="p">,</span>
+</span><span class='line'>              <span class="ss">:first_pit_id</span><span class="p">,</span>
+</span><span class='line'>              <span class="ss">:player</span><span class="p">,</span>
+</span><span class='line'>              <span class="ss">:count</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@rules</span> <span class="o">=</span> <span class="n">rules</span>
+</span><span class='line'>    <span class="vi">@app</span> <span class="o">=</span> <span class="n">app</span>
+</span><span class='line'>    <span class="vi">@first_pit_id</span> <span class="o">=</span> <span class="n">first_pit_id</span>
+</span><span class='line'>    <span class="vi">@player</span> <span class="o">=</span> <span class="n">player</span>
+</span><span class='line'>    <span class="vi">@count</span> <span class="o">=</span> <span class="n">count</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Step 4: Give the new class a <em>compute</em> method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributor</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Code omitted for brevity</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">compute</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Step 5: Copy the original method into <em>compute</em>. I also copied in the stubbed methods for testing purposes.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributor</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Code omitted for brevity</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">compute</span>
+</span><span class='line'>    <span class="n">next_pit_id</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">first_pit_id</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@i</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">while</span> <span class="vi">@i</span> <span class="o">&lt;=</span> <span class="n">count</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">execute_store_logic</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">break</span> <span class="k">if</span> <span class="vi">@i</span> <span class="o">==</span> <span class="n">count</span>
+</span><span class='line'>      <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add_bead_to_pit</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">next_pit_id</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">if</span> <span class="vi">@i</span> <span class="o">==</span> <span class="n">count</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="n">landing_spot</span> <span class="o">=</span> <span class="n">next_pit_id</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="n">landing_spot</span> <span class="o">=</span> <span class="mi">12</span> <span class="k">if</span> <span class="n">landing_spot</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">landed_on_empty?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_all_pit_ids_on_players_side</span><span class="p">(</span><span class="n">player</span><span class="p">)</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
+</span><span class='line'>          <span class="n">take_both_sides</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
+</span><span class='line'>          <span class="k">break</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>      <span class="vi">@i</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="vi">@i</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">execute_store_logic</span><span class="p">(</span><span class="n">pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">take_both_sides</span><span class="p">(</span><span class="n">spot</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">landed_on_empty?</span><span class="p">(</span><span class="n">spot</span><span class="p">)</span>
+</span><span class='line'>    <span class="kp">true</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Step 6: Test. I tested the newly created <code>BeadDistributor</code> class:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributorTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_compute_returns_the_correct_count</span>
+</span><span class='line'>    <span class="n">rules</span> <span class="o">=</span> <span class="no">MancalaKalahRules</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="n">app</span> <span class="o">=</span> <span class="no">App</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="nb">id</span> <span class="o">=</span> <span class="mi">2</span>
+</span><span class='line'>    <span class="n">player</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class='line'>    <span class="n">count</span> <span class="o">=</span> <span class="mi">10</span>
+</span><span class='line'>    <span class="n">distributor</span> <span class="o">=</span> <span class="no">BeadDistributor</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">expected</span> <span class="o">=</span> <span class="mi">9</span>
+</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="n">distributor</span><span class="o">.</span><span class="n">compute</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="n">expected</span><span class="p">,</span> <span class="n">result</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>All green!</p>
+
+<p><img src="http://s5.postimg.org/s81g92sxz/All_green_after_refactor.png" title="All Green After Refactor" alt="A set of passing Ruby tests"></p>
+
+<p>Step 7: Replace the old method by instantiating the new object, passing the old object into it, and calling <em>compute</em>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">MancalaKalahRules</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">distribute_beads_for_player</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>    <span class="no">BeadDistributor</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>At this point, I ran the test2 again. The original one passed! Yay!</p>
+
+<p><img src="http://s5.postimg.org/f55tpt2pz/Still_green.png" title="Still Green" alt="Another set of passing Ruby tests"></p>
+
+<p>After completing the object extraction, I was free to refactor the new BeadDistributor using more common strategies. Here&rsquo;s what I ended up with:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributor</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:rules</span><span class="p">,</span>
+</span><span class='line'>              <span class="ss">:app</span><span class="p">,</span>
+</span><span class='line'>              <span class="ss">:first_pit_id</span><span class="p">,</span>
+</span><span class='line'>              <span class="ss">:player</span><span class="p">,</span>
+</span><span class='line'>              <span class="ss">:count</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@rules</span> <span class="o">=</span> <span class="n">rules</span>
+</span><span class='line'>    <span class="vi">@app</span> <span class="o">=</span> <span class="n">app</span>
+</span><span class='line'>    <span class="vi">@first_pit_id</span> <span class="o">=</span> <span class="n">first_pit_id</span>
+</span><span class='line'>    <span class="vi">@player</span> <span class="o">=</span> <span class="n">player</span>
+</span><span class='line'>    <span class="vi">@count</span> <span class="o">=</span> <span class="n">count</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">compute</span>
+</span><span class='line'>    <span class="n">fix_landing_on_spot_12</span>
+</span><span class='line'>    <span class="n">take_both_if_own_empty</span>
+</span><span class='line'>    <span class="n">distribute_beads</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">distribute_beads</span>
+</span><span class='line'>    <span class="p">(</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">times</span> <span class="k">do</span> <span class="o">|</span><span class="n">i</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">rules</span><span class="o">.</span><span class="n">execute_store_logic</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">app</span><span class="o">.</span><span class="n">add_bead_to_model</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">next_pit_id</span>
+</span><span class='line'>    <span class="n">app</span><span class="o">.</span><span class="n">find_next_pit_in_model</span><span class="p">(</span><span class="n">first_pit_id</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">take_both_if_own_empty</span>
+</span><span class='line'>    <span class="n">rules</span><span class="o">.</span><span class="n">take_both_sides</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span> <span class="k">if</span> <span class="n">landed_on_players_own_empty_pit?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">landed_on_players_own_empty_pit?</span>
+</span><span class='line'>    <span class="n">rules</span><span class="o">.</span><span class="n">landed_on_empty?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">app</span><span class="o">.</span><span class="n">check_if_pit_belongs_to_player</span><span class="p">(</span><span class="n">player</span><span class="p">,</span> <span class="n">landing_spot</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">landing_spot</span>
+</span><span class='line'>    <span class="vi">@landing_spot</span> <span class="o">||=</span> <span class="n">next_pit_id</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">fix_landing_on_spot_12</span>
+</span><span class='line'>    <span class="vi">@landing_spot</span> <span class="o">=</span> <span class="mi">12</span> <span class="k">if</span> <span class="n">landing_spot</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">MancalaKalahRules</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">distribute_beads_for_player</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>    <span class="no">BeadDistributor</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">execute_store_logic</span><span class="p">(</span><span class="n">pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">take_both_sides</span><span class="p">(</span><span class="n">spot</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">landed_on_empty?</span><span class="p">(</span><span class="n">spot</span><span class="p">)</span>
+</span><span class='line'>    <span class="kp">true</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">App</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">model</span>
+</span><span class='line'>    <span class="no">Model</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">add_bead_to_model</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">model</span><span class="o">.</span><span class="n">add_bead_to_pit</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_next_pit_in_model</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">check_if_pit_belongs_to_player</span><span class="p">(</span><span class="n">player</span><span class="p">,</span> <span class="n">landing_spot</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">model</span><span class="o">.</span><span class="n">find_all_pit_ids_on_players_side</span><span class="p">(</span><span class="n">player</span><span class="p">)</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Model</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_next_pit_by_id</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
+</span><span class='line'>    <span class="mi">3</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">add_bead_to_pit</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">find_all_pit_ids_on_players_side</span><span class="p">(</span><span class="n">player</span><span class="p">)</span>
+</span><span class='line'>    <span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Running the tests one more time, I saw that everything was still green. Although I could have gone on to refactor some of the other methods in the original class that <code>distribute_beads_for_player</code> was coupled to, I decided to call it a day.</p>
+
+<p><img src="http://s5.postimg.org/8fza9shdz/Final_green.png" title="Final Green" alt="Another set of passing Ruby tests"></p>
+
+<h2>Conclusion</h2>
+
+<p>I enjoyed the Replace Method with Method Object strategy. It&rsquo;s a pretty cool way to think about the microcosm/macrocosm relationship between methods and objects. Although it&rsquo;s not probably useful for every refactoring case, I imagine it would come in really handy when cleaning up a hairy method like <code>distribute_beads_for_player</code>. I&rsquo;m learning a lot from Refactoring Ruby, and I&rsquo;m looking forward to seeing what other strategies it offers.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-17T09:06:00-07:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2014/01/17/refactoring-2-replace-method-with-method-object/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2014/01/17/refactoring-2-replace-method-with-method-object/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/01/10/refactoring-1-extract-method/" title="Previous Post: Refactoring 1: Extract Method">&laquo; Refactoring 1: Extract Method</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/01/18/refactoring-3-introduce-named-parameter-and-introduce-class-annotation/" title="Next Post: Refactoring 3 - Introduce Named Parameter / Introduce Class Annotation">Refactoring 3 - Introduce Named Parameter / Introduce Class Annotation &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/">Using Services to Keep Your Rails Controllers Clean and DRY</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/04/looking-for-a-needle-in-a-haystack-with-ack/">Looking For A Needle In A Haystack! (or Using Ack To Improve Your Development Workflow)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/24/angular-js-unit-testing-for-real-though/">AngularJS Unit Testing, For Real Though</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

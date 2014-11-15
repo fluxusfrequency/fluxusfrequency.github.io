@@ -1,0 +1,784 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Building a Binary Search - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="A couple of days ago I had an interview with a big startup in Boulder. I was really excited about the possibility of working there, because they &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2014/01/31/building-a-binary-search">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Building a Binary Search</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-31T10:34:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>A couple of days ago I had an interview with a big startup in Boulder. I was really excited about the possibility of working there, because they solve some <em>really</em> hard problems on a daily basis, and because I&rsquo;ve heard great things about their office culture.</p>
+
+<p>It was just supposed to be a quick interview, but it ended up taking a few hours. First, I met up with the CTO. It all started off innocent enough. We went to a restaurant on Pearl Street for lunch. He asked me about my background and skills, and I asked him about the company. We shared personal stories about the flood last summer. After hearing about the way he treats his workers (like adults), and some of the technical details of what they were working on, I was even more excited about the company. We headed went to a coffee shop for a drink, then went back to the office.</p>
+
+<p>When we got there, he introduced me to the head of the team that the best fit for me if I worked there. The team lead, one of his coworkers and I headed back to the coffee shop. We chatted about Rails, <a href="http://www.exercism.io">Exercism</a>, TDD, and Ember.js, and life at their company. Pretty soon, the CTO came in again. Seeing that we were still talking, he asked the team lead to take me back and &ldquo;dig in technically&rdquo; a little bit.</p>
+
+<p>We went back to the office again, and found a conference room. He asked me to solve <a href="http://en.wikipedia.org/wiki/Fizz_buzz">FizzBuzz</a> in JavaScript. I fired up Jasmine-Node and built it with tests the whole way. That went fairly well, I thought. Then he asked me a couple of CSS questions. I answered them, and he said that I answered them better than many of the people he interviews.</p>
+
+<p>Finally, we came to some algorithm questions. Although I&rsquo;ve learned a lot at gSchool in the last five months, algorithms are something that I haven&rsquo;t spent as much time on, yet. I&rsquo;ve only had enough programming context to begin understanding them for the last two of those months. I&rsquo;ve played around with them as much as I could, solving Linked List, the Luhn Algorithm, Nth Prime Factor, Sum of Squares, and Binary Search Tree. I&rsquo;ve also had a go at writing the MD5 algorithm. But compared to someone with a four year CS degree, I haven&rsquo;t had much time to get comfortable with them.</p>
+
+<p>My interviewer drew an array on the board, and asked me how I would find a given element&rsquo;s position within 2-3 queries. I thought about it, made a guess that it had to do with bit operators, and finally conceded that I had no idea. My heart sunk. Things were going so well. When I asked for the solution, he told me that it was to use a Binary Search. I got excited, because I <em>had</em> done a Binary Search Tree. But no, this was just plain old Binary Search.</p>
+
+<p>Bitten that I didn&rsquo;t know how to do Binary Search, I set out to build it on my own. This rest of this post is a walkthrough of how I solved it.</p>
+
+<h2>Research</h2>
+
+<p>First, I visited Wikipedia and read up on <a href="http://en.wikipedia.org/wiki/Binary_search_algorithm">Binary Search</a>. It was pretty easy to follow. So easy, in fact, I decided to lift some of the text verbatim and translate it into a set of tests to drive my implementation. Here&rsquo;s what I found:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Searching a sorted collection is a common task. A dictionary is a sorted list of
+</span><span class='line'> word definitions. Given a word, one can find its definition. A telephone book
+</span><span class='line'> is a sorted list of people's names, addresses, and telephone numbers. Knowing
+</span><span class='line'> someone's name allows one to quickly find their telephone number and address.
+</span><span class='line'>
+</span><span class='line'>If the list to be searched contains more than a few items (a dozen, say) a
+</span><span class='line'>binary search will require far fewer comparisons than a linear search, but it
+</span><span class='line'>imposes the requirement that the list be sorted.
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>In computer science, a binary search or half-interval search algorithm finds
+</span><span class='line'>the position of a specified input value (the search "key") within an array
+</span><span class='line'>sorted by key value.
+</span><span class='line'>
+</span><span class='line'>In each step, the algorithm compares the search key value with the key value of
+</span><span class='line'>the middle element of the array.
+</span><span class='line'>
+</span><span class='line'>If the keys match, then a matching element has been found and its index, or
+</span><span class='line'>position, is returned.
+</span><span class='line'>
+</span><span class='line'>Otherwise, if the search key is less than the middle element's key, then the
+</span><span class='line'>algorithm repeats its action on the sub-array to the left of the middle element
+</span><span class='line'>or, if the search key is greater, on the sub-array to the right.
+</span><span class='line'>
+</span><span class='line'>If the remaining array to be searched is empty, then the key cannot be found in
+</span><span class='line'>the array and a special "not found" indication is returned.
+</span><span class='line'>
+</span><span class='line'>A binary search halves the number of items to check with each iteration, so
+</span><span class='line'>locating an item (or determining its absence) takes logarithmic time. A binary
+</span><span class='line'>search is a dichotomic divide and conquer search algorithm.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I decided to take this step-by-step description and turn each step into a test.</p>
+
+<h2>Setting Up the Binary Search Test &amp; Class</h2>
+
+<p>The first step was to create an object that knew about &ldquo;an array sorted by key value&rdquo;, or as I like to call it, a list. I wrote a test:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BinarySearchTest</span> <span class="o">&lt;</span> <span class="no">MiniTest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_it_has_list_data</span>
+</span><span class='line'>    <span class="n">binary</span> <span class="o">=</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="o">]</span><span class="p">,</span> <span class="n">binary</span><span class="o">.</span><span class="n">list</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And a class to make it pass:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BinarySearch</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:list</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@list</span> <span class="o">=</span> <span class="n">data</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That was easy! Next, it needed to be able to check whether the list was actually sorted, so I wrote a test to make sure it would throw an error if it wasn&rsquo;t:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">test_it_raises_error_for_unsorted_list</span>
+</span><span class='line'>  <span class="n">assert_raises</span> <span class="no">ArgumentError</span> <span class="k">do</span>
+</span><span class='line'>    <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To make it pass, I implemented the following check: compare the input with itself in sorted form. Not that elegant, but it worked:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BinarySearch</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:list</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">raise</span> <span class="no">ArgumentError</span> <span class="k">unless</span> <span class="n">data</span><span class="o">.</span><span class="n">sort</span> <span class="o">==</span> <span class="n">data</span>
+</span><span class='line'>    <span class="vi">@list</span> <span class="o">=</span> <span class="n">data</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>According to the Wikipedia article, the algorithm was going to have to find &ldquo;the key value of the middle element of the array&rdquo;. So I wrote a test to make sure that it knew where the middle of its list was:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">test_it_finds_position_of_middle_item</span>
+</span><span class='line'>  <span class="n">binary</span> <span class="o">=</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">assert_equal</span> <span class="mi">3</span><span class="p">,</span> <span class="n">binary</span><span class="o">.</span><span class="n">middle</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This was fairly trivial to solve:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BinarySearch</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:list</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">middle</span>
+</span><span class='line'>    <span class="n">list</span><span class="o">.</span><span class="n">length</span><span class="o">/</span><span class="mi">2</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With the class all set up, I turned my attention to the actual search algorithm itself.</p>
+
+<h2>Building the Search Algorithm</h2>
+
+<p>The goal was to search for the index of a specific element, so I wrote a test for a method that did that:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">test_it_finds_position_of_search_data</span>
+</span><span class='line'>  <span class="n">binary</span> <span class="o">=</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">assert_equal</span> <span class="mi">5</span><span class="p">,</span> <span class="n">binary</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next came the hard part. I took the text from Wikipedia and broke it down into pseudo-code:</p>
+
+<ul>
+<li>Get the search value</li>
+<li>Find the middle element in the list</li>
+<li>Check if they are equal</li>
+<li>If they are equal, return the position of the middle element in the list</li>
+<li>If they are not equal, branch:</li>
+</ul>
+
+
+<p>If the search key is less than the middle index:</p>
+
+<ul>
+<li>Cut the list we&rsquo;re searching in half</li>
+<li>Instantiate a new BinarySearch</li>
+<li>Pass the first half of the list into it</li>
+<li>Call the search method on the new object, with the same search key</li>
+<li>Repeat until the keys are equal</li>
+<li>If they&rsquo;re never equal, raise &ldquo;Not Found&rdquo;</li>
+</ul>
+
+
+<p>If the search key is more than the middle index:</p>
+
+<ul>
+<li>Cut the list we&rsquo;re searching in half</li>
+<li>Instantiate a new BinarySearch</li>
+<li>Pass the second half of the list into it</li>
+<li>Call the search method on the new object, with the same search key</li>
+<li>Repeat until the keys are equal</li>
+<li>If they&rsquo;re never equal, raise &ldquo;Not Found&rdquo;</li>
+</ul>
+
+
+<p>With this plan in place, I started to build the method. First, I created the method and passed in the search key:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then I checked it against the middle element in the list, returning the index if they were equal:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">middle</span> <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">==</span> <span class="n">key</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The next thing on my to do list was to branch for the other two conditions: whether the key was less than or greater than the middle value:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">middle</span> <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">==</span> <span class="n">key</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">&gt;</span> <span class="n">key</span>
+</span><span class='line'>    <span class="c1"># ???</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="c1"># ???</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then I filled in the branches some more of my pseudo-code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">middle</span> <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">==</span> <span class="n">key</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">&gt;</span> <span class="n">key</span>
+</span><span class='line'>    <span class="c1"># Cut the list we&#39;re searching in half</span>
+</span><span class='line'>    <span class="c1"># Instantiate a new BinarySearch</span>
+</span><span class='line'>    <span class="c1"># Pass the first half of the list into it</span>
+</span><span class='line'>    <span class="c1"># Call the search on the new object, with the same search key</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="c1"># Cut the list we&#39;re searching in half</span>
+</span><span class='line'>    <span class="c1"># Instantiate a new BinarySearch</span>
+</span><span class='line'>    <span class="c1"># Pass the second half of the list into it</span>
+</span><span class='line'>    <span class="c1"># Call the search on the new object, with the same search key</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I filled them in with real code, one step at a time:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">middle</span> <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">==</span> <span class="n">key</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">&gt;</span> <span class="n">key</span>
+</span><span class='line'>    <span class="c1"># Cut the list we&#39;re searching in half</span>
+</span><span class='line'>    <span class="n">sublist</span> <span class="o">=</span> <span class="n">list</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.middle</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Instantiate a new BinarySearch</span>
+</span><span class='line'>    <span class="c1"># Pass the first half of the list into it</span>
+</span><span class='line'>    <span class="n">search</span> <span class="o">=</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Call the search on the new object, with the same search key</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">search</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="c1"># Cut the list we&#39;re searching in half</span>
+</span><span class='line'>    <span class="n">sublist</span> <span class="o">=</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">.</span><span class="n">.</span><span class="o">-</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Instantiate a new BinarySearch</span>
+</span><span class='line'>    <span class="c1"># Pass the first half of the list into it</span>
+</span><span class='line'>    <span class="n">search</span> <span class="o">=</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Call the search on the new object, with the same search key</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">search</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Seeing some duplication here, I went ahead and refactored:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">middle</span> <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">==</span> <span class="n">key</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">&gt;</span> <span class="n">key</span>
+</span><span class='line'>    <span class="n">sublist</span> <span class="o">=</span> <span class="n">list</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.middle</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="n">sublist</span> <span class="o">=</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">.</span><span class="n">.</span><span class="o">-</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Time to run the tests.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>Expected: 5
+</span><span class='line'>  Actual: 2
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Fail.</p>
+
+<p>Why? I did some <code>pry</code> action and discovered that I was getting back the index of the <em>new</em> list&rsquo;s middle element, not the <em>original</em> list&rsquo;s middle element. To fix this, I added the current list&rsquo;s middle to the recursive call. That meant undoing my refactor. I guess I refactored too soon.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">middle</span> <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">==</span> <span class="n">key</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">&gt;</span> <span class="n">key</span>
+</span><span class='line'>    <span class="n">sublist</span> <span class="o">=</span> <span class="n">list</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.middle</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">return</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="n">sublist</span> <span class="o">=</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">.</span><span class="n">.</span><span class="o">-</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">return</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="n">middle</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The tests were now passing. Good. Time to try with another example. This time looking for keys on both sides of the middle.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">test_it_finds_position_in_a_larger_list</span>
+</span><span class='line'>  <span class="n">binary</span> <span class="o">=</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">89</span><span class="p">,</span> <span class="mi">144</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">assert_equal</span> <span class="mi">1</span><span class="p">,</span> <span class="n">binary</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Whoops! <code>stack level too deep</code>! I forgot to change value of the search on line 3. I was getting an infinite loop when I searched for a bad value. I skipped this test and wrote one for the bad search condition, instead:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">test_it_raises_error_for_data_not_in_list</span>
+</span><span class='line'>  <span class="n">assert_raises</span> <span class="no">RuntimeError</span> <span class="k">do</span>
+</span><span class='line'>    <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="o">]</span><span class="p">)</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To make this pass, I had to validate that the search wasn&rsquo;t stuck looking through the same sublist over and over:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">middle</span> <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">==</span> <span class="n">key</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">&gt;</span> <span class="n">key</span>
+</span><span class='line'>    <span class="n">sublist</span> <span class="o">=</span> <span class="n">list</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.middle</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">raise</span> <span class="s2">&quot;Not Found&quot;</span> <span class="k">if</span> <span class="n">sublist</span> <span class="o">==</span> <span class="n">list</span>
+</span><span class='line'>    <span class="k">return</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="n">sublist</span> <span class="o">=</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">.</span><span class="n">.</span><span class="o">-</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">raise</span> <span class="s2">&quot;Not Found&quot;</span> <span class="k">if</span> <span class="n">sublist</span> <span class="o">==</span> <span class="n">list</span>
+</span><span class='line'>    <span class="k">return</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="n">middle</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It passed! I went back and rewrote the other test:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">test_it_finds_position_in_a_larger_list</span>
+</span><span class='line'>  <span class="n">binary</span> <span class="o">=</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">89</span><span class="p">,</span> <span class="mi">144</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">assert_equal</span> <span class="mi">1</span><span class="p">,</span> <span class="n">binary</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">assert_equal</span> <span class="mi">7</span><span class="p">,</span> <span class="n">binary</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="mi">55</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Passed again! How about one more for good measure? I also wanted to check if the middle was still coming out right when I passed in a list with an even number of elements. All the others had been of an odd length.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">test_it_finds_correct_position_in_a_list_with_an_even_number_of_elements</span>
+</span><span class='line'>  <span class="n">binary</span> <span class="o">=</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">89</span><span class="p">,</span> <span class="mi">144</span><span class="p">,</span> <span class="mi">233</span><span class="p">,</span> <span class="mi">377</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">assert_equal</span> <span class="mi">5</span><span class="p">,</span> <span class="n">binary</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">assert_equal</span> <span class="mi">6</span><span class="p">,</span> <span class="n">binary</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="mi">34</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Ok! Green!</p>
+
+<h2>Conclusion</h2>
+
+<p>Even if I didn&rsquo;t know my stuff in the conference room at that moment, I&rsquo;m glad that my interviewer asked me about Binary Search. It was fun to learn, and it turned out to be a little easier than I expected. I always expect algorithms to be really hard to grasp, but maybe now that I&rsquo;ve done a few algorithms that use recursion, it&rsquo;s not such a jump for me to understand it.</p>
+
+<p>At any rate, it&rsquo;s pretty cool to be able to find an element in a list with so few queries. Lately, I&rsquo;ve really been enjoying pure math programming problems like this one. I&rsquo;m going to try to find a few more like this to do in the near future.</p>
+
+<h2>Footnote</h2>
+
+<p>Since I had already done all of the work, I went ahead and submitted this as a new exercise for <a href="http://www.exercism.io">Exercism.io</a>. So, if you use Exercism, and you enjoy doing algorithms, I&rsquo;d suggest giving Binary Search a go yourself. If you get stuck, you know where to find the answer!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-31T10:34:00-07:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2014/01/31/building-a-binary-search/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2014/01/31/building-a-binary-search/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/01/27/refactoring-4-remove-middle-man/" title="Previous Post: Refactoring 4: Remove Middle Man">&laquo; Refactoring 4: Remove Middle Man</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/02/14/service-oriented-architecture/" title="Next Post: Service Oriented Architecture">Service Oriented Architecture &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/">Using Services to Keep Your Rails Controllers Clean and DRY</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/04/looking-for-a-needle-in-a-haystack-with-ack/">Looking For A Needle In A Haystack! (or Using Ack To Improve Your Development Workflow)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/24/angular-js-unit-testing-for-real-though/">AngularJS Unit Testing, For Real Though</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

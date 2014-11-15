@@ -1,0 +1,311 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Sequel Gem Methods - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="Information is from the Jumpstart Lab Sequel Tutorial Here is the official Sequel documentation. Setting Up A Database Create a Gemfile requiring ‘ &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2013/10/26/sequel-gem-methods">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Sequel Gem Methods</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-26T13:28:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Information is from the <a href="http://tutorials.jumpstartlab.com/topics/sequel.html">Jumpstart Lab Sequel Tutorial</a></p>
+
+<p>Here is the <a href="sequel.rubyforge.org/rdoc/classes/Sequel/Dataset.html">official Sequel documentation</a>.</p>
+
+<p><br /></p>
+
+<h2>Setting Up A Database</h2>
+
+<ol>
+<li>Create a Gemfile requiring ‘sequel’ and ‘sqlite3’.</li>
+<li>run: bundle exec rib; Bundler.require</li>
+<li>Assign a new database like this:
+database = Sequel.sqlite(‘dbname.sqlite3’) Sqlite creates the db automatically. Postgres will not do this.</li>
+</ol>
+
+
+<p><br /></p>
+
+<h2>Database Methods:</h2>
+
+<p>#run &ldquo;SQL query&rdquo; - runs an SQL query</p>
+
+<p>#fetch “SQL query” - runs an SQL query and returns the results (need to call to_a to see) as a dataset. Can be combined with a block.</p>
+
+<p>These two methods alone will allow you to interact with the db via SQL.</p>
+
+<p><br /></p>
+
+<h2>Dataset Methods:</h2>
+
+<p>#enumerable - can run enumerable methods on a dataset returned by database#fetch.</p>
+
+<p>#inspect - shows the database/dataset obj.</p>
+
+<h3>Table manipulation:</h3>
+
+<p>#create_table :table_name do
+     primary key :id
+     String :line_1, :size => 255
+     Integer :person_id
+end
+creates a table</p>
+
+<p>#schema(:table) - shows the existence and column definitions of a table. Returns a nested array.</p>
+
+<p>#add_column
+#rename_column
+#drop_column
+#set_column_default
+#set_column_type</p>
+
+<h3>Selection of records:</h3>
+
+<p>chaining - chain methods:
+e.g. dataset.where(:name => &lsquo;George&rsquo;).or([[:id, [2,3]]])</p>
+
+<p>#from(:column) - equivalent to SELECT * FROM column. Returns a dataset. Doesn’t run search until you call to_a on it.
+After assigning it like this:
+dataset = database.from(:people)
+Do things like this:</p>
+
+<p>#select(:column or [:column1, :column2, etc…]) - selects column(s) from table</p>
+
+<p>#where/#filter(:column => filter) - returns SELECT * FROM table WHERE column = filter. Selecting multiple items requires an extra set of brackets.
+eg.: dataset.where(:id => 1) or
+dataset.where([[:id, [2,3]]])</p>
+
+<p>#grep(:column, ‘search&#8217;) - finds all rows that match the grep string. “%&ldquo; is a 0+ wildcard, “_&rdquo; matches a single character.</p>
+
+<p>#limit(int) - limits the number of returned records to the integer passed as an argument.</p>
+
+<p>#order(:column) - returns SELECT * FROM :table ORDER BY :column. Can add descending sort as follows:
+dataset.order(Sequel.desc(:name))</p>
+
+<p>#exclude - works like Enumerable#reject.</p>
+
+<h3>Working With Rows</h3>
+
+<p>#insert ({:column => “value&#8221;, :column => “value&#8221;) - inserts a new row with the given hash values. Not a delayed method; runs immediately. Verify results using select.</p>
+
+<p>#join(:other_table, :other_column, :foreign_key) - Performs an INNER JOIN with another table. The column name order goes: other table’s column first, local table’s column second.</p>
+
+<p>#update(:column => “value”) - updates one or more existing rows. Combine it with where to select a record first. Runs immediately.
+e.g. addresses.where(:id => 1).update(:zipcode => &ldquo;20500&rdquo;)</p>
+
+<p>#delete(:column => “value) - similar to update, but deletes. Returns number of records deleted.</p>
+
+<p>#count - returns the number of records in the dataset. Useful in chaining.</p>
+
+<h3>Math Utilities:</h3>
+
+<p>#avg
+#sum
+#max
+#min</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-26T13:28:00-06:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2013/10/26/sequel-gem-methods/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2013/10/26/sequel-gem-methods/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/10/26/so-many-javascript-libraries/" title="Previous Post: So Many Javascript Libraries!">&laquo; So Many Javascript Libraries!</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/10/29/javascript-in-the-browser/" title="Next Post: Javascript in the Browser">Javascript in the Browser &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/">Using Services to Keep Your Rails Controllers Clean and DRY</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/04/looking-for-a-needle-in-a-haystack-with-ack/">Looking For A Needle In A Haystack! (or Using Ack To Improve Your Development Workflow)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/24/angular-js-unit-testing-for-real-though/">AngularJS Unit Testing, For Real Though</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

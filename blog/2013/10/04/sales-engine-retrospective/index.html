@@ -1,0 +1,490 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Sales Engine Retrospective - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="We&rsquo;ve spent the last week and a half at gSchool working on the next hardest thing to EventReporter (from week two): SalesEngine. The Code and &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2013/10/04/sales-engine-retrospective">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Sales Engine Retrospective</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-04T09:08:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>We&rsquo;ve spent the last week and a half at gSchool working on the next hardest thing to EventReporter (from week two): <a href="http://tutorials.jumpstartlab.com/projects/sales_engine.html">SalesEngine</a>.</p>
+
+<h2>The Code and The Problem</h2>
+
+<p>This project built on our skills of creating collections of objects, and building classes that inherit multiple attributes from CSV rows. This time, instead of one class, we had six: Customers, Invoices, InvoiceItems, Items, Merchants, and Transactions. Using six corresponding CSV files, we had to build basic class definitions for each and repositories to hold data about the collections found in the CSV files.</p>
+
+<p>It was easy enough to stitch those together in a basic way, but the real challenge was finding ways to implement the &ldquo;business intelligence&rdquo; parts of the assignment. In these places, classes had to reach across many other classes to access data. It was very difficult to make this work correctly. Jeff told us there was really no good solution to the problem using pure Ruby. You either have to create a database class that ends up being a global variable, or pass information between many classes, creating high coupling. I assume that we&rsquo;re being asked to feel this pain so we will be very thankful when we&rsquo;re finally introduced to databases and/or ActiveRecord. I was really hurting for an SQL INNER JOIN.</p>
+
+<p>Here&rsquo;s an example of one of the problems we faced:</p>
+
+<p>The ItemRepository needs to have a method called most_revenue(x) that returns the top x Item instances ranked by total revenue generated. But the Item itself doesn&rsquo;t have an attribute for revenue. You have to access that through the InvoiceItem class, which must be accessed via an Invoice. Therefore, for the ItemRepository to find out the Item with the most revenue, it has to talk to the Invoice, which can then find the InvoiceItems.</p>
+
+<p>Reaching across classes like this is very difficult, and the process of figuring it out was a good lesson in following the <a href="http://devblog.avdi.org/2011/07/05/demeter-its-not-just-a-good-idea-its-the-law/">Law of Demeter</a>.</p>
+
+<p>It was really tempting to write code like this:</p>
+
+<figure class='code'><figcaption><span>ItemRepository#most_revenue(x) - Bad Implementation</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SalesEngine</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">ItemRepository</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># some code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">most_revenue</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">sum</span> <span class="o">=</span> <span class="no">BigDecimal</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">item</span><span class="o">.</span><span class="n">invoice</span><span class="o">.</span><span class="n">invoice_items</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">invoice_item</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">sum</span> <span class="o">+=</span> <span class="no">BigDecimal</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">invoice_item</span><span class="o">.</span><span class="n">total</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">result</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">sort</span><span class="o">.</span><span class="n">reverse</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># some more code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The problem with this code is that it has to iterate through all of the Items (there are 2,484 of them), and iterate through each of their Invoices, then each Invoice&rsquo;s InvoiceItems, totalling each one, to get the result. A better solution is to leave the lookups to each class, never going more than one level deep to get information. It also helps to use the Enumerable#group_by to store the total for each item in a hash for a faster lookup. Here&rsquo;s what that looks like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="p">{</span><span class="mi">5243</span> <span class="o">=&gt;</span> <span class="c1">#&lt;Merchant 1&gt;, 1523 =&gt; #&lt;Merchant 2&gt;, etc...}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can then easily lookup the Merchant with the greatest revenue.
+Here was my eventual solution to this problem, using #group_by:</p>
+
+<figure class='code'><figcaption><span>ItemRepository#most_revenue(x) - Better Implementation</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SalesEngine</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">ItemRepository</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># some code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">most_revenue</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">sorted_totals</span> <span class="o">=</span> <span class="n">items_grouped_by_revenue</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">sort</span><span class="o">.</span><span class="n">reverse</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">most_revenue</span> <span class="o">=</span> <span class="n">sorted_totals</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">total</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">items_grouped_by_revenue</span><span class="o">[</span><span class="n">total</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">most_revenue</span><span class="o">.</span><span class="n">flatten</span><span class="o">[</span><span class="mi">0</span><span class="p">,</span><span class="n">x</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">items_grouped_by_revenue</span>
+</span><span class='line'>    <span class="n">items</span><span class="o">.</span><span class="n">group_by</span> <span class="p">{</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span> <span class="n">item</span><span class="o">.</span><span class="n">revenue</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># some more code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">SalesEngine</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">Item</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># some code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">revenue</span>
+</span><span class='line'>    <span class="n">total_up</span><span class="p">(</span><span class="n">successful_invoice_items</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">total_up</span><span class="p">(</span><span class="n">invoice_items</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">sum</span> <span class="o">=</span> <span class="n">invoice_items</span><span class="o">.</span><span class="n">collect</span> <span class="p">{</span> <span class="o">|</span><span class="n">invoice_item</span><span class="o">|</span> <span class="n">invoice_item</span><span class="o">.</span><span class="n">total</span> <span class="p">}</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="ss">:+</span><span class="p">)</span>
+</span><span class='line'>    <span class="no">BigDecimal</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">sum</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># some code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Pairing</h2>
+
+<p>SalesEngine was meant to be a pairing project. I started off pairing with my classmate Louisa Barrett. Things started off well. We created a skeleton of the project, then split up the work of building the basic classes. We did the same with the tests, the repositories and the repository tests. But when it came time to implement searching and business intelligence methods, Louisa started having trouble. She said she &ldquo;hit a wall&rdquo;. At this point, she paired with another classmate who was feeling the same way, and I went on by myself.</p>
+
+<p>I think the difference between us was that she is a novice and I&rsquo;m an advanced beginner, labels from Andy Hunt’s <a href="http://pragprog.com/book/ahptl/pragmatic-thinking-and-learning">Pragmatic Thinking &amp; Learning</a>. Our teacher, Katrina Owen, recently explored how these levels of learning are playing out at gSchool on the <a href="http://jumpstartlab.com/news/archives/2013/10/03/pragmatic-learning-at-gschool-part-i">Jumpstart Lab blog</a>.</p>
+
+<p>I don&rsquo;t mind working alone. I do well with challenges on my own. It&rsquo;s also easier when you don&rsquo;t have to compromise your ideas of what should come next. But sometimes, I did feel a little jealous of some of my advanced beginner classmates that were paired together. It looked like they were learning a lot from each other. Hopefully, I&rsquo;ll get to pair with someone on the next project.</p>
+
+<h2>The Rebuild</h2>
+
+<p>The day before the project was due, I was starting to hit a wall. I&rsquo;d finished implementing all the features, so I ran the spec harness. There were over thirty failures. Franklin looked at my code and rewrote huge chunks of it. I started to lose confidence in my archtecture.</p>
+
+<p>At 6:00 the night before it was due, I decided to tear it down and rebuild. It actually went pretty quickly, now that I knew what everything would look like. I built up all the classes and repos again. I recreated the SalesEngine class and the Database. I was practicing TDD with MiniTest all the way. I ran the spec with the business intelligence tests commented out. Everything passed, except a few places where I had typos. I fixed them, and everything in my tests and the spec was green.</p>
+
+<p>My next step was to take all of the specs for business intelligence, and rewrite them as an integration test in Minitest. I rewrote all the tests and skipped them, then started passing them one at a time. But there was a problem. It was running <em>really</em> slow, because it was loading up all six CSV files before each test (in the setup method). I wanted a way to do &ldquo;before all&rdquo; like you can in Rspec, but was having trouble finding it. Finally I found a hack online using class variables. Katrina says there&rsquo;s a better way, that she&rsquo;ll show me soon. In the meantime, here&rsquo;s what I did:</p>
+
+<figure class='code'><figcaption><span>Integration Test - &#8220;Before All&#8221; Hack</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="s1">&#39;minitest&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/autorun&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/pride&#39;</span>
+</span><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;../../lib/sales_engine.rb&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">BusinessIntelligenceTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">before_suite</span>
+</span><span class='line'>    <span class="no">SalesEngine</span><span class="o">::</span><span class="no">Database</span><span class="o">.</span><span class="n">startup</span><span class="p">(</span><span class="s1">&#39;./data&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="vc">@@database</span> <span class="o">=</span> <span class="no">SalesEngine</span><span class="o">::</span><span class="no">Database</span>
+</span><span class='line'>    <span class="vc">@@customer_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">customer_repository</span>
+</span><span class='line'>    <span class="vc">@@invoice_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">invoice_repository</span>
+</span><span class='line'>    <span class="vc">@@invoice_item_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">invoice_item_repository</span>
+</span><span class='line'>    <span class="vc">@@item_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">item_repository</span>
+</span><span class='line'>    <span class="vc">@@merchant_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">merchant_repository</span>
+</span><span class='line'>    <span class="vc">@@transaction_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">transaction_repository</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">before_suite</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_the_customer_transactions_method_successfully_returns_transactions</span>
+</span><span class='line'>    <span class="n">customer</span> <span class="o">=</span> <span class="vc">@@customer_repository</span><span class="o">.</span><span class="n">find_by_id</span> <span class="mi">2</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">1</span><span class="p">,</span> <span class="n">customer</span><span class="o">.</span><span class="n">transactions</span><span class="o">.</span><span class="n">length</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="no">SalesEngine</span><span class="o">::</span><span class="no">Transaction</span><span class="p">,</span> <span class="n">customer</span><span class="o">.</span><span class="n">transactions</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">class</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_the_customer_favorite_merchant_method_successfully_returns_a_merchant</span>
+</span><span class='line'>    <span class="n">skip</span>
+</span><span class='line'>    <span class="n">customer</span> <span class="o">=</span> <span class="vc">@@customer_repository</span><span class="o">.</span><span class="n">find_by_id</span> <span class="mi">2</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="s2">&quot;Shields, Hirthe and Smith&quot;</span><span class="p">,</span> <span class="n">customer</span><span class="o">.</span><span class="n">favorite_merchant</span><span class="o">.</span><span class="n">name</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># many tests omitted</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This approach really paid off. I passed all of the spec tests one at a time, before finally unleashing the spec on it. In the end, there were still two tests failing. One of them was a problem with the spec itself. The other I haven&rsquo;t solved yet, but will in the next couple of days.</p>
+
+<p>In the end, I rebuilt the whole project between 6PM and noon the following day. I think it was a really great exercise to start over. I understood everything I was doing the second time through, and did it without reaching through the classes. One thing I really appreciated was that if you&rsquo;re going to run a spec harness, you might as well write your app around it from the start.</p>
+
+<p>In all, the second time around went quickly because I knew what I was building. I also solidified a lot of the things I&rsquo;d learned by repeating them. I&rsquo;m glad that I did it.</p>
+
+<h2>gSchool Progress</h2>
+
+<p>We&rsquo;re now four weeks into the program at gSchool. I&rsquo;ve mastered more than I would have predicted. Well, maybe not quite &lsquo;mastered&rsquo;. I do feel like I have a firm grasp of some things in Ruby: control flow, collections, classes, methods, and where to find help. Other things I understand, and can use somewhat, but don&rsquo;t have full mastery of: enumerables, procs, lambdas, and throwing exceptions.</p>
+
+<h2>The Future</h2>
+
+<p>In five months, I believe I&rsquo;ll feel fully confident in Ruby skills. I&rsquo;m really looking forward to digging into Rack, Sinatra, Rails, APIs, and front end skills in the coming weeks. Using Ruby in the context of building web apps is going to awesome. Also, now that I understand how programming languages work, I&rsquo;ll probably sample some other languages. Ruby is my focus right now, but I can definitely see myself dipping my toes into Javascript, Go, Python, and maybe some C down the line.</p>
+
+<p>When gSchool is over, I&rsquo;m most interested in getting a job for a consultancy. At this point in my development, I have my eyes on companies like Thoughtbot and Pivotal Labs, where the pursuit of programming as a discipline is a central tenet of the company culture. I&rsquo;m curious to see if my ideas about where I would fit in the industry will change as I learn more about it between now and March.</p>
+
+<h2>My Learning Style</h2>
+
+<p>So far in this program, I&rsquo;ve spent a lot of time learning on my own. Twice in a row, I&rsquo;ve lost my pair halfway through a project (was it something I said?). But that doesn&rsquo;t bother me. After college, I made it a point to keep teaching myself, so I&rsquo;ve also become quite adept at self-directed learning. Some of the stragies I use that have been working well at gSchool include: sketching out the big picture before digging in on a project, using the Ruby documentation extensively, asking for help from teachers or advanced classmates when I need it, and watching my Twitter feed/trolling the web for interesting GitHub repos, screencasts, and tutorials that will improve my understanding and workflow.</p>
+
+<p>The community in gSchool is really awesome; I feel like I&rsquo;m really in my element here. I got a little taste of pairing with Rolen Le early on, but haven&rsquo;t had many other chances to screenshare since then. I&rsquo;d really like to do it more in the future. I&rsquo;ll bet that watching and hearing someone else think through problems will help me see approaches I wouldn&rsquo;t have come up with on my own. Eventually, I hope I have a chance to screenshare with all of my classmates, especially those that have more experience than me.</p>
+
+<p>One thing that has been sometimes difficult are full class sessions covering a fairly basics topic that I already feel comfortable with. In these cases, I&rsquo;ve found it hard to maintain focus. I feel that I would probably get more out of splitting off from the class and researching topics on my own during these sessions.</p>
+
+<h2>Wrap-up</h2>
+
+<p>Now that SalesEngine has been turned in, it will be tempting to move on to the next thing and not look back. However, after doing the rebuild, I still have a couple of tests failing, and I want them green. The spec is still taking me a really long time to run, so I want to finish implementing the faster hash lookups that Franklin Webber showed us in the code review (see the code example above). I&rsquo;ll also probably run Cane and Reek to double check that my code is well-formatted. As I was telling another student, a project is never really &lsquo;done&rsquo;. There are always more things that could be done to improve or extend it. After tying up these loose ends, I&rsquo;ll probably move on to the next project. Bootcamp is fast paced. But I&rsquo;ll also be interested to go back and read my code five months from now.</p>
+
+<p>In Katrina&rsquo;s blog post, she described the first few tutorials that we did as a &ldquo;guided tour of the universe&rdquo;. SalesEngine was our chance to find out how to pull all of the stars and planets together to create a galaxy. I felt like I was stretched in a <em>really</em> good way in this project, having to put all of the abstractions of pure Ruby together into something that made sense. If I look through the table of contents of Eloquent Ruby, I feel like I understand what all of the expressions, objects, and classes <em>are</em>. Many of them are tools I feel ready to use at any time, others I have at least touched. Now that I have seen each structure used in context, it has a much deeper meaning. Thanks to this project, the universe that is Ruby language makes a lot more sense to me.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-04T09:08:00-06:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2013/10/04/sales-engine-retrospective/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2013/10/04/sales-engine-retrospective/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/10/03/the-history-of-programming-in-the-life-of-russ-lewis/" title="Previous Post: The History of Programming In The Life Of Russ Lewis">&laquo; The History of Programming In The Life Of Russ Lewis</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/10/11/making-games/" title="Next Post: Making Games">Making Games &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/">Using Services to Keep Your Rails Controllers Clean and DRY</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/04/looking-for-a-needle-in-a-haystack-with-ack/">Looking For A Needle In A Haystack! (or Using Ack To Improve Your Development Workflow)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/24/angular-js-unit-testing-for-real-though/">AngularJS Unit Testing, For Real Though</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

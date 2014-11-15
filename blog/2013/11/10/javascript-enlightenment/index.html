@@ -1,0 +1,1139 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>JavaScript Enlightenment - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="I read JavaScript Enlightenment by Cory Lindley over the weekend. It was the perfect thing for me right now, as an advanced beginner. It really &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2013/11/10/javascript-enlightenment">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">JavaScript Enlightenment</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-10T21:30:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I read <a href="http://www.javascriptenlightenment.com/">JavaScript Enlightenment</a> by Cory Lindley over the weekend. It was the perfect thing for me right now, as an advanced beginner. It really breaks down all the parts of tha langauge in an understandable way. I feel like I get the &lsquo;big picture&rsquo; much better after having read it. Here are some notes I took along the way.</p>
+
+<h1>Explanations</h1>
+
+<h2>Objects</h2>
+
+<p>In javascript, object is king.
+An object is a set of properties with keys and values.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObject</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Object</span><span class="p">();</span>
+</span><span class='line'><span class="nx">myObject</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="err">“</span><span class="nx">Ben</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">myObject</span><span class="p">.</span><span class="nx">age</span> <span class="o">=</span> <span class="mi">29</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Javascript’s Native Object Constructors</h2>
+
+<p>These are the nine object constructors built into JavaScript:</p>
+
+<ul>
+<li>Number()</li>
+<li>String()</li>
+<li>Boolean()</li>
+<li>Object()</li>
+<li>Array()</li>
+<li>Function()</li>
+<li>Date()</li>
+<li>RegExp()</li>
+<li>Error()</li>
+</ul>
+
+
+<p>There’s also Math, which is not a constructor. It acts like an instantiated object.</p>
+
+<p>Thus, you can do:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But NOT:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myMath</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="k">new</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Contructors &amp; Instantiating With Constructors</h2>
+
+<p>Every object can be built with a constructor. You instantiate the object with the ‘new’ keyword.</p>
+
+<p>Here’s the syntax:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObject</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Object</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can also define your own constructors, like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Person</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span><span class="nx">age</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>     <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="nx">name</span><span class="p">;</span>
+</span><span class='line'>     <span class="k">this</span><span class="p">.</span><span class="nx">age</span> <span class="o">=</span> <span class="nx">age</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// People can be instantiated like this:</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">Ben</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Person</span><span class="p">(</span><span class="err">“</span><span class="nx">Ben</span><span class="err">”</span><span class="p">,</span> <span class="mi">29</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Object Literal Notation</h2>
+
+<p>Instead of using the new keyword, you can create an object with the literal syntax:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="o">*</span><span class="kd">var</span> <span class="nx">myNumber</span> <span class="o">=</span> <span class="mi">23</span><span class="p">;</span>
+</span><span class='line'><span class="o">*</span><span class="kd">var</span> <span class="nx">myString</span> <span class="o">=</span> <span class="err">“</span><span class="nx">Hello</span><span class="p">,</span> <span class="nx">world</span><span class="o">!</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="o">*</span><span class="kd">var</span> <span class="nx">myBoolean</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myObject</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myArray</span> <span class="o">=</span> <span class="p">[];</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myFunction</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){};</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myRegExp</span> <span class="o">=</span> <span class="sr">/.*/</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myError</span> <span class="o">=</span> <span class="p">(</span><span class="err">‘</span><span class="nx">crap</span><span class="o">!</span><span class="err">’</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>* These tjree literals do NOT return an object, but a Javascript primitive. Their constructors DO return objects.
+A primitive is an irreducible value.
+If they are later treated as an object, for example by calling a method on them, they are temporarily wrapped in an object.</p>
+
+<h2>The Third Notation</h2>
+
+<p>Another way to create a primitive (does not use the new keyword):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myNumber</span> <span class="o">=</span> <span class="nb">Number</span><span class="p">(</span><span class="mi">23</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myString</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myBoolean</span> <span class="o">=</span> <span class="nb">Boolean</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Complex Objects</h2>
+
+<p>Objects that contain multiple values, which can be primitives or other complex objects.
+These are objects created created with the new keyword, or literal notation (and are NOT one of the primitives).</p>
+
+<p>They are also known as “composite objects” or a “reference types”.
+These objects store an address reference to an object.
+If you copy them, the copies are also references to the same address.
+Therefore, they will all mutate if the object is changed.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarC</span> <span class="o">=</span> <span class="p">{</span><span class="nx">name</span><span class="o">:</span> <span class="err">“</span><span class="nx">Ben</span><span class="err">”</span><span class="p">};</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myVarD</span> <span class="o">=</span> <span class="nx">myVarC</span><span class="p">;</span>
+</span><span class='line'><span class="nx">myVarC</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="err">“</span><span class="nx">John</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarD</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="err">“</span><span class="nx">John</span><span class="err">&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Complex Objects - Native Properties</h2>
+
+<h3>&lsquo;constructor&rsquo;</h3>
+
+<p>In addition to their basic property keys, all instantiated objects have a property called &lsquo;constructor&rsquo;.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarE</span> <span class="o">=</span> <span class="p">{</span><span class="nx">age</span><span class="o">:</span> <span class="mi">29</span><span class="p">};</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarE</span><span class="p">.</span><span class="nx">constructor</span><span class="p">);</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="nb">Object</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>&lsquo;instanceof&rsquo;</h3>
+
+<p>The type of an instantiated object can be checked with &lsquo;instanceof&rsquo;.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">MyVarF</span> <span class="o">=</span> <span class="p">{</span><span class="nx">gender</span><span class="o">:</span> <span class="err">“</span><span class="nx">male</span><span class="err">”</span><span class="p">};</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarF</span> <span class="k">instanceof</span> <span class="nb">Object</span><span class="p">();)</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="nx">True</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Instance Properties</h3>
+
+<p>Instances of a constructor can be given their own properties. This includes objects created from the nine native constructors, but does not include primitives.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarG</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Boolean</span><span class="p">();</span>
+</span><span class='line'><span class="nx">myVarG</span><span class="p">.</span><span class="nx">prop</span> <span class="o">=</span> <span class="err">“</span><span class="nx">test</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarG</span><span class="p">.</span><span class="nx">prop</span><span class="p">);</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="err">“</span><span class="nx">test</span><span class="err">”</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarH</span> <span class="o">=</span> <span class="err">“</span><span class="nx">hello</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">myVarH</span><span class="p">.</span><span class="nx">prop</span> <span class="o">=</span> <span class="err">“</span><span class="nx">world</span><span class="p">;</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarH</span><span class="p">.</span><span class="nx">prop</span><span class="p">);</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="kc">undefined</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Accessing Properties</h3>
+
+<p>Dot notation vs. Bracket notation:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">myVarJ</span><span class="p">.</span><span class="nx">prop1</span> <span class="o">=</span> <span class="err">“</span><span class="nx">test</span><span class="err">”</span>
+</span><span class='line'><span class="nx">myVarJ</span><span class="p">[</span><span class="err">‘</span><span class="nx">prop2</span><span class="err">’</span><span class="p">]</span> <span class="o">=</span> <span class="err">“</span><span class="nx">bar</span><span class="err">”</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Bracket notation has two advantages: it can be used to concatenate strings in the property name, and it can use reserved words.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// Dot Notation</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">str</span> <span class="mi">1</span> <span class="o">=</span> <span class="err">“</span><span class="nx">foo</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">str2</span> <span class="o">=</span> <span class="err">“</span><span class="nx">bar</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myVarK</span><span class="p">[</span><span class="nx">str1</span> <span class="o">+</span> <span class="nx">str2</span><span class="p">]</span> <span class="o">=</span> <span class="err">“</span><span class="nx">baz</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">myVarK</span><span class="p">.</span><span class="nx">foobar</span><span class="p">;</span>
+</span><span class='line'><span class="o">=&gt;</span><span class="err">”</span><span class="nx">baz</span><span class="err">&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Bracket Notation</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myVarL</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="err">“</span><span class="nx">Algebra</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">myVarL</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">];</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="err">“</span><span class="nx">Algebra</span><span class="err">”</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Deleting Properties</h3>
+
+<p>There is only only way to delete a property, which is to use the <em>delete</em> keyword.
+Setting it to null or undefined will not remove it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="k">delete</span> <span class="nx">myVarL</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>hasOwnProperty()</h3>
+
+<p>This method can be used to check if a property belongs to a given object. It may return false when an object&rsquo;s constructor does have the property; it only tells whether the object itself has the property.</p>
+
+<h3>The Prototype Property</h3>
+
+<p>All instances of a constructor contain this property. The properties of the &lsquo;prototype&rsquo; property itself are inherited by instances of the constructor.
+Object.prototype is at the top of the inheritance chain, so all objects inherit from it. It is a very bad idea to change Object.prototype&rsquo;s properties.</p>
+
+<h3>The &lsquo;in&rsquo; Keyword</h3>
+
+<p>Checks for a property in an object. Similar to hasOwnProperty(), but it <em>does</em> look up the inheritance chain.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVar</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;hello&#39;</span><span class="p">,</span> <span class="s1">&#39;world&#39;</span><span class="p">];</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;toString&#39;</span> <span class="k">in</span> <span class="nx">myVar</span><span class="p">);</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="kc">true</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Inheritance and Looping</h2>
+
+<p>If you run a for/in loop on the properties of an object, it will return inherited properties unless you use a guard clause checking each property with hasOwnProperty().</p>
+
+<h2>Host Objects</h2>
+
+<p>These objects are provided by the JavaScript environment. Examples include &lsquo;window&rsquo; and &lsquo;document&rsquo; in the browser.</p>
+
+<h2>The &lsquo;this&rsquo; Keyword</h2>
+
+<p>The &lsquo;this&rsquo; keyword is available within the scope of a function, but it refers to the object which called the current function. It does not refer to the function itself, but its containing object.</p>
+
+<p>&lsquo;this&rsquo; acts like any other variable, only it can&rsquo;t be modified.</p>
+
+<p>In EcmaScript 3, calling &lsquo;this&rsquo; from a nested function referred to the Head Object. This was a serious mistake that was fixed in ES5. As a workaround, programmers used a variable &lsquo;that&rsquo; to keep track of the value of &lsquo;this&rsquo; inside of nested functions.</p>
+
+<p>&lsquo;this&rsquo; can be overridden with call() and apply(), which redefine &lsquo;this&rsquo; to be their first parameter (the object they are targetting).</p>
+
+<p>When using a constructor to create an instance, &lsquo;this&rsquo; refers to the object-to-be (the instance that has not yet been created). This pattern works for both properties and methods.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Person</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="nx">name</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Scope</h2>
+
+<p>There are three kinds of scope in JavaScript:</p>
+
+<ol>
+<li>Global Scope</li>
+<li>Function Scope</li>
+<li>Eval Scope</li>
+</ol>
+
+
+<p>There is no scope created by &lsquo;for&rsquo; or &lsquo;while&rsquo; loops, nor by &lsquo;if&rsquo;.</p>
+
+<p>If a variable is declared without the keyword &lsquo;var&rsquo;, it is created in the global scope. This is to be avoided.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">myVar</span> <span class="o">=</span> <span class="s2">&quot;hello&quot;</span><span class="p">;</span> <span class="c1">// this is global</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myVar2</span> <span class="o">=</span> <span class="s2">&quot;world&quot;</span><span class="p">;</span> <span class="c1">// this is local</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Lexical Scoping</h3>
+
+<p>Objects can look up the inheritance chain to find properties, functions, and methods, but they cannot look into their childrens&#8217; scopes. When looking for a value up the inheritance chain, the first found value is returned. Any values in higher scopes are &lsquo;shadowed&rsquo;, or &lsquo;masked&rsquo; by the value found in the lowest scope.</p>
+
+<p>Priority of inheritance is defined in the definition (the code), not the state of objects at the time of invocation.</p>
+
+<h2>Prototype</h2>
+
+<p>Prototype is a property found in instances created by the Function() constructor. These functions can be used as constructors themselves.</p>
+
+<p>Why should you care?</p>
+
+<ol>
+<li>Prototype is what the nine native constructors use to pass methods to their object children.</li>
+<li>You can use prototypes to orchestrate inheritance.</li>
+<li>You may inherit code that uses it.</li>
+<li>It&rsquo;s efficient in that all instances of an object can share a method defined in only one place: the prototype object.</li>
+</ol>
+
+
+<p>The prototype property is basically a container (an object) for properties and methods you want instances of a given object to inherit. They will inherit the current value of the property (it is updated dynamically).</p>
+
+<p>The values passed into prototype must be complex (not JavaScript primitives).</p>
+
+<p>Instances of an object access the prototype&rsquo;s host object with their &lsquo;constructor&rsquo; property.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myArray</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">();</span>
+</span><span class='line'><span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">foo</span> <span class="o">=</span> <span class="s1">&#39;bar&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">myArray</span><span class="p">.</span><span class="nx">constructor</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">foo</span><span class="p">;</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="s1">&#39;bar&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// This is the same as line 4. The &#39;foo&#39; property is found by inheritance.</span>
+</span><span class='line'><span class="nx">myArray</span><span class="p">.</span><span class="nx">foo</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>All objects have a common highest ancestor: Object.prototype. Overriding the &lsquo;prototype&rsquo; property on Object will break its functionality.</p>
+
+<p><br/></p>
+
+<hr />
+
+
+<p><br/></p>
+
+<h1>The Parts of JavaScript</h1>
+
+<h2>The Head/Global Object</h2>
+
+<p>This object represents the highest scope in a given JavaScript environment. In the browser, it is &lsquo;window&rsquo;. It contains ALL objects in the environment.</p>
+
+<p>Global properties and variables are contained in the Head Object, and are accessible from any other scope through inheritance.</p>
+
+<p>The Head Object can be referenced by referring to &lsquo;window&rsquo;, or using the keyword &lsquo;this&rsquo; from the global scope. Thus, its scope is implied from outside of a function.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// These mean the same thing:</span>
+</span><span class='line'><span class="nx">alert</span><span class="p">();</span>
+</span><span class='line'><span class="nb">window</span><span class="p">.</span><span class="nx">alert</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Global Functions</h3>
+
+<p>These are provided by the environment.</p>
+
+<ul>
+<li>decodeURI()</li>
+<li>decodeURIComponent()</li>
+<li>encodeURI()</li>
+<li>encodeURIComponent()</li>
+<li>eval()</li>
+<li>isFinite()</li>
+<li>isNaN()</li>
+<li>parseFloat()</li>
+<li>parseInt()</li>
+</ul>
+
+
+<h2>Object()</h2>
+
+<p>Gives an empty object container. Creating objects with a literal is the preferred syntax.</p>
+
+<h3>Parameters</h3>
+
+<p>Object() takes a parameter that is a value. It is null/undefined by default.</p>
+
+<h3>Properties and Methods</h3>
+
+<p>Note: ALL JavaScript objects inherit the following properties and methods from Object.prototype.</p>
+
+<p>When defining property keys, one can use dot notation or bracket notation. Bracket notation is more flexible, because it allows for the use of concatenation and reserved words.</p>
+
+<h4>Properties</h4>
+
+<ul>
+<li>prototype</li>
+</ul>
+
+
+<h4>Instance Properties</h4>
+
+<ul>
+<li>constructor</li>
+</ul>
+
+
+<h4>Instance Methods</h4>
+
+<ul>
+<li>hasOwnProperty()</li>
+<li>isPrototypeOf()</li>
+<li>propertyIsEnumerable()</li>
+<li>toLocaleString()</li>
+<li>toString()</li>
+<li>valueOf()</li>
+</ul>
+
+
+<p><br /></p>
+
+<h2>Function()</h2>
+
+<p>Functions always return a value. This will be &lsquo;undefined&rsquo; if another return value is not specified.</p>
+
+<p>Functions define a new scope. Variables within it cannot be seen from objects containing the function, but they <em>can</em> be seen by objects it contains. This is called &lsquo;lexical scoping&rsquo;.</p>
+
+<p>There are three ways to define a new function:</p>
+
+<ol>
+<li>With the constructor: var myFunction = new Function(){};</li>
+<li>With a literal, as an expression: var myFunction = function(){};</li>
+<li>With a literal, as a statement: function myFunction(){};</li>
+</ol>
+
+
+<p>Functions are &lsquo;first class citizens&rsquo; in JavaScript. They are objects, they can be stored, they have properties, and they can be passed into other functions (higher-order functions).</p>
+
+<h3>Invoking Functions</h3>
+
+<p>Functions are invoked with (). This can be done in three ways:</p>
+
+<ol>
+<li>As a function - func();</li>
+<li>As a method - when attached to an object - myVar.func();</li>
+<li>Using apply() or call()</li>
+<li>As a constructor:</li>
+</ol>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Cody</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){};</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">cody</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Cody</span><span class="p">();</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">cody</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Anonymous Functions</h3>
+
+<p>Functions not given an identifier are anonymous.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">function</span><span class="p">(){};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Self-Invoking Functions</h3>
+
+<p>Functions that call themselves immediately upon definition. This doesn&rsquo;t work with the Function() constructor.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myFunction</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">input</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">input</span><span class="p">)</span>
+</span><span class='line'><span class="p">}();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Self-Invoking Anonymous Functions</h3>
+
+<p>Functions with no identifier that immediately call themselves. These often wrap code to keep it from polluting the global object. Note that it must be wrapped in additional parentheses.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>  <span class="c1">// code goes here</span>
+</span><span class='line'><span class="p">})();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Hoisting</h3>
+
+<p>A function can be invoked before it is defined, because JavaScript collects the functions before runtime. This is called hoisting. It does not work with function expressions.</p>
+
+<h3>Recursion</h3>
+
+<p>Functions may call themselves while executing. This is called recursion.</p>
+
+<h3>Parameters</h3>
+
+<p>When creating a function with the constructor, the last param passed in becomes the inside of the function.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myFunction</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Function</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;return foo+bar&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can create a function with too few parameters. The missing ones will be treated as &lsquo;undefined.&rsquo;</p>
+
+<p>You can also create a function with too many parameters. The extras will be ignored, although they are accessible from the &lsquo;arguments&rsquo; property.</p>
+
+<h3>Properties and Methods</h3>
+
+<h4>Properties</h4>
+
+<ul>
+<li>prototype</li>
+</ul>
+
+
+<h4>Instance Properties</h4>
+
+<ul>
+<li>constructor</li>
+<li>length</li>
+<li>arguments</li>
+</ul>
+
+
+<p>Arguments has a property &lsquo;callee&rsquo; that contains a reference to the function currently executing. This can be used in creating recursive functions.</p>
+
+<p>Arguments also has a property &lsquo;length&rsquo;, containing the number of arguments at invocation. This property is being depricated in favor of arguments.callee.length.</p>
+
+<p><br /></p>
+
+<h4>Instance Methods</h4>
+
+<ul>
+<li>apply()</li>
+<li>call()</li>
+<li>toString()</li>
+</ul>
+
+
+<p><br /></p>
+
+<h2>Array()</h2>
+
+<p>A special type of object with a couple of extra functions.</p>
+
+<h3>Parameters</h3>
+
+<p>Any comma-separated parameters passed in will become elements in the array.
+If a single integer is passed alone, it will define the length of the array instead of an element value. If you define a high index, the elements before it will be filled in with &lsquo;undefined&rsquo;. Setting an array&rsquo;s length can add or remove values automatically.</p>
+
+<h3>Properties and Methods</h3>
+
+<h4>Properties</h4>
+
+<ul>
+<li>prototype</li>
+</ul>
+
+
+<h4>Instance Properties</h4>
+
+<ul>
+<li>constructor</li>
+<li>index</li>
+<li>input</li>
+<li>length</li>
+</ul>
+
+
+<h4>Instance Methods</h4>
+
+<ul>
+<li>pop()</li>
+<li>push()</li>
+<li>reverse()</li>
+<li>shift()</li>
+<li>sort()</li>
+<li>splice()</li>
+<li>unshift()</li>
+<li>concat()</li>
+<li>join()</li>
+<li>slice()</li>
+</ul>
+
+
+<p><br/></p>
+
+<h2>String()</h2>
+
+<h3>Creating Strings</h3>
+
+<p>This will create a string object.
+It is best to avoid this syntax due to potential problems with typeof.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObj</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">String</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span> <span class="c1">// constructor function</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>These two create a primitive:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myString</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span> <span class="c1">// without new keyword</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myString</span> <span class="o">=</span> <span class="s1">&#39;foo&#39;</span> <span class="c1">// literal</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Parameters</h3>
+
+<p>Takes one parameter: the string value being created.</p>
+
+<h3>Properties and Methods</h3>
+
+<h4>Properties</h4>
+
+<ul>
+<li>prototype</li>
+</ul>
+
+
+<h4>Methods</h4>
+
+<ul>
+<li>fromCharChode()</li>
+</ul>
+
+
+<h4>Instance Properties</h4>
+
+<ul>
+<li>constructor</li>
+<li>length</li>
+</ul>
+
+
+<h4>Instance Methods</h4>
+
+<ul>
+<li>charAt()</li>
+<li>charCodeAt()</li>
+<li>concat()</li>
+<li>indexOf()</li>
+<li>lastIndexOf()</li>
+<li>localeCompare()</li>
+<li>match()</li>
+<li>quote()</li>
+<li>replace()</li>
+<li>search()</li>
+<li>slice()</li>
+<li>split()</li>
+<li>substr()</li>
+<li>substring()</li>
+<li>toLocaleLowerCase()</li>
+<li>toLocaleUpperCase()</li>
+<li>toLowerCase()</li>
+<li>toUpperCase()</li>
+<li>valueOf()</li>
+</ul>
+
+
+<p><br /></p>
+
+<h2>Number()</h2>
+
+<h3>Creating Numbers</h3>
+
+<p>This will create a number object.
+It is best to avoid this syntax due to potential problems with typeof.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObj</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Number</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="c1">// constructor function</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>These two create a primitive:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myNumber</span> <span class="o">=</span> <span class="nb">Number</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span> <span class="c1">// without new keyword</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myNumber</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span> <span class="c1">// literal</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Parameters</h3>
+
+<p>Takes one parameter: the number value being created.</p>
+
+<h3>Properties and Methods</h3>
+
+<h4>Properties</h4>
+
+<ul>
+<li>MAX_VALUE</li>
+<li>MIN_VALUE</li>
+<li>NaN</li>
+<li>NEGATIVE_INFINITY</li>
+<li>POSITIVE_INFINITY</li>
+<li>prototype</li>
+</ul>
+
+
+<h4>Instance Properties</h4>
+
+<ul>
+<li>constructor</li>
+</ul>
+
+
+<h4>Instance Methods</h4>
+
+<ul>
+<li>toExponential()</li>
+<li>toFixed()</li>
+<li>toLocaleString()</li>
+<li>toPrecision()</li>
+<li>toString()</li>
+<li>valueOf()</li>
+</ul>
+
+
+<p><br /></p>
+
+<h2>Boolean()</h2>
+
+<h3>Creating Booleans</h3>
+
+<p>This will create a boolean object.
+It is best to avoid this syntax due to potential problems with typeof.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObj</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Boolean</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="c1">// constructor function</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">These</span> <span class="nx">two</span> <span class="nx">create</span> <span class="nx">a</span> <span class="nx">primitive</span><span class="o">:</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myBoolean</span> <span class="o">=</span> <span class="nb">Boolean</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span> <span class="c1">// without new keyword</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myBoolean</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span> <span class="c1">// literal</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Parameters</h3>
+
+<p>Takes one parameter to be converted into a boolean.</p>
+
+<p>The only false values are: 0, -0, null, false, NaN, undefined, and &ldquo;&rdquo;.</p>
+
+<h3>Properties and Methods</h3>
+
+<h4>Properties</h4>
+
+<ul>
+<li>prototype</li>
+</ul>
+
+
+<h4>Instance Properties</h4>
+
+<ul>
+<li>constructor</li>
+</ul>
+
+
+<h4>Instance Methods</h4>
+
+<ul>
+<li>toSource()</li>
+<li>toString()</li>
+<li>valueOf()</li>
+</ul>
+
+
+<h4>Notes</h4>
+
+<p>If you create a false boolean object with a constructor, it creates an object. Objects convert to true. Thus do not use the constructor with false booleans.</p>
+
+<p><br /></p>
+
+<h2>Primitives: String, Number, and Boolean</h2>
+
+<p>A primitive is an irreducible value.
+The Primitives are: number, string, boolean, null, and undefined.</p>
+
+<p>Primitives are stored in memory with their value:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarA</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myVarB</span> <span class="o">=</span> <span class="nx">myVarA</span><span class="p">;</span>
+</span><span class='line'><span class="nx">myVarA</span> <span class="o">=</span> <span class="mi">13</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">myVarA</span> <span class="o">===</span> <span class="mi">13</span><span class="p">;</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="kc">true</span>
+</span><span class='line'><span class="nx">myVarB</span> <span class="o">===</span> <span class="mi">12</span><span class="p">;</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="kc">true</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It is best to write these using the literal form. Using a constructor will result in a typeof result of &ldquo;object&rdquo; instead of the actual type.</p>
+
+<h3>Object Wrappers</h3>
+
+<p>When you call a property or method on a primitive, it is wrapped in a temporary object.
+The temporary object is discarded once the properties have been accessed.</p>
+
+<p><br /></p>
+
+<h2>Null</h2>
+
+<p>Use null to indicate that an object property doesn&rsquo;t have a value.
+It means that a value is expected but not yet available.
+Calling typeof on it will return &lsquo;object&rsquo;. It is best to test for null with ===.</p>
+
+<p><br /></p>
+
+<h2>Undefined</h2>
+
+<p>Used in two ways:</p>
+
+<ul>
+<li>Indicate that a variable has no assigned value.</li>
+<li>Indicate that an object property you want to access is not defined or named, and can&rsquo;t be found in the prototype lookup chain.</li>
+</ul>
+
+
+<p>It is best to let JavaScript itself use undefined. Don&rsquo;t use it yourself.</p>
+
+<p><br /></p>
+
+<h2>Math</h2>
+
+<p>This is a built-in, static object. It is not a constructor and cannot be instantiated.</p>
+
+<h3>Properties and Methods</h3>
+
+<h4>Properties</h4>
+
+<ul>
+<li>E</li>
+<li>LN2</li>
+<li>LN10</li>
+<li>LOG2E</li>
+<li>LOG10E</li>
+<li>PI</li>
+<li>SQRT1_2</li>
+<li>SQRT2</li>
+</ul>
+
+
+<h4>Methods</h4>
+
+<ul>
+<li>abs()</li>
+<li>acos()</li>
+<li>asin()</li>
+<li>atan()</li>
+<li>atan2()</li>
+<li>ceil()</li>
+<li>cos()</li>
+<li>exp()</li>
+<li>floor()</li>
+<li>log()</li>
+<li>max()</li>
+<li>min()</li>
+<li>pow()</li>
+<li>random()</li>
+<li>sin()</li>
+<li>sort()</li>
+<li>tan()</li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-10T21:30:00-07:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2013/11/10/javascript-enlightenment/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2013/11/10/javascript-enlightenment/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/11/08/getting-started-with-rails/" title="Previous Post: Getting Started With Rails">&laquo; Getting Started With Rails</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/11/18/dinner-dash-complete/" title="Next Post: Dinner Dash Complete">Dinner Dash Complete &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/">Using Services to Keep Your Rails Controllers Clean and DRY</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/04/looking-for-a-needle-in-a-haystack-with-ack/">Looking For A Needle In A Haystack! (or Using Ack To Improve Your Development Workflow)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/24/angular-js-unit-testing-for-real-though/">AngularJS Unit Testing, For Real Though</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

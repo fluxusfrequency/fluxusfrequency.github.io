@@ -1,0 +1,940 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Refactoring 4: Remove Middle Man - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="Today, in my latest journey on the Refactor Tractor, I&rsquo;ll be taking a look at a strategy called Move Method. Move Method is used to help remove &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2014/01/27/refactoring-4-remove-middle-man">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Refactoring 4: Remove Middle Man</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-27T19:34:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Today, in my latest journey on the <a href="http://martinfowler.com/books/refactoringRubyEd.html">Refactor</a> Tractor, I&rsquo;ll be taking a look at a strategy called Move Method.</p>
+
+<p>Move Method is used to help remove duplication. Sometimes, in the interest of encapsulation, it&rsquo;s a good idea to make an object as unaware of another object as possible. If the first needs to access the second, though, it may have to &ldquo;reach through&rdquo; a third object. If this reaching is minimal, it can sometimes be a worthwhile trade off. But when it becomes an ongoing pattern, you can end up with a lot of duplication. And a lot of what my teacher Franklin Webber calls &ldquo;bad touching&rdquo;. The Refactoring book points out that &ldquo;it&rsquo;s hard to figure out what the right amount of hiding is&rdquo;,  but it&rsquo;s easy to change your mind with refactoring. Using a combination of this strategy and Hide Delegate, you can always change it again later.</p>
+
+<p>Today I&rsquo;ll be practicing Remove Middle Man on another example from the <a href="https://github.com/fluxusfrequency/mancala">Mancala</a> app I was refactoring in my recent post: <a href="fluxusfrequency.github.io/blog/2014/01/17/refactoring-2-replace-method-with-method-object/">Refactoring 2 - Replace Method With Method Object</a>.</p>
+
+<p>Here are the steps to Remove Middle Man:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>1. Create an accessor for the delegate.
+</span><span class='line'>
+</span><span class='line'>2. For each client use of a delegate method, remove the method from the server and replace the call in the client to call the method on the delegate.
+</span><span class='line'>
+</span><span class='line'>3. Test after each method.
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&rsquo;s fairly cryptic. I think it means: just pass a reference to the distant object into the first object, and access it directly (instead of through object two).</p>
+
+<h2>Mancala Game View</h2>
+
+<p>There are many poorly-built parts to Mancala. That&rsquo;s probably because I didn&rsquo;t test it at all as I was writing it. At the time, I thought I was taking a shortcut. In reality, I was making a big mess that was difficult to understand and deal with. I didn&rsquo;t realize it at the time, but <a href="http://blog.testdouble.com/posts/2014-01-25-the-failures-of-intro-to-tdd.html">&ldquo;TDD&rsquo;s primary benefit is to improve the design of our code&rdquo;</a>.</p>
+
+<p>One of my poorly designed classes is called the MancalaGameView. Its job is to draw the beads in their respective pits, and print the winner to the screen, using <a href="https://github.com/jashkenas/ruby-processing">Ruby Processing</a>. Here&rsquo;s the problem with my design: I pass in the &lsquo;app&rsquo; object, then call through it to get information about the &lsquo;rules&rsquo; and &lsquo;model&rsquo; objects. Here&rsquo;s what it looks like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">MancalaGameView</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:app</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@app</span> <span class="o">=</span> <span class="n">app</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw_all_beads</span>
+</span><span class='line'>    <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">all_pits</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">pit</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">draw_beads_in_pit</span><span class="p">(</span><span class="n">pit</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">all_stores</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">store</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">draw_beads_in_store</span><span class="p">(</span><span class="n">store</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">print_winner</span> <span class="k">if</span> <span class="n">app</span><span class="o">.</span><span class="n">ruler</span><span class="o">.</span><span class="n">game_over?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw_beads_in_pit</span><span class="p">(</span><span class="n">pit</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">app</span><span class="o">.</span><span class="n">fill</span> <span class="mi">225</span>
+</span><span class='line'>    <span class="n">n</span> <span class="o">=</span> <span class="n">pit</span><span class="o">.</span><span class="n">count</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">9</span>
+</span><span class='line'>      <span class="n">draw_x_beads</span><span class="p">(</span><span class="n">pit</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">draw_many_beads</span><span class="p">(</span><span class="n">pit</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw_beads_in_store</span><span class="p">(</span><span class="n">store</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">fill_a_random_color</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">store</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="mi">1</span>
+</span><span class='line'>      <span class="n">draw_beads_in_player_one_store</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">store</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="mi">2</span>
+</span><span class='line'>      <span class="n">draw_beads_in_player_two_store</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">print_winner</span>
+</span><span class='line'>    <span class="n">app</span><span class="o">.</span><span class="n">text</span> <span class="s2">&quot;Player one is the winner!&quot;</span><span class="p">,</span> <span class="mi">640</span><span class="p">,</span> <span class="mi">475</span> <span class="k">if</span> <span class="n">app</span><span class="o">.</span><span class="n">ruler</span><span class="o">.</span><span class="n">winner</span> <span class="o">==</span> <span class="ss">:player_1</span>
+</span><span class='line'>    <span class="n">app</span><span class="o">.</span><span class="n">text</span> <span class="s2">&quot;Player two is the winner!&quot;</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">250</span> <span class="k">if</span> <span class="n">app</span><span class="o">.</span><span class="n">ruler</span><span class="o">.</span><span class="n">winner</span> <span class="o">==</span> <span class="ss">:player_2</span>
+</span><span class='line'>    <span class="n">app</span><span class="o">.</span><span class="n">text</span> <span class="s2">&quot;Tie Game!&quot;</span><span class="p">,</span> <span class="mi">640</span><span class="p">,</span> <span class="mi">475</span> <span class="k">if</span> <span class="n">app</span><span class="o">.</span><span class="n">ruler</span><span class="o">.</span><span class="n">winner</span> <span class="o">==</span> <span class="ss">:tie</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The calls to <code>app.fill</code> and <code>app.text</code> are built into Ruby Processing. Outside of that, I&rsquo;m not going to get into the details of what some of these methods, like <code>draw_x_beads</code> and <code>draw_beads_in_player_one_store</code>. Because the coupling in this app is so high, it would require pulling in too many methods.</p>
+
+<h2>Setting Up the Test</h2>
+
+<p>I&rsquo;m going to stub out a few things, so that we can build a test without having to drag in the rest of the app and the Ruby Processing Gem.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">MancalaGameView</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:app</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@app</span> <span class="o">=</span> <span class="n">app</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw_all_beads</span>
+</span><span class='line'>    <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">all_pits</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">pit</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">draw_beads_in_pit</span><span class="p">(</span><span class="n">pit</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">all_stores</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">store</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">draw_beads_in_store</span><span class="p">(</span><span class="n">store</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">print_winner</span> <span class="k">if</span> <span class="n">app</span><span class="o">.</span><span class="n">ruler</span><span class="o">.</span><span class="n">game_over?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw_beads_in_pit</span><span class="p">(</span><span class="n">pit</span><span class="p">)</span>
+</span><span class='line'>    <span class="kp">true</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw_beads_in_store</span><span class="p">(</span><span class="n">store</span><span class="p">)</span>
+</span><span class='line'>    <span class="kp">true</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">print_winner</span>
+</span><span class='line'>    <span class="k">return</span> <span class="s2">&quot;Player one is the winner!&quot;</span> <span class="k">if</span> <span class="n">app</span><span class="o">.</span><span class="n">ruler</span><span class="o">.</span><span class="n">winner</span> <span class="o">==</span> <span class="ss">:player_1</span>
+</span><span class='line'>    <span class="k">return</span> <span class="s2">&quot;Player two is the winner!&quot;</span> <span class="k">if</span> <span class="n">app</span><span class="o">.</span><span class="n">ruler</span><span class="o">.</span><span class="n">winner</span> <span class="o">==</span> <span class="ss">:player_2</span>
+</span><span class='line'>    <span class="k">return</span> <span class="s2">&quot;Tie Game!&quot;</span> <span class="k">if</span> <span class="n">app</span><span class="o">.</span><span class="n">ruler</span><span class="o">.</span><span class="n">winner</span> <span class="o">==</span> <span class="ss">:tie</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">App</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:model</span><span class="p">,</span> <span class="ss">:ruler</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ruler</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@model</span> <span class="o">=</span> <span class="n">model</span>
+</span><span class='line'>    <span class="vi">@ruler</span> <span class="o">=</span> <span class="n">ruler</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Model</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">all_pits</span>
+</span><span class='line'>    <span class="o">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">all_stores</span>
+</span><span class='line'>    <span class="o">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Ruler</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">winner</span>
+</span><span class='line'>    <span class="n">winners</span> <span class="o">=</span> <span class="o">[</span><span class="ss">:player_1</span><span class="p">,</span> <span class="ss">:player_2</span><span class="p">,</span> <span class="ss">:tie</span><span class="o">]</span>
+</span><span class='line'>    <span class="vi">@winner</span> <span class="o">||=</span> <span class="n">winners</span><span class="o">[</span><span class="nb">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">game_over?</span>
+</span><span class='line'>    <span class="kp">true</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And now, to build a test.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">GameViewTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">setup</span>
+</span><span class='line'>    <span class="vi">@model</span> <span class="o">=</span> <span class="no">Model</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="vi">@ruler</span> <span class="o">=</span> <span class="no">Ruler</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="vi">@app</span> <span class="o">=</span> <span class="no">App</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="vi">@model</span><span class="p">,</span> <span class="vi">@ruler</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@view</span> <span class="o">=</span> <span class="no">MancalaGameView</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="vi">@app</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_draw_all_beads_succeeds</span>
+</span><span class='line'>    <span class="n">expected</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&quot;Player one is the winner!&quot;</span><span class="p">,</span> <span class="s2">&quot;Player two is the winner!&quot;</span><span class="p">,</span> <span class="s2">&quot;Tie Game!&quot;</span><span class="o">]</span>
+</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="vi">@view</span><span class="o">.</span><span class="n">draw_all_beads</span>
+</span><span class='line'>    <span class="n">assert</span> <span class="n">expected</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://s15.postimg.org/uh17pf8ij/Green_Pattern.jpg" title="All Green" alt="The color green"></p>
+
+<p>This test is green. I don&rsquo;t like to start from green. It&rsquo;s supposed to be: &ldquo;red, green, refactor&rdquo;! I could comment out some code or change <code>game_over?</code> to false, but that wouldn&rsquo;t prove anything about the code. Since this is an instance of Test After, and the code is already understood, I&rsquo;m feel comfortable going forward from green here.</p>
+
+<h2>Applying the Strategy</h2>
+
+<p>Now, to begin removing the middle man object, <code>app</code>. There are two classes I&rsquo;m accessing through <code>app</code>: <code>Model</code> and <code>Ruler</code>. I&rsquo;ll extract them one at a time, beginning with <code>Model</code>. The first step is to &ldquo;create an accessor for the delegate&rdquo;. I could just do this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">MancalaGameView</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">model</span>
+</span><span class='line'>    <span class="n">app</span><span class="o">.</span><span class="n">model</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But I would rather pass the model into the MancalaGameView directly:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">MancalaGameView</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:app</span><span class="p">,</span> <span class="ss">:model</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@app</span> <span class="o">=</span> <span class="n">app</span>
+</span><span class='line'>    <span class="vi">@model</span> <span class="o">=</span> <span class="n">model</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Step two is to change &ldquo;client&rdquo; calls so that they use the new accessor instead of calling through the &ldquo;server&rdquo; (which is <code>app</code> in this case). Step three is to test after each method. So here we go:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># OLD VERSION</span>
+</span><span class='line'><span class="c1"># def draw_all_beads</span>
+</span><span class='line'><span class="c1">#   app.model.all_pits.each do |pit|</span>
+</span><span class='line'><span class="c1">#     draw_beads_in_pit(pit)</span>
+</span><span class='line'><span class="c1">#   end</span>
+</span><span class='line'><span class="c1">#   app.model.all_stores.each do |store|</span>
+</span><span class='line'><span class="c1">#     draw_beads_in_store(store)</span>
+</span><span class='line'><span class="c1">#   end</span>
+</span><span class='line'><span class="c1">#   print_winner if app.ruler.game_over?</span>
+</span><span class='line'><span class="c1"># end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">draw_all_beads</span>
+</span><span class='line'>  <span class="n">model</span><span class="o">.</span><span class="n">all_pits</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">pit</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">draw_beads_in_pit</span><span class="p">(</span><span class="n">pit</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="n">model</span><span class="o">.</span><span class="n">all_stores</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">store</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">draw_beads_in_store</span><span class="p">(</span><span class="n">store</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="n">print_winner</span> <span class="k">if</span> <span class="n">app</span><span class="o">.</span><span class="n">ruler</span><span class="o">.</span><span class="n">game_over?</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://s30.postimg.org/va1jflych/red_pattern.jpg" title="Red Tests" alt="The color red"></p>
+
+<p>The test fails with: <code>wrong number of arguments (1 for 2)</code>. The problem lies in the test setup. I now need to pass in the model when I create the <code>MancalaGameView</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">GameViewTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">setup</span>
+</span><span class='line'>    <span class="c1"># Code omitted</span>
+</span><span class='line'>    <span class="vi">@view</span> <span class="o">=</span> <span class="no">MancalaGameView</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="vi">@app</span><span class="p">,</span> <span class="vi">@app</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://s15.postimg.org/uh17pf8ij/Green_Pattern.jpg" title="All Green" alt="The color green"></p>
+
+<p>Ahh, that&rsquo;s better. Now to repeat the process with the <code>ruler</code>. Step one: create the accessor.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">MancalaGameView</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:app</span><span class="p">,</span> <span class="ss">:model</span><span class="p">,</span> <span class="ss">:ruler</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">ruler</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@app</span> <span class="o">=</span> <span class="n">app</span>
+</span><span class='line'>    <span class="vi">@model</span> <span class="o">=</span> <span class="n">model</span>
+</span><span class='line'>    <span class="vi">@ruler</span> <span class="o">=</span> <span class="n">ruler</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Steps two and three: replace the method calls to use the accessor instead of reaching through <code>app</code>. Test after each step.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">draw_all_beads</span>
+</span><span class='line'>  <span class="c1"># Code omitted</span>
+</span><span class='line'>  <span class="n">print_winner</span> <span class="k">if</span> <span class="n">ruler</span><span class="o">.</span><span class="n">game_over?</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://s30.postimg.org/va1jflych/red_pattern.jpg" title="Red Tests" alt="The color red"></p>
+
+<p>It fails, because I&rsquo;m not passing <code>ruler</code> into the test.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">GameViewTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">setup</span>
+</span><span class='line'>    <span class="c1"># Code omitted</span>
+</span><span class='line'>    <span class="vi">@view</span> <span class="o">=</span> <span class="no">MancalaGameView</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="vi">@app</span><span class="p">,</span> <span class="vi">@app</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="vi">@app</span><span class="o">.</span><span class="n">ruler</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://s15.postimg.org/uh17pf8ij/Green_Pattern.jpg" title="All Green" alt="The color green"></p>
+
+<p>That gets me back to green. Now to refactor the <code>print_winner</code> method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># OLD VERSION</span>
+</span><span class='line'><span class="c1"># def print_winner</span>
+</span><span class='line'><span class="c1">#   return &quot;Player one is the winner!&quot; if app.ruler.winner == :player_1</span>
+</span><span class='line'><span class="c1">#   return &quot;Player two is the winner!&quot; if app.ruler.winner == :player_2</span>
+</span><span class='line'><span class="c1">#   return &quot;Tie Game!&quot; if app.ruler.winner == :tie</span>
+</span><span class='line'><span class="c1"># end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">print_winner</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;Player one is the winner!&quot;</span> <span class="k">if</span> <span class="n">ruler</span><span class="o">.</span><span class="n">winner</span> <span class="o">==</span> <span class="ss">:player_1</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;Player two is the winner!&quot;</span> <span class="k">if</span> <span class="n">ruler</span><span class="o">.</span><span class="n">winner</span> <span class="o">==</span> <span class="ss">:player_2</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;Tie Game!&quot;</span> <span class="k">if</span> <span class="n">ruler</span><span class="o">.</span><span class="n">winner</span> <span class="o">==</span> <span class="ss">:tie</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://s15.postimg.org/uh17pf8ij/Green_Pattern.jpg" title="All Green" alt="The color green"></p>
+
+<p>Success! That was pretty easy.</p>
+
+<h2>Further Refactoring</h2>
+
+<p>Now that I&rsquo;ve cleaned up the MancalaGameView somewhat, I&rsquo;m going to refactor a few other things. Along the way, I noticed that <code>print_winner</code> is pretty ugly, so I changed it to use a hash lookup instead.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># OLD VERSION</span>
+</span><span class='line'><span class="c1"># def print_winner</span>
+</span><span class='line'><span class="c1">#   return &quot;Player one is the winner!&quot; if ruler.winner == :player_1</span>
+</span><span class='line'><span class="c1">#   return &quot;Player two is the winner!&quot; if ruler.winner == :player_2</span>
+</span><span class='line'><span class="c1">#   return &quot;Tie Game!&quot; if ruler.winner == :tie</span>
+</span><span class='line'><span class="c1"># end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">print_winner</span>
+</span><span class='line'>  <span class="n">win_messages</span><span class="o">[</span><span class="n">ruler</span><span class="o">.</span><span class="n">winner</span><span class="o">]</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">win_messages</span>
+</span><span class='line'>  <span class="p">{</span> <span class="ss">:player_1</span> <span class="o">=&gt;</span> <span class="s2">&quot;Player one is the winner!&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="ss">:player_2</span> <span class="o">=&gt;</span> <span class="s2">&quot;Player one is the winner!&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="ss">:tie</span>      <span class="o">=&gt;</span> <span class="s2">&quot;Tie Game!&quot;</span><span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I also decided to use extract method on the loops in <code>draw_all_beads</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># OLD VERSION</span>
+</span><span class='line'><span class="c1"># def draw_all_beads</span>
+</span><span class='line'><span class="c1">#   model.all_pits.each do |pit|</span>
+</span><span class='line'><span class="c1">#     draw_beads_in_pit(pit)</span>
+</span><span class='line'><span class="c1">#   end</span>
+</span><span class='line'><span class="c1">#   model.all_stores.each do |store|</span>
+</span><span class='line'><span class="c1">#     draw_beads_in_store(store)</span>
+</span><span class='line'><span class="c1">#   end</span>
+</span><span class='line'><span class="c1">#   print_winner if ruler.game_over?</span>
+</span><span class='line'><span class="c1"># end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">draw_all_beads</span>
+</span><span class='line'>  <span class="n">draw_pits</span>
+</span><span class='line'>  <span class="n">draw_stores</span>
+</span><span class='line'>  <span class="n">print_winner</span> <span class="k">if</span> <span class="n">ruler</span><span class="o">.</span><span class="n">game_over?</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">draw_pits</span>
+</span><span class='line'>  <span class="n">model</span><span class="o">.</span><span class="n">all_pits</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">pit</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">draw_beads_in_pit</span><span class="p">(</span><span class="n">pit</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">draw_stores</span>
+</span><span class='line'>  <span class="n">model</span><span class="o">.</span><span class="n">all_stores</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">store</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">draw_beads_in_store</span><span class="p">(</span><span class="n">store</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&rsquo;s much better. Here&rsquo;s the final result:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">MancalaGameView</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:app</span><span class="p">,</span> <span class="ss">:model</span><span class="p">,</span> <span class="ss">:ruler</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">ruler</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@app</span> <span class="o">=</span> <span class="n">app</span>
+</span><span class='line'>    <span class="vi">@model</span> <span class="o">=</span> <span class="n">model</span>
+</span><span class='line'>    <span class="vi">@ruler</span> <span class="o">=</span> <span class="n">ruler</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw_all_beads</span>
+</span><span class='line'>    <span class="n">draw_pits</span>
+</span><span class='line'>    <span class="n">draw_stores</span>
+</span><span class='line'>    <span class="n">print_winner</span> <span class="k">if</span> <span class="n">ruler</span><span class="o">.</span><span class="n">game_over?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw_beads_in_pit</span><span class="p">(</span><span class="n">pit</span><span class="p">)</span>
+</span><span class='line'>    <span class="kp">true</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw_beads_in_store</span><span class="p">(</span><span class="n">store</span><span class="p">)</span>
+</span><span class='line'>    <span class="kp">true</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">print_winner</span>
+</span><span class='line'>    <span class="n">win_messages</span><span class="o">[</span><span class="n">ruler</span><span class="o">.</span><span class="n">winner</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw_pits</span>
+</span><span class='line'>    <span class="n">model</span><span class="o">.</span><span class="n">all_pits</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">pit</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">draw_beads_in_pit</span><span class="p">(</span><span class="n">pit</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw_stores</span>
+</span><span class='line'>    <span class="n">model</span><span class="o">.</span><span class="n">all_stores</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">store</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">draw_beads_in_store</span><span class="p">(</span><span class="n">store</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">win_messages</span>
+</span><span class='line'>    <span class="p">{</span> <span class="ss">:player_1</span> <span class="o">=&gt;</span> <span class="s2">&quot;Player one is the winner!&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="ss">:player_2</span> <span class="o">=&gt;</span> <span class="s2">&quot;Player one is the winner!&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="ss">:tie</span>      <span class="o">=&gt;</span> <span class="s2">&quot;Tie Game!&quot;</span><span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Conclusion</h2>
+
+<p>Remove Middle Man was really easy to use. Maybe it&rsquo;s because I&rsquo;ve heard Franklin harp on the evils of &ldquo;bad touching&rdquo; so much, or maybe it&rsquo;s just that I&rsquo;m violating the Law of Demeter, but I start to feel pretty nervous when I see two dots in my method calls. This was a quick and easy refactor that I&rsquo;m sure I&rsquo;ll use regularly. Since it sets you up for <a href="http://codeulate.com/2013/01/a-criticism-of-dhhs-post-on-dependency-injection/">Dependency Injection</a>, it also opens up the class&rsquo;s possibilities for <a href="http://en.wikipedia.org/wiki/Duck_typing">Duck Typing</a> and easy mocking.</p>
+
+<p>As I continue to code and refactor, Remove Middle Man will be a vital tool in my tool kit.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-27T19:34:00-07:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2014/01/27/refactoring-4-remove-middle-man/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2014/01/27/refactoring-4-remove-middle-man/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/01/18/refactoring-3-introduce-named-parameter-and-introduce-class-annotation/" title="Previous Post: Refactoring 3 - Introduce Named Parameter / Introduce Class Annotation">&laquo; Refactoring 3 - Introduce Named Parameter / Introduce Class Annotation</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/01/31/building-a-binary-search/" title="Next Post: Building a Binary Search">Building a Binary Search &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/">Using Services to Keep Your Rails Controllers Clean and DRY</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/04/looking-for-a-needle-in-a-haystack-with-ack/">Looking For A Needle In A Haystack! (or Using Ack To Improve Your Development Workflow)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/24/angular-js-unit-testing-for-real-though/">AngularJS Unit Testing, For Real Though</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

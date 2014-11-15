@@ -1,0 +1,372 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>EventReporter retrospective - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="The first couple weeks of gSchool basically consisted of: our teachers (Jeff, Katrina, Franklin, and Jorge) throwing us into the deep end and &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2013/09/20/eventreporter-retrospective">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">EventReporter Retrospective</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-20T09:03:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>The first couple weeks of gSchool basically consisted of: our teachers (Jeff, Katrina, Franklin, and Jorge) throwing us into the deep end and watching to see if we would sink or swim. Within the first seven days of class, we were assigned the following tutorials: Ruby in 100 Minutes, EventManager, MicroBlogger, Encryptor, <a href="http://tutorials.jumpstartlab.com/academy/workshops/testing_event_manager.html">TDD With Minitest and EventManager</a>, and <a href="https://github.com/JumpstartLab/enums-exercises.git">EnumsExercises</a>.</p>
+
+<p>Then they dropped the real bomb.</p>
+
+<p><a href="http://tutorials.jumpstartlab.com/projects/event_reporter.html">EventReporter</a>. In this project, you &ldquo;build an interactive query and reporting tool&rdquo; that inspects CSV files. After loading a file, it lets the user search through the data to find entries by attributes like name, phone number, and address. <a href="git@github.com:fluxusfrequency/event_reporter.git">My version is here</a>.</p>
+
+<p>This was the first project in which we had to engineer solutions to a problem without having our hands held every step of the way. The tutorial gives some guidance, in the form of various &ldquo;paths&rdquo; with guidelines to be met. I guess this is the &ldquo;we do&rdquo; step of the guided release process (&ldquo;I do&rdquo;, &ldquo;we do&rdquo;, &ldquo;you do&rdquo;). At any rate, we found ourselves out in the wild, trying to hack out a way to victory. Each of us had to find our own process; develop a workflow to find a way out.</p>
+
+<p>I was paired with Persa for this project. The instructions said that we were each to turn in our own solution, relying on each other for support as we went. I was determined to figure out how to create a working solution, and my learning style is very independent. It seems that Persa is the same way. We didn&rsquo;t spend much time in collaboration. We troubleshot each others&#8217; problems, but only minimally. Mostly we each worked alone, with a little consultation from the teachers or other students.</p>
+
+<p>For me, the project was basically all-consuming from Tuesday morning through Thursday morning. I&rsquo;m not sure how many hours I spent on it in total, but I will say that I spent all of my time at Galvanize (about 8:00-5:00) on it each day (when I wasn&rsquo;t in class), plus about three hours on the bus each day, and a few extra hours at home on top of all that.</p>
+
+<p>My strategy was to write tests for each of the five paths from the tutorial. Here&rsquo;s the code from my &ldquo;Happy Path&rdquo; test:</p>
+
+<figure class='code'><figcaption><span>happy_path_test.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;pry&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/autorun&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/pride&#39;</span>
+</span><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;../lib/event_reporter.rb&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">HappyPathTest</span> <span class="o">&lt;</span> <span class="no">MiniTest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>  <span class="kp">attr_accessor</span> <span class="ss">:reporter</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">setup</span>
+</span><span class='line'>    <span class="vi">@reporter</span> <span class="o">=</span> <span class="no">EventReporter</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="n">reporter</span><span class="o">.</span><span class="n">process_and_execute</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_responds_to_load_filename</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="s1">&#39;Successfully loaded event_attendees.csv.&#39;</span><span class="p">,</span> <span class="n">reporter</span><span class="o">.</span><span class="n">process_and_execute</span><span class="p">(</span><span class="s2">&quot;load event_attendees.csv&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_responds_to_load_filename_nil_with_a_default_file</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="s1">&#39;Successfully loaded event_attendees.csv.&#39;</span><span class="p">,</span> <span class="n">reporter</span><span class="o">.</span><span class="n">process_and_execute</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_queue_count_defaults_to_zero</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">0</span><span class="p">,</span> <span class="n">reporter</span><span class="o">.</span><span class="n">process_and_execute</span><span class="p">(</span><span class="s2">&quot;queue count&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_responds_to_find_by_first_name</span>
+</span><span class='line'>    <span class="n">skip</span>
+</span><span class='line'>    <span class="n">reporter</span><span class="o">.</span><span class="n">process_and_execute</span><span class="p">(</span><span class="s2">&quot;find first_name John&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">63</span><span class="p">,</span> <span class="n">reporter</span><span class="o">.</span><span class="n">process_and_execute</span><span class="p">(</span><span class="s2">&quot;queue count&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_responds_to_queue_clear</span>
+</span><span class='line'>    <span class="n">skip</span>
+</span><span class='line'>    <span class="n">reporter</span><span class="o">.</span><span class="n">process_and_execute</span><span class="p">(</span><span class="s2">&quot;queue clear&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">0</span><span class="p">,</span> <span class="n">reporter</span><span class="o">.</span><span class="n">process_and_execute</span><span class="p">(</span><span class="s2">&quot;queue count&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Some code omitted for brevity...</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After writing the tests, I wrote code to make the tests pass, one at a time. I repeated this process for all five paths. By the time I was done, I had a 95% functional program. I did a few tweaks here and there, and had something that worked by Thursday morning. I did it, but it was a haul. I enjoyed reading this 10:00 PM email from Jeff on Wednesday night:</p>
+
+<figure class='code'><figcaption><span>Jeff&#8217;s Message</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>All,
+</span><span class='line'>
+</span><span class='line'>I imagine there are many of you who have been cranking on EventManager and there's likely a cadre still at Galvanize. Please stop where you are and get some sleep. We have good plans for tomorrow and don't want to lose a day to you being totally drained.
+</span><span class='line'>
+</span><span class='line'>It will be ok :)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Ha ha. Right, Jeff. <em>That&rsquo;s</em> what we&rsquo;re going to do.</p>
+
+<p>Meanwhile, class was still going on each day. Franklin did a great couple of sessions on debugging, and introduced us to <a href="http://pryrepl.org/">Pry</a>. Wow, it&rsquo;s amazing! I loved being able to stop code as it was running ro check out the value of different variables, and explore what would happen when calling different methods during runtime. It blew my mind, and <em>really</em> helped with debugging. Katrina opened my eyes to a new tool too: minitest/pride. In her words, &ldquo;pride is very important!&rdquo; I&rsquo;m very excited by colors (as you can read about in <a href="blog/2013/09/19/fun-with-terminal/">yesterday&rsquo;s post</a>), and I seriously don&rsquo;t know if I could have run the tests over and over without the rainbows to brighten my day (or night).</p>
+
+<p>Even though the project is &ldquo;done&rdquo;, I&rsquo;m still working on it. I&rsquo;m not surprised, and I&rsquo;m sure this will always be the case with my code. Most of the work I&rsquo;m doing now is based on the refactoring suggestions Franklin made during the code review I went through with Rolen, Will, Simon, Quentin, Ben H., and Nathaniel on Thursday morning.</p>
+
+<p>Things I&rsquo;m trying do to my code:</p>
+
+<ul>
+<li>Write method names clearly</li>
+<li>Shorten methods</li>
+<li>Split if/else statements into separate methods</li>
+<li>Change variable assignments into methods that return an array or hash, when appropriate</li>
+<li>Routing all the &ldquo;puts&rdquo; calls through a &ldquo;say&rdquo; method, so that I can run tests without seeing a bunch of garbage on the screen.</li>
+</ul>
+
+
+<p>After seeing my classmates&#8217; code, and listening to Franklin&rsquo;s ideas, my whole understanding of Ruby syntax and ways of approaching problems has expanded many times over. It&rsquo;s going to take a long time to integrate everything I&rsquo;ve seen this week into my coding.</p>
+
+<p>A couple of things I did that worked really well for me were:</p>
+
+<ul>
+<li>Using pomodoros to keep from getting burned out</li>
+<li>Driving feature implementation using tests</li>
+<li>Splitting collections of methods into separate classes</li>
+<li>Using namespacing</li>
+<li>Using git branches and pushing often</li>
+<li>Drinking coffee listening to music on big headphones while coding :)</li>
+</ul>
+
+
+<p>Things that didn&rsquo;t work as well:</p>
+
+<ul>
+<li>Using really big methods,</li>
+<li>Using a lot of puts statements at the end of my methods (making it hard to test)</li>
+<li>Continually switching between open windows instead of splitting them in a way that makes sense</li>
+</ul>
+
+
+<p>All in all, I had a great time with EventReporter. It was fun for me to define a large number of problems, and solve them one at a time until I&rsquo;d built something cool.</p>
+
+<p><a href="git@github.com:fluxusfrequency/event_reporter.git">Here&rsquo;s another link</a> to my current version.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-20T09:03:00-06:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2013/09/20/eventreporter-retrospective/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2013/09/20/eventreporter-retrospective/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/09/19/fun-with-terminal/" title="Previous Post: Fun with terminal">&laquo; Fun with terminal</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/09/28/my-first-ruby-conference-rocky-mountain-ruby-2013/" title="Next Post: My First Ruby Conference - Rocky Mountain Ruby 2013">My First Ruby Conference - Rocky Mountain Ruby 2013 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/">Using Services to Keep Your Rails Controllers Clean and DRY</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/04/looking-for-a-needle-in-a-haystack-with-ack/">Looking For A Needle In A Haystack! (or Using Ack To Improve Your Development Workflow)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/24/angular-js-unit-testing-for-real-though/">AngularJS Unit Testing, For Real Though</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

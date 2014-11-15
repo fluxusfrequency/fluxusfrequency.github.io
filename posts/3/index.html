@@ -1,0 +1,3132 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="I read JavaScript Enlightenment by Cory Lindley over the weekend. It was the perfect thing for me right now, as an advanced beginner. It really &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/posts/3">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/10/javascript-enlightenment/">JavaScript Enlightenment</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-10T21:30:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I read <a href="http://www.javascriptenlightenment.com/">JavaScript Enlightenment</a> by Cory Lindley over the weekend. It was the perfect thing for me right now, as an advanced beginner. It really breaks down all the parts of tha langauge in an understandable way. I feel like I get the &lsquo;big picture&rsquo; much better after having read it. Here are some notes I took along the way.</p>
+
+<h1>Explanations</h1>
+
+<h2>Objects</h2>
+
+<p>In javascript, object is king.
+An object is a set of properties with keys and values.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObject</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Object</span><span class="p">();</span>
+</span><span class='line'><span class="nx">myObject</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="err">“</span><span class="nx">Ben</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">myObject</span><span class="p">.</span><span class="nx">age</span> <span class="o">=</span> <span class="mi">29</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Javascript’s Native Object Constructors</h2>
+
+<p>These are the nine object constructors built into JavaScript:</p>
+
+<ul>
+<li>Number()</li>
+<li>String()</li>
+<li>Boolean()</li>
+<li>Object()</li>
+<li>Array()</li>
+<li>Function()</li>
+<li>Date()</li>
+<li>RegExp()</li>
+<li>Error()</li>
+</ul>
+
+
+<p>There’s also Math, which is not a constructor. It acts like an instantiated object.</p>
+
+<p>Thus, you can do:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But NOT:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myMath</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="k">new</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Contructors &amp; Instantiating With Constructors</h2>
+
+<p>Every object can be built with a constructor. You instantiate the object with the ‘new’ keyword.</p>
+
+<p>Here’s the syntax:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObject</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Object</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can also define your own constructors, like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Person</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span><span class="nx">age</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>     <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="nx">name</span><span class="p">;</span>
+</span><span class='line'>     <span class="k">this</span><span class="p">.</span><span class="nx">age</span> <span class="o">=</span> <span class="nx">age</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// People can be instantiated like this:</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">Ben</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Person</span><span class="p">(</span><span class="err">“</span><span class="nx">Ben</span><span class="err">”</span><span class="p">,</span> <span class="mi">29</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Object Literal Notation</h2>
+
+<p>Instead of using the new keyword, you can create an object with the literal syntax:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="o">*</span><span class="kd">var</span> <span class="nx">myNumber</span> <span class="o">=</span> <span class="mi">23</span><span class="p">;</span>
+</span><span class='line'><span class="o">*</span><span class="kd">var</span> <span class="nx">myString</span> <span class="o">=</span> <span class="err">“</span><span class="nx">Hello</span><span class="p">,</span> <span class="nx">world</span><span class="o">!</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="o">*</span><span class="kd">var</span> <span class="nx">myBoolean</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myObject</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myArray</span> <span class="o">=</span> <span class="p">[];</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myFunction</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){};</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myRegExp</span> <span class="o">=</span> <span class="sr">/.*/</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myError</span> <span class="o">=</span> <span class="p">(</span><span class="err">‘</span><span class="nx">crap</span><span class="o">!</span><span class="err">’</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>* These tjree literals do NOT return an object, but a Javascript primitive. Their constructors DO return objects.
+A primitive is an irreducible value.
+If they are later treated as an object, for example by calling a method on them, they are temporarily wrapped in an object.</p>
+
+<h2>The Third Notation</h2>
+
+<p>Another way to create a primitive (does not use the new keyword):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myNumber</span> <span class="o">=</span> <span class="nb">Number</span><span class="p">(</span><span class="mi">23</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myString</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myBoolean</span> <span class="o">=</span> <span class="nb">Boolean</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Complex Objects</h2>
+
+<p>Objects that contain multiple values, which can be primitives or other complex objects.
+These are objects created created with the new keyword, or literal notation (and are NOT one of the primitives).</p>
+
+<p>They are also known as “composite objects” or a “reference types”.
+These objects store an address reference to an object.
+If you copy them, the copies are also references to the same address.
+Therefore, they will all mutate if the object is changed.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarC</span> <span class="o">=</span> <span class="p">{</span><span class="nx">name</span><span class="o">:</span> <span class="err">“</span><span class="nx">Ben</span><span class="err">”</span><span class="p">};</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myVarD</span> <span class="o">=</span> <span class="nx">myVarC</span><span class="p">;</span>
+</span><span class='line'><span class="nx">myVarC</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="err">“</span><span class="nx">John</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarD</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="err">“</span><span class="nx">John</span><span class="err">&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Complex Objects - Native Properties</h2>
+
+<h3>&lsquo;constructor&rsquo;</h3>
+
+<p>In addition to their basic property keys, all instantiated objects have a property called &lsquo;constructor&rsquo;.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarE</span> <span class="o">=</span> <span class="p">{</span><span class="nx">age</span><span class="o">:</span> <span class="mi">29</span><span class="p">};</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarE</span><span class="p">.</span><span class="nx">constructor</span><span class="p">);</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="nb">Object</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>&lsquo;instanceof&rsquo;</h3>
+
+<p>The type of an instantiated object can be checked with &lsquo;instanceof&rsquo;.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">MyVarF</span> <span class="o">=</span> <span class="p">{</span><span class="nx">gender</span><span class="o">:</span> <span class="err">“</span><span class="nx">male</span><span class="err">”</span><span class="p">};</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarF</span> <span class="k">instanceof</span> <span class="nb">Object</span><span class="p">();)</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="nx">True</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Instance Properties</h3>
+
+<p>Instances of a constructor can be given their own properties. This includes objects created from the nine native constructors, but does not include primitives.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarG</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Boolean</span><span class="p">();</span>
+</span><span class='line'><span class="nx">myVarG</span><span class="p">.</span><span class="nx">prop</span> <span class="o">=</span> <span class="err">“</span><span class="nx">test</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarG</span><span class="p">.</span><span class="nx">prop</span><span class="p">);</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="err">“</span><span class="nx">test</span><span class="err">”</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarH</span> <span class="o">=</span> <span class="err">“</span><span class="nx">hello</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">myVarH</span><span class="p">.</span><span class="nx">prop</span> <span class="o">=</span> <span class="err">“</span><span class="nx">world</span><span class="p">;</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarH</span><span class="p">.</span><span class="nx">prop</span><span class="p">);</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="kc">undefined</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Accessing Properties</h3>
+
+<p>Dot notation vs. Bracket notation:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">myVarJ</span><span class="p">.</span><span class="nx">prop1</span> <span class="o">=</span> <span class="err">“</span><span class="nx">test</span><span class="err">”</span>
+</span><span class='line'><span class="nx">myVarJ</span><span class="p">[</span><span class="err">‘</span><span class="nx">prop2</span><span class="err">’</span><span class="p">]</span> <span class="o">=</span> <span class="err">“</span><span class="nx">bar</span><span class="err">”</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Bracket notation has two advantages: it can be used to concatenate strings in the property name, and it can use reserved words.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// Dot Notation</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">str</span> <span class="mi">1</span> <span class="o">=</span> <span class="err">“</span><span class="nx">foo</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">str2</span> <span class="o">=</span> <span class="err">“</span><span class="nx">bar</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myVarK</span><span class="p">[</span><span class="nx">str1</span> <span class="o">+</span> <span class="nx">str2</span><span class="p">]</span> <span class="o">=</span> <span class="err">“</span><span class="nx">baz</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">myVarK</span><span class="p">.</span><span class="nx">foobar</span><span class="p">;</span>
+</span><span class='line'><span class="o">=&gt;</span><span class="err">”</span><span class="nx">baz</span><span class="err">&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Bracket Notation</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myVarL</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="err">“</span><span class="nx">Algebra</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">myVarL</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">];</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="err">“</span><span class="nx">Algebra</span><span class="err">”</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Deleting Properties</h3>
+
+<p>There is only only way to delete a property, which is to use the <em>delete</em> keyword.
+Setting it to null or undefined will not remove it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="k">delete</span> <span class="nx">myVarL</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>hasOwnProperty()</h3>
+
+<p>This method can be used to check if a property belongs to a given object. It may return false when an object&rsquo;s constructor does have the property; it only tells whether the object itself has the property.</p>
+
+<h3>The Prototype Property</h3>
+
+<p>All instances of a constructor contain this property. The properties of the &lsquo;prototype&rsquo; property itself are inherited by instances of the constructor.
+Object.prototype is at the top of the inheritance chain, so all objects inherit from it. It is a very bad idea to change Object.prototype&rsquo;s properties.</p>
+
+<h3>The &lsquo;in&rsquo; Keyword</h3>
+
+<p>Checks for a property in an object. Similar to hasOwnProperty(), but it <em>does</em> look up the inheritance chain.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVar</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;hello&#39;</span><span class="p">,</span> <span class="s1">&#39;world&#39;</span><span class="p">];</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;toString&#39;</span> <span class="k">in</span> <span class="nx">myVar</span><span class="p">);</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="kc">true</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Inheritance and Looping</h2>
+
+<p>If you run a for/in loop on the properties of an object, it will return inherited properties unless you use a guard clause checking each property with hasOwnProperty().</p>
+
+<h2>Host Objects</h2>
+
+<p>These objects are provided by the JavaScript environment. Examples include &lsquo;window&rsquo; and &lsquo;document&rsquo; in the browser.</p>
+
+<h2>The &lsquo;this&rsquo; Keyword</h2>
+
+<p>The &lsquo;this&rsquo; keyword is available within the scope of a function, but it refers to the object which called the current function. It does not refer to the function itself, but its containing object.</p>
+
+<p>&lsquo;this&rsquo; acts like any other variable, only it can&rsquo;t be modified.</p>
+
+<p>In EcmaScript 3, calling &lsquo;this&rsquo; from a nested function referred to the Head Object. This was a serious mistake that was fixed in ES5. As a workaround, programmers used a variable &lsquo;that&rsquo; to keep track of the value of &lsquo;this&rsquo; inside of nested functions.</p>
+
+<p>&lsquo;this&rsquo; can be overridden with call() and apply(), which redefine &lsquo;this&rsquo; to be their first parameter (the object they are targetting).</p>
+
+<p>When using a constructor to create an instance, &lsquo;this&rsquo; refers to the object-to-be (the instance that has not yet been created). This pattern works for both properties and methods.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Person</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="nx">name</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Scope</h2>
+
+<p>There are three kinds of scope in JavaScript:</p>
+
+<ol>
+<li>Global Scope</li>
+<li>Function Scope</li>
+<li>Eval Scope</li>
+</ol>
+
+
+<p>There is no scope created by &lsquo;for&rsquo; or &lsquo;while&rsquo; loops, nor by &lsquo;if&rsquo;.</p>
+
+<p>If a variable is declared without the keyword &lsquo;var&rsquo;, it is created in the global scope. This is to be avoided.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">myVar</span> <span class="o">=</span> <span class="s2">&quot;hello&quot;</span><span class="p">;</span> <span class="c1">// this is global</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myVar2</span> <span class="o">=</span> <span class="s2">&quot;world&quot;</span><span class="p">;</span> <span class="c1">// this is local</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Lexical Scoping</h3>
+
+<p>Objects can look up the inheritance chain to find properties, functions, and methods, but they cannot look into their childrens&#8217; scopes. When looking for a value up the inheritance chain, the first found value is returned. Any values in higher scopes are &lsquo;shadowed&rsquo;, or &lsquo;masked&rsquo; by the value found in the lowest scope.</p>
+
+<p>Priority of inheritance is defined in the definition (the code), not the state of objects at the time of invocation.</p>
+
+<h2>Prototype</h2>
+
+<p>Prototype is a property found in instances created by the Function() constructor. These functions can be used as constructors themselves.</p>
+
+<p>Why should you care?</p>
+
+<ol>
+<li>Prototype is what the nine native constructors use to pass methods to their object children.</li>
+<li>You can use prototypes to orchestrate inheritance.</li>
+<li>You may inherit code that uses it.</li>
+<li>It&rsquo;s efficient in that all instances of an object can share a method defined in only one place: the prototype object.</li>
+</ol>
+
+
+<p>The prototype property is basically a container (an object) for properties and methods you want instances of a given object to inherit. They will inherit the current value of the property (it is updated dynamically).</p>
+
+<p>The values passed into prototype must be complex (not JavaScript primitives).</p>
+
+<p>Instances of an object access the prototype&rsquo;s host object with their &lsquo;constructor&rsquo; property.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myArray</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">();</span>
+</span><span class='line'><span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">foo</span> <span class="o">=</span> <span class="s1">&#39;bar&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">myArray</span><span class="p">.</span><span class="nx">constructor</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">foo</span><span class="p">;</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="s1">&#39;bar&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// This is the same as line 4. The &#39;foo&#39; property is found by inheritance.</span>
+</span><span class='line'><span class="nx">myArray</span><span class="p">.</span><span class="nx">foo</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>All objects have a common highest ancestor: Object.prototype. Overriding the &lsquo;prototype&rsquo; property on Object will break its functionality.</p>
+
+<p><br/></p>
+
+<hr />
+
+
+<p><br/></p>
+
+<h1>The Parts of JavaScript</h1>
+
+<h2>The Head/Global Object</h2>
+
+<p>This object represents the highest scope in a given JavaScript environment. In the browser, it is &lsquo;window&rsquo;. It contains ALL objects in the environment.</p>
+
+<p>Global properties and variables are contained in the Head Object, and are accessible from any other scope through inheritance.</p>
+
+<p>The Head Object can be referenced by referring to &lsquo;window&rsquo;, or using the keyword &lsquo;this&rsquo; from the global scope. Thus, its scope is implied from outside of a function.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// These mean the same thing:</span>
+</span><span class='line'><span class="nx">alert</span><span class="p">();</span>
+</span><span class='line'><span class="nb">window</span><span class="p">.</span><span class="nx">alert</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Global Functions</h3>
+
+<p>These are provided by the environment.</p>
+
+<ul>
+<li>decodeURI()</li>
+<li>decodeURIComponent()</li>
+<li>encodeURI()</li>
+<li>encodeURIComponent()</li>
+<li>eval()</li>
+<li>isFinite()</li>
+<li>isNaN()</li>
+<li>parseFloat()</li>
+<li>parseInt()</li>
+</ul>
+
+
+<h2>Object()</h2>
+
+<p>Gives an empty object container. Creating objects with a literal is the preferred syntax.</p>
+
+<h3>Parameters</h3>
+
+<p>Object() takes a parameter that is a value. It is null/undefined by default.</p>
+
+<h3>Properties and Methods</h3>
+
+<p>Note: ALL JavaScript objects inherit the following properties and methods from Object.prototype.</p>
+
+<p>When defining property keys, one can use dot notation or bracket notation. Bracket notation is more flexible, because it allows for the use of concatenation and reserved words.</p>
+
+<h4>Properties</h4>
+
+<ul>
+<li>prototype</li>
+</ul>
+
+
+<h4>Instance Properties</h4>
+
+<ul>
+<li>constructor</li>
+</ul>
+
+
+<h4>Instance Methods</h4>
+
+<ul>
+<li>hasOwnProperty()</li>
+<li>isPrototypeOf()</li>
+<li>propertyIsEnumerable()</li>
+<li>toLocaleString()</li>
+<li>toString()</li>
+<li>valueOf()</li>
+</ul>
+
+
+<p><br /></p>
+
+<h2>Function()</h2>
+
+<p>Functions always return a value. This will be &lsquo;undefined&rsquo; if another return value is not specified.</p>
+
+<p>Functions define a new scope. Variables within it cannot be seen from objects containing the function, but they <em>can</em> be seen by objects it contains. This is called &lsquo;lexical scoping&rsquo;.</p>
+
+<p>There are three ways to define a new function:</p>
+
+<ol>
+<li>With the constructor: var myFunction = new Function(){};</li>
+<li>With a literal, as an expression: var myFunction = function(){};</li>
+<li>With a literal, as a statement: function myFunction(){};</li>
+</ol>
+
+
+<p>Functions are &lsquo;first class citizens&rsquo; in JavaScript. They are objects, they can be stored, they have properties, and they can be passed into other functions (higher-order functions).</p>
+
+<h3>Invoking Functions</h3>
+
+<p>Functions are invoked with (). This can be done in three ways:</p>
+
+<ol>
+<li>As a function - func();</li>
+<li>As a method - when attached to an object - myVar.func();</li>
+<li>Using apply() or call()</li>
+<li>As a constructor:</li>
+</ol>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Cody</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){};</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">cody</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Cody</span><span class="p">();</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">cody</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Anonymous Functions</h3>
+
+<p>Functions not given an identifier are anonymous.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">function</span><span class="p">(){};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Self-Invoking Functions</h3>
+
+<p>Functions that call themselves immediately upon definition. This doesn&rsquo;t work with the Function() constructor.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myFunction</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">input</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">input</span><span class="p">)</span>
+</span><span class='line'><span class="p">}();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Self-Invoking Anonymous Functions</h3>
+
+<p>Functions with no identifier that immediately call themselves. These often wrap code to keep it from polluting the global object. Note that it must be wrapped in additional parentheses.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>  <span class="c1">// code goes here</span>
+</span><span class='line'><span class="p">})();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Hoisting</h3>
+
+<p>A function can be invoked before it is defined, because JavaScript collects the functions before runtime. This is called hoisting. It does not work with function expressions.</p>
+
+<h3>Recursion</h3>
+
+<p>Functions may call themselves while executing. This is called recursion.</p>
+
+<h3>Parameters</h3>
+
+<p>When creating a function with the constructor, the last param passed in becomes the inside of the function.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myFunction</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Function</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;return foo+bar&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can create a function with too few parameters. The missing ones will be treated as &lsquo;undefined.&rsquo;</p>
+
+<p>You can also create a function with too many parameters. The extras will be ignored, although they are accessible from the &lsquo;arguments&rsquo; property.</p>
+
+<h3>Properties and Methods</h3>
+
+<h4>Properties</h4>
+
+<ul>
+<li>prototype</li>
+</ul>
+
+
+<h4>Instance Properties</h4>
+
+<ul>
+<li>constructor</li>
+<li>length</li>
+<li>arguments</li>
+</ul>
+
+
+<p>Arguments has a property &lsquo;callee&rsquo; that contains a reference to the function currently executing. This can be used in creating recursive functions.</p>
+
+<p>Arguments also has a property &lsquo;length&rsquo;, containing the number of arguments at invocation. This property is being depricated in favor of arguments.callee.length.</p>
+
+<p><br /></p>
+
+<h4>Instance Methods</h4>
+
+<ul>
+<li>apply()</li>
+<li>call()</li>
+<li>toString()</li>
+</ul>
+
+
+<p><br /></p>
+
+<h2>Array()</h2>
+
+<p>A special type of object with a couple of extra functions.</p>
+
+<h3>Parameters</h3>
+
+<p>Any comma-separated parameters passed in will become elements in the array.
+If a single integer is passed alone, it will define the length of the array instead of an element value. If you define a high index, the elements before it will be filled in with &lsquo;undefined&rsquo;. Setting an array&rsquo;s length can add or remove values automatically.</p>
+
+<h3>Properties and Methods</h3>
+
+<h4>Properties</h4>
+
+<ul>
+<li>prototype</li>
+</ul>
+
+
+<h4>Instance Properties</h4>
+
+<ul>
+<li>constructor</li>
+<li>index</li>
+<li>input</li>
+<li>length</li>
+</ul>
+
+
+<h4>Instance Methods</h4>
+
+<ul>
+<li>pop()</li>
+<li>push()</li>
+<li>reverse()</li>
+<li>shift()</li>
+<li>sort()</li>
+<li>splice()</li>
+<li>unshift()</li>
+<li>concat()</li>
+<li>join()</li>
+<li>slice()</li>
+</ul>
+
+
+<p><br/></p>
+
+<h2>String()</h2>
+
+<h3>Creating Strings</h3>
+
+<p>This will create a string object.
+It is best to avoid this syntax due to potential problems with typeof.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObj</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">String</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span> <span class="c1">// constructor function</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>These two create a primitive:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myString</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span> <span class="c1">// without new keyword</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myString</span> <span class="o">=</span> <span class="s1">&#39;foo&#39;</span> <span class="c1">// literal</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Parameters</h3>
+
+<p>Takes one parameter: the string value being created.</p>
+
+<h3>Properties and Methods</h3>
+
+<h4>Properties</h4>
+
+<ul>
+<li>prototype</li>
+</ul>
+
+
+<h4>Methods</h4>
+
+<ul>
+<li>fromCharChode()</li>
+</ul>
+
+
+<h4>Instance Properties</h4>
+
+<ul>
+<li>constructor</li>
+<li>length</li>
+</ul>
+
+
+<h4>Instance Methods</h4>
+
+<ul>
+<li>charAt()</li>
+<li>charCodeAt()</li>
+<li>concat()</li>
+<li>indexOf()</li>
+<li>lastIndexOf()</li>
+<li>localeCompare()</li>
+<li>match()</li>
+<li>quote()</li>
+<li>replace()</li>
+<li>search()</li>
+<li>slice()</li>
+<li>split()</li>
+<li>substr()</li>
+<li>substring()</li>
+<li>toLocaleLowerCase()</li>
+<li>toLocaleUpperCase()</li>
+<li>toLowerCase()</li>
+<li>toUpperCase()</li>
+<li>valueOf()</li>
+</ul>
+
+
+<p><br /></p>
+
+<h2>Number()</h2>
+
+<h3>Creating Numbers</h3>
+
+<p>This will create a number object.
+It is best to avoid this syntax due to potential problems with typeof.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObj</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Number</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="c1">// constructor function</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>These two create a primitive:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myNumber</span> <span class="o">=</span> <span class="nb">Number</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span> <span class="c1">// without new keyword</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myNumber</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span> <span class="c1">// literal</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Parameters</h3>
+
+<p>Takes one parameter: the number value being created.</p>
+
+<h3>Properties and Methods</h3>
+
+<h4>Properties</h4>
+
+<ul>
+<li>MAX_VALUE</li>
+<li>MIN_VALUE</li>
+<li>NaN</li>
+<li>NEGATIVE_INFINITY</li>
+<li>POSITIVE_INFINITY</li>
+<li>prototype</li>
+</ul>
+
+
+<h4>Instance Properties</h4>
+
+<ul>
+<li>constructor</li>
+</ul>
+
+
+<h4>Instance Methods</h4>
+
+<ul>
+<li>toExponential()</li>
+<li>toFixed()</li>
+<li>toLocaleString()</li>
+<li>toPrecision()</li>
+<li>toString()</li>
+<li>valueOf()</li>
+</ul>
+
+
+<p><br /></p>
+
+<h2>Boolean()</h2>
+
+<h3>Creating Booleans</h3>
+
+<p>This will create a boolean object.
+It is best to avoid this syntax due to potential problems with typeof.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObj</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Boolean</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="c1">// constructor function</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">These</span> <span class="nx">two</span> <span class="nx">create</span> <span class="nx">a</span> <span class="nx">primitive</span><span class="o">:</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myBoolean</span> <span class="o">=</span> <span class="nb">Boolean</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span> <span class="c1">// without new keyword</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myBoolean</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span> <span class="c1">// literal</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Parameters</h3>
+
+<p>Takes one parameter to be converted into a boolean.</p>
+
+<p>The only false values are: 0, -0, null, false, NaN, undefined, and &ldquo;&rdquo;.</p>
+
+<h3>Properties and Methods</h3>
+
+<h4>Properties</h4>
+
+<ul>
+<li>prototype</li>
+</ul>
+
+
+<h4>Instance Properties</h4>
+
+<ul>
+<li>constructor</li>
+</ul>
+
+
+<h4>Instance Methods</h4>
+
+<ul>
+<li>toSource()</li>
+<li>toString()</li>
+<li>valueOf()</li>
+</ul>
+
+
+<h4>Notes</h4>
+
+<p>If you create a false boolean object with a constructor, it creates an object. Objects convert to true. Thus do not use the constructor with false booleans.</p>
+
+<p><br /></p>
+
+<h2>Primitives: String, Number, and Boolean</h2>
+
+<p>A primitive is an irreducible value.
+The Primitives are: number, string, boolean, null, and undefined.</p>
+
+<p>Primitives are stored in memory with their value:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarA</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myVarB</span> <span class="o">=</span> <span class="nx">myVarA</span><span class="p">;</span>
+</span><span class='line'><span class="nx">myVarA</span> <span class="o">=</span> <span class="mi">13</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">myVarA</span> <span class="o">===</span> <span class="mi">13</span><span class="p">;</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="kc">true</span>
+</span><span class='line'><span class="nx">myVarB</span> <span class="o">===</span> <span class="mi">12</span><span class="p">;</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="kc">true</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It is best to write these using the literal form. Using a constructor will result in a typeof result of &ldquo;object&rdquo; instead of the actual type.</p>
+
+<h3>Object Wrappers</h3>
+
+<p>When you call a property or method on a primitive, it is wrapped in a temporary object.
+The temporary object is discarded once the properties have been accessed.</p>
+
+<p><br /></p>
+
+<h2>Null</h2>
+
+<p>Use null to indicate that an object property doesn&rsquo;t have a value.
+It means that a value is expected but not yet available.
+Calling typeof on it will return &lsquo;object&rsquo;. It is best to test for null with ===.</p>
+
+<p><br /></p>
+
+<h2>Undefined</h2>
+
+<p>Used in two ways:</p>
+
+<ul>
+<li>Indicate that a variable has no assigned value.</li>
+<li>Indicate that an object property you want to access is not defined or named, and can&rsquo;t be found in the prototype lookup chain.</li>
+</ul>
+
+
+<p>It is best to let JavaScript itself use undefined. Don&rsquo;t use it yourself.</p>
+
+<p><br /></p>
+
+<h2>Math</h2>
+
+<p>This is a built-in, static object. It is not a constructor and cannot be instantiated.</p>
+
+<h3>Properties and Methods</h3>
+
+<h4>Properties</h4>
+
+<ul>
+<li>E</li>
+<li>LN2</li>
+<li>LN10</li>
+<li>LOG2E</li>
+<li>LOG10E</li>
+<li>PI</li>
+<li>SQRT1_2</li>
+<li>SQRT2</li>
+</ul>
+
+
+<h4>Methods</h4>
+
+<ul>
+<li>abs()</li>
+<li>acos()</li>
+<li>asin()</li>
+<li>atan()</li>
+<li>atan2()</li>
+<li>ceil()</li>
+<li>cos()</li>
+<li>exp()</li>
+<li>floor()</li>
+<li>log()</li>
+<li>max()</li>
+<li>min()</li>
+<li>pow()</li>
+<li>random()</li>
+<li>sin()</li>
+<li>sort()</li>
+<li>tan()</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/08/getting-started-with-rails/">Getting Started With Rails</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-08T10:15:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This week at gSchool, we&rsquo;re digging into our first major Rails project, <a href="http://tutorials.jumpstartlab.com/projects/dinner_dash.html">Dinner Dash</a>. It&rsquo;s been a challenging transition.</p>
+
+<h2>Rails Challenges</h2>
+
+<p>Although I know some Ruby, and I know how to drive development with tests, using Rails is a whole new ball game. There are so many new words! From ActiveRecord associations, to &ldquo;form_for&rdquo; and &ldquo;button_to&rdquo;, to strong params, there&rsquo;s a huge library of methods I don&rsquo;t know.</p>
+
+<p>One particularly difficult challenge for me this week was figuring out how to properly use &ldquo;form_for&rdquo;. I was having a little trouble with forms and HTTP routes. I know how to write an update form like this in HTML:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">&quot;/ideas&quot;</span> <span class="na">method=</span><span class="s">&#39;POST&#39;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&#39;text&#39;</span> <span class="na">name=</span><span class="s">&#39;idea[title]&#39;</span> <span class="na">placeholder=</span><span class="s">&quot;Title&quot;</span> <span class="na">value=</span><span class="s">&quot;title&quot;</span><span class="nt">&gt;&lt;input/&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;_method&quot;</span> <span class="na">value=</span><span class="s">&quot;PUT&quot;</span><span class="nt">&gt;&lt;input/&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&#39;submit&#39;</span> <span class="na">value=</span><span class="s">&#39;Submit&#39;</span><span class="nt">&gt;&lt;input/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/form&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But I was having a lot of trouble submitting PUT and DELETE verbs with &ldquo;form_for&rdquo; in Rails.</p>
+
+<p>I was trying to create a form with some code like this, but it wasn&rsquo;t really working out:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='erb'><span class='line'><span class="cp">&lt;%=</span> <span class="n">form_for</span> <span class="ss">:idea</span><span class="p">,</span> <span class="p">(</span><span class="ss">action</span><span class="p">:</span> <span class="ss">:put</span><span class="p">)</span><span class="sc">??</span> <span class="k">do</span> <span class="o">|</span><span class="n">f</span><span class="o">|</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">  &lt;p&gt;</span>
+</span><span class='line'><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">f</span><span class="o">.</span><span class="n">label</span> <span class="ss">:title</span> <span class="cp">%&gt;</span><span class="x">&lt;br&gt;</span>
+</span><span class='line'><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">f</span><span class="o">.</span><span class="n">text_field</span> <span class="ss">:title</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">  &lt;/p&gt;</span>
+</span><span class='line'><span class="x">  &lt;p&gt;</span>
+</span><span class='line'><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">f</span><span class="o">.</span><span class="n">submit</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">  &lt;/p&gt;</span>
+</span><span class='line'><span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Franklin eventually straigtened us out with a different approach, which he described as the &ldquo;Rails-y way&rdquo; to do it:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='erb'><span class='line'><span class="cp">&lt;%=</span> <span class="n">link_to</span> <span class="s2">&quot;Title&quot;</span><span class="p">,</span> <span class="n">ideas_path</span><span class="p">,</span> <span class="nb">method</span><span class="p">:</span> <span class="ss">:put</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I assume there will be many more &ldquo;Rails-y&rdquo; idioms to learn in my near future.</p>
+
+<h2>Organizing Our Workgroup</h2>
+
+<p>My group for this project is comprised of four people: myself, Bree, Nikhil, and Tyler. So far, we&rsquo;ve been working really well together. We&rsquo;re using <a href="https://www.pivotaltracker.com">Pivotal Tracker</a> and <a href="https://campfirenow.com/">Campfire</a> (this is my first time for both) to drive our development and communication. I&rsquo;ve found it hard to get used to Pivotal Tracker. Although I enjoyed learning how to write epics and stories in <a href="https://github.com/cucumber/cucumber/wiki/Gherkin">Gherkin</a>, I&rsquo;m used to thinking through problems one step at a time in coding. Having to go back to the website and refer to what&rsquo;s in the &lsquo;Current&rsquo; or &lsquo;Icebox&rsquo; list interrupts my flow.</p>
+
+<p>I&rsquo;m also not yet at the point of driving everything with <a href="https://github.com/jnicklas/capybara">Capybara</a>. Although we&rsquo;re testing our models before we implement them, we aren&rsquo;t doing any integration tests in advance. Maybe if we were to transform our Gherkin stories into Cucumber, it would be an easy transition. I&rsquo;m a little shy, though, since it always takes a while to get to know a new testing framework.</p>
+
+<p>Here&rsquo;s one testing success, though: we&rsquo;ve integrated <a href="https://github.com/guard/guard">Guard</a> into our workflow. This is the first time any of us have used it successfully.</p>
+
+<p>I&rsquo;m also trying to itegrate some of the lessons learned from <a href="http://www.therailsview.com/">The Rails View</a>, which I&rsquo;m currently reading. In this project, I&rsquo;m trying to take on a lot of responsibility for the view layer, because I don&rsquo;t feel strong in design and would like to get better. Here&rsquo;s our current view, four days in. Unfortunately, it&rsquo;s mostly Bootstrap. I&rsquo;m planning to shine it up a bit this weekend.</p>
+
+<p><img src="http://s5.postimg.org/8g4kan24n/Ono_Burrito_Beta_Site.png" title="Ono Burrito" alt="Screenshot of a website in development"></p>
+
+<h2>Coming Back to Rails</h2>
+
+<p>Before gSchool, I did a few Rails tutorials online. Coming back to it now, after all the work we&rsquo;ve done with Ruby, hand-built model associations, and SQL, I feel very positive. I may not know what I&rsquo;m doing yet, but it&rsquo;s a lot easier to figure things out, now that I have a context for them. Categorizing confusing bits of code into categories comes much more quickly now. SQL, database tables, models, controllers, views, templates, Ruby expressions, Rails helpers&hellip;these ideas have a lot more meaning than they did before. This means I&rsquo;m able to bounce back from confusion much more quickly.</p>
+
+<h2>Moving Forward</h2>
+
+<p>I&rsquo;m excited to get up to speed in Rails. Our group was able to build out a complete restauarant site, with basic users and ordering functionality, all in the course of a few days. No wonder they say it&rsquo;s easy to get up and running quickly with Rails!</p>
+
+<p>I&rsquo;ve also been working with my mentor (the most awesome Mike Pack) on building a basic API in Rails, as a service for a Backbone.js app on the front end. It will eventually be an online recipe book, with Facebook and Instagram integration. I&rsquo;m really excited to continue working on it.</p>
+
+<h2>Wrapping Up</h2>
+
+<p>I&rsquo;m feeling a little bit intimidated by Rails at the moment, because there&rsquo;s so much to learn. But I&rsquo;m not worried: I relish the challenge of learning how to use a new tool, which is one of the reasons I got into programming in the first place. Plus, there are so many quality resources out there for learning Rails, I&rsquo;m sure I&rsquo;ll be up to speed in no time.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/06/restful-archicture/">RESTful Architecture</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-06T06:11:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>The gSchool students began our first big Rails project this week. We&rsquo;re building a restaurant site with online ordering. The project is called <a href="http://tutorials.jumpstartlab.com/projects/dinner_dash.html">Dinner Dash</a>.</p>
+
+<p>In support of learning Rails, Jeff gave a talk on how RESTful Archecture should look in a Rails application. Here are my notes on what he said. I broke it down into CRUD (Create, Read, Update, Destroy) operations.</p>
+
+<p>I&rsquo;ve shown the HTTP request verbs and routes and the controller methods that match them. It should be noted that GET will display request params in its URL, while POST requests will carry request params hidden in the body of the HTTP request.</p>
+
+<p>For the examples, I used &lsquo;articles&rsquo; as a resource. For single records, I referred to an article with an id of 1, although many different ids would actually exist. I also assumed that strong params are defined in a method called &lsquo;article_params&rsquo; in the Articles Controller. These patterns came from the Jumpstart Lab <a href="tutorials.jumpstartlab.com/projects/blogger.html">Blogger Tutorial</a>.</p>
+
+<p><br/></p>
+
+<h2>Setting Up The Router</h2>
+
+<p>In config/routes.rb:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">resources</span> <span class="ss">:articles</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><br/></p>
+
+<h2>Create</h2>
+
+<h3>Creating A Single Record</h3>
+
+<ul>
+<li>GET &lsquo;/articles/new&rsquo; (displays the new article form)</li>
+<li>POST &lsquo;/articles/new&rsquo;</li>
+</ul>
+
+
+<p>In app/controllers/articles_controller.rb:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>  <span class="vi">@article</span> <span class="o">=</span> <span class="no">Article</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">article_params</span><span class="p">)</span>
+</span><span class='line'>  <span class="vi">@article</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><br /></p>
+
+<h2>Read</h2>
+
+<h3>Reading Multiple Records</h3>
+
+<ul>
+<li>GET &lsquo;/articles&rsquo;</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">index</span>
+</span><span class='line'>  <span class="vi">@articles</span> <span class="o">=</span> <span class="no">Article</span><span class="o">.</span><span class="n">all</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Reading A Single Record</h3>
+
+<ul>
+<li>GET &lsquo;/articles/1&rsquo;</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">show</span>
+</span><span class='line'>  <span class="vi">@article</span> <span class="o">=</span> <span class="no">Article</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:id</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><br /></p>
+
+<h2>Update</h2>
+
+<h3>Updating A Single Record</h3>
+
+<ul>
+<li>GET &lsquo;/articles/1/edit&rsquo; (displays the edit form)</li>
+<li>PUT &lsquo;/articles/1&rsquo;</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">update</span>
+</span><span class='line'>  <span class="vi">@article</span> <span class="o">=</span> <span class="no">Article</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:id</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="vi">@article</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">article_params</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><br /></p>
+
+<h2>Destroy</h2>
+
+<h3>Deleting A Single Record</h3>
+
+<ul>
+<li>DELETE &lsquo;/articles/1&rsquo;</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">destroy</span>
+</span><span class='line'>  <span class="vi">@article</span> <span class="o">=</span> <span class="no">Article</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:id</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="vi">@article</span><span class="o">.</span><span class="n">destroy</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><br/></p>
+
+<h2>Search</h2>
+
+<h3>Searching With A Filter</h3>
+
+<ul>
+<li>GET &lsquo;/articles?author_id=6&rsquo;</li>
+</ul>
+
+
+<h3>Saved Searches</h3>
+
+<ul>
+<li>POST &lsquo;/searches&rsquo; (creates the search)</li>
+<li>GET &lsquo;/searches/12&rsquo; (accesses the saved search)</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/03/coffescript-notes/">CoffeeScript Notes</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-03T08:31:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I&rsquo;ve been digging into a lot of JavaScript lately, so I thought it would be worthwhile to read <a href="http:#%20arcturo.github.io/library/coffeescript/">The Little Book on CoffeeScript</a> by Alex MacCaw.</p>
+
+<p>I took some notes as I went, and I thought I&rsquo;d share them here for easy reference.</p>
+
+<p><br /></p>
+
+<h2>Basic Syntax</h2>
+
+<figure class='code'><figcaption><span>CoffeeScript - Basic Syntax</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="c1"># Functions</span>
+</span><span class='line'><span class="nv">myFunction = </span><span class="nf">-&gt;</span>
+</span><span class='line'><span class="c1"># Translates to:</span>
+</span><span class='line'><span class="nx">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Functions with arguments</span>
+</span><span class='line'><span class="nv">myFunction = </span><span class="nf">(arg) -&gt;</span>
+</span><span class='line'><span class="c1"># Translates to:</span>
+</span><span class='line'><span class="nx">function</span><span class="p">(</span><span class="nx">arg</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># No semicolons are needed in CoffeeScript(CS).</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Maintaining the context of &#39;this&#39; with the &#39;fat arrow&#39;</span>
+</span><span class='line'><span class="nv">myFunction = </span><span class="nf">(arg) =&gt;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Operators</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">is</span>
+</span><span class='line'><span class="c1"># Translates to:</span>
+</span><span class='line'><span class="err">\</span><span class="o">===</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">not</span>
+</span><span class='line'><span class="c1"># Translates to:</span>
+</span><span class='line'><span class="o">!</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">isnt</span>
+</span><span class='line'><span class="c1"># Translates to:</span>
+</span><span class='line'><span class="o">!==</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">and</span>
+</span><span class='line'><span class="c1"># Translates to:</span>
+</span><span class='line'><span class="o">&amp;&amp;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">or</span>
+</span><span class='line'><span class="c1"># Translates to:</span>
+</span><span class='line'><span class="o">||</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Single-line &quot;if&quot; statements</span>
+</span><span class='line'><span class="k">if</span> <span class="nx">x</span> <span class="k">then</span> <span class="nx">y</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Splat operator</span>
+</span><span class='line'><span class="p">(</span><span class="err">…</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># For loops</span>
+</span><span class='line'><span class="nx">myFunction</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="k">for</span> <span class="nx">item</span> <span class="k">in</span> <span class="nx">array</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># While loops</span>
+</span><span class='line'><span class="k">while</span> <span class="nx">num</span> <span class="o">-=</span> <span class="mi">1</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Alias for prototype</span>
+</span><span class='line'><span class="nx">Bob</span><span class="o">::</span><span class="nx">hey</span>
+</span><span class='line'><span class="c1"># Translates to:</span>
+</span><span class='line'><span class="nx">Bob</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">hey</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Executing functions immediately with the keyword do</span>
+</span><span class='line'><span class="nv">type = </span><span class="nx">do</span> <span class="nf">-&gt;</span>
+</span><span class='line'><span class="c1"># Code is then private and cannot be accessed in the future.</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Chained comparison syntax</span>
+</span><span class='line'><span class="nx">a</span> <span class="o">&lt;</span> <span class="nx">b</span> <span class="o">&lt;</span> <span class="nx">c</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Null Checks</span>
+</span><span class='line'><span class="nx">blackKnight</span><span class="p">.</span><span class="nx">getLegs</span><span class="p">()</span><span class="o">?</span><span class="p">.</span><span class="nx">kick</span><span class="p">()</span>
+</span><span class='line'><span class="c1"># Won’t call kick() if getLegs is false.</span>
+</span><span class='line'><span class="nx">blackKnight</span><span class="p">.</span><span class="nx">getLegs</span><span class="p">().</span><span class="nx">kick</span><span class="o">?</span><span class="p">()</span>
+</span><span class='line'><span class="c1"># Won’t call kick() if kick() is null or not a function.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Ruby-Like Features</h2>
+
+<figure class='code'><figcaption><span>CoffeeScript - Ruby-Like Features</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="c1"># Declaring a variable</span>
+</span><span class='line'><span class="nv">string = </span><span class="s">&quot;Foo bar baz&quot;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Inline &quot;if&quot; statments</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s">&quot;Hello, world!&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="kc">true</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># &quot;unless&quot; statments</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s">&quot;Hello, world!&quot;</span><span class="p">)</span> <span class="k">unless</span> <span class="kc">false</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># “==“ converts to “===“, “!=“ converts to “!==“</span>
+</span><span class='line'><span class="mi">1</span> <span class="o">==</span> <span class="mi">2</span>
+</span><span class='line'><span class="c1"># Evaluates as &quot;1 === 2&quot;</span>
+</span><span class='line'><span class="mi">1</span> <span class="o">!=</span> <span class="mi">2</span>
+</span><span class='line'><span class="c1"># Evaluates as &quot;1 !== 2&quot;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># String Interpolation</span>
+</span><span class='line'><span class="nv">code = </span><span class="s">&quot;Hello&quot;</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="err">“</span><span class="c1">#{code}, world!”)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Defining an object literal without curly brackets</span>
+</span><span class='line'><span class="nv">obj = one: </span><span class="mi">1</span><span class="p">,</span> <span class="nv">two: </span><span class="mi">2</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Conditional assignment operator</span>
+</span><span class='line'><span class="nx">variable</span> <span class="o">||=</span> <span class="mi">2</span>
+</span><span class='line'><span class="c1"># Is the same as:</span>
+</span><span class='line'><span class="nx">variable</span> <span class="o">or=</span><span class="mi">2</span>
+</span><span class='line'><span class="c1"># You can also use:</span>
+</span><span class='line'><span class="nx">variable</span> <span class="o">?=</span> <span class="mi">2</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Instance variable</span>
+</span><span class='line'><span class="nx">@snake</span>
+</span><span class='line'><span class="c1"># Evaluates to:</span>
+</span><span class='line'><span class="k">this</span><span class="p">.</span><span class="nx">snake</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Ranges</span>
+</span><span class='line'><span class="p">[</span><span class="mi">1</span><span class="p">..</span><span class="mi">5</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Slice</span>
+</span><span class='line'><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">][</span><span class="mi">0</span><span class="p">..</span><span class="mi">1</span><span class="p">]</span> <span class="nf">=&gt;</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+</span><span class='line'><span class="c1"># Or:</span>
+</span><span class='line'><span class="err">“</span><span class="nx">my</span> <span class="nx">string</span><span class="err">”</span><span class="p">[</span><span class="mi">1</span><span class="p">..</span><span class="mi">4</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Checking Content</span>
+</span><span class='line'><span class="nx">arr</span> <span class="p">[</span><span class="err">“</span><span class="nx">a</span><span class="err">”</span><span class="p">,</span> <span class="err">“</span><span class="nx">b</span><span class="err">”</span><span class="p">,</span> <span class="err">“</span><span class="nx">c</span><span class="err">”</span><span class="p">];</span> <span class="err">“</span><span class="nx">a</span><span class="err">”</span> <span class="k">in</span> <span class="nx">arr</span>
+</span><span class='line'><span class="c1"># Returns true.</span>
+</span><span class='line'><span class="c1"># Like Ruby #include?</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Existential Operator</span>
+</span><span class='line'><span class="nx">praise</span> <span class="k">if</span> <span class="nx">brian</span><span class="o">?</span>
+</span><span class='line'><span class="c1">#  Only returns false for null or undefined (*NOT* for “” or 0).</span>
+</span><span class='line'><span class="c1">#  Like .nil? in Ruby.</span>
+</span><span class='line'><span class="c1">#  Can also be used for ||.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Classes</h2>
+
+<figure class='code'><figcaption><span>CoffeeScript - Classes</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="c1"># Declaring Classes</span>
+</span><span class='line'><span class="k">class</span> <span class="nx">Animal</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Instantiating Classes</span>
+</span><span class='line'><span class="nv">animal = </span><span class="k">new</span> <span class="nx">Animal</span><span class="p">(</span><span class="nx">args</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Instantiating Classes With Instance Variables</span>
+</span><span class='line'><span class="nv">constructor: </span><span class="nf">(arg) -&gt;</span>
+</span><span class='line'><span class="vi">@name = </span><span class="nx">name</span>
+</span><span class='line'><span class="c1"># Or the shorthand:</span>
+</span><span class='line'><span class="nv">contructor: </span><span class="nf">(@arg) -&gt;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Inheritance</span>
+</span><span class='line'><span class="k">class</span> <span class="nx">Parrot</span> <span class="k">extends</span> <span class="nx">Animal</span>
+</span><span class='line'><span class="c1"># In Ruby, this would be: class Parrot &lt; Animal</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Enumerables</h2>
+
+<figure class='code'><figcaption><span>CoffeeScript - Enumerables</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="c1"># each</span>
+</span><span class='line'><span class="nx">myFunction</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="k">for</span> <span class="nx">item</span> <span class="k">in</span> <span class="nx">array</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># each with index</span>
+</span><span class='line'><span class="k">for</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">i</span> <span class="k">in</span> <span class="nx">names</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># map</span>
+</span><span class='line'><span class="nv">result = </span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span> <span class="k">for</span> <span class="nx">item</span> <span class="k">in</span> <span class="nx">array</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># select</span>
+</span><span class='line'><span class="nv">result = </span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span> <span class="k">for</span> <span class="nx">item</span> <span class="k">in</span> <span class="nx">array</span> <span class="k">when</span> <span class="nx">item</span><span class="p">.</span><span class="nx">name</span> <span class="o">==</span> <span class="err">“</span><span class="nx">test</span><span class="err">”</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># includes</span>
+</span><span class='line'><span class="nv">included = </span><span class="err">“</span><span class="nx">a</span> <span class="nx">long</span> <span class="nx">test</span> <span class="nx">string</span><span class="err">”</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="err">“</span><span class="nx">test</span><span class="err">”</span><span class="p">)</span> <span class="nx">isn</span><span class="err">’</span><span class="nx">t</span> <span class="o">-</span><span class="mi">1</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># iterating</span>
+</span><span class='line'><span class="nx">alert</span><span class="p">(</span><span class="err">“</span><span class="c1">#{key}#{value}) for key, value of object</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># min/max</span>
+</span><span class='line'><span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span> <span class="mi">2312</span><span class="p">,</span> <span class="mi">42</span><span class="p">]</span><span class="err">…</span> <span class="nf">=&gt;</span> <span class="mi">2312</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Bad Parts</h2>
+
+<figure class='code'><figcaption><span>CoffeeScript - Bad Parts</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="nb">eval</span><span class="p">()</span>
+</span><span class='line'><span class="c1"># Executes a piece of Javascript code in local scope. Throws complier off.</span>
+</span><span class='line'><span class="c1"># Insecure: this opens code for injection attacks.</span>
+</span><span class='line'><span class="c1"># Instead of:</span>
+</span><span class='line'><span class="nv">model= </span><span class="nb">eval</span><span class="p">(</span><span class="nx">modelName</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># Use:</span>
+</span><span class='line'><span class="nv">model = </span><span class="nb">window</span><span class="p">[</span><span class="nx">modelName</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">typeof</span><span class="p">()</span>
+</span><span class='line'><span class="c1"># Only useful to check if something is undefined, otherwise results are inconsistent.</span>
+</span><span class='line'><span class="c1"># Instead of:</span>
+</span><span class='line'><span class="k">typeof</span><span class="p">(</span><span class="nx">obj</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># Use:</span>
+</span><span class='line'><span class="nb">Object</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">toString</span><span class="p">()</span>
+</span><span class='line'><span class="c1"># Use duck typing with existential operator to try using an object whose type you don’t know.</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">instanceof</span><span class="p">()</span>
+</span><span class='line'><span class="c1"># Broken, like typeof(). Avoid use.</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">delete</span>
+</span><span class='line'><span class="c1"># Can be used safely to remove properties within objects, but not to delete functions or variables.</span>
+</span><span class='line'><span class="c1"># Assign them to null instead.</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="nb">parseInt</span><span class="p">()</span>
+</span><span class='line'><span class="c1"># Pass it a base to ensure it works as expected.</span>
+</span><span class='line'><span class="nb">parseInt</span><span class="p">(</span><span class="err">‘</span><span class="nx">num</span><span class="err">’</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Good Parts</h2>
+
+<ul>
+<li>Semicolons - don’t need them in CoffeeScript!</li>
+<li>Global variables - CS automatically declares var to prevent them!</li>
+<li>Reserved words - CS automatically escapes them!</li>
+<li>Type coercion - CS turns &ldquo;==&rdquo; into &ldquo;===&rdquo;</li>
+<li>Declarative functions - although you can call a function before it’s defined in JS, CS removes this problematic behavior.</li>
+<li>Number property lookups - in JS, &ldquo;.&rdquo; gets interpreted as a decimal. In CS it gets changed to &ldquo;..&rdquo;, to access a property.</li>
+<li>Linting - CS has built in linting, which can be called with
+&ldquo;coffee lint index.coffee&rdquo;</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/01/clone-wars/">Clone Wars</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-01T09:15:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This week, our assignment in gSchool was to rip an existing website from a local business, rebuild the site using Sinatra on the back end, and add a Content Managament System (CMS) so the site owner could login and edit the site. The project was called <a href="http://tutorials.jumpstartlab.com/projects/clone_wars.html">Clone Wars</a>. I was grouped with classmates Luke Martinez and Antony Siegert. We chose to rip <a href="http://thebikedepot.org/">The Bike Depot</a>. Since we never got our site pushed up to Heroku, but here is a screenshot of our CMS:</p>
+
+<p><img src="http://s5.postimg.org/n4h93oltz/Screen_Shot_2013_11_01_at_9_20_51_AM.png" title="The Bike Depot CMS" alt="A website with a Content Management System"></p>
+
+<h2>What I Learned</h2>
+
+<p>Although I already felt pretty comfortable with Sinatra and HTTP requests before we began Clone Wars, I also learned quite a bit along the way.</p>
+
+<p>This was the first project where we were really able to use a database, so I got some good practice using the Sequel gem to talk to sqlite3. I posted a summary of Sequel methods on <a href="http://fluxusfrequency.github.io/blog/2013/10/26/sequel-gem-methods/">a post</a> earlier this week. Clone Wars was a good chance to practice accessing the database through class objects, like this:</p>
+
+<figure class='code'><figcaption><span>page_store.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;sequel&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">PageStore</span>
+</span><span class='line'>  <span class="k">class</span> <span class="o">&lt;&lt;</span> <span class="nb">self</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">page_table</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span>
+</span><span class='line'>        <span class="s2">&quot;title&quot;</span> <span class="o">=&gt;</span> <span class="n">page</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+</span><span class='line'>        <span class="s2">&quot;body&quot;</span> <span class="o">=&gt;</span> <span class="n">page</span><span class="o">.</span><span class="n">body</span><span class="p">,</span>
+</span><span class='line'>        <span class="s2">&quot;url&quot;</span> <span class="o">=&gt;</span> <span class="n">page</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
+</span><span class='line'>        <span class="p">})</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">result</span> <span class="o">=</span> <span class="n">page_table</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="ss">:id</span> <span class="o">=&gt;</span> <span class="nb">id</span><span class="p">)</span><span class="o">.</span><span class="n">to_a</span><span class="o">.</span><span class="n">last</span>
+</span><span class='line'>      <span class="no">Page</span><span class="o">.</span><span class="n">new</span><span class="p">(</span>
+</span><span class='line'>        <span class="p">{</span><span class="s2">&quot;id&quot;</span> <span class="o">=&gt;</span> <span class="n">result</span><span class="o">[</span><span class="ss">:id</span><span class="o">]</span><span class="p">,</span>
+</span><span class='line'>        <span class="s2">&quot;body&quot;</span> <span class="o">=&gt;</span> <span class="n">result</span><span class="o">[</span><span class="ss">:body</span><span class="o">]</span><span class="p">,</span>
+</span><span class='line'>        <span class="s2">&quot;title&quot;</span> <span class="o">=&gt;</span> <span class="n">result</span><span class="o">[</span><span class="ss">:title</span><span class="o">]</span><span class="p">,</span>
+</span><span class='line'>        <span class="s2">&quot;url&quot;</span> <span class="o">=&gt;</span> <span class="n">result</span><span class="o">[</span><span class="ss">:url</span><span class="o">]</span> <span class="p">}</span>
+</span><span class='line'>        <span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">attributes</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">found</span> <span class="o">=</span> <span class="n">find_by_url</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">new_page</span> <span class="o">=</span> <span class="no">Page</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">found</span><span class="o">.</span><span class="n">to_h</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">attributes</span><span class="p">))</span>
+</span><span class='line'>      <span class="n">delete</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">save</span><span class="p">(</span><span class="n">new_page</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">new_page</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">page_table</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="ss">:url</span> <span class="o">=&gt;</span> <span class="n">page</span><span class="o">.</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">delete_all</span>
+</span><span class='line'>      <span class="n">page_table</span><span class="o">.</span><span class="n">delete</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">database</span>
+</span><span class='line'>      <span class="k">if</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;RACK_ENV&#39;</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span>
+</span><span class='line'>        <span class="vi">@database</span> <span class="o">||=</span> <span class="no">Sequel</span><span class="o">.</span><span class="n">sqlite</span><span class="p">(</span><span class="s1">&#39;./test.sqlite3&#39;</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">else</span>
+</span><span class='line'>        <span class="vi">@database</span> <span class="o">||=</span> <span class="no">Sequel</span><span class="o">.</span><span class="n">sqlite</span><span class="p">(</span><span class="s1">&#39;./clone_wars.sqlite3&#39;</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">page_table</span>
+</span><span class='line'>      <span class="n">database</span><span class="o">[</span><span class="ss">:pages</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I also had a great time using the Mechanize gem to rip the html files from the original site. We split the head, header, navbar, and footer sections off into a layout file, and sticking a &lt;%= yield %> tag in its body, then scraped the main content of each page on the site and rendered it as a partial.</p>
+
+<figure class='code'><figcaption><span>scraper.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;nokogiri&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;open-uri&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;fileutils&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">urls</span> <span class="o">=</span> <span class="o">[</span>
+</span><span class='line'><span class="s1">&#39;http://thebikedepot.org/&#39;</span><span class="p">,</span>
+</span><span class='line'><span class="s1">&#39;http://thebikedepot.org/index.php/about&#39;</span><span class="p">,</span>
+</span><span class='line'><span class="s1">&#39;http://thebikedepot.org/index.php/about/mission-vision-and-values&#39;</span>
+</span><span class='line'><span class="c1"># etc...</span>
+</span><span class='line'><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">urls</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">url</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">page</span> <span class="o">=</span> <span class="no">Nokogiri</span><span class="o">::</span><span class="no">HTML</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
+</span><span class='line'>  <span class="n">body</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">css</span><span class="p">(</span><span class="s2">&quot;div#content-w2&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">title</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">to_s</span>
+</span><span class='line'>  <span class="no">FileUtils</span><span class="o">.</span><span class="n">touch</span><span class="p">(</span><span class="s2">&quot;./scraped/</span><span class="si">#{</span><span class="n">title</span><span class="si">}</span><span class="s2">.html&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="no">File</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;./scraped/</span><span class="si">#{</span><span class="n">title</span><span class="si">}</span><span class="s2">.html&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">file</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, I got some practice using the FileUtils library to hand write a database migration. If I had to do it again, I&rsquo;d use a Rake task, but it was fun to hack it together this way. Given a directory of erb files, I collected their filenames, html bodies, and routes, combined them into hashes, and inserted them into the database with this:</p>
+
+<figure class='code'><figcaption><span>database_populater.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;fileutils&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;sequel&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">titles</span> <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'><span class="n">pgs</span> <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'><span class="n">urls</span> <span class="o">=</span> <span class="o">[</span>
+</span><span class='line'><span class="s1">&#39;/about&#39;</span><span class="p">,</span>
+</span><span class='line'><span class="s1">&#39;/programs/bike-camp&#39;</span><span class="p">,</span>
+</span><span class='line'><span class="s1">&#39;/programs/bike-rodeo&#39;</span><span class="p">,</span>
+</span><span class='line'><span class="s1">&#39;/bike-shop&#39;</span><span class="p">,</span>
+</span><span class='line'><span class="s1">&#39;/about/staff-board/17-about/staff-board/43-bill-davis&#39;</span><span class="p">,</span>
+</span><span class='line'><span class="s1">&#39;/about/staff-board/17-about/staff-board/7-board&#39;</span>
+</span><span class='line'><span class="c1"># etc...</span>
+</span><span class='line'><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">database</span> <span class="o">=</span> <span class="no">Sequel</span><span class="o">.</span><span class="n">sqlite</span><span class="p">(</span><span class="s1">&#39;clone_wars.sqlite3&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Dir</span><span class="o">[</span><span class="s2">&quot;./lib/app/views/*.erb&quot;</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">file</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">filename</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">to_s</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/.erb/</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/\.\/lib\/app\/views\//</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">titles</span> <span class="o">&lt;&lt;</span> <span class="n">filename</span>
+</span><span class='line'>  <span class="n">pgs</span> <span class="o">&lt;&lt;</span> <span class="no">File</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="n">pgs</span><span class="o">.</span><span class="n">each_with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">page</span><span class="p">,</span> <span class="n">i</span><span class="o">|</span>
+</span><span class='line'>  <span class="nb">hash</span> <span class="o">=</span> <span class="p">{</span><span class="ss">:title</span> <span class="o">=&gt;</span> <span class="n">titles</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">,</span> <span class="ss">:body</span> <span class="o">=&gt;</span> <span class="n">pgs</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">,</span> <span class="ss">:url</span> <span class="o">=&gt;</span> <span class="n">urls</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">}</span>
+</span><span class='line'>  <span class="n">database</span><span class="o">.</span><span class="n">from</span><span class="p">(</span><span class="ss">:pages</span><span class="p">)</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="nb">hash</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Confusing Parts</h2>
+
+<p>One part of this project that was really confusing was an inital misstep I made: trying to convert all of the scraped html files into Ruby Slim. I mechanized the process of converting them with an <a href="http://html2slim.herokuapp.com/">html-to-slim</a> conversion website, but there were way too many problems with the resulting files. I ended up wasting several hours going through this process before scrapping it.</p>
+
+<h2>Acceptance Tests</h2>
+
+<p>I still feel unsure about acceptance tests and Capybara. Although I know how to get started, I have trouble using it for TDD. Here&rsquo;s what I started with:</p>
+
+<figure class='code'><figcaption><span>acceptance_test.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;./test/helpers/acceptance_helper.rb&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;./lib/clone_wars&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;./lib/app&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">BikeCoopAppTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">Capybara</span><span class="o">::</span><span class="no">DSL</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">app</span>
+</span><span class='line'>    <span class="vi">@app</span> <span class="o">||=</span> <span class="no">BikeCoopApp</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_it_exists</span>
+</span><span class='line'>    <span class="n">visit</span> <span class="s1">&#39;/&#39;</span>
+</span><span class='line'>    <span class="n">assert</span> <span class="n">page</span><span class="o">.</span><span class="n">has_content?</span><span class="p">(</span><span class="s2">&quot;Bike Depot&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">assert</span> <span class="n">page</span><span class="o">.</span><span class="n">has_content?</span><span class="p">(</span><span class="s2">&quot;Home&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_it_has_a_login_link</span>
+</span><span class='line'>    <span class="n">visit</span> <span class="s1">&#39;/&#39;</span>
+</span><span class='line'>    <span class="n">click_on</span> <span class="s1">&#39;#admin&#39;</span>
+</span><span class='line'>    <span class="n">assert</span> <span class="n">page</span><span class="o">.</span><span class="n">has_content?</span><span class="p">(</span><span class="s2">&quot;Login&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">assert</span> <span class="n">page</span><span class="o">.</span><span class="n">has_content?</span><span class="p">(</span><span class="s2">&quot;Username:&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This was probably a good start, but I also feel like I have to test <em>everything</em>, and get overwhelmed. In this case, I didn&rsquo;t want to test all of the interactions from the scraped pages, because everything already fit together. When building someone else&rsquo;s site, Capybara seems superfluous. On the other hand, when I used it with a site I was building from scratch (<a href="http://ideabox-flux.herokuapp.com/">IdeaBox</a>), I was annoyed that the test would break whenever I changed my mind about the layout. I spoke to Katrina Owen about it, and she suggested only using acceptance tests for parts of the site that you are going to have to test repeatedly anyway, rather than every single route.</p>
+
+<p>I&rsquo;m going to keep working on the practice of Capybara, because I believe deeply that TDD is the best way to go. This project was unsuccessful in this regard, but it&rsquo;s been a valuable learning experience, and will surely change the way I test my future projects.</p>
+
+<h2>If I Had More Time&hellip;</h2>
+
+<p>If I had more time for this project, I would have build a better CMS that displayed the text to be edited in either markdown or something like <a href="http://ckeditor.com/">CK Editor</a>, rather than raw html, to provide a better user experience for the site administrator.</p>
+
+<h2>Working In A Trio</h2>
+
+<p>Working in a three person group was much different than working solo or pairing. I really enjoyed having other minds working on the same problem, seeing solutions that I might not have considered. Both Luke and Antony were very positive about screensharing and mobbing. We practiced some &lsquo;dummy keyboard&rsquo; and &lsquo;navigator&rsquo; approaches, both of which worked really well. I also really enjoyed being able to split up and work on separate features of the project, because it was a load off my shoulders compared to IdeaBox, where I had to build all of the features myself. One thing that was challenging about working in a trio was being unable to move forward until a certain task was done. For example, we couldn&rsquo;t write any classes until we got the test environment set up correctly. It was also hard to slow down and explain my thinking at each step, rather than just blasting through everything. But this process was probably good for me. I tend to work through problems internally, and being able to process out loud will be a valuable soft skill to have down the road when I begin working as a professional developer.</p>
+
+<h2>Final Thoughts</h2>
+
+<p>In retrospect, I wasn&rsquo;t a huge fan of the Clone Wars project. I would prefer to create something new, rather than take an existing layout and add a wrapper to it. However, I was pretty stimulated by some aspects of the project: using mechanize, sequel, and a full fledged database. I&rsquo;m looking forward to starting Rails next week, and getting even deeper into working with ORM patterns and small groups.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/29/javascript-in-the-browser/">Javascript in the Browser</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-29T19:33:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Having done many Javascript tutorials and read many Javascript books, I was hoping that I would be better at using the language by now. Since I still had very little clue of how to incorporate JS into developing websites, I decided to reread Chapters 9-11 in Marijn Haverbeke&rsquo;s <a href="http://www.amazon.com/Eloquent-JavaScript-Modern-Introduction-Programming/dp/1593272820/ref=sr_1_1?ie=UTF8&amp;qid=1383098181&amp;sr=8-1&amp;keywords=eloquent+javascript">Eloquent Javascript</a> (which I highly recommend). These chapters, entitled Web Programming: A Crash Course, The Document Object Model, and Browser Events, respectively, cover the use of Javascript in the browser.</p>
+
+<p>I took notes as I read, and decided to share them here for reference.</p>
+
+<p><br /></p>
+
+<h2>The Window Object</h2>
+
+<p>This is the global object in the context a browser.</p>
+
+<h3>Window#open(&ldquo;url&rdquo;)</h3>
+
+<p>Opens a popup.
+e.g.: var popup = window.open(‘www.google.com’);</p>
+
+<h3>Window#close</h3>
+
+<p>Closes a window.
+e.g.: popup.close</p>
+
+<p><br /></p>
+
+<h2>The Document Object</h2>
+
+<p>This property of the window represents the document within the window.</p>
+
+<h3>Document#location#href</h3>
+
+<p>Displays information about the current URL. Use this by having a script call it while document is being loaded, causing the written HTML to be inserted into the page.</p>
+
+<h3>Document#write()</h3>
+
+<p>Write something (perhaps a variable) to the place in the page where this script is run.</p>
+
+<h3>Document#getElementById(‘id’)</h3>
+
+<p>Accesses the node with the given id, which can then be edited.</p>
+
+<figure class='code'><figcaption><span>example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">picture</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="err">“</span><span class="nx">picture</span><span class="err">”</span><span class="p">);</span>
+</span><span class='line'><span class="nx">picture</span><span class="p">.</span><span class="nx">src</span><span class="p">;</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="err">“</span><span class="nx">img</span><span class="o">/</span><span class="nx">bird</span><span class="p">.</span><span class="nx">png</span><span class="err">”</span>
+</span><span class='line'><span class="nx">picture</span><span class="p">.</span><span class="nx">src</span> <span class="o">=</span> <span class="err">“</span><span class="nx">img</span><span class="o">/</span><span class="nx">ostrich</span><span class="p">.</span><span class="nx">png</span><span class="err">”</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Document#createElement(“div”)</h3>
+
+<p>Creates an element of the given type.
+e.g.: header = document.createElement(“H1”);
+title = document.createTextNode(“My Title”);</p>
+
+<h3>Document#createTextNode(“text”)</h3>
+
+<p>Creates some text. It should then be appended with:
+header.appendChild(title);
+document.body.appendChild(header);</p>
+
+<p><br /></p>
+
+<h2>Elements</h2>
+
+<h3>Element#onclick</h3>
+
+<p>Accesses the element when it is clicked.</p>
+
+<h3>Element#focus</h3>
+
+<p>Tells the window to focus on the given element when the code is executed.</p>
+
+<p><br /></p>
+
+<h2>Nodes</h2>
+
+<h3>Element#nodeType</h3>
+
+<p>Returns a number: 1 for regular nodes or 3 for text nodes.</p>
+
+<h3>Document#body#firstChild#nodeName;</h3>
+
+<p>e.g.: “H1”</p>
+
+<h3>Document#body#firstChild#nodeValue;</h3>
+
+<p>e.g.: “Chapter 1: Equipment”</p>
+
+<h3>Document#node#innerHTML = “<p>text</p>”;</h3>
+
+<p>Allows you to replace the text in the specified node.</p>
+
+<h3>Node#appendChild(child)</h3>
+
+<p>Puts the specified child inside the node.</p>
+
+<h3>Node#parentNode#removeChild(node)</h3>
+
+<p>Removes the node from the document.</p>
+
+<h3>Node#setAttribute(“tag”, “attr”)</h3>
+
+<p>Sets attributes on a node.</p>
+
+<figure class='code'><figcaption><span>example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">newImage</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="err">“</span><span class="nx">IMG</span><span class="err">”</span><span class="p">);</span>
+</span><span class='line'><span class="nx">newImage</span><span class="p">.</span><span class="nx">setAttribute</span><span class="p">(</span><span class="err">“</span><span class="nx">src</span><span class="err">”</span><span class="p">,</span> <span class="err">“</span><span class="nx">img</span><span class="o">/</span><span class="nx">yinyang</span><span class="p">.</span><span class="nx">png</span><span class="err">”</span><span class="p">);</span>
+</span><span class='line'><span class="nb">document</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">newImage</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Node#getAttribute(“attr”)</h3>
+
+<p>Gets the specified attribute from the node.
+e.g.:newImage.getAttribute(“src”);
+=>”img/yinyang.png”;</p>
+
+<h3>Node#style</h3>
+
+<p>Accesses the CSS styling for the given node, which can then be set.</p>
+
+<figure class='code'><figcaption><span>example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">picture</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">borderwidth</span> <span class="o">=</span> <span class="err">“</span><span class="mi">4</span><span class="nx">px</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">picture</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">display</span> <span class="o">=</span> <span class="err">“</span><span class="nx">none</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">picture</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">position</span> <span class="o">=</span> <span class="err">“</span><span class="nx">absolute</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">picture</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="err">“</span><span class="mi">400</span><span class="nx">px</span><span class="err">”</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><br /></p>
+
+<h2>Event Handlers</h2>
+
+<h3>Node#attachEvent(event, function)</h3>
+
+<p>Attaches a function to an event, such “on click”, or “charCode” || “keyCode” (the || is used to cover different browsers).</p>
+
+<h3>Node#addEventListener(event, function, boolean)</h3>
+
+<p>Same thing as Node#attachEvent, but for older browsers. The boolean indicates it will bubble up through DOM normally rather than taking priority.</p>
+
+<h3>Node#detachEvent</h3>
+
+<p>Opposite of #attachEvent.</p>
+
+<h3>Node#removeEventListener</h3>
+
+<p>Opposite of #addEventListener.</p>
+
+<h3>Event Handling For All Browsers</h3>
+
+<figure class='code'><figcaption><span>example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">function</span> <span class="nx">registerEventHandler</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="nx">event</span><span class="p">,</span> <span class="nx">handler</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>     <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">node</span><span class="p">.</span><span class="nx">addEventListener</span> <span class="o">===</span> <span class="err">“</span><span class="kd">function</span><span class="err">”</span><span class="p">)</span>
+</span><span class='line'>     <span class="nx">node</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">handler</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'>     <span class="nx">node</span><span class="p">.</span><span class="nx">attachEvent</span><span class="p">(</span><span class="err">“</span><span class="nx">on</span><span class="err">”</span> <span class="o">+</span> <span class="nx">event</span><span class="p">,</span> <span class="nx">handler</span><span class="p">);</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>e.g.: registerEventHandler(button, “click”, function(){print(“click2”);});</p>
+
+<h3>function unregisterEventHandler</h3>
+
+<p>Opposite of registerEventHandler.</p>
+
+<h3>Internet Explorer</h3>
+
+<p>This pattern is sometimes used for Internet Explorer:
+event = event || window.event;</p>
+
+<p><br /></p>
+
+<h2>Forms</h2>
+
+<h3>encodeURIComponent(string)</h3>
+
+<p>Applies escapes to the string to make it a legal URI.</p>
+
+<h3>decodeURIComponent(encodedURI)</h3>
+
+<p>Transforms an encoded URI back into a string.</p>
+
+<h3>Document#forms</h3>
+
+<p>Links to all forms on the page.
+e.g.: document.forms.userinfo will access the user info form.</p>
+
+<h3>Form#action</h3>
+
+<p>e.g.: “url”</p>
+
+<h3>Form#method</h3>
+
+<p>e.g.: “GET”</p>
+
+<h3>Form#elements</h3>
+
+<p>Accesses one of the elements in the form.
+e.g.: formName.elements.name.value = “Eugene”; would set the name field to that name.</p>
+
+<h3>Form#submit</h3>
+
+<p>Manually submits the form to the server.</p>
+
+<h3>Checking form validity:</h3>
+
+<ol>
+<li> Change input “submit” into “button”.</li>
+<li> Access the form with formName = document.forms.htmlformname.</li>
+<li> Check the form method and action by calling formName.method and formName.action.</li>
+<li> Check the elements using formName.elements.name, etc.</li>
+<li> Write a function to check inputs like so:</li>
+</ol>
+
+
+<figure class='code'><figcaption><span>example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">function</span> <span class="nx">validInfo</span><span class="p">(</span><span class="nx">form</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'><span class="k">return</span> <span class="nx">form</span><span class="p">.</span><span class="nx">elements</span><span class="p">.</span><span class="nx">name</span><span class="p">.</span><span class="nx">value</span> <span class="o">!=</span> <span class="err">“”</span> <span class="o">&amp;&amp;</span>
+</span><span class='line'><span class="sr">/email_verification_regex/</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="nx">form</span><span class="p">.</span><span class="nx">elements</span><span class="p">.</span><span class="nx">email</span><span class="p">.</span><span class="nx">value</span><span class="p">);</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>  Then set the button’s onClick event like so:</p>
+
+<figure class='code'><figcaption><span>example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">formName</span><span class="p">.</span><span class="nx">elements</span><span class="p">.</span><span class="nx">send</span><span class="p">.</span><span class="nx">onclick</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>     <span class="k">if</span> <span class="p">(</span><span class="nx">validInfo</span><span class="p">(</span><span class="nx">formName</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>          <span class="nx">formName</span><span class="p">.</span><span class="nx">submit</span><span class="p">();</span>
+</span><span class='line'>     <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>          <span class="nx">alert</span><span class="p">(</span><span class="err">“</span><span class="nx">Invalid</span> <span class="nx">email</span><span class="err">”</span><span class="p">);</span>
+</span><span class='line'>     <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><br /></p>
+
+<h2>Time</h2>
+
+<h3>new Date()</h3>
+
+<p>Creates a new date object</p>
+
+<h3>Date#Gethours()</h3>
+
+<p><br /></p>
+
+<h3>Date#getMinutes()</h3>
+
+<p><br /></p>
+
+<h2>Timers</h2>
+
+<h3>Window#setTimeOut(function(), ms)</h3>
+
+<p>Calls the function in the first argument after the milliseconds have elapsed.</p>
+
+<figure class='code'><figcaption><span>example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nb">window</span><span class="p">.</span><span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'><span class="nb">document</span><span class="p">.</span><span class="nx">loacation</span><span class="p">.</span><span class="nx">href</span> <span class="o">=</span> <span class="err">“</span><span class="o">/</span><span class="nx">spoiler</span><span class="p">.</span><span class="nx">html</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="p">},</span> <span class="mi">5000</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This would redirect to spoiler if the user did nothing for 5 seconds.</p>
+
+<h3>Window#clearTimeOut</h3>
+
+<p>Cancels a timeout.</p>
+
+<h3>Window#setInterval(function, ms)</h3>
+
+<p>Runs the function every time n milliseconds elapse.</p>
+
+<p><br /></p>
+
+<h2>Navigator</h2>
+
+<h3>Navigator#userAgent</h3>
+
+<p>Shows the name of the browser being used.</p>
+
+<h3>Navigator#vendor</h3>
+
+<p>Shows the vendor of the browser.</p>
+
+<h3>Navigator#platform</h3>
+
+<p>Shows info about the computer being used. This can be useful to find out what the browser is and run code specific to that browser (IE6, Chrome, etc).</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/26/sequel-gem-methods/">Sequel Gem Methods</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-26T13:28:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Information is from the <a href="http://tutorials.jumpstartlab.com/topics/sequel.html">Jumpstart Lab Sequel Tutorial</a></p>
+
+<p>Here is the <a href="sequel.rubyforge.org/rdoc/classes/Sequel/Dataset.html">official Sequel documentation</a>.</p>
+
+<p><br /></p>
+
+<h2>Setting Up A Database</h2>
+
+<ol>
+<li>Create a Gemfile requiring ‘sequel’ and ‘sqlite3’.</li>
+<li>run: bundle exec rib; Bundler.require</li>
+<li>Assign a new database like this:
+database = Sequel.sqlite(‘dbname.sqlite3’) Sqlite creates the db automatically. Postgres will not do this.</li>
+</ol>
+
+
+<p><br /></p>
+
+<h2>Database Methods:</h2>
+
+<p>#run &ldquo;SQL query&rdquo; - runs an SQL query</p>
+
+<p>#fetch “SQL query” - runs an SQL query and returns the results (need to call to_a to see) as a dataset. Can be combined with a block.</p>
+
+<p>These two methods alone will allow you to interact with the db via SQL.</p>
+
+<p><br /></p>
+
+<h2>Dataset Methods:</h2>
+
+<p>#enumerable - can run enumerable methods on a dataset returned by database#fetch.</p>
+
+<p>#inspect - shows the database/dataset obj.</p>
+
+<h3>Table manipulation:</h3>
+
+<p>#create_table :table_name do
+     primary key :id
+     String :line_1, :size => 255
+     Integer :person_id
+end
+creates a table</p>
+
+<p>#schema(:table) - shows the existence and column definitions of a table. Returns a nested array.</p>
+
+<p>#add_column
+#rename_column
+#drop_column
+#set_column_default
+#set_column_type</p>
+
+<h3>Selection of records:</h3>
+
+<p>chaining - chain methods:
+e.g. dataset.where(:name => &lsquo;George&rsquo;).or([[:id, [2,3]]])</p>
+
+<p>#from(:column) - equivalent to SELECT * FROM column. Returns a dataset. Doesn’t run search until you call to_a on it.
+After assigning it like this:
+dataset = database.from(:people)
+Do things like this:</p>
+
+<p>#select(:column or [:column1, :column2, etc…]) - selects column(s) from table</p>
+
+<p>#where/#filter(:column => filter) - returns SELECT * FROM table WHERE column = filter. Selecting multiple items requires an extra set of brackets.
+eg.: dataset.where(:id => 1) or
+dataset.where([[:id, [2,3]]])</p>
+
+<p>#grep(:column, ‘search&#8217;) - finds all rows that match the grep string. “%&ldquo; is a 0+ wildcard, “_&rdquo; matches a single character.</p>
+
+<p>#limit(int) - limits the number of returned records to the integer passed as an argument.</p>
+
+<p>#order(:column) - returns SELECT * FROM :table ORDER BY :column. Can add descending sort as follows:
+dataset.order(Sequel.desc(:name))</p>
+
+<p>#exclude - works like Enumerable#reject.</p>
+
+<h3>Working With Rows</h3>
+
+<p>#insert ({:column => “value&#8221;, :column => “value&#8221;) - inserts a new row with the given hash values. Not a delayed method; runs immediately. Verify results using select.</p>
+
+<p>#join(:other_table, :other_column, :foreign_key) - Performs an INNER JOIN with another table. The column name order goes: other table’s column first, local table’s column second.</p>
+
+<p>#update(:column => “value”) - updates one or more existing rows. Combine it with where to select a record first. Runs immediately.
+e.g. addresses.where(:id => 1).update(:zipcode => &ldquo;20500&rdquo;)</p>
+
+<p>#delete(:column => “value) - similar to update, but deletes. Returns number of records deleted.</p>
+
+<p>#count - returns the number of records in the dataset. Useful in chaining.</p>
+
+<h3>Math Utilities:</h3>
+
+<p>#avg
+#sum
+#max
+#min</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/26/so-many-javascript-libraries/">So Many Javascript Libraries!</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-26T07:11:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I&rsquo;ve gotten pretty interested in client-side web applications recently. I&rsquo;ve been looking into <a href="http://www.emberjs.com">Ember.js</a>. I find it to be an exciting framework, because it allows a scalable, MVC model app to be run with data storage happening on the client side. That, and it&rsquo;s being developed by Yehuda Katz, who I greatly admire.</p>
+
+<p>After digging into the TodoMVC tutorial in Ember, I got to thinking more about Javascript. I then realized that there are many, many Javascript libraries out there, and I had no idea what was what. So I spent an evening scouring the web for information on them.</p>
+
+<p>Here&rsquo;s a list of popular libraries that I compiled, with descriptions from their official sites and/or wikipedia.
+<br /></p>
+
+<h1>Javascript Libraries</h1>
+
+<h2>Ember.js</h2>
+
+<p>An open-source client-side JavaScript web application framework based on the model-view-controller (MVC) software architectural pattern. It allows developers to create scalable single-page applications by incorporating common idioms and best practices into a framework that provides a rich object model, declarative two-way data binding, computed properties, automatically-updating templates powered by Handlebars.js, and a router for managing application state. Most Ember.js applications also use Ember Data, a database-independent data persistence library that provides object-relational mapping (ORM) facilities for the web.</p>
+
+<h2>Angular.js</h2>
+
+<p>An open-source JavaScript framework, maintained by Google, that assists with running single-page applications. Its goal is to augment browser-based applications with model–view–controller (MVC) capability, in an effort to make both development and testing easier.
+The library reads in HTML that contains additional custom tag attributes; it then obeys the directives in those custom attributes, and binds input or output parts of the page to a model represented by standard JavaScript variables. The values of those JavaScript variables can be manually set, or retrieved from static or dynamic JSON resources.</p>
+
+<h2>Backbone.js</h2>
+
+<p>Backbone.js gives structure to web applications by providing models with key-value binding and custom events, collections with a rich API of enumerable functions, views with declarative event handling, and connects it all to your existing API over a RESTful JSON interface.</p>
+
+<h2>Marionette</h2>
+
+<p>Backbone.Marionette is a composite application library for Backbone.js that aims to simplify the construction of large scale JavaScript applications. It is a collection of common design and implementation patterns found in the applications that I (Derick Bailey) have been building with Backbone, and includes various pieces inspired by composite application architectures, such as Microsoft&rsquo;s &ldquo;Prism&rdquo; framework.</p>
+
+<h2>Jasmine</h2>
+
+<p>An open source testing framework for JavaScript. It aims to run on any JavaScript-enabled platform, to not intrude on the application nor the IDE, and to have easy-to-read syntax. It is heavily influenced by other unit testing frameworks, such as ScrewUnit, JSSpec, JSpec, and RSpec.</p>
+
+<h2>Sinon.js</h2>
+
+<p>Standalone test spies, stubs and mocks for JavaScript.
+No dependencies, works with any unit testing framework.</p>
+
+<h2>Node.js</h2>
+
+<p>A software platform that is used to build scalable network (especially server-side) applications. Node.js utilizes JavaScript as its scripting language, and achieves high throughput via non-blocking I/O and a single-threaded event loop.
+Node.js contains a built-in HTTP server library, making it possible to run a web server without the use of external software, such as Apache or Lighttpd, and allowing more control of how the web server works.</p>
+
+<h2>Express.js</h2>
+
+<p>Express is a minimal and flexible node.js web application framework, providing a robust set of features for building single and multi-page, and hybrid web applications. (Think Sinatra)</p>
+
+<h2>Sails.js</h2>
+
+<p>Makes it easy to build custom, enterprise-grade Node.js apps. It is designed to mimic the MVC pattern of frameworks like Ruby on Rails, but with support for the requirements of modern apps: data-driven APIs with scalable, service-oriented architecture. It&rsquo;s especially good for building chat, realtime dashboards, or multiplayer games.</p>
+
+<h2>jQuery</h2>
+
+<p>jQuery is a fast, small, and feature-rich JavaScript library. It makes things like HTML document traversal and manipulation, event handling, animation, and Ajax much simpler with an easy-to-use API that works across a multitude of browsers. With a combination of versatility and extensibility, jQuery has changed the way that millions of people write JavaScript.</p>
+
+<h2>jQuery UI</h2>
+
+<p>jQuery UI is a curated set of user interface interactions, effects, widgets, and themes built on top of the jQuery JavaScript Library. Whether you&rsquo;re building highly interactive web applications or you just need to add a date picker to a form control, jQuery UI is the perfect choice.</p>
+
+<h2>Underscore</h2>
+
+<p>A utility-belt library for JavaScript that provides a lot of the functional programming support that you would expect in Prototype.js (or Ruby), but without extending any of the built-in JavaScript objects. It&rsquo;s the tie to go along with jQuery&rsquo;s tux, and Backbone.js&rsquo;s suspenders.</p>
+
+<h2>Two.js</h2>
+
+<p>A two-dimensional drawing api geared towards modern web browsers. It is renderer agnostic enabling the same api to draw in multiple contexts: svg, canvas, and webgl.</p>
+
+<h2>Prototype.js</h2>
+
+<p>A JavaScript framework created by Sam Stephenson in February 2005 as part of the foundation for Ajax support in Ruby on Rails. It is implemented as a single file of JavaScript code, usually named prototype.js. Prototype is distributed standalone, but also as part of larger projects, such as Ruby on Rails, script.aculo.us and Rico. Prototype is used by 2.9% of all websites, which makes it one of the most popular JavaScript libraries. Prototype provides various functions for developing JavaScript applications. The features range from programming shortcuts to major functions for dealing with XMLHttpRequest.Prototype also provides library functions to support classes and class-based objects, something the JavaScript language lacks. In JavaScript, object creation is prototype-based instead: an object creating function can have a prototype property, and any object assigned to that property will be used as a prototype for the objects created with that function. The Prototype framework is not to be confused with this language feature.</p>
+
+<h2>Rhino</h2>
+
+<p>An open-source implementation of JavaScript written entirely in Java. It is typically embedded into Java applications to provide scripting to end users. It is embedded in J2SE 6 as the default Java scripting engine.</p>
+
+<h2>PhantomJS</h2>
+
+<p>A headless WebKit scriptable with a JavaScript API. It has fast and native support for various web standards: DOM handling, CSS selector, JSON, Canvas, and SVG.</p>
+
+<h2>Moustache</h2>
+
+<p>Logic-less templates. AKA . Found in many languages. Not actually Javascript in itself.</p>
+
+<h2>Handlebars.js</h2>
+
+<p>Handlebars is a semantic web template system. It is a superset of Mustache, and can render Mustache templates in addition to Handlebars templates. Unlike Mustache, Handlebars add some logic to its templates. So it&rsquo;s not a logic-less template system. Used in Ember.js.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/26/ideabox-retrospective/">IdeaBox Retrospective</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-26T06:42:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This week was a long haul. We were focused on building <a href="http://tutorials.jumpstartlab.com/projects/idea_box.html">IdeaBox</a>, an idea catching app. It&rsquo;s kind of like <a href="http://www.evernote.com">Evernote</a>. Mine turned out pretty well. Using some strict time management, I was able to complete all of the extenstions listed on the assignment.</p>
+
+<p>Here&rsquo;s a link to mine: <a href="http://ideabox-flux.herokuapp.com/">My IdeaBox</a></p>
+
+<p>And a screenshot:</p>
+
+<p><img src="http://s10.postimg.org/40ywl3vvt/Screen_Shot_2013_10_26_at_6_54_54_AM.png," title="'IdeaBox', 'Screenshot of a web app'" ></p>
+
+<h2>Scheduling My Workflow</h2>
+
+<p>Here are three things I discovered along the way:</p>
+
+<ol>
+<li>Planning a project timeline is key.</li>
+<li>I have a hard time with design.</li>
+<li>It&rsquo;s difficult to write Capybara tests when you don&rsquo;t know the layout of your app.</li>
+</ol>
+
+
+<p>This is the timeline I used to finish building the full app in a week. We were simultaneously learning how to build linked lists, write SQL statments, and use the Seqeul gem.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Wed: Setup Models, Tagging
+</span><span class='line'>Thu: Statistics, Search, Fuel
+</span><span class='line'>Fri: Revisions and Groups
+</span><span class='line'>Sat-Sun: Rest, catch up if needed
+</span><span class='line'>Mon: Users and Groups
+</span><span class='line'>Tue: Sound and Image
+</span><span class='line'>Wed: Front End, Mobile, and SMS</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Trouble With Design</h2>
+
+<p>Following this plan, I was able to get the app up and running by Thursday. I spent Wednesday waffling between css layouts - Zurb <a href="http://foundation.zurb.com/">Foundation</a>, <a href="http://semantic-ui.com/">Semantic UI</a>, and <a href="http://www.99lime.com/">HTML Kickstart</a> - trying for the life of me to make it look decent. Despite being a creative person and having read half a dozen web design books in the last year, I was having a lot of trouble feeling satisfied with my look. You can see what I came up with by <a href="http://ideabox-flux.herokuapp.com/">visiting my IdeaBox</a>.</p>
+
+<h2>Testing</h2>
+
+<p>I was surprised to find that I had a hard time practicing TDD for the views. Using Capybara early on, my tests were constantly blowing up when I got around to changing the layout. I don&rsquo;t really think it matters, though. I was able to test my models with unit and integration tests easily enough. Then I added the important routes to my Capybara acceptance test after the web views were built, so if I want to tweak things later, I will have test coverage.</p>
+
+<h2>Takeaways</h2>
+
+<p>Here are some other parts of web development I learned from this project:</p>
+
+<ul>
+<li>Using Sintra to send files to users from a dynamic URL exposes your computer to the web.</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>What Not To Do</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">get</span> <span class="s1">&#39;/download/:filename&#39;</span> <span class="k">do</span> <span class="o">|</span><span class="n">filename</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">send_file</span> <span class="s2">&quot;./files/</span><span class="si">#{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="ss">:filename</span> <span class="o">=&gt;</span> <span class="n">filename</span><span class="p">,</span> <span class="ss">:type</span> <span class="o">=&gt;</span> <span class="s1">&#39;Application/octet-stream&#39;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>How to salt a password before encrypting.</li>
+<li>How to use the RACK_ENV for testing vs. deployment.</li>
+<li>How to use <a href="https://www.twilio.com/">Twilio</a> to set up texting to my app.</li>
+<li>How to use <a href="https://ngrok.com/">ngrok</a> to expose your local server to the web for testing. I needed this for Twilio.</li>
+<li>Don&rsquo;t try to switch from Yaml Store to Postgres with ActiveRecord when you only have 24 hours left before launch.</li>
+<li>When trying to build a lot of features in a short time, code quality can suffer. I&rsquo;d like to refactor this at some point.</li>
+</ul>
+
+
+<h2>If I Were to Start Over</h2>
+
+<p>At this point, if I could go back and start over, there are two things I&rsquo;d do differently:</p>
+
+<ol>
+<li>Use an SQL database from the start.</li>
+<li>Design the view earlier on in the process, to facilitate a better testing process with Capybara.</li>
+</ol>
+
+
+<p>In the end, I was pretty proud of my IdeaBox. I learned that I can actually build and deploy an entire web app on my own! Full-stack!-ish&hellip;</p>
+
+<h2>Code Retreat</h2>
+
+<p>On Friday, we left Galvinize and went to work in a different space - The Source in Rino - for our first code retreat. We spent the day pairing with different people in the class on two exercises: programming &ldquo;99 Bottles of Beer on the Wall&rdquo;, and a robot instruction simulator. I had a great time getting to work with a wide variety of my classmates, including some I had not yet paired with. My favorite constraint is when we could only one line of code before switching off, and without talking. I was also trying to practice some vim skills, which my pairs were gracious enough to help me with. One thing I really disliked was the space at The Source itself. It was too loud and filled with echoes. For me, a space that was calmer and quieter would have been preferable. Aside from that, though, I hope the next code retreat will be similar - a chance to work with many peers on fun and challenging problems.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/18/web-applications/">Web Applications</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-18T09:01:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This week we dug in to building a web application for the first time in gSchool. After six weeks of nothing but pure Ruby (well, almost pure - there was some Command Line, Git, and Javascript in there), it was a nice change of pace to see the language of the web again. I haven&rsquo;t used HTTP requests, HTML tags, or CSS selectors in months, so this week felt like a breath of fresh air.</p>
+
+<p>We&rsquo;ve begun learning to use Sinatra to build light weight Rack applications. Knowing that Sinatra was on the menu, I spent last weekend working through <a href="http://www.sitepoint.com/store/jump-start-sinatra/">Jump Start Sinatra</a> by Darren Jones. The book walks you through building Songs By Sinatra, a light weight web app that catalogs the songs of Frank Sinatra. Along the way, it introduces the reader to Ruby Slim templating, flash messages, DataMapper, AJAX, a little bit of jQuery, and deploying to Heroku. I really enjoyed the project. It was small and quick to complete, but touched on many topics I&rsquo;ve been wanting to explore.</p>
+
+<p>Here is a link to my completed version of <a href="http://songs-by-sinatra-flux.herokuapp.com/">Songs By Sinatra</a>.</p>
+
+<p>Jeff started the week with a morning lecture on the structure of the internet. He covered HTTP requests, IP addresses, DNS lookup, the DNS root name servers, and the structure of the DNS system. From there, he explained Distributed Denial of Service (DDoS) attacks. These are a big topic in computer security right now. The most common type of DDoS is a &ldquo;hacking&rdquo; attack in which someone controls a &ldquo;botnet&rdquo;: hundreds or thousands of computers infected with backend malware. The botnet allows the attacker to use the zombie computers&#8217; processing power to carry out an attack on a certain target. At the designated time, the attacker directs all of the computers to repeatedly send requests to the target. The target is then drowned in requests, and becomes unreachable.</p>
+
+<p>After covering DDoSs, we talked about many other aspects of the internet&rsquo;s dark underbelly, including <a href="http://en.wikipedia.org/wiki/Silk_Road_%28marketplace%29">The Silk Road</a> and other hidden services accessible through the <a href="https://www.torproject.org/">Tor</a> network, as well as <a href="http://vimeo.com/63502573">Bitcoins</a>. It was all fascinating stuff, all very cloak and dagger!</p>
+
+<p>Once the week was underway, we dug into Sinatra with the Jumpstart Lab tutorial for <a href="http://tutorials.jumpstartlab.com/projects/web_guesser.html">WebGuesser</a>. It was a nice easy project that eased us in to using GET, PUT, POST, and DELETE requests via an app built in Sinatra.</p>
+
+<p><img class="center" src="http://s9.postimg.org/3mw3ucrrj/Screen_Shot_2013_10_18_at_9_21_56_PM.png" title="My IdeaBox In Production" alt="A website in the process of being built"></p>
+
+<p>Soon after that we were introduced to our current project: <a href="http://tutorials.jumpstartlab.com/projects/idea_box.html">IdeaBox</a>. I&rsquo;ve dug in hard this week. So far, I&rsquo;ve completed the basic project as well as the tagging, statistics, and search extensions. I&rsquo;ve been playing with some templating. After getting frustrated with ERB, I decided to try HAML for a while, but ended up going back to Slim, which I find much more intuitive. Having few design skills, I decided to use a CSS library for the front end. I&rsquo;d already worked with Bootstrap in the past, so I decided to give <a href="http://foundation.zurb.com/">Zurb Foundation</a> a go. So far, it&rsquo;s been easy to get it up and running, but it&rsquo;s sometimes hard to make the javascript elements display the way they look in the documentation. At any rate, I&rsquo;m having a great time with the project.</p>
+
+<p>Compared to building command line applications, I&rsquo;m enjoying web apps more. The main reason is that it gives me a chance to switch gears. When I get tired of just dealing with Ruby code, I can go work on the front end. When that gets tiring, I head back to the model and do some more logic work.</p>
+
+<h2>Work Habits</h2>
+
+<p>For the most part, I&rsquo;ve been able to keep up my good work habits this week.</p>
+
+<p>On the one hand, I&rsquo;ve found it a lot more difficult to write effective tests in this environment. Whenever run my application test, it starts up the server. That can&rsquo;t be right, I have to CTL+C it every time. Also, I&rsquo;m tempted not to write enough tests, especially route tests, when using Sinatra. But after last week&rsquo;s test-less mayhem with Tic Tac Toe, I&rsquo;m fully convinced I need them. I have yet to try Capybara; perhaps that will help.</p>
+
+<p>On the other hand, I&rsquo;ve actually been a lot better about staying true to my Pomodore timer. Although my classmate Luke gave a Lightning Talk blasting the Pomodore method, I&rsquo;ve found that I get really weird when I don&rsquo;t take regular breaks. With my old timer, <a href="http://www.makeuseof.com/tag/menubar-countdown-is-a-mac-timer-app-that-talks-to-you/">Menubar Countdown</a>, I would often ignore the end of my session and keep working. Now I&rsquo;m using <a href="http://www.tadamapp.com">Tadam</a>, which puts a big black box on the screen and forces you to take a break. So far, the switch has helped keep me honest. I&rsquo;ve also committed myself to taking walks outside. It really helps keep me from feeling like I&rsquo;m in a cave/tunnel/timewarp all the time.</p>
+
+<h2>Working Individually</h2>
+
+<p>For the IdeaBox project, we have small working groups. Although each person is completing the project individually, we have a cohort to turn to when we encounter problems or want to think through solutions. For me, this is a very comfortable apporoach. I tend to be a very independent, resourceful learner, but I&rsquo;m not independent to the point of being a recluse. I&rsquo;ve been enjoying helping team mates, and pairing with them a little bit. But most of all, I like talking through ideas and approaches to problems with them.</p>
+
+<h2>Assessments Next Week</h2>
+
+<p>Next week, we&rsquo;ll be going through an assessment with one of the instructors. I&rsquo;m not nervous about this, because there is nothing on the line. A failure on the assessment would mean little in terms of my coding eduction. On the contrary, I&rsquo;m excited to have someone looking over my shoulder as I write. When I&rsquo;m working on a project, I try to solve problems on my own before asking an instructor for help. Although this gives me confidence because I know I can work things out on my own, I also wonder if there are approaches and work flow improvements that I&rsquo;m not seeing, because I&rsquo;m the only one hearing my thought process with me. I hope that the assessment will be a chance for Jeff, Franklin or Katrina to watch how I solve problems, and make suggestions for efficiencies I may not be seeing as I go.</p>
+
+<h2>Moving Forward</h2>
+
+<p>Last Wednesday, I realized that I was spending a lot of time building extra features at the expense of basic functionality, and going off on learning tangents that weren&rsquo;t helping me make any progress on the project. I decided to imagine where I would like the project to be on Thursday morning, when the project is due. I split up the remaining work to a daily schedule. I hope that by sticking to it I will have all of the features done on schedule, with some time for refactoring and bug fixes built in. I&rsquo;m really excited to be building a web app on both the front and back end for the first time. Even though it is just a tutorial, I&rsquo;m proud of what I&rsquo;m building, and I can&rsquo;t wait to share it with the world!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="4">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="2">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/">Using Services to Keep Your Rails Controllers Clean and DRY</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/04/looking-for-a-needle-in-a-haystack-with-ack/">Looking For A Needle In A Haystack! (or Using Ack To Improve Your Development Workflow)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/24/angular-js-unit-testing-for-real-though/">AngularJS Unit Testing, For Real Though</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
