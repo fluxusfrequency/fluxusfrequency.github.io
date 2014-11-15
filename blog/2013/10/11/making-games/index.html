@@ -1,0 +1,274 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Making Games - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="My brain is completely saturated with code. For five weeks, I&rsquo;ve lived, eaten, and breathed Ruby about 12 hours per day. I texted my brother ( &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2013/10/11/making-games">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Making Games</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-11T09:03:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>My brain is completely saturated with code. For five weeks, I&rsquo;ve lived, eaten, and breathed Ruby about 12 hours per day. I texted my brother (who&rsquo;s studying real estate) a few nights ago to tell him about it.</p>
+
+<p>Me: &ldquo;I&rsquo;m up to my eyeballs in code.&rdquo;
+Him: &ldquo;I&rsquo;m up to my eyeballs in water rights through the doctrine of prior appropriation and fee simple defeasible.&rdquo;</p>
+
+<p>When pounding away at the same subject day in and day out, there comes a time when my brain starts to shut down, and I start to scream &ldquo;NO MORE!!!&rdquo; inside. I was just getting to that point as the week started, so I was relieved when Jeff announced that this would be a &ldquo;Focus Week&rdquo;. Focus Week is a time when those who are behind can catch up, those who are progressing can solidify what they&rsquo;ve learned, and those who are excelling can challenge themselves by exploring new things. It&rsquo;s also a time when everyone can take a breath; the pressure is off.</p>
+
+<h2>Focus Week and Ruby Processing</h2>
+
+<p>Being in the &ldquo;excelling&rdquo; group at the current moment, I was given a simple assignment: choose a partner and build Tic Tac Toe using <a href="https://github.com/jashkenas/ruby-processing">Ruby Processing</a> (RP). We&rsquo;d gotten a brief introduction to RP last Friday as a fun activity, via the Jumpstart Lab <a href="http://tutorials.jumpstartlab.com/projects/process_artist.html">Process Artist Tutorial</a>. RP is a shim between Ruby and the <a href="http://processing.org/">Java Processing</a>, a language used to create graphics simulations. I dug a little deeper into RP over the weekend, using it to build a simple Mandelbrot fractal and attempting to animate it. Here&rsquo;s a still what I built by translating a Java <a href="http://processing.org/examples/mandelbrot.html">tutorial</a> into Ruby:</p>
+
+<p><img src="http://s9.postimg.org/8fghj6iin/Screen_Shot_2013_10_11_at_9_14_33_AM.png" title="'Mandelbrot Fractal'" ></p>
+
+<h2>Tic Tac Toe</h2>
+
+<p>On Monday morning, I paired up with Rolen Le and we set out to build Tic Tac Toe, using a <a href="http://en.wikipedia.org/wiki/Model-view-controller">Model View Controller</a> (MVC) framework. It was slow going at first. We were having a lot of trouble getting any file that contained &ldquo;require &lsquo;ruby-processing&rsquo;&rdquo; to be able to talk to any other files via require. This meant that splitting our app into separate Model, View, and Controller files was not working. We compromised by put all the classes into a single file. But there was another problem:</p>
+
+<p>We couldn&rsquo;t run tests.</p>
+
+<p>So we didn&rsquo;t. It would have been difficult to run tests on the views of the app anyway, but once we threw up our hands and decided we couldn&rsquo;t test anything, we started down a very <em>dark</em> path. We wrote the whole app using no tests. Well, actually, we play tested. But it was terrible. Time after time, we would think that everything was working, then discover there was a weird bug. One of the funniest was: you could click on a square after it was taken, and it would change players even though no move was made. Thus, you could fill the whole board with just x&rsquo;s or o&rsquo;s. We eventually fixed all of the bugs. At least, I think we did. Without tests we&rsquo;ll never know.</p>
+
+<p>At this point, the obvious thing to do would have been to write tests. But now that we&rsquo;d whet our whistles on building games, we opted to split up and write some other games. Rolen headed off to build Chess, and I got started on Mancala.</p>
+
+<h2>Mancala</h2>
+
+<p>Thankfully, Nathaniel Watts and Brian Winterling turned us on to the fact that you can use JRuby instead of Ruby 2.0 to get RP working a little better. Once I knew this, I was able to build Mancala with seperate files, and tests! The process was <strong><em>so</em></strong> much cleaner and easier with TDD. I built Mancala over three days, using an MVC framework. I also built extra classes for the pits and stores, and for the rules. My implementation uses the <a href="http://boardgames.about.com/cs/mancala/ht/play_mancala.htm">Kalah Rules</a>, but I wanted to make it so that you could write another rule set and use the same board to play with it. I ended up a small file that just runs RP, a model, two views, the ruleset (which is big controller), and a small controller to links them all together.</p>
+
+<p>I was pretty happy with the result. I haven&rsquo;t refactored the code at all, so it&rsquo;s pretty messy. Next week, I&rsquo;ll probably try to clean it up. I&rsquo;d also like to build custom graphics in Photoshop, like Nathaniel and Brian did for <em>their</em> <a href="https://github.com/thewatts/tic-tac-toe">tic-tac-toe app</a>.</p>
+
+<p>My biggest takeaway from this game building adventure: TDD is <em>way</em> better than naked coding. There was so much messy, wasteful code in the first versions of Tic Tac Toe and Mancala. I was much happier with my results once JRuby enabled me to start using require again.</p>
+
+<h2>On Groupings</h2>
+
+<p>Having been a teacher in the past, I&rsquo;m interested in the teaching approaches Jumpstart Lab uses in gSchool. One thing that I saw work really well in my education career was grouping students together in a meaningful way. This week, we went from our usual whole class group to ability level groups. Although I like having the opportunity to talk and collaborate with other students at my level, I would not want to be ability grouped throughout the entire 24 weeks of gSchool. I enjoy having the chance to work with people of other skill levels, because it puts me into other roles: mentor, student, or just comrade on the path to being a Ruby ninja.</p>
+
+<p>I experienced all kinds of grouping this week: the full class (at the beginning of the week and for the retrospective at the end), the challenge ability group of about eight students, pairing with Rolen, and working individually on Mancala. I think that changing up the setting like this is good for me. Being an introvert, I feel more comfortable with the smaller groupings than the full class setting. On the other hand, I think I get different benefits from being in groups of each size, and I wouldn&rsquo;t give up the full class environment if given the option.</p>
+
+<h2>Web Applications</h2>
+
+<p>Next week we&rsquo;ll start building web applications. I&rsquo;m pretty excited about it. Focusing on pure Ruby these past few weeks has really boosted my confidence in using the language, but I&rsquo;m also ready for a change of focus. Exploring the world of HTTP requests, SQL, and Sinatra will be a nice change of pace. Outside of getting our Tic Tac Toe games to talk to each other this week (through threading and polling a simple server), I&rsquo;ve never really worked with HTTP requests. My SQL experience is limited, and I know nothing about Sinatra.</p>
+
+<p>It&rsquo;s my understanding that we&rsquo;ll also be expected to understand HTML, CSS, and a little bit of JavaScript to integrate the front and back-end parts of our app. I&rsquo;m feeling glad that I spent some time going through tutorials on Codecademy, Code School, and Treebook before gSchool started; I already have some grounding in these languages. Next week, I&rsquo;ll be forced to recall my knowledge of HTML, CSS, JS, and SQL, and put it into practice <em>with</em> my newly learned back-end skills. I&rsquo;m looking forward to integrating so many different languages toward a single goal (which is also the goal of gSchool): building web applications.</p>
+
+<p>Our first web project will be using Sinatra to build <a href="http://tutorials.jumpstartlab.com/projects/idea_box.html">IdeaBox</a>, a simple system for recording ideas.</p>
+
+<h2>Wrapping Up</h2>
+
+<p>I was grateful to have some time to reset my brain this week. It was starting to feel saturated. Playing with games and graphics has helped me feel fresh again. I plan to spend the upcoming weekend with the computer shut, reading a little of <a href="http://www.amazon.com/gp/product/1118008189/ref=oh_details_o00_s00_i00?ie=UTF8&amp;psc=1">HTML and CSS</a> by Jon Duckett, and coming back on Monday ready to dive headlong into building the web.</p>
+
+<h2>Games</h2>
+
+<p>Here are the links to the games I built this week. You&rsquo;ll need JRuby with the ruby-processing gem installed to run them.</p>
+
+<ul>
+<li><p><a href="https://github.com/fluxusfrequency/tic-tac-toe.git">Tic Tac Toe</a></p></li>
+<li><p><a href="https://github.com/fluxusfrequency/mancala">Mancala</a></p></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-11T09:03:00-06:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2013/10/11/making-games/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2013/10/11/making-games/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/10/04/sales-engine-retrospective/" title="Previous Post: Sales Engine Retrospective">&laquo; Sales Engine Retrospective</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/10/18/web-applications/" title="Next Post: Web Applications">Web Applications &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/building-a-ruby-list-comprehension/">Building A Ruby List Comprehension</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/better-soa-development-with-foreman-and-nginx/">Better SOA Development With Foreman and NGINX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/">Using Services to Keep Your Rails Controllers Clean and DRY</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,254 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Dinner Dash Complete - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="Last Thursday, my group and I wrapped up the Dinner Dash tutorial we were working on. It was essentially the website for a restaurant with an &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2013/11/18/dinner-dash-complete">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Dinner Dash Complete</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-18T08:12:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Last Thursday, my group and I wrapped up the <a href="http://tutorials.jumpstartlab.com/projects/dinner_dash.html">Dinner Dash</a> tutorial we were working on. It was essentially the website for a restaurant with an administrative back end.</p>
+
+<p>Here&rsquo;s a link to our <a href="http://onoburrito.herokuapp.com/">Dinner Dash Project</a>.</p>
+
+<p><img src="http://s5.postimg.org/5ddkt77uv/Ono_Burrito_Website_Screenshot.png" title="Ono Burrito" alt="A Ruby on Rails website"></p>
+
+<p>I learned a lot. Aside from this being my first full-blown Rails project, I discovered many other useful things about Rails projects along the way.</p>
+
+<h2>Rails Gems</h2>
+
+<p>Here are some of the technologies I tried out for the first time</p>
+
+<ul>
+<li><p><a href="http://sass-lang.com/">SASS/CSS</a>. I intentionally spent a lot of time on the front end in this project. Although I feel strong in HTML5/CSS3, I would really like to get better at design. Because of this, I worked hard on building up the view <strong><em>without Bootstrap</em></strong>, using partials and SCSS to make things cleaner. I was also reading <a href="http://www.therailsview.com/">The Rails View</a>, and tried to incorporate lessons learned from it into what I was doing.</p></li>
+<li><p><a href="http://guides.rubyonrails.org/">The Rails Guides</a>. After losing my mind trying to figure out how to work with form_for during the first week of the project, I discovered the Rails Guides. I read all of the ActiveRecord and ActionView documentation over the weekend, and felt a lot more confident afterwards. The Rails Guides rock!</p></li>
+<li><p><a href="http://www.activeadmin.info/">Active Admin</a>. This little number let us add an administrative backend to our app with next to no effort. It was kind of cheating to use it here, but it was also really cool to find out about. It may come it very handy in the future.</p></li>
+<li><p><a href="https://github.com/nixme/jazz_hands">Jazz Hands</a>, a gem that improves the Rails Console by making it Pry-based, and adding pretty print to make it easier to look through data.</p></li>
+<li><p><a href="https://github.com/colszowka/simplecov">Simplecov</a>. This is a great way to check your test coverage. I&rsquo;m somewhat ashamed to admit that our project was only about 69% covered.</p></li>
+<li><p><a href="https://github.com/stympy/faker">Faker</a>. Made it easy to generate seed data for our database.</p></li>
+<li><p><a href="https://github.com/evrone/quiet_assets">Quiet Assets</a>. I got pretty tired of looking at the assets in Guard every time I ran a test. Quiet Assets made the server logs a lot easier to look at.</p></li>
+</ul>
+
+
+<h2>Soft Skills</h2>
+
+<p>One of the most challenging aspects of the project for me was managing the social aspect of this project. Since I was percieved as the strongest member of our group programming-wise, the others looked to me for guidance. But I am not a natural leader. Although I was able to chart our best course for finishing the project, I didn&rsquo;t do a great job of checking in with everyone emotionally. At the end, I found out that one member of my group felt left out and behind. In the future, when I lead, I will work to make more space for people to express how things are going, not just in terms of code progress, but also how they&rsquo;re feeling about the project.</p>
+
+<p>We also used <a href="https://www.pivotaltracker.com/">Pivotal Tracker</a>. This was a first for me. Although I liked learning to use Gherkin, I wasn&rsquo;t wild about the application&rsquo;s UI. We ended up switching to Milestones and Issues on Github for the last part of the project.</p>
+
+<p>However, looking back now, I actually think that using Pivotal Tracker did improve my experience, compared with the previous project. I&rsquo;ll definitely give it another go for the next project. I would really like to try translating the Tracker stories into Capybara or Cucumber tests right out of the gate.</p>
+
+<h2>What&rsquo;s Next</h2>
+
+<p>This week, we&rsquo;ll be working on JavaScript. I&rsquo;m really excited about this, because I&rsquo;ve been working hard at it on the side. Right now I&rsquo;m working through Addy Osmani&rsquo;s <a href="http://addyosmani.github.io/backbone-fundamentals/">Developing Backbone.js Applications</a>, and I&rsquo;m loving it. I&rsquo;m also building a Backbone app with a Rails API with my mentor as a side project.</p>
+
+<p>After Thanksgiving, we&rsquo;ll be building a multi-tenant platform based on Dinner Dash: <a href="http://tutorials.jumpstartlab.com/projects/fourth_meal.html">Fourth Meal</a>. It looks intimidating, but I&rsquo;m stoked to be able to build a platform like this. It seems like you could build a great business around a platform like this. <a href="http://bandzoogle.com/">Bandzoogle</a> comes to mind.</p>
+
+<p>We&rsquo;re less than halfway through gSchool now, but we&rsquo;ve learned many of the skills we&rsquo;ll need as Ruby on Rails developers. I&rsquo;m glad that we&rsquo;ll have time to practice these skills for the rest of the program. I think I&rsquo;ll feel very confident about what I&rsquo;m doing when we graduate in February. I shudder to think that if I had gone to a different bootcamp, I might be heading out into the job market right now. Although I can certainly build web apps now, I still have so much to learn. I&rsquo;m really glad to be at gSchool; the curriculum is excellent, my peers are supportive, hardworking, and smart, and my teachers are always willing to go the extra mile to help me figure things out.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-18T08:12:00-07:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2013/11/18/dinner-dash-complete/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2013/11/18/dinner-dash-complete/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/11/10/javascript-enlightenment/" title="Previous Post: JavaScript Enlightenment">&laquo; JavaScript Enlightenment</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/11/22/full-stack-javascript/" title="Next Post: Full Stack Javascript">Full Stack Javascript &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/building-a-ruby-list-comprehension/">Building A Ruby List Comprehension</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/better-soa-development-with-foreman-and-nginx/">Better SOA Development With Foreman and NGINX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/">Using Services to Keep Your Rails Controllers Clean and DRY</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

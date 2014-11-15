@@ -1,0 +1,267 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How To Find Big Directories in OS X (Darwin Linux) - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="My Dropbox was full this morning. Since I couldn&rsquo;t afford to buy more space, I needed to clear some room. I set out to find the biggest files &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2013/12/30/how-to-find-big-directories-in-os-x-darwin-linux">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">How to Find Big Directories in OS X (Darwin Linux)</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-30T14:36:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>My Dropbox was full this morning. Since I couldn&rsquo;t afford to buy more space, I needed to clear some room. I set out to find the biggest files and delete them.</p>
+
+<p>Before I got comfortable with the command line, I always downloaded some junky freeware to solve this problem. But today, I figured that there must be a smart way to do this with some arcane Linux incantation, so I did a little research and figured it out. It turned out to be really easy. Here&rsquo;s what to do:</p>
+
+<h2>Step 1</h2>
+
+<p>Navigate to the folder you want to search through.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cd Dropbox</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Step 2</h2>
+
+<p>Use the <code>du</code> (Disk Usage) command to get a list of the files in your current folder (indicated by a <code>.</code>) and their sizes. Pass the <code>-a</code> flag to search all the files (not just directories), and the <code>-h</code> flag to have it display a human readable format.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ du -a -h .</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Step 3</h2>
+
+<p>Use a pipe to send the results to the <code>sort</code> command. Pass <code>-n</code> to sort the results numerically, and <code>-r</code> to make the biggest files show up at the top of the list.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ du -a -h . | sort -n -r</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Step 4</h2>
+
+<p>Limit the results to only ten entries so you only have the biggest files.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ du -a -h . | sort -n -r | head -n 10</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Step 5</h2>
+
+<p>Optionally, dump the whole thing into a text file using the <code>&gt;</code> shovel, so you can reference it while you are deleting files.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ du -a -h . | sort -n -r | head -n 10 &gt; file_sizes.txt</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Open file_sizes.txt in your favorite text editor, and start deleting files in the terminal. To keep the text file up to date, you can hit up arrow a couple of times to get the above command back and run it again after you&rsquo;ve deleted a few things.</p>
+
+<h2>Conclusion</h2>
+
+<p>Now you can find the biggest files on any part of your hard drive. Just navigate to the folder you want to look at before running the command, or replace the <code>.</code> with the path you want to search (e.g. <code>$ du -a -h ~/Dropbox | sort -n -r | head -n 10 &gt; file_sizes.txt</code>).</p>
+
+<p>Enjoy!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-30T14:36:00-07:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2013/12/30/how-to-find-big-directories-in-os-x-darwin-linux/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2013/12/30/how-to-find-big-directories-in-os-x-darwin-linux/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/12/15/contributing-to-open-source-and-git-squash/" title="Previous Post: Contributing to Open Source &amp; Git Squash">&laquo; Contributing to Open Source &amp; Git Squash</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/12/30/what-ive-been-reading/" title="Next Post: What I've Been Reading">What I&#8217;ve Been Reading &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/building-a-ruby-list-comprehension/">Building A Ruby List Comprehension</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/better-soa-development-with-foreman-and-nginx/">Better SOA Development With Foreman and NGINX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/">Using Services to Keep Your Rails Controllers Clean and DRY</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

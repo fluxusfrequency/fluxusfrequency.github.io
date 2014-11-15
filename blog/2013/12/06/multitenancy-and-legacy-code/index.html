@@ -1,0 +1,245 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Multitenancy and Legacy Code - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="This week at gSchool, we started a new rails project called Fourth Meal. The assignment&rsquo;s basic premise is to build a multi-tenant platform for &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2013/12/06/multitenancy-and-legacy-code">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Multitenancy and Legacy Code</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-06T09:03:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This week at gSchool, we started a new rails project called <a href="http://tutorials.jumpstartlab.com/projects/fourth_meal.html">Fourth Meal</a>. The assignment&rsquo;s basic premise is to build a multi-tenant platform for restaurant ordering, along the lines of <a href="https://www.grubhub.com/">GrubHub</a>. This is our first time dealing with multi-tenancy. It&rsquo;s also the first time that we are building from a legacy code base - we&rsquo;re using our last projects. Mine was <a href="http://onoburrito.herokuapp.com">OnoBurrito</a>, and that&rsquo;s the project my group chose to build on for this assignment. Finally, this will also be the first time we optimize our apps for performance.</p>
+
+<h2>Project Management</h2>
+
+<p>We&rsquo;re using Pivotal Tracker very seriously in Fourth Meal, with our instructors pretending to be clients that have hired us to build this app. I&rsquo;ve found Tracker restrictive in the past. But I think I felt that way because I was using it as more of a to-do list than a project management tool. After having Jeff help us write about 13 clear stories yesterday, I feel a lot more positive about using it to drive my group&rsquo;s progress. At this point, Tracker is helping me feel more organized. I can translate stories into tests and use Capybara to drive development &ldquo;from the top down&rdquo;.</p>
+
+<h2>Legacy Code</h2>
+
+<p>Although we&rsquo;re working from code that I had a large part in writing, I feel like I&rsquo;m floundering to turn OnoBurrito into a platform. There are a lot of things I would do differently if I were to build the app over again. For example, the category views are stuck inside of the item views, making it really hard to separate them. We also used Active Admin before, so we&rsquo;ve had to rip it out and start the admin panel over again. My group decided to retrofit the admin part of Billy&rsquo;s restaurant onto Ono Burrito, and it&rsquo;s been kind of tricky to get everything working. Currently, I&rsquo;m having a lot of trouble getting carts and orders working. It&rsquo;s hard to decide which of the pieces to store in the session, application, and database.</p>
+
+<h2>Class Progress</h2>
+
+<p>We&rsquo;re now just past the halfway mark for gSchool. Although I can see how other programs would stop here and send their students out into the marketplace, I&rsquo;m very glad that we have some time left to practice proper Test Driven Development, learn about scaling and performance optimization, and hone our Rails chops.</p>
+
+<p>I do feel like I&rsquo;m starting to lose momentum a little bit. I was going full-bore every day (except weekends) up until now, but I could feel that burnout was around the corner. So I&rsquo;ve throttled back a little bit, taking time to cook, read, and exercise so I feel more balanced. I&rsquo;m still totally dedicated to being the best developer I can be by the end of the program, and I think that these changes will help me do that. Meanwhile, I feel like a lot of my classmates have been making amazing progress. No matter who I work with lately, I feel like I am collaborating with a confident, smart, and capable programmer.</p>
+
+<h2>Young Entrepreneurs</h2>
+
+<p>Last night we kicked off a project with Young Entrepreneurs. Several school-aged children came to Galvanize and met with us to get help building a website for their businesses. I&rsquo;m in a small group with Nathaniel and Meeka, two classmates that I really enjoy working with. We&rsquo;re helping a 15-year-old entrepreneur named Jonah, who runs a local snack company. It&rsquo;s a little disheartening that we won&rsquo;t be able to use Sinatra or Rails to help him him, because he&rsquo;ll need the ability to update his site, and we likely don&rsquo;t have time to build a content management system. We&rsquo;ll probably help him get going on <a href="http://www.wix.com">Wix</a>, or a similar platform.</p>
+
+<p>I feel a little conficted about this project. In a way, the kickoff was really bad timing, because I&rsquo;m feeling so overwhelmed by Fourth Meal. On the other hand, it&rsquo;s nice to get back to working with kids. That&rsquo;s the thing I miss most about my previous career as a teacher. More importantly to me, I&rsquo;ve been focusing on trying to find ways to be more generous, so this is a good opportunity to practice doing that.</p>
+
+<h2>New Mentor</h2>
+
+<p>I met my new mentor, Justin Smestad, this week. He&rsquo;s a maintainer of the <a href="https://github.com/hassox/warden">Warden</a> gem, a security specialist, and a musician. I think it&rsquo;s going to be a good fit. I&rsquo;ll miss my old mentor, Mike Pack, but I think that he&rsquo;s willing to keep working with me too. Now I&rsquo;ll have twice the support!</p>
+
+<h2>Overall</h2>
+
+<p>I&rsquo;m feeling really excited about web development. Thanksgiving break really helped me rest up and feel ready to tackle more. I am learning a lot of new things all the time, and I love it. On the other hand, I am feeling somewhat overwhelmed by Rails, and beginning to consider the job search makes me a little anxious. In the end, I&rsquo;m optimistic. I think that the coming weekend will help me get grounded, and I&rsquo;ll come back next week ready to get some good work done on Fourth Meal.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-06T09:03:00-07:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2013/12/06/multitenancy-and-legacy-code/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2013/12/06/multitenancy-and-legacy-code/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/12/01/practical-object-oriented-design-in-ruby-takeaways/" title="Previous Post: Practical Object-Oriented Design in Ruby - Takeaways">&laquo; Practical Object-Oriented Design in Ruby - Takeaways</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/12/15/contributing-to-open-source-and-git-squash/" title="Next Post: Contributing to Open Source &amp; Git Squash">Contributing to Open Source &amp; Git Squash &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/building-a-ruby-list-comprehension/">Building A Ruby List Comprehension</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/better-soa-development-with-foreman-and-nginx/">Better SOA Development With Foreman and NGINX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/">Using Services to Keep Your Rails Controllers Clean and DRY</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

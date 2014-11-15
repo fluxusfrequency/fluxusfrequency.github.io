@@ -1,0 +1,1577 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="This week was a long haul. We were focused on building IdeaBox, an idea catching app. It&rsquo;s kind of like Evernote. Mine turned out pretty well. &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/posts/4">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/26/ideabox-retrospective/">IdeaBox Retrospective</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-26T06:42:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This week was a long haul. We were focused on building <a href="http://tutorials.jumpstartlab.com/projects/idea_box.html">IdeaBox</a>, an idea catching app. It&rsquo;s kind of like <a href="http://www.evernote.com">Evernote</a>. Mine turned out pretty well. Using some strict time management, I was able to complete all of the extenstions listed on the assignment.</p>
+
+<p>Here&rsquo;s a link to mine: <a href="http://ideabox-flux.herokuapp.com/">My IdeaBox</a></p>
+
+<p>And a screenshot:</p>
+
+<p><img src="http://s10.postimg.org/40ywl3vvt/Screen_Shot_2013_10_26_at_6_54_54_AM.png," title="'IdeaBox', 'Screenshot of a web app'" ></p>
+
+<h2>Scheduling My Workflow</h2>
+
+<p>Here are three things I discovered along the way:</p>
+
+<ol>
+<li>Planning a project timeline is key.</li>
+<li>I have a hard time with design.</li>
+<li>It&rsquo;s difficult to write Capybara tests when you don&rsquo;t know the layout of your app.</li>
+</ol>
+
+
+<p>This is the timeline I used to finish building the full app in a week. We were simultaneously learning how to build linked lists, write SQL statments, and use the Seqeul gem.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Wed: Setup Models, Tagging
+</span><span class='line'>Thu: Statistics, Search, Fuel
+</span><span class='line'>Fri: Revisions and Groups
+</span><span class='line'>Sat-Sun: Rest, catch up if needed
+</span><span class='line'>Mon: Users and Groups
+</span><span class='line'>Tue: Sound and Image
+</span><span class='line'>Wed: Front End, Mobile, and SMS</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Trouble With Design</h2>
+
+<p>Following this plan, I was able to get the app up and running by Thursday. I spent Wednesday waffling between css layouts - Zurb <a href="http://foundation.zurb.com/">Foundation</a>, <a href="http://semantic-ui.com/">Semantic UI</a>, and <a href="http://www.99lime.com/">HTML Kickstart</a> - trying for the life of me to make it look decent. Despite being a creative person and having read half a dozen web design books in the last year, I was having a lot of trouble feeling satisfied with my look. You can see what I came up with by <a href="http://ideabox-flux.herokuapp.com/">visiting my IdeaBox</a>.</p>
+
+<h2>Testing</h2>
+
+<p>I was surprised to find that I had a hard time practicing TDD for the views. Using Capybara early on, my tests were constantly blowing up when I got around to changing the layout. I don&rsquo;t really think it matters, though. I was able to test my models with unit and integration tests easily enough. Then I added the important routes to my Capybara acceptance test after the web views were built, so if I want to tweak things later, I will have test coverage.</p>
+
+<h2>Takeaways</h2>
+
+<p>Here are some other parts of web development I learned from this project:</p>
+
+<ul>
+<li>Using Sintra to send files to users from a dynamic URL exposes your computer to the web.</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>What Not To Do</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">get</span> <span class="s1">&#39;/download/:filename&#39;</span> <span class="k">do</span> <span class="o">|</span><span class="n">filename</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">send_file</span> <span class="s2">&quot;./files/</span><span class="si">#{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="ss">:filename</span> <span class="o">=&gt;</span> <span class="n">filename</span><span class="p">,</span> <span class="ss">:type</span> <span class="o">=&gt;</span> <span class="s1">&#39;Application/octet-stream&#39;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>How to salt a password before encrypting.</li>
+<li>How to use the RACK_ENV for testing vs. deployment.</li>
+<li>How to use <a href="https://www.twilio.com/">Twilio</a> to set up texting to my app.</li>
+<li>How to use <a href="https://ngrok.com/">ngrok</a> to expose your local server to the web for testing. I needed this for Twilio.</li>
+<li>Don&rsquo;t try to switch from Yaml Store to Postgres with ActiveRecord when you only have 24 hours left before launch.</li>
+<li>When trying to build a lot of features in a short time, code quality can suffer. I&rsquo;d like to refactor this at some point.</li>
+</ul>
+
+
+<h2>If I Were to Start Over</h2>
+
+<p>At this point, if I could go back and start over, there are two things I&rsquo;d do differently:</p>
+
+<ol>
+<li>Use an SQL database from the start.</li>
+<li>Design the view earlier on in the process, to facilitate a better testing process with Capybara.</li>
+</ol>
+
+
+<p>In the end, I was pretty proud of my IdeaBox. I learned that I can actually build and deploy an entire web app on my own! Full-stack!-ish&hellip;</p>
+
+<h2>Code Retreat</h2>
+
+<p>On Friday, we left Galvinize and went to work in a different space - The Source in Rino - for our first code retreat. We spent the day pairing with different people in the class on two exercises: programming &ldquo;99 Bottles of Beer on the Wall&rdquo;, and a robot instruction simulator. I had a great time getting to work with a wide variety of my classmates, including some I had not yet paired with. My favorite constraint is when we could only one line of code before switching off, and without talking. I was also trying to practice some vim skills, which my pairs were gracious enough to help me with. One thing I really disliked was the space at The Source itself. It was too loud and filled with echoes. For me, a space that was calmer and quieter would have been preferable. Aside from that, though, I hope the next code retreat will be similar - a chance to work with many peers on fun and challenging problems.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/18/web-applications/">Web Applications</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-18T09:01:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This week we dug in to building a web application for the first time in gSchool. After six weeks of nothing but pure Ruby (well, almost pure - there was some Command Line, Git, and Javascript in there), it was a nice change of pace to see the language of the web again. I haven&rsquo;t used HTTP requests, HTML tags, or CSS selectors in months, so this week felt like a breath of fresh air.</p>
+
+<p>We&rsquo;ve begun learning to use Sinatra to build light weight Rack applications. Knowing that Sinatra was on the menu, I spent last weekend working through <a href="http://www.sitepoint.com/store/jump-start-sinatra/">Jump Start Sinatra</a> by Darren Jones. The book walks you through building Songs By Sinatra, a light weight web app that catalogs the songs of Frank Sinatra. Along the way, it introduces the reader to Ruby Slim templating, flash messages, DataMapper, AJAX, a little bit of jQuery, and deploying to Heroku. I really enjoyed the project. It was small and quick to complete, but touched on many topics I&rsquo;ve been wanting to explore.</p>
+
+<p>Here is a link to my completed version of <a href="http://songs-by-sinatra-flux.herokuapp.com/">Songs By Sinatra</a>.</p>
+
+<p>Jeff started the week with a morning lecture on the structure of the internet. He covered HTTP requests, IP addresses, DNS lookup, the DNS root name servers, and the structure of the DNS system. From there, he explained Distributed Denial of Service (DDoS) attacks. These are a big topic in computer security right now. The most common type of DDoS is a &ldquo;hacking&rdquo; attack in which someone controls a &ldquo;botnet&rdquo;: hundreds or thousands of computers infected with backend malware. The botnet allows the attacker to use the zombie computers&#8217; processing power to carry out an attack on a certain target. At the designated time, the attacker directs all of the computers to repeatedly send requests to the target. The target is then drowned in requests, and becomes unreachable.</p>
+
+<p>After covering DDoSs, we talked about many other aspects of the internet&rsquo;s dark underbelly, including <a href="http://en.wikipedia.org/wiki/Silk_Road_%28marketplace%29">The Silk Road</a> and other hidden services accessible through the <a href="https://www.torproject.org/">Tor</a> network, as well as <a href="http://vimeo.com/63502573">Bitcoins</a>. It was all fascinating stuff, all very cloak and dagger!</p>
+
+<p>Once the week was underway, we dug into Sinatra with the Jumpstart Lab tutorial for <a href="http://tutorials.jumpstartlab.com/projects/web_guesser.html">WebGuesser</a>. It was a nice easy project that eased us in to using GET, PUT, POST, and DELETE requests via an app built in Sinatra.</p>
+
+<p><img class="center" src="http://s9.postimg.org/3mw3ucrrj/Screen_Shot_2013_10_18_at_9_21_56_PM.png" title="My IdeaBox In Production" alt="A website in the process of being built"></p>
+
+<p>Soon after that we were introduced to our current project: <a href="http://tutorials.jumpstartlab.com/projects/idea_box.html">IdeaBox</a>. I&rsquo;ve dug in hard this week. So far, I&rsquo;ve completed the basic project as well as the tagging, statistics, and search extensions. I&rsquo;ve been playing with some templating. After getting frustrated with ERB, I decided to try HAML for a while, but ended up going back to Slim, which I find much more intuitive. Having few design skills, I decided to use a CSS library for the front end. I&rsquo;d already worked with Bootstrap in the past, so I decided to give <a href="http://foundation.zurb.com/">Zurb Foundation</a> a go. So far, it&rsquo;s been easy to get it up and running, but it&rsquo;s sometimes hard to make the javascript elements display the way they look in the documentation. At any rate, I&rsquo;m having a great time with the project.</p>
+
+<p>Compared to building command line applications, I&rsquo;m enjoying web apps more. The main reason is that it gives me a chance to switch gears. When I get tired of just dealing with Ruby code, I can go work on the front end. When that gets tiring, I head back to the model and do some more logic work.</p>
+
+<h2>Work Habits</h2>
+
+<p>For the most part, I&rsquo;ve been able to keep up my good work habits this week.</p>
+
+<p>On the one hand, I&rsquo;ve found it a lot more difficult to write effective tests in this environment. Whenever run my application test, it starts up the server. That can&rsquo;t be right, I have to CTL+C it every time. Also, I&rsquo;m tempted not to write enough tests, especially route tests, when using Sinatra. But after last week&rsquo;s test-less mayhem with Tic Tac Toe, I&rsquo;m fully convinced I need them. I have yet to try Capybara; perhaps that will help.</p>
+
+<p>On the other hand, I&rsquo;ve actually been a lot better about staying true to my Pomodore timer. Although my classmate Luke gave a Lightning Talk blasting the Pomodore method, I&rsquo;ve found that I get really weird when I don&rsquo;t take regular breaks. With my old timer, <a href="http://www.makeuseof.com/tag/menubar-countdown-is-a-mac-timer-app-that-talks-to-you/">Menubar Countdown</a>, I would often ignore the end of my session and keep working. Now I&rsquo;m using <a href="http://www.tadamapp.com">Tadam</a>, which puts a big black box on the screen and forces you to take a break. So far, the switch has helped keep me honest. I&rsquo;ve also committed myself to taking walks outside. It really helps keep me from feeling like I&rsquo;m in a cave/tunnel/timewarp all the time.</p>
+
+<h2>Working Individually</h2>
+
+<p>For the IdeaBox project, we have small working groups. Although each person is completing the project individually, we have a cohort to turn to when we encounter problems or want to think through solutions. For me, this is a very comfortable apporoach. I tend to be a very independent, resourceful learner, but I&rsquo;m not independent to the point of being a recluse. I&rsquo;ve been enjoying helping team mates, and pairing with them a little bit. But most of all, I like talking through ideas and approaches to problems with them.</p>
+
+<h2>Assessments Next Week</h2>
+
+<p>Next week, we&rsquo;ll be going through an assessment with one of the instructors. I&rsquo;m not nervous about this, because there is nothing on the line. A failure on the assessment would mean little in terms of my coding eduction. On the contrary, I&rsquo;m excited to have someone looking over my shoulder as I write. When I&rsquo;m working on a project, I try to solve problems on my own before asking an instructor for help. Although this gives me confidence because I know I can work things out on my own, I also wonder if there are approaches and work flow improvements that I&rsquo;m not seeing, because I&rsquo;m the only one hearing my thought process with me. I hope that the assessment will be a chance for Jeff, Franklin or Katrina to watch how I solve problems, and make suggestions for efficiencies I may not be seeing as I go.</p>
+
+<h2>Moving Forward</h2>
+
+<p>Last Wednesday, I realized that I was spending a lot of time building extra features at the expense of basic functionality, and going off on learning tangents that weren&rsquo;t helping me make any progress on the project. I decided to imagine where I would like the project to be on Thursday morning, when the project is due. I split up the remaining work to a daily schedule. I hope that by sticking to it I will have all of the features done on schedule, with some time for refactoring and bug fixes built in. I&rsquo;m really excited to be building a web app on both the front and back end for the first time. Even though it is just a tutorial, I&rsquo;m proud of what I&rsquo;m building, and I can&rsquo;t wait to share it with the world!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/11/making-games/">Making Games</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-11T09:03:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>My brain is completely saturated with code. For five weeks, I&rsquo;ve lived, eaten, and breathed Ruby about 12 hours per day. I texted my brother (who&rsquo;s studying real estate) a few nights ago to tell him about it.</p>
+
+<p>Me: &ldquo;I&rsquo;m up to my eyeballs in code.&rdquo;
+Him: &ldquo;I&rsquo;m up to my eyeballs in water rights through the doctrine of prior appropriation and fee simple defeasible.&rdquo;</p>
+
+<p>When pounding away at the same subject day in and day out, there comes a time when my brain starts to shut down, and I start to scream &ldquo;NO MORE!!!&rdquo; inside. I was just getting to that point as the week started, so I was relieved when Jeff announced that this would be a &ldquo;Focus Week&rdquo;. Focus Week is a time when those who are behind can catch up, those who are progressing can solidify what they&rsquo;ve learned, and those who are excelling can challenge themselves by exploring new things. It&rsquo;s also a time when everyone can take a breath; the pressure is off.</p>
+
+<h2>Focus Week and Ruby Processing</h2>
+
+<p>Being in the &ldquo;excelling&rdquo; group at the current moment, I was given a simple assignment: choose a partner and build Tic Tac Toe using <a href="https://github.com/jashkenas/ruby-processing">Ruby Processing</a> (RP). We&rsquo;d gotten a brief introduction to RP last Friday as a fun activity, via the Jumpstart Lab <a href="http://tutorials.jumpstartlab.com/projects/process_artist.html">Process Artist Tutorial</a>. RP is a shim between Ruby and the <a href="http://processing.org/">Java Processing</a>, a language used to create graphics simulations. I dug a little deeper into RP over the weekend, using it to build a simple Mandelbrot fractal and attempting to animate it. Here&rsquo;s a still what I built by translating a Java <a href="http://processing.org/examples/mandelbrot.html">tutorial</a> into Ruby:</p>
+
+<p><img src="http://s9.postimg.org/8fghj6iin/Screen_Shot_2013_10_11_at_9_14_33_AM.png" title="'Mandelbrot Fractal'" ></p>
+
+<h2>Tic Tac Toe</h2>
+
+<p>On Monday morning, I paired up with Rolen Le and we set out to build Tic Tac Toe, using a <a href="http://en.wikipedia.org/wiki/Model-view-controller">Model View Controller</a> (MVC) framework. It was slow going at first. We were having a lot of trouble getting any file that contained &ldquo;require &lsquo;ruby-processing&rsquo;&rdquo; to be able to talk to any other files via require. This meant that splitting our app into separate Model, View, and Controller files was not working. We compromised by put all the classes into a single file. But there was another problem:</p>
+
+<p>We couldn&rsquo;t run tests.</p>
+
+<p>So we didn&rsquo;t. It would have been difficult to run tests on the views of the app anyway, but once we threw up our hands and decided we couldn&rsquo;t test anything, we started down a very <em>dark</em> path. We wrote the whole app using no tests. Well, actually, we play tested. But it was terrible. Time after time, we would think that everything was working, then discover there was a weird bug. One of the funniest was: you could click on a square after it was taken, and it would change players even though no move was made. Thus, you could fill the whole board with just x&rsquo;s or o&rsquo;s. We eventually fixed all of the bugs. At least, I think we did. Without tests we&rsquo;ll never know.</p>
+
+<p>At this point, the obvious thing to do would have been to write tests. But now that we&rsquo;d whet our whistles on building games, we opted to split up and write some other games. Rolen headed off to build Chess, and I got started on Mancala.</p>
+
+<h2>Mancala</h2>
+
+<p>Thankfully, Nathaniel Watts and Brian Winterling turned us on to the fact that you can use JRuby instead of Ruby 2.0 to get RP working a little better. Once I knew this, I was able to build Mancala with seperate files, and tests! The process was <strong><em>so</em></strong> much cleaner and easier with TDD. I built Mancala over three days, using an MVC framework. I also built extra classes for the pits and stores, and for the rules. My implementation uses the <a href="http://boardgames.about.com/cs/mancala/ht/play_mancala.htm">Kalah Rules</a>, but I wanted to make it so that you could write another rule set and use the same board to play with it. I ended up a small file that just runs RP, a model, two views, the ruleset (which is big controller), and a small controller to links them all together.</p>
+
+<p>I was pretty happy with the result. I haven&rsquo;t refactored the code at all, so it&rsquo;s pretty messy. Next week, I&rsquo;ll probably try to clean it up. I&rsquo;d also like to build custom graphics in Photoshop, like Nathaniel and Brian did for <em>their</em> <a href="https://github.com/thewatts/tic-tac-toe">tic-tac-toe app</a>.</p>
+
+<p>My biggest takeaway from this game building adventure: TDD is <em>way</em> better than naked coding. There was so much messy, wasteful code in the first versions of Tic Tac Toe and Mancala. I was much happier with my results once JRuby enabled me to start using require again.</p>
+
+<h2>On Groupings</h2>
+
+<p>Having been a teacher in the past, I&rsquo;m interested in the teaching approaches Jumpstart Lab uses in gSchool. One thing that I saw work really well in my education career was grouping students together in a meaningful way. This week, we went from our usual whole class group to ability level groups. Although I like having the opportunity to talk and collaborate with other students at my level, I would not want to be ability grouped throughout the entire 24 weeks of gSchool. I enjoy having the chance to work with people of other skill levels, because it puts me into other roles: mentor, student, or just comrade on the path to being a Ruby ninja.</p>
+
+<p>I experienced all kinds of grouping this week: the full class (at the beginning of the week and for the retrospective at the end), the challenge ability group of about eight students, pairing with Rolen, and working individually on Mancala. I think that changing up the setting like this is good for me. Being an introvert, I feel more comfortable with the smaller groupings than the full class setting. On the other hand, I think I get different benefits from being in groups of each size, and I wouldn&rsquo;t give up the full class environment if given the option.</p>
+
+<h2>Web Applications</h2>
+
+<p>Next week we&rsquo;ll start building web applications. I&rsquo;m pretty excited about it. Focusing on pure Ruby these past few weeks has really boosted my confidence in using the language, but I&rsquo;m also ready for a change of focus. Exploring the world of HTTP requests, SQL, and Sinatra will be a nice change of pace. Outside of getting our Tic Tac Toe games to talk to each other this week (through threading and polling a simple server), I&rsquo;ve never really worked with HTTP requests. My SQL experience is limited, and I know nothing about Sinatra.</p>
+
+<p>It&rsquo;s my understanding that we&rsquo;ll also be expected to understand HTML, CSS, and a little bit of JavaScript to integrate the front and back-end parts of our app. I&rsquo;m feeling glad that I spent some time going through tutorials on Codecademy, Code School, and Treebook before gSchool started; I already have some grounding in these languages. Next week, I&rsquo;ll be forced to recall my knowledge of HTML, CSS, JS, and SQL, and put it into practice <em>with</em> my newly learned back-end skills. I&rsquo;m looking forward to integrating so many different languages toward a single goal (which is also the goal of gSchool): building web applications.</p>
+
+<p>Our first web project will be using Sinatra to build <a href="http://tutorials.jumpstartlab.com/projects/idea_box.html">IdeaBox</a>, a simple system for recording ideas.</p>
+
+<h2>Wrapping Up</h2>
+
+<p>I was grateful to have some time to reset my brain this week. It was starting to feel saturated. Playing with games and graphics has helped me feel fresh again. I plan to spend the upcoming weekend with the computer shut, reading a little of <a href="http://www.amazon.com/gp/product/1118008189/ref=oh_details_o00_s00_i00?ie=UTF8&amp;psc=1">HTML and CSS</a> by Jon Duckett, and coming back on Monday ready to dive headlong into building the web.</p>
+
+<h2>Games</h2>
+
+<p>Here are the links to the games I built this week. You&rsquo;ll need JRuby with the ruby-processing gem installed to run them.</p>
+
+<ul>
+<li><p><a href="https://github.com/fluxusfrequency/tic-tac-toe.git">Tic Tac Toe</a></p></li>
+<li><p><a href="https://github.com/fluxusfrequency/mancala">Mancala</a></p></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/04/sales-engine-retrospective/">Sales Engine Retrospective</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-04T09:08:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>We&rsquo;ve spent the last week and a half at gSchool working on the next hardest thing to EventReporter (from week two): <a href="http://tutorials.jumpstartlab.com/projects/sales_engine.html">SalesEngine</a>.</p>
+
+<h2>The Code and The Problem</h2>
+
+<p>This project built on our skills of creating collections of objects, and building classes that inherit multiple attributes from CSV rows. This time, instead of one class, we had six: Customers, Invoices, InvoiceItems, Items, Merchants, and Transactions. Using six corresponding CSV files, we had to build basic class definitions for each and repositories to hold data about the collections found in the CSV files.</p>
+
+<p>It was easy enough to stitch those together in a basic way, but the real challenge was finding ways to implement the &ldquo;business intelligence&rdquo; parts of the assignment. In these places, classes had to reach across many other classes to access data. It was very difficult to make this work correctly. Jeff told us there was really no good solution to the problem using pure Ruby. You either have to create a database class that ends up being a global variable, or pass information between many classes, creating high coupling. I assume that we&rsquo;re being asked to feel this pain so we will be very thankful when we&rsquo;re finally introduced to databases and/or ActiveRecord. I was really hurting for an SQL INNER JOIN.</p>
+
+<p>Here&rsquo;s an example of one of the problems we faced:</p>
+
+<p>The ItemRepository needs to have a method called most_revenue(x) that returns the top x Item instances ranked by total revenue generated. But the Item itself doesn&rsquo;t have an attribute for revenue. You have to access that through the InvoiceItem class, which must be accessed via an Invoice. Therefore, for the ItemRepository to find out the Item with the most revenue, it has to talk to the Invoice, which can then find the InvoiceItems.</p>
+
+<p>Reaching across classes like this is very difficult, and the process of figuring it out was a good lesson in following the <a href="http://devblog.avdi.org/2011/07/05/demeter-its-not-just-a-good-idea-its-the-law/">Law of Demeter</a>.</p>
+
+<p>It was really tempting to write code like this:</p>
+
+<figure class='code'><figcaption><span>ItemRepository#most_revenue(x) - Bad Implementation</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SalesEngine</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">ItemRepository</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># some code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">most_revenue</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">sum</span> <span class="o">=</span> <span class="no">BigDecimal</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">item</span><span class="o">.</span><span class="n">invoice</span><span class="o">.</span><span class="n">invoice_items</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">invoice_item</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">sum</span> <span class="o">+=</span> <span class="no">BigDecimal</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">invoice_item</span><span class="o">.</span><span class="n">total</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">result</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">sort</span><span class="o">.</span><span class="n">reverse</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># some more code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The problem with this code is that it has to iterate through all of the Items (there are 2,484 of them), and iterate through each of their Invoices, then each Invoice&rsquo;s InvoiceItems, totalling each one, to get the result. A better solution is to leave the lookups to each class, never going more than one level deep to get information. It also helps to use the Enumerable#group_by to store the total for each item in a hash for a faster lookup. Here&rsquo;s what that looks like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="p">{</span><span class="mi">5243</span> <span class="o">=&gt;</span> <span class="c1">#&lt;Merchant 1&gt;, 1523 =&gt; #&lt;Merchant 2&gt;, etc...}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can then easily lookup the Merchant with the greatest revenue.
+Here was my eventual solution to this problem, using #group_by:</p>
+
+<figure class='code'><figcaption><span>ItemRepository#most_revenue(x) - Better Implementation</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SalesEngine</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">ItemRepository</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># some code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">most_revenue</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">sorted_totals</span> <span class="o">=</span> <span class="n">items_grouped_by_revenue</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">sort</span><span class="o">.</span><span class="n">reverse</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">most_revenue</span> <span class="o">=</span> <span class="n">sorted_totals</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">total</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">items_grouped_by_revenue</span><span class="o">[</span><span class="n">total</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">most_revenue</span><span class="o">.</span><span class="n">flatten</span><span class="o">[</span><span class="mi">0</span><span class="p">,</span><span class="n">x</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">items_grouped_by_revenue</span>
+</span><span class='line'>    <span class="n">items</span><span class="o">.</span><span class="n">group_by</span> <span class="p">{</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span> <span class="n">item</span><span class="o">.</span><span class="n">revenue</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># some more code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">SalesEngine</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">Item</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># some code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">revenue</span>
+</span><span class='line'>    <span class="n">total_up</span><span class="p">(</span><span class="n">successful_invoice_items</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">total_up</span><span class="p">(</span><span class="n">invoice_items</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">sum</span> <span class="o">=</span> <span class="n">invoice_items</span><span class="o">.</span><span class="n">collect</span> <span class="p">{</span> <span class="o">|</span><span class="n">invoice_item</span><span class="o">|</span> <span class="n">invoice_item</span><span class="o">.</span><span class="n">total</span> <span class="p">}</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="ss">:+</span><span class="p">)</span>
+</span><span class='line'>    <span class="no">BigDecimal</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">sum</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># some code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Pairing</h2>
+
+<p>SalesEngine was meant to be a pairing project. I started off pairing with my classmate Louisa Barrett. Things started off well. We created a skeleton of the project, then split up the work of building the basic classes. We did the same with the tests, the repositories and the repository tests. But when it came time to implement searching and business intelligence methods, Louisa started having trouble. She said she &ldquo;hit a wall&rdquo;. At this point, she paired with another classmate who was feeling the same way, and I went on by myself.</p>
+
+<p>I think the difference between us was that she is a novice and I&rsquo;m an advanced beginner, labels from Andy Hunt’s <a href="http://pragprog.com/book/ahptl/pragmatic-thinking-and-learning">Pragmatic Thinking &amp; Learning</a>. Our teacher, Katrina Owen, recently explored how these levels of learning are playing out at gSchool on the <a href="http://jumpstartlab.com/news/archives/2013/10/03/pragmatic-learning-at-gschool-part-i">Jumpstart Lab blog</a>.</p>
+
+<p>I don&rsquo;t mind working alone. I do well with challenges on my own. It&rsquo;s also easier when you don&rsquo;t have to compromise your ideas of what should come next. But sometimes, I did feel a little jealous of some of my advanced beginner classmates that were paired together. It looked like they were learning a lot from each other. Hopefully, I&rsquo;ll get to pair with someone on the next project.</p>
+
+<h2>The Rebuild</h2>
+
+<p>The day before the project was due, I was starting to hit a wall. I&rsquo;d finished implementing all the features, so I ran the spec harness. There were over thirty failures. Franklin looked at my code and rewrote huge chunks of it. I started to lose confidence in my archtecture.</p>
+
+<p>At 6:00 the night before it was due, I decided to tear it down and rebuild. It actually went pretty quickly, now that I knew what everything would look like. I built up all the classes and repos again. I recreated the SalesEngine class and the Database. I was practicing TDD with MiniTest all the way. I ran the spec with the business intelligence tests commented out. Everything passed, except a few places where I had typos. I fixed them, and everything in my tests and the spec was green.</p>
+
+<p>My next step was to take all of the specs for business intelligence, and rewrite them as an integration test in Minitest. I rewrote all the tests and skipped them, then started passing them one at a time. But there was a problem. It was running <em>really</em> slow, because it was loading up all six CSV files before each test (in the setup method). I wanted a way to do &ldquo;before all&rdquo; like you can in Rspec, but was having trouble finding it. Finally I found a hack online using class variables. Katrina says there&rsquo;s a better way, that she&rsquo;ll show me soon. In the meantime, here&rsquo;s what I did:</p>
+
+<figure class='code'><figcaption><span>Integration Test - &#8220;Before All&#8221; Hack</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="s1">&#39;minitest&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/autorun&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/pride&#39;</span>
+</span><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;../../lib/sales_engine.rb&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">BusinessIntelligenceTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">before_suite</span>
+</span><span class='line'>    <span class="no">SalesEngine</span><span class="o">::</span><span class="no">Database</span><span class="o">.</span><span class="n">startup</span><span class="p">(</span><span class="s1">&#39;./data&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="vc">@@database</span> <span class="o">=</span> <span class="no">SalesEngine</span><span class="o">::</span><span class="no">Database</span>
+</span><span class='line'>    <span class="vc">@@customer_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">customer_repository</span>
+</span><span class='line'>    <span class="vc">@@invoice_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">invoice_repository</span>
+</span><span class='line'>    <span class="vc">@@invoice_item_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">invoice_item_repository</span>
+</span><span class='line'>    <span class="vc">@@item_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">item_repository</span>
+</span><span class='line'>    <span class="vc">@@merchant_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">merchant_repository</span>
+</span><span class='line'>    <span class="vc">@@transaction_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">transaction_repository</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">before_suite</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_the_customer_transactions_method_successfully_returns_transactions</span>
+</span><span class='line'>    <span class="n">customer</span> <span class="o">=</span> <span class="vc">@@customer_repository</span><span class="o">.</span><span class="n">find_by_id</span> <span class="mi">2</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">1</span><span class="p">,</span> <span class="n">customer</span><span class="o">.</span><span class="n">transactions</span><span class="o">.</span><span class="n">length</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="no">SalesEngine</span><span class="o">::</span><span class="no">Transaction</span><span class="p">,</span> <span class="n">customer</span><span class="o">.</span><span class="n">transactions</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">class</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_the_customer_favorite_merchant_method_successfully_returns_a_merchant</span>
+</span><span class='line'>    <span class="n">skip</span>
+</span><span class='line'>    <span class="n">customer</span> <span class="o">=</span> <span class="vc">@@customer_repository</span><span class="o">.</span><span class="n">find_by_id</span> <span class="mi">2</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="s2">&quot;Shields, Hirthe and Smith&quot;</span><span class="p">,</span> <span class="n">customer</span><span class="o">.</span><span class="n">favorite_merchant</span><span class="o">.</span><span class="n">name</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># many tests omitted</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This approach really paid off. I passed all of the spec tests one at a time, before finally unleashing the spec on it. In the end, there were still two tests failing. One of them was a problem with the spec itself. The other I haven&rsquo;t solved yet, but will in the next couple of days.</p>
+
+<p>In the end, I rebuilt the whole project between 6PM and noon the following day. I think it was a really great exercise to start over. I understood everything I was doing the second time through, and did it without reaching through the classes. One thing I really appreciated was that if you&rsquo;re going to run a spec harness, you might as well write your app around it from the start.</p>
+
+<p>In all, the second time around went quickly because I knew what I was building. I also solidified a lot of the things I&rsquo;d learned by repeating them. I&rsquo;m glad that I did it.</p>
+
+<h2>gSchool Progress</h2>
+
+<p>We&rsquo;re now four weeks into the program at gSchool. I&rsquo;ve mastered more than I would have predicted. Well, maybe not quite &lsquo;mastered&rsquo;. I do feel like I have a firm grasp of some things in Ruby: control flow, collections, classes, methods, and where to find help. Other things I understand, and can use somewhat, but don&rsquo;t have full mastery of: enumerables, procs, lambdas, and throwing exceptions.</p>
+
+<h2>The Future</h2>
+
+<p>In five months, I believe I&rsquo;ll feel fully confident in Ruby skills. I&rsquo;m really looking forward to digging into Rack, Sinatra, Rails, APIs, and front end skills in the coming weeks. Using Ruby in the context of building web apps is going to awesome. Also, now that I understand how programming languages work, I&rsquo;ll probably sample some other languages. Ruby is my focus right now, but I can definitely see myself dipping my toes into Javascript, Go, Python, and maybe some C down the line.</p>
+
+<p>When gSchool is over, I&rsquo;m most interested in getting a job for a consultancy. At this point in my development, I have my eyes on companies like Thoughtbot and Pivotal Labs, where the pursuit of programming as a discipline is a central tenet of the company culture. I&rsquo;m curious to see if my ideas about where I would fit in the industry will change as I learn more about it between now and March.</p>
+
+<h2>My Learning Style</h2>
+
+<p>So far in this program, I&rsquo;ve spent a lot of time learning on my own. Twice in a row, I&rsquo;ve lost my pair halfway through a project (was it something I said?). But that doesn&rsquo;t bother me. After college, I made it a point to keep teaching myself, so I&rsquo;ve also become quite adept at self-directed learning. Some of the stragies I use that have been working well at gSchool include: sketching out the big picture before digging in on a project, using the Ruby documentation extensively, asking for help from teachers or advanced classmates when I need it, and watching my Twitter feed/trolling the web for interesting GitHub repos, screencasts, and tutorials that will improve my understanding and workflow.</p>
+
+<p>The community in gSchool is really awesome; I feel like I&rsquo;m really in my element here. I got a little taste of pairing with Rolen Le early on, but haven&rsquo;t had many other chances to screenshare since then. I&rsquo;d really like to do it more in the future. I&rsquo;ll bet that watching and hearing someone else think through problems will help me see approaches I wouldn&rsquo;t have come up with on my own. Eventually, I hope I have a chance to screenshare with all of my classmates, especially those that have more experience than me.</p>
+
+<p>One thing that has been sometimes difficult are full class sessions covering a fairly basics topic that I already feel comfortable with. In these cases, I&rsquo;ve found it hard to maintain focus. I feel that I would probably get more out of splitting off from the class and researching topics on my own during these sessions.</p>
+
+<h2>Wrap-up</h2>
+
+<p>Now that SalesEngine has been turned in, it will be tempting to move on to the next thing and not look back. However, after doing the rebuild, I still have a couple of tests failing, and I want them green. The spec is still taking me a really long time to run, so I want to finish implementing the faster hash lookups that Franklin Webber showed us in the code review (see the code example above). I&rsquo;ll also probably run Cane and Reek to double check that my code is well-formatted. As I was telling another student, a project is never really &lsquo;done&rsquo;. There are always more things that could be done to improve or extend it. After tying up these loose ends, I&rsquo;ll probably move on to the next project. Bootcamp is fast paced. But I&rsquo;ll also be interested to go back and read my code five months from now.</p>
+
+<p>In Katrina&rsquo;s blog post, she described the first few tutorials that we did as a &ldquo;guided tour of the universe&rdquo;. SalesEngine was our chance to find out how to pull all of the stars and planets together to create a galaxy. I felt like I was stretched in a <em>really</em> good way in this project, having to put all of the abstractions of pure Ruby together into something that made sense. If I look through the table of contents of Eloquent Ruby, I feel like I understand what all of the expressions, objects, and classes <em>are</em>. Many of them are tools I feel ready to use at any time, others I have at least touched. Now that I have seen each structure used in context, it has a much deeper meaning. Thanks to this project, the universe that is Ruby language makes a lot more sense to me.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/03/the-history-of-programming-in-the-life-of-russ-lewis/">The History of Programming in the Life of Russ Lewis</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-03T20:35:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><img class="right" src="http://s10.postimg.org/4iwbju155/SAGE_console.jpg" title="SAGE Console" alt="A computer from 1955"></p>
+
+<p>My full name is Russell Benjamin Buller Lewis. I&rsquo;m the fourth of the Russell Lewises. I&rsquo;m the first son of the first son of the first son, and we&rsquo;re all named Russell Lewis. Russell II, Russell III and I are all computer programmers. A couple of days ago I asked my grandpa about the early days, and here&rsquo;s what he sent me. I think it&rsquo;s a fascinating history of computers told from one man&rsquo;s perspective, so I thought I would share it.</p>
+
+<p>I highly recommend checking out the links. If you&rsquo;re interested in old computers, check out the <a href="http://oldcomputers.net/">Obsolete Technology Website</a>, and definitely click on &ldquo;view all 100 old computers&rdquo;. Also, I just had had to share this photo of the SAGE console. It had a light gun (think Nintendo NES Zapper), cigarette lighter, and ashtray!</p>
+
+<p>::::::::</p>
+
+<p>Hi Ben,</p>
+
+<p>I&rsquo;m glad you&rsquo;re enjoying your programming. I&rsquo;ve always found it fascinating. You come from a long line of programmers, so I&rsquo;m not surprised you&rsquo;re having fun. To answer your question: we&rsquo;ll talk more about this when you&rsquo;re here, but I need to think for a while to remember what all happened, so I&rsquo;ll try to refresh my own memory:</p>
+
+<p>When I was a first lieutenant, and operations officer at the radar site at Rapid City, SD, in 1955, I was sent to RAND Corporation at Santa Monica for a couple weeks to be the boss of a control team that was a guinea pig team for the people who were developing the <a href="http://en.wikipedia.org/wiki/Semi-Automatic_Ground_Environment">Semi-Automatic Ground Environment System (SAGE)</a>. SAGE used huge first-generation computers to gather data from all the radar sites in a NORAD region and display the results in a single place. RAND was building a system to simulate bomber raids for SAGE training. I became very interested in computers during that couple of weeks. The place was fascinating. <a href="http://en.wikipedia.org/wiki/John_von_Neumann">John von Neuman</a> was hanging out at RAND, and in the RAND bookstore you could buy a copy of his book on game theory for peanuts.</p>
+
+<p>I didn&rsquo;t get back into computers until 1965, after I came back from Vietnam and went to NORAD headquarters. I was in Operations Plans, and we were dealing with the specifications for the second generation of computers for Cheyenne Mountain. I had a lot of years experience with radar operations by then, and I&rsquo;d spent a lot of time reading about computers. I ended up being the guy who could interpret between the operations staff and the data processing staff. Along the way, I, and a close Canadian friend got sent to IBM at San Jose to learn about the IBM 360, which was the first computer that could multi-task. I got introduced to IBM&rsquo;s <a href="http://whatis.techtarget.com/definition/PL-I">PL/1</a>, a programming language that was about halfway between FORTRAN and COBOL, and learned to do a little programming in it.</p>
+
+<p>One of the problems NORAD had was the survivability of reports on operational status during a nuclear attack. They were depending on telephone calls and teletype messages through communications that might cease to exist at the very start of an attack. I suggested we try to build a system that could store and forward reports from the field, so that if one communications node found that the node it was trying to reach was out, it could send the report through a different route. Sound like the internet? Exactly. But that was long before anybody had thought of an internet.</p>
+
+<p>So I came up with a way to encode status reports in a very abbreviated code that could be interfaced with the Cheyenne Mountain computer system. We still depended on 100 baud teletypes, paper tape punches and readers, and punch cards, so I learned to work a keypunch &ndash; got damn good at it too. I had a room with a keypunch, card to tape converters and tape to card converters we rented from IBM. I don&rsquo;t remember exactly what the problem was, but I wanted to program a card to tape converter to do something that the IBM salesman researched for me and reported was impossible. I figured out a way to do it, and not long after that I got a job offer from IBM. But after two wars I didn&rsquo;t want to give up my retirement, so I turned them down.</p>
+
+<p>While all this was going on, a couple of us were traveling to various companies that were developing small computers for the government, looking for the kind of computers we could use as nodes in a survivable store-and-forward system. We finally found a small computer that a company had developed for the marines. It didn&rsquo;t quite fit the job the marines wanted it to do, so they&rsquo;d turned it down, but it fit our needs quite well. With that system we could convert data from the SAGE computers to tones with a modulator, and convert it back to digital pulses at the NORAD end with a demodulator. Sound familiar? That idea is where the word &ldquo;modem&rdquo; came from. When people first started working with the internet, they used to have a modem plugged into their phones. When you wanted to get on line you first dialed your service&rsquo;s modem. When you heard modem tones you put your handset into your modem and got back on your computer. Modems are long gone. What you hook your computer up to nowadays doesn&rsquo;t modulate or demodulate. That box is a digital bridge. But we still call it a modem.</p>
+
+<p>Anyhow, I finally wrote up the whole proposal. It went up the chain of command and got sent to some civilian contractors for evaluation. It came back approved, but it never got funded. That was in the middle sixties. Not long after that <a href="http://personalpages.manchester.ac.uk/staff/m.dodge/cybergeography/atlas/historical.html">ARPANET</a> appeared, and I&rsquo;ll always wonder if my OPSTAR (operational status and reporting system) gave the guys at Lincoln Labs some of their ideas. Packet switching is the heart of ARPANET and the internet, and my system didn&rsquo;t include packet switching. It depended on short bursts of encoded data. But the idea of nodal networking is the same.</p>
+
+<p>I didn&rsquo;t start writing code for real until after I retired in 1977. A couple months after I got home, Radio Shack came out with the <a href="http://oldcomputers.net/trs80i.html">TRS-80 Model 1</a>. I bought one that had 16k of 8-bit memory, and, a couple months later upgraded it to 32k. I learned BASIC, which was interpreted, and pretty slow. TRSDOS, which was Radio Shack&rsquo;s operating system was really crappy, but an outfit outside Denver called Apparat came up with NEWDOS/80, which was a lot better. But even on NEWDOS/80, interpreted BASIC was too slow for some things, so I learned <a href="http://sgate.emt.bme.hu/patai/publications/z80guide/">Z80</a> assembly language. That was a toughie because there weren&rsquo;t any books on the subject. All I had was a set of specifications that more or less told what various commands did. The biggest thing I built in BASIC was a system for a local business broker that handled businesses for sale all over the country. The system I built for them would compare prospective buyers with available businesses once a month. For each match it would print out a letter to the business telling them about the buyer, and a letter to the buyer, which would be attached to a brochure on the business. Much later on I converted this system to C, and then, when Windows came out, to VB. In the end I even set up the buyer side so the system spit out a .PDF brochure on the business and saved Andy, the owner of the company, the price of printing all those brochures. He was able to sell the printing shop he&rsquo;d bought to print them.</p>
+
+<p>Finally, once the IBM PC came out, Microsoft got rolling and came up with a good FORTRAN. So I learned that and did some pretty extensive programming in it. A little later Microsoft came out with COBOL. I got that and learned it. I don&rsquo;t remember how I came into contact with the guy &ndash; don&rsquo;t remember his name &ndash; who owned the school that later became Colorado Tech. He asked me to write a billing system for the school, and asked if Dr. John Zingg, the guy in charge of the computer science department could help out. Turns out John was a retired lieutenant colonel who&rsquo;d set up the computer science department at the AF Academy. I built the billing system in COBOL, and got conned by John into going back to school for a while. I had to take beginning computer science, which was a bit ridiculous since the instructor would ask me questions instead of the other way around. They had a programming language called Karl the Robot. You had to make Karl move around in a maze and pick up things, and Karl could only turn left. The language was a variant of Pascal, which I&rsquo;d had some experience with, so one day I wrote a universal solution. With my solution I could just turn Karl loose and he&rsquo;d sweep the maze and find anything. I found out later that a couple instructors had secretly broken into my account to find out how I did that. Actually, it was pretty simple.</p>
+
+<p>A little before I got involved in the school thing I bought a copy of <a href="http://www.amazon.com/C-Programming-Language-2nd-Edition/dp/0131103628">The C Programming Language by Brian Kernighan and Dennis Ritchie</a>. <a href="http://en.wikipedia.org/wiki/Dennis_Ritchie">Richie</a> had been the inventor of C, and Kernighan was a very fine computer scientist and tech writer who&rsquo;d been in on the development of Unix and C along with Richie and <a href="http://en.wikipedia.org/wiki/Ken_Thompson">Ken Thompson</a>, who was the real inventor of Unix (Ben&rsquo;s Comment - He also co-invented Go!). All three were at Bell Labs, which, in those days was a powerhouse in computer science. I was fascinated by C. You could build a library of functions and link them. An incredible time saver. Also, it was elegant: Since in C, strings always ended with a zero, which could be interpreted as a null, you could copy one string to another with two pointers. Where the pointer <em>p points to the string to be copied and </em>q points to the string to be filled: (while <em>p) </em>q++ = *p++;</p>
+
+<p>I got a C compiler and started doing serious work in C. After I&rsquo;d been at it a while, John asked me if I&rsquo;d teach a class in C at the school, so I did. But I was working on a revision for my business broker at the same time and taking a course in advanced calculus. I had to drop the calculus class because I was completely out of time. After I&rsquo;d finished the C class the dean asked me to come on full-time, but since the pay was peanuts I was losing too much money for each hour I put into the course instead of into commercial work. I declined reluctantly because I&rsquo;ve always loved teaching.</p>
+
+<p>The next big thing was the &ldquo;Tunes&rdquo; project. Back in the seventies two doctors and one accountant started an HMO named Peak Health. Each of them put in $10,000 and hoped to multiply their investment by 100 in ten years. Eight years later they sold the company for, if I remember correctly, 80 million. A guy named Steve Hyde was the accountant. Steve decided to start a company that would let you order a music tape with the music you wanted on it. So in the early eighties Steve hired Bill Witt, a close friend of mine and a superb computer hardware engineer to put together a room full of disk recorders, run their output through a unique analog switch designed and built by another brilliant hardware guy whose name I&rsquo;ve forgotten, and send the output to a bank of tape recorders. I was hired to build all the software. Our main machine ran Unix, and my main project was a scheduler that would take an order in digital format, pick out the tunes from the disks and send them to the appropriate recorder. I built it on the same principle the Unix scheduler is built on, though I&rsquo;ve now forgotten the details. Technically, the whole thing was a huge success, but the marketing was a fiasco, so it went under.</p>
+
+<p>Toward the end of the Tunes thing I got really interested in C++ and learned it. Object-oriented programming was a revelation, and, obviously the only way programming was going to be able to keep up with future developments. After Tunes crumped, Bill Witt got a job at Cirrus Logic&rsquo;s R&amp;D branch, which, in those days, was in Broomfield. Cirrus was building a new disk drive that could be programmed in firmware by the vendor. They needed a graphical interface for the programming steps &ndash; this was still in DOS days &ndash; shortly before Windows came out. Bill suggested they hire me to do the interface. I did it in C++. That was a lot of fun and turned out to be quite successful. Then they decided their own programmers needed to learn C++, so they hired me to teach a class in it. I drove up there twice a week for about four weeks and taught the class &ndash; about two hours for each session.</p>
+
+<p>While that was still going on, Windows was becoming the new big thing. So I switched to Visual Basic, since it was the only reasonable way to program Windows. I re-built the business broker&rsquo;s stuff in it, and wrote a lot of shareware in between that and other little jobs I took on &ndash; like one for the guy who had a plan for handicapping horses and wanted it automated. Some of the shareware is still being used, and I get emails from people using my general ledger when they change computers.</p>
+
+<p>Finally, your uncle Tom was going to have to hire a new person just to do the paperwork for new reporting requirements the state came up with in connection with contamination remediation. He told me about it and I suggested we automate the reporting. That&rsquo;s a long story, but I built a system that saved him from hiring the extra person. I sold a few copies to other engineers in the state doing the same kind of work, but finally the state got interested in the software and I sold the whole package to them.</p>
+
+<p>That&rsquo;d be the end of the story except that recently I decided I wanted to rebuild a web site analyzer I&rsquo;d built for one of my webs in VB6. You can&rsquo;t run VB6 on Windows 7, though I could have run it on the XP emulator on Windows 7 Ultimate, which is what I have. So I downloaded Microsoft&rsquo;s free Visual Studio Express 2012 and learned C#. I&rsquo;d tried C# five years ago but never got serious about it. Now I&rsquo;m serious about it. It&rsquo;s really just C++ on steroids, so it&rsquo;s not hard for me to learn. So I now have a new web analyzer that&rsquo;s much more flexible and infinitely faster than the VB version.</p>
+
+<p>Sorry to go on and on, but I realized I needed to get all this straight in my own head before I could talk about it.</p>
+
+<p>Love you,</p>
+
+<p>Grandpa.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/28/my-first-ruby-conference-rocky-mountain-ruby-2013/">My First Ruby Conference - Rocky Mountain Ruby 2013</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-28T20:29:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This week, my classmates and I attended our first Ruby conference. On Thursday and Friday, we headed up to Boulder for Rocky Mountain Ruby (RMR). I didn&rsquo;t have any particular expectations of what it would be like going in. I&rsquo;ve been to a few horticulture and education industry conferences, so I imagined it would be similar to those. In the end, it was. There were vendors trying to get my attention (with free t-shirts!), industry speakers, and a family reunion vibe.</p>
+
+<p>Being in the Boulder theater, RMR was basically all about the speakers. Since there was just one stage, and all seats faced it, each talk received the full attention of the audience. Or at least that portion of the audience that wasn&rsquo;t doing something else on their laptops. I&rsquo;d been warned against the open laptop faux pas by my teachers before we went. So I was somewhat shocked that such a huge portion of the audience was busy (coding? checking fantasy football?) on their computers. Yet, at the same time, it&rsquo;s not that shocking to me as a newcomer. Hello? It&rsquo;s a computer nerd conference, what did you expect? I&rsquo;d also read Ben Orenstein&rsquo;s comments on this probelm a couple of times on his <a href="http://www.codulate.com">Codulate blog</a>. His latest article (Aug 17, 2013), points the finger at 40-minute conference talks as being too long. He concludes:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>...For every speaker I’ve seen who can pull it off [keeping the audience's attention
+</span><span class='line'>through a 40 minute conference talk], I’ve watched twenty more slowly lose the room to Twitter, Hacker News, and the irresistable appeal of unread emails.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It&rsquo;s an interesting follow-up to this <a href="http://codeulate.com/2012/06/close-your-fucking-laptop/">earlier post</a>, where he berates the community for not shutting their laptops when watching a speaker, but then goes on to say he opens his own laptop when a speaker is ill-prepared to entertain or inform. After commenters disagree with this point of view, he posts an update saying that he&rsquo;s changed his tune; he now thinks it&rsquo;s better to &ldquo;vote with his feet&rdquo; and leave bad talks.</p>
+
+<p>As for me, I definitely saw a share of poorly prepared talks at RMR. I tried to abide by the closed laptop rule, but it being a theater where there is only one speaker, it&rsquo;s not really possible to vote with your feet. I did spend some time with my computer open, mostly up in the balcony. I was far from alone, but I still felt somewhat guilty.</p>
+
+<p>However, there were some excellent talks, during which my Apple was decidedly closed. One of my favorites was given by <a href="https://twitter.com/adelcambre">Andy Delcambre</a> of GitHub. He walked the audience through the lower levels of a web server, from the kernel up to http requests. He wrote a <a href="https://gist.github.com/adelcambre/6717561">23 line web server</a> based on the concepts he showed us, and proved that it worked in his browser. This talk really filled in some gaps for me about what happens on the lower levels of the server when you request a webpage. The kernel interacts with sockets, first creating them and giving them an address. It then binds to them and begins listening. A client request comes in, the server reads the request, finds the file being asked for, and serves it back by writing it to the socket. Finally, the socket is closed. I also found it interesting that the sockets could be accessed with basic Linux shell commands. It makes a lot of sense to me, and takes some of the mystery out of how web requests work.</p>
+
+<p>Another great talk was given by my teacher <a href="https://twitter.com/kytrinyx">Katrina Owen</a>. She covered game theory as it applies to developer competition and cooperation. Basically, game research shows it&rsquo;s in our best interests to cooperate with each other as much as possible. If someone is uncooperative, we &ldquo;punish&rdquo; them by being uncooperative back, but if they apologize, we forgive immediately and go back to cooperating. At least, that&rsquo;s how it worked for the machines competing in a <a href="http://en.wikipedia.org/wiki/Prisoner's_dilemma">Prisoner&rsquo;s Dilemma</a> contest. It was a cool way to think about being a programmer, and a nice change of pace from the many technical talks covering the code itself.</p>
+
+<p>Finally, I would be remiss if I didn&rsquo;t mention my teacher Jeff Casimir&rsquo;s plans to create a new bootcamp. In a three minute lightning talk, he unveiled Jumpstart Lab&rsquo;s intention to launch &ldquo;Turing&rdquo;, a new school in Denver that will turn out 112 devs per year. He and his company are splitting off from the Galvanize community, so my class will be the last gSchool class taught by Jumpstart. Talking with him later at Illegal Pete&rsquo;s, he said that the new program would have four six-week classes in it, with a break between each class. Students who felt that they didn&rsquo;t master one of the sessions will be able to retake it. They&rsquo;re currently looking for funding, and their main focus remains on seeing my gSchool class&rsquo;s session through to the end.</p>
+
+<p>Aside from the talks, I also enjoyed a lunchtime conversation with <a href="https://twitter.com/sgrif">Sean Griffin</a> and <a href="https://twitter.com/christoomey">Chris Toomey</a> of Thoughtbot about the differences between Ruby, Python, and PHP, and what&rsquo;s coming in Ruby 2.1. Later, I caught up with them at the Pivotal Labs cocktail hour, where they were discussing the advantages of Vim over RubyMine with one of the conference speakers. These guys are super smart, and I totally have an intellectual crush on their uber-nerdiness, as well as that of Thoughtbot in general.</p>
+
+<p>Another nice conversation at the Pivotal party was with my classmate <a href="http://immense-citadel-7163.herokuapp.com/">Brian Winterling</a> and an iTriage employee whose name I&rsquo;ve forgotten. He&rsquo;d gone through Dev Bootcamp in San Fransico while his family stayed in Colorado. In the end, it was worth it to him, because he wakes up every day excited to go to work. He also had some unique advice. While most people tell me things like &ldquo;make sure to write tests&rdquo;, his advice was: &ldquo;work on your soft skills&rdquo;. In his mind, companies in this industry hire you because they think you have a good personality to work with, more than because you&rsquo;re a strong coder. It was refreshing advice, and I took it seriously, coming from a fellow bootcamper.</p>
+
+<p>In all, RMR was a great experience for me. Although it was hard to be in a dark theater all day when it was so beautiful outside (I admit to taking a nap on the grass one afternoon), and some of the talks were clearly ill-prepared, it was a great event to attend at this stage in my coding journey. It gave me an opportunity to meet people in the Ruby industry, listen to their advice, and get a feel for what it is that makes this community so special. This is what I found out: Ruby people <em>want</em> to work together collaboritavely, and to write code that will make our lives better. They <em>want</em> to work with coworkers who will communicate and treat them respectfully. And they want free t-shirts!</p>
+
+<p>Thanks to everyone I met at RMR. I&rsquo;m sure we&rsquo;ll meet again soon!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/20/eventreporter-retrospective/">EventReporter Retrospective</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-20T09:03:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>The first couple weeks of gSchool basically consisted of: our teachers (Jeff, Katrina, Franklin, and Jorge) throwing us into the deep end and watching to see if we would sink or swim. Within the first seven days of class, we were assigned the following tutorials: Ruby in 100 Minutes, EventManager, MicroBlogger, Encryptor, <a href="http://tutorials.jumpstartlab.com/academy/workshops/testing_event_manager.html">TDD With Minitest and EventManager</a>, and <a href="https://github.com/JumpstartLab/enums-exercises.git">EnumsExercises</a>.</p>
+
+<p>Then they dropped the real bomb.</p>
+
+<p><a href="http://tutorials.jumpstartlab.com/projects/event_reporter.html">EventReporter</a>. In this project, you &ldquo;build an interactive query and reporting tool&rdquo; that inspects CSV files. After loading a file, it lets the user search through the data to find entries by attributes like name, phone number, and address. <a href="git@github.com:fluxusfrequency/event_reporter.git">My version is here</a>.</p>
+
+<p>This was the first project in which we had to engineer solutions to a problem without having our hands held every step of the way. The tutorial gives some guidance, in the form of various &ldquo;paths&rdquo; with guidelines to be met. I guess this is the &ldquo;we do&rdquo; step of the guided release process (&ldquo;I do&rdquo;, &ldquo;we do&rdquo;, &ldquo;you do&rdquo;). At any rate, we found ourselves out in the wild, trying to hack out a way to victory. Each of us had to find our own process; develop a workflow to find a way out.</p>
+
+<p>I was paired with Persa for this project. The instructions said that we were each to turn in our own solution, relying on each other for support as we went. I was determined to figure out how to create a working solution, and my learning style is very independent. It seems that Persa is the same way. We didn&rsquo;t spend much time in collaboration. We troubleshot each others&#8217; problems, but only minimally. Mostly we each worked alone, with a little consultation from the teachers or other students.</p>
+
+<p>For me, the project was basically all-consuming from Tuesday morning through Thursday morning. I&rsquo;m not sure how many hours I spent on it in total, but I will say that I spent all of my time at Galvanize (about 8:00-5:00) on it each day (when I wasn&rsquo;t in class), plus about three hours on the bus each day, and a few extra hours at home on top of all that.</p>
+
+<p>My strategy was to write tests for each of the five paths from the tutorial. Here&rsquo;s the code from my &ldquo;Happy Path&rdquo; test:</p>
+
+<figure class='code'><figcaption><span>happy_path_test.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;pry&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/autorun&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/pride&#39;</span>
+</span><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;../lib/event_reporter.rb&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">HappyPathTest</span> <span class="o">&lt;</span> <span class="no">MiniTest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>  <span class="kp">attr_accessor</span> <span class="ss">:reporter</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">setup</span>
+</span><span class='line'>    <span class="vi">@reporter</span> <span class="o">=</span> <span class="no">EventReporter</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="n">reporter</span><span class="o">.</span><span class="n">process_and_execute</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_responds_to_load_filename</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="s1">&#39;Successfully loaded event_attendees.csv.&#39;</span><span class="p">,</span> <span class="n">reporter</span><span class="o">.</span><span class="n">process_and_execute</span><span class="p">(</span><span class="s2">&quot;load event_attendees.csv&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_responds_to_load_filename_nil_with_a_default_file</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="s1">&#39;Successfully loaded event_attendees.csv.&#39;</span><span class="p">,</span> <span class="n">reporter</span><span class="o">.</span><span class="n">process_and_execute</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_queue_count_defaults_to_zero</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">0</span><span class="p">,</span> <span class="n">reporter</span><span class="o">.</span><span class="n">process_and_execute</span><span class="p">(</span><span class="s2">&quot;queue count&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_responds_to_find_by_first_name</span>
+</span><span class='line'>    <span class="n">skip</span>
+</span><span class='line'>    <span class="n">reporter</span><span class="o">.</span><span class="n">process_and_execute</span><span class="p">(</span><span class="s2">&quot;find first_name John&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">63</span><span class="p">,</span> <span class="n">reporter</span><span class="o">.</span><span class="n">process_and_execute</span><span class="p">(</span><span class="s2">&quot;queue count&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_responds_to_queue_clear</span>
+</span><span class='line'>    <span class="n">skip</span>
+</span><span class='line'>    <span class="n">reporter</span><span class="o">.</span><span class="n">process_and_execute</span><span class="p">(</span><span class="s2">&quot;queue clear&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">0</span><span class="p">,</span> <span class="n">reporter</span><span class="o">.</span><span class="n">process_and_execute</span><span class="p">(</span><span class="s2">&quot;queue count&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Some code omitted for brevity...</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After writing the tests, I wrote code to make the tests pass, one at a time. I repeated this process for all five paths. By the time I was done, I had a 95% functional program. I did a few tweaks here and there, and had something that worked by Thursday morning. I did it, but it was a haul. I enjoyed reading this 10:00 PM email from Jeff on Wednesday night:</p>
+
+<figure class='code'><figcaption><span>Jeff&#8217;s Message</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>All,
+</span><span class='line'>
+</span><span class='line'>I imagine there are many of you who have been cranking on EventManager and there's likely a cadre still at Galvanize. Please stop where you are and get some sleep. We have good plans for tomorrow and don't want to lose a day to you being totally drained.
+</span><span class='line'>
+</span><span class='line'>It will be ok :)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Ha ha. Right, Jeff. <em>That&rsquo;s</em> what we&rsquo;re going to do.</p>
+
+<p>Meanwhile, class was still going on each day. Franklin did a great couple of sessions on debugging, and introduced us to <a href="http://pryrepl.org/">Pry</a>. Wow, it&rsquo;s amazing! I loved being able to stop code as it was running ro check out the value of different variables, and explore what would happen when calling different methods during runtime. It blew my mind, and <em>really</em> helped with debugging. Katrina opened my eyes to a new tool too: minitest/pride. In her words, &ldquo;pride is very important!&rdquo; I&rsquo;m very excited by colors (as you can read about in <a href="blog/2013/09/19/fun-with-terminal/">yesterday&rsquo;s post</a>), and I seriously don&rsquo;t know if I could have run the tests over and over without the rainbows to brighten my day (or night).</p>
+
+<p>Even though the project is &ldquo;done&rdquo;, I&rsquo;m still working on it. I&rsquo;m not surprised, and I&rsquo;m sure this will always be the case with my code. Most of the work I&rsquo;m doing now is based on the refactoring suggestions Franklin made during the code review I went through with Rolen, Will, Simon, Quentin, Ben H., and Nathaniel on Thursday morning.</p>
+
+<p>Things I&rsquo;m trying do to my code:</p>
+
+<ul>
+<li>Write method names clearly</li>
+<li>Shorten methods</li>
+<li>Split if/else statements into separate methods</li>
+<li>Change variable assignments into methods that return an array or hash, when appropriate</li>
+<li>Routing all the &ldquo;puts&rdquo; calls through a &ldquo;say&rdquo; method, so that I can run tests without seeing a bunch of garbage on the screen.</li>
+</ul>
+
+
+<p>After seeing my classmates&#8217; code, and listening to Franklin&rsquo;s ideas, my whole understanding of Ruby syntax and ways of approaching problems has expanded many times over. It&rsquo;s going to take a long time to integrate everything I&rsquo;ve seen this week into my coding.</p>
+
+<p>A couple of things I did that worked really well for me were:</p>
+
+<ul>
+<li>Using pomodoros to keep from getting burned out</li>
+<li>Driving feature implementation using tests</li>
+<li>Splitting collections of methods into separate classes</li>
+<li>Using namespacing</li>
+<li>Using git branches and pushing often</li>
+<li>Drinking coffee listening to music on big headphones while coding :)</li>
+</ul>
+
+
+<p>Things that didn&rsquo;t work as well:</p>
+
+<ul>
+<li>Using really big methods,</li>
+<li>Using a lot of puts statements at the end of my methods (making it hard to test)</li>
+<li>Continually switching between open windows instead of splitting them in a way that makes sense</li>
+</ul>
+
+
+<p>All in all, I had a great time with EventReporter. It was fun for me to define a large number of problems, and solve them one at a time until I&rsquo;d built something cool.</p>
+
+<p><a href="git@github.com:fluxusfrequency/event_reporter.git">Here&rsquo;s another link</a> to my current version.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/19/fun-with-terminal/">Fun With Terminal</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-19T13:41:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I love the terminal.</p>
+
+<p>When I first wanted to check out coding, the first exercises I tried were the Javascript ones on <a href="http://www.codecademy.com">Codecademy</a>. I was soon addicted. Something about them felt very familiar in a way that I couldn&rsquo;t put my finger on. I think it may have been the fixed width font. Or maybe it was just the process of interacting with a lot of plain text on the screen instead of a flashy UI (<strong>cough</strong> OS X <strong>cough</strong>). It brought me back to the old days&hellip;</p>
+
+<p>That&rsquo;s because my <a href="http://www.clintlewis.com">dad</a> is a programmer. My grandpa too. Pop brought home a 286 when I was five years old. I think he mostly uses C# these days. He&rsquo;s moved from Windows, to Sun, to some obscure stack I have no comprehension of. <em>Update - I got a message from Pop that said: &ldquo;For the record, most of my coding these days is in Java supporting Oracle ADF running in a Weblogic environment. Very corporate.&rdquo;</em> But when he was just getting started, it was all about MS-DOS. He taught me everything I needed to know; showed me all the right things to type. Commands like cd, dir, mkdir, copy, edit, help. How to search with *.*. One of my favorite programs was &ldquo;simcga&rdquo;, which simulated a cga graphics card so we could play color games on our monochrome monitor (the output was orange). I spent hours playing games like <a href="http://www.youtube.com/watch?v=xmqIZMBbMVs">Tapper</a>. Ctl + Alt + Del was a very important key combination to me. I liked to play Tetris, but I hated to make mistakes, and I thought it was easier to just restart the entire system than to try to figure out how to fix a couple of badly placed blocks. The best program was &ldquo;helpletmeout.exe&rdquo;, which directed the computer to speak the words: &ldquo;help, let me out. I&rsquo;m trapped in this computer&rdquo; through its very primative built-in speaker. I got pretty effecient at finding my way around the computer and using DOS commands.</p>
+
+<p>When Windows 3.1 was around, I still did a lot of navigating with DOS, but when Windows 95 came out, it became a lot less necessary, and a lot more inconvenient, to access. I remember being pretty bummed out about it at first. But eventually I gave in and started doing all of my file system work through Windows Explorer. It stayed that way until I switched over to Mac in college. Trading Windows XP for OS X, I found myself even further estranged from my DOS roots. Even if I had known that I could access the Unix terminal from OS X, I would have had no idea what to type.</p>
+
+<p>But when I started exploring JS on Codecademy, I got the bug again. I was having fun interacting with the computer through plain text. As I continued to teach myself on their website, and on <a href="http://www.codeschool.com">Code School</a> and <a href="http://www.teamtreehouse.com">Treehouse</a>, I found out that if I was going to build web applications, I was going to have to learn a little bit of Unix. At first it was intimidating and overwhelming.</p>
+
+<p>Where am I? What? &ldquo;ls&rdquo;? That&rsquo;s not intuitive. Where&rsquo;s &ldquo;dir&rdquo;? At least &ldquo;cd&rdquo; works. Hm, ok, now I&rsquo;m starting to get the hang of it. &ldquo;pwd&rdquo;.
+&ldquo;rm&rdquo;. &ldquo;pushd&rdquo; and &ldquo;popd&rdquo;! Now I&rsquo;m getting excited. &ldquo;chown&rdquo; and &ldquo;chmod&rdquo;! I remember kids throwing those ones around in high school when we were wannabe l33t haX0rs!</p>
+
+<p>I had to work at getting comfortable in the bash terminal. But after forcing myself to just try, I actually found myself quite at home. After working on it for several months, I started love, love, love it.</p>
+
+<p>The next logical step was to make it look really cool. So I googled around a bit, and found the <a href="http://ethanschoonover.com/solarized">Solarized</a> terminal theme. After trying it out, I burned through multiple themes before deciding that it was easier for me to see <a href="https://github.com/jperkins/IR-Black">IR-Black</a>. Next, I thought it would be cool to change the colors in my prompt too. I found <a href="http://wiki.dreamhost.com/Environment_Setup">this tutorial</a> from Dreamhost on setting up your environment. I added for this line of code to my .bash_profile to get some cool colors:</p>
+
+<figure class='code'><figcaption><span>PS1 Variable</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">export </span><span class="nv">PS1</span><span class="o">=</span><span class="s1">&#39;\[\033[1;33m\]\u\[\033[1;37m\]@\[\033[1;32m\]\h\[\033[1;37m\]:\[\033[1;31m\]\w \[\033[1;36m\]\$ \[\033[0m\]&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Looks like alphabet soup. Or number soup. While I was there, I noticed they had a cool startup graphic. I decided that I wanted a dragon. So I found some ASCII art of a dragon from Joan Stark&rsquo;s awesome Geocities (!!) <a href="http://www.geocities.com/spunk1111/">homepage</a>. Now my terminal boots with this:</p>
+
+<figure class='code'><figcaption><span>Dragon</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>                            /<span class="p">|</span>   /<span class="p">|</span>
+</span><span class='line'>                           / /  / /
+</span><span class='line'>                          <span class="p">|</span> <span class="p">|</span>  <span class="p">|</span> <span class="p">|</span>
+</span><span class='line'>                          <span class="p">;</span> /  <span class="p">;</span> /
+</span><span class='line'>            ___  __      / .<span class="se">\_</span>/ ,<span class="o">(</span>   ___
+</span><span class='line'>           /  <span class="o">{</span>.<span class="s1">&#39; {     / ;;;/ ;;;`&quot;`_.-&#39;</span>
+</span><span class='line'>        .--<span class="s1">&#39;-./ .-&#39;</span>    / <span class="p">;;;</span>/ <span class="p">;;</span><span class="s1">&#39; .-&#39;</span>
+</span><span class='line'>     _.-<span class="sb">`</span> _  <span class="sb">`</span><span class="p">;;</span><span class="se">\_</span>,   / <span class="p">;;;</span>/ .<span class="s1">&#39; ,/</span>
+</span><span class='line'><span class="s1"> ,-&quot;` ;-= g&gt;=- .; /  / ;;;/ ;&#39;</span>,<span class="p">;;|</span>
+</span><span class='line'>  <span class="se">\`</span>__/_     <span class="p">;</span> <span class="s1">&#39;;|  | ;;;/.&#39;</span>,<span class="p">;;;;</span><span class="s1">&#39;\___,</span>
+</span><span class='line'><span class="s1">_    ,=,-V-&#39;</span> __  <span class="p">;;</span>  _<span class="se">\ </span>/.<span class="p">;</span>/<span class="sb">`</span>.<span class="sb">`</span>.<span class="s1">&#39;` .,:---&#39;</span>
+</span><span class='line'><span class="sb">`</span><span class="s2">&quot;==&quot;</span>  <span class="p">|</span>_.-<span class="s1">&#39;`  7_;;  | | ;|  .&#39;</span>,<span class="p">;;;;;</span>/
+</span><span class='line'>          /_,<span class="p">;</span><span class="s1">&#39;  /  \&#39;\ `,;;;;;;|</span>
+</span><span class='line'><span class="s1">         {_,;&#39;</span>^ _<span class="se">\ </span> /<span class="p">;;</span><span class="o">)</span>.,,,,,<span class="sb">`</span><span class="s1">&#39;\</span>
+</span><span class='line'><span class="s1">        {_;;&#39;</span> ^<span class="p">|</span>   /<span class="p">;</span>/<span class="sb">`</span>.<span class="p">;;;;;;;</span>-<span class="s1">&#39;`</span>
+</span><span class='line'><span class="s1">       {_,;&#39;</span>^  _<span class="se">\ </span>//<span class="sb">`</span>.,..<span class="sb">`</span>_<span class="s1">&#39;;/</span>
+</span><span class='line'><span class="s1">      (__;;  ^  \/`.;;;;;( &#39;</span>,<span class="p">|</span>
+</span><span class='line'>      <span class="o">(</span>__,<span class="p">;</span>,^ .<span class="s1">&#39;`.;;,.`&#39;</span><span class="p">;;</span>      _.-/
+</span><span class='line'>      <span class="o">(</span>__,<span class="s1">&#39;;,/ ,;&#39;</span>.<span class="sb">`</span><span class="p">;;;</span>,._<span class="se">\ </span> _.<span class="s1">&#39;  (</span>
+</span><span class='line'><span class="s1">       (__,&#39;</span><span class="p">;|</span>/<span class="p">|;</span><span class="s1">&#39;;;.&#39;</span><span class="p">;</span>/<span class="sb">`</span> .-<span class="s1">&#39; _   /</span>
+</span><span class='line'><span class="s1">        (__,-&#39;</span><span class="p">;|;</span> <span class="p">;;;</span>. <span class="p">|</span>._  <span class="sb">`</span>//<span class="o">)</span>_/
+</span><span class='line'>         <span class="o">(</span>_/ <span class="s1">&#39;- \,&#39;</span><span class="sb">``</span><span class="se">\ </span><span class="p">|</span> <span class="sb">`</span><span class="s1">&#39;.//</span>
+</span><span class='line'><span class="s1">       .-&#39;</span> <span class="p">|</span><span class="s1">&#39;-&#39;</span> <span class="s1">&#39;-&#39;&#39;;|/ ^   &#39;</span><span class="p">;</span>
+</span><span class='line'>      /<span class="s1">&#39;-&#39;</span> <span class="p">|</span> <span class="s1">&#39;-&#39;</span> <span class="s1">&#39;-&#39;</span> <span class="p">;</span><span class="sb">`</span><span class="p">;;</span>.^   <span class="sb">`</span><span class="se">\</span>
+</span><span class='line'>     /  <span class="s1">&#39;-&#39;</span> <span class="se">\ </span> <span class="s1">&#39;-&#39;</span> <span class="s1">&#39;/\_, &#39;</span><span class="p">;</span>,  ^ <span class="se">\</span>
+</span><span class='line'>     <span class="p">|</span><span class="s1">&#39;-&#39;</span> .-<span class="s1">&#39;\-&#39;</span> <span class="s1">&#39;-&#39;</span><span class="p">|</span>  <span class="se">\_</span>,<span class="s1">&#39;;,  ^ \</span>
+</span><span class='line'><span class="s1">_ jgs \  /    &#39;</span>.<span class="s1">&#39;-&#39;</span> <span class="se">\ </span> //<span class="se">\_</span>,<span class="p">;</span> ^  <span class="p">|</span>
+</span><span class='line'>  ,_v<span class="se">\ </span>    <span class="se">\ </span><span class="p">|</span>      <span class="se">\ </span><span class="s1">&#39;-( |;/ \_ ;   |</span>
+</span><span class='line'><span class="s1">  v_\ `---_-&#39;</span> <span class="se">\ </span>     <span class="p">;</span>  / <span class="p">|;|</span>  &lt;_<span class="p">;</span> ^ <span class="p">|</span>
+</span><span class='line'>  <span class="o">(</span>.-<span class="s1">&#39;)(`` `&#39;</span>-<span class="s1">&#39;      | /  | ;`=&#39;</span><span class="p">;</span><span class="s1">&#39;  ;</span>
+</span><span class='line'><span class="s1">   v  &lt;/             ||    \ `&#39;</span><span class="sb">`</span>  ^/
+</span><span class='line'>                 <span class="o">||</span>     <span class="s1">&#39;-...-&#39;</span>
+</span><span class='line'>                 <span class="o">||</span>
+</span><span class='line'>            __  / <span class="p">|</span>_
+</span><span class='line'>          v-<span class="o">=</span>_<span class="p">;</span><span class="sb">`</span> __ <span class="sb">`</span><span class="o">)</span>
+</span><span class='line'>          v-<span class="o">(</span>_.-<span class="err">&#39;</span>  <span class="sb">`</span>v
+</span><span class='line'>             v
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once I&rsquo;d gone this far, I figured I might as well keep going with the customization. So I took another look at the prompt and found other things to add. Here are a couple of useful code bits I added: one to show which <a href="https://gist.github.com/fabiodan/1649280">git branch</a> I was working from, and one to show which <a href="http://rvm.io/workflow/prompt">ruby version</a> I was using. Here&rsquo;s what those two modifications look like in my .bash_profile:</p>
+
+<figure class='code'><figcaption><span>Git and RVM in Prompt</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># Git branch in prompt.</span>
+</span><span class='line'>parse_git_branch<span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    git branch 2&gt; /dev/null <span class="p">|</span> sed -e <span class="s1">&#39;/^[^*]/d&#39;</span> -e <span class="s1">&#39;s/* \(.*\)/ (\1)/&#39;</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">#Display ruby version with rvm.</span>
+</span><span class='line'><span class="nv">PS1</span><span class="o">=</span><span class="s2">&quot;\$(~/.rvm/bin/rvm-prompt) $PS1&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After I did all of that, I had to update my PS1 variable a little more:</p>
+
+<figure class='code'><figcaption><span>PS1 Variable</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">export </span><span class="nv">PS1</span><span class="o">=</span><span class="s2">&quot;\[\033[33;1m\]\W\[\033[32m\]\$(parse_git_branch)\[\033[00m\] $ &quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After all of these modifications, here&rsquo;s what my startup screen looks like:</p>
+
+<p><img src="http://s16.postimg.org/y2dy0ulxx/terminal_screenshot.png" title="Terminal Screenshot" alt="An image of my terminal screen"></p>
+
+<p><strong><em>UPDATE</em></strong></p>
+
+<p>After writing this blog post, I just had my mind blown by my classmates Nathaniel Watts, Rolen Le, and Quentin Tai. They showed me a whole slew of new terminal concepts that completely melted my brain.</p>
+
+<p>On the menu:</p>
+
+<ul>
+<li>Using <a href="http://www.iterm2.com/#/section/home">iTerm</a> instead of the Terminal utility that ships with OS X. Apparently it is much better maintained.</li>
+<li>Learning to use Vim. I&rsquo;m excited to see that fuzzy search and syntax highlighting are easy to get working. I just ran vimtutor from the terminal to get started. Now I know about 0.5% of what there is to know about Vim.</li>
+<li>Learning to use <a href="http://robots.thoughtbot.com/post/2641409235/a-tmux-crash-course">Tmux</a>. Holy crap this looks great for screen sharing.</li>
+<li>Using <a href="https://github.com/guard/guard">Guard</a> to listen for changes as I try to make tests pass.</li>
+<li>Splitting the screen to have vim editing your code on the left, while guard is running in another pane on the right.</li>
+</ul>
+
+
+<p>Combining all of these concepts is ridiculously powerful. It means you can have all of your projects open concurrently in separate tmux sessions, with the code open in Vim and Guard listening for changes on each one. To resume work on a project, all you have to do is open the terminal and resume the tmux session for that project.</p>
+
+<p>Sound confusing? I agree! But I&rsquo;m excited to see the power that&rsquo;s available if I take the time to learn how to use it. Who would have realized that simple text applications could do so much? Regardless of the work involved, one thing is for sure. I am even more in love with the terminal than I was before!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/17/learning-tdd/">Learning TDD</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-17T06:01:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>We&rsquo;re now into the second week of gSchool. It has been an intense six days thus far. The Jumpstart Lab crew has really thrown us into the deep end, expecting us to have completed five tutorials already. One more, <a href="http://tutorials.jumpstartlab.com/projects/event_reporter.html">EventReporter</a>, is due at the beginning of day nine.</p>
+
+<p>What we&rsquo;ve already done:</p>
+
+<ul>
+<li><a href="http://tutorials.jumpstartlab.com/projects/ruby_in_100_minutes.html">Ruby In 100 Minutes</a></li>
+<li><a href="http://tutorials.jumpstartlab.com/projects/eventmanager.html">EventManager</a></li>
+<li><a href="http://tutorials.jumpstartlab.com/projects/encryptor.html">Encryptor</a></li>
+<li><a href="http://tutorials.jumpstartlab.com/projects/microblogger.html">MicroBlogger</a></li>
+<li><a href="http://tutorials.jumpstartlab.com/academy/workshops/testing_event_manager.html">TDD With MiniTest And EventManager</a></li>
+</ul>
+
+
+<p>This last tutorial was yesterday&rsquo;s project. I was really excited to get into writing some tests. We talked about testing in class, and the consensus was that Test Driven Development did lots of good things for programmers. Some of the students&#8217; explanations of testing included: it helps make sure the application is working, it helps guide the developer to the next features that need to be implemented, it describes the application. I am excited to start including it in my workflow, because all of the error-driven clicking and typing I&rsquo;ve been doing up until now is getting really old.</p>
+
+<p>Before bootcamp started, I worked through all of these tutorials on my own, and wrote <a href="https://github.com/fluxusfrequency/treebook.git">my own copy</a> of the Treebook tutorial on <a href="http://www.teamtreehouse.com">Treehouse</a> as well. While completing Treebook, Jason Siefer walks you through a lot of TDD, first using MiniTest, and later Rspec and the Shoulda gem. Now that I&rsquo;m digging into testing without the support of a tutorial, I&rsquo;m trying to decide which syntax I like best for testing. Although it is the simplest, I&rsquo;m not a huge fan of code like this:</p>
+
+<figure class='code'><figcaption><span>EventReporter MiniTest</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/autorun&#39;</span>
+</span><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;../lib/event_reporter.rb&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">HappyPathTest</span> <span class="o">&lt;</span> <span class="no">MiniTest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>  <span class="kp">attr_accessor</span> <span class="ss">:reporter</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">setup</span>
+</span><span class='line'>    <span class="vi">@reporter</span> <span class="o">=</span> <span class="no">EventReporter</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_queue_count_defaults_to_zero</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">0</span><span class="p">,</span> <span class="n">reporter</span><span class="o">.</span><span class="n">queue_count</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_responds_to_find_by_first_name</span>
+</span><span class='line'>    <span class="n">reporter</span><span class="o">.</span><span class="n">find_by</span><span class="p">(</span><span class="ss">:first_name</span><span class="p">,</span> <span class="s2">&quot;John&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">63</span><span class="p">,</span> <span class="n">reporter</span><span class="o">.</span><span class="n">queue_count</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The syntax is just ugly, to me. I prefer this Rspec code I wrote for Treebook:</p>
+
+<figure class='code'><figcaption><span>Treebook Friendship Decorator Test</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;test_helper&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">UserFriendshipDecoratorTest</span> <span class="o">&lt;</span> <span class="no">Draper</span><span class="o">::</span><span class="no">TestCase</span>
+</span><span class='line'>  <span class="n">context</span> <span class="s2">&quot;#sub_message&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">setup</span> <span class="k">do</span>
+</span><span class='line'>      <span class="vi">@friend</span> <span class="o">=</span> <span class="n">create</span><span class="p">(</span><span class="ss">:user</span><span class="p">,</span> <span class="ss">first_name</span><span class="p">:</span> <span class="s1">&#39;Fred&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">context</span> <span class="s2">&quot;with a pending user friendship&quot;</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">setup</span> <span class="k">do</span>
+</span><span class='line'>        <span class="vi">@user_friendship</span> <span class="o">=</span> <span class="n">create</span><span class="p">(</span><span class="ss">:pending_user_friendship</span><span class="p">,</span> <span class="ss">friend</span><span class="p">:</span> <span class="vi">@friend</span><span class="p">)</span>
+</span><span class='line'>        <span class="vi">@decorator</span> <span class="o">=</span> <span class="no">UserFriendshipDecorator</span><span class="o">.</span><span class="n">decorate</span><span class="p">(</span><span class="vi">@user_friendship</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">should</span> <span class="s2">&quot;return the correct message&quot;</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">assert_equal</span> <span class="s2">&quot;Friend request pending.&quot;</span><span class="p">,</span> <span class="vi">@decorator</span><span class="o">.</span><span class="n">sub_message</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I noticed last night that my fellow student, Katrina Engelstad, tweeted a link to this <a href="http://www.mattsears.com/articles/2011/12/10/minitest-quick-reference">blog post</a> by Matt Sears. It looks like a useful reference for MiniTest. Here&rsquo;s a block of code from that page which shows a way to make MiniTest behave like Rspec:</p>
+
+<figure class='code'><figcaption><span>Describe Hipster</span><a href='http://www.mattsears.com/articles/2011/12/10/minitest-quick-reference'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/autorun&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">describe</span> <span class="no">Hipster</span><span class="p">,</span> <span class="s2">&quot;Demonstration of MiniTest&quot;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">before</span> <span class="k">do</span>
+</span><span class='line'>    <span class="vi">@hipster</span> <span class="o">=</span> <span class="no">Hipster</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">after</span> <span class="k">do</span>
+</span><span class='line'>    <span class="vi">@hipster</span><span class="o">.</span><span class="n">destroy!</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">subject</span> <span class="k">do</span>
+</span><span class='line'>    <span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">tap</span> <span class="k">do</span> <span class="o">|</span><span class="n">attributes</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">attributes</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;silly hats&quot;</span>
+</span><span class='line'>      <span class="n">attributes</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;skinny jeans&quot;</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">let</span><span class="p">(</span><span class="ss">:list</span><span class="p">)</span> <span class="p">{</span> <span class="nb">Array</span><span class="o">.</span><span class="n">new</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">describe</span> <span class="s2">&quot;when asked about the font&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">it</span> <span class="s2">&quot;should be helvetica&quot;</span> <span class="k">do</span>
+</span><span class='line'>      <span class="vi">@hipster</span><span class="o">.</span><span class="n">preferred_font</span><span class="o">.</span><span class="n">must_equal</span> <span class="s2">&quot;helvetica&quot;</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">describe</span> <span class="s2">&quot;when asked about mainstream&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">it</span> <span class="s2">&quot;won&#39;t be mainstream&quot;</span> <span class="k">do</span>
+</span><span class='line'>      <span class="vi">@hipster</span><span class="o">.</span><span class="n">mainstream?</span><span class="o">.</span><span class="n">wont_equal</span> <span class="kp">true</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, I&rsquo;ve been tantalized by the possibilities of <a href="http://cukes.info/">Cucumber</a>. I haven&rsquo;t had time to dig into this testing approach yet, but the prospect of writing language like this is very appealing:</p>
+
+<figure class='code'><figcaption><span>How To Test With Cucumber</span><a href='https://github.com/plataformatec/devise/wiki/How-To:-Test-with-Cucumber'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Scenario</span> <span class="ss">Outline</span><span class="p">:</span> <span class="no">Creating</span> <span class="n">a</span> <span class="kp">new</span> <span class="n">account</span>
+</span><span class='line'>    <span class="no">Given</span> <span class="n">I</span> <span class="n">am</span> <span class="ow">not</span> <span class="n">authenticated</span>
+</span><span class='line'>    <span class="no">When</span> <span class="n">I</span> <span class="n">go</span> <span class="n">to</span> <span class="n">register</span> <span class="c1"># define this path mapping in features/support/paths.rb, usually as &#39;/users/sign_up&#39;</span>
+</span><span class='line'>    <span class="no">And</span> <span class="n">I</span> <span class="n">fill</span> <span class="k">in</span> <span class="s2">&quot;user_email&quot;</span> <span class="n">with</span> <span class="s2">&quot;&lt;email&gt;&quot;</span>
+</span><span class='line'>    <span class="no">And</span> <span class="n">I</span> <span class="n">fill</span> <span class="k">in</span> <span class="s2">&quot;user_password&quot;</span> <span class="n">with</span> <span class="s2">&quot;&lt;password&gt;&quot;</span>
+</span><span class='line'>    <span class="no">And</span> <span class="n">I</span> <span class="n">fill</span> <span class="k">in</span> <span class="s2">&quot;user_password_confirmation&quot;</span> <span class="n">with</span> <span class="s2">&quot;&lt;password&gt;&quot;</span>
+</span><span class='line'>    <span class="no">And</span> <span class="n">I</span> <span class="n">press</span> <span class="s2">&quot;Sign up&quot;</span>
+</span><span class='line'>    <span class="no">Then</span> <span class="n">I</span> <span class="n">should</span> <span class="n">see</span> <span class="s2">&quot;logged in as &lt;email&gt;&quot;</span> <span class="c1"># your work!</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="ss">Examples</span><span class="p">:</span>
+</span><span class='line'>      <span class="o">|</span> <span class="n">email</span>           <span class="o">|</span> <span class="n">password</span>   <span class="o">|</span>
+</span><span class='line'>      <span class="o">|</span> <span class="n">testing</span><span class="vi">@man</span><span class="o">.</span><span class="n">net</span> <span class="o">|</span> <span class="n">secretpass</span> <span class="o">|</span>
+</span><span class='line'>      <span class="o">|</span> <span class="n">foo</span><span class="vi">@bar</span><span class="o">.</span><span class="n">com</span>     <span class="o">|</span> <span class="n">fr33z3</span>     <span class="o">|</span>
+</span><span class='line'>
+</span><span class='line'><span class="ss">Scenario</span><span class="p">:</span> <span class="no">Willing</span> <span class="n">to</span> <span class="n">edit</span> <span class="n">my</span> <span class="n">account</span>
+</span><span class='line'>    <span class="no">Given</span> <span class="n">I</span> <span class="n">am</span> <span class="n">a</span> <span class="kp">new</span><span class="p">,</span> <span class="n">authenticated</span> <span class="n">user</span> <span class="c1"># beyond this step, your work!</span>
+</span><span class='line'>    <span class="no">When</span> <span class="n">I</span> <span class="n">want</span> <span class="n">to</span> <span class="n">edit</span> <span class="n">my</span> <span class="n">account</span>
+</span><span class='line'>    <span class="no">Then</span> <span class="n">I</span> <span class="n">should</span> <span class="n">see</span> <span class="n">the</span> <span class="n">account</span> <span class="n">initialization</span> <span class="n">form</span>
+</span><span class='line'>    <span class="no">And</span> <span class="n">I</span> <span class="n">should</span> <span class="n">see</span> <span class="s2">&quot;Your account has not been initialized yet. Do it now!&quot;</span>
+</span><span class='line'>    <span class="c1"># And more view checking stuff</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For now, even though I think it&rsquo;s ugly, I&rsquo;m going to stick to MiniTest for the &ldquo;TDD with MiniTest and EventManager&rdquo; and EventReporter tutorials, since I am still getting comfortable with TDD. Overlearning MiniTest will be a good foundation to have, even if I end up using Rspec or Cucumber in the future. So long for now! I&rsquo;m off to go implement some fifty odd tests for EventReporter.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/11/object-oriented-programming/">Object Oriented Programming</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-11T18:13:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Today, I hacked all day long at gSchool. The morning was spent working on the <a href="tutorials.jumpstartlab.com/projects/encryptor.html">Encryptor tutorial</a> with my classmate, Meeka Gayhart. I&rsquo;d worked through this tutorial before, and felt a lot more comfortable with it this time around. The first time I did it, I created a little command line <a href="https://github.com/fluxusfrequency/encryptor.git">program</a> for it, which was super fun. Unfortunately, Meeka and I didn&rsquo;t have enough time to do that this morning.</p>
+
+<p>In the afternoon, Rolen and I continued to work on the <a href="http://tutorials.jumpstartlab.com/projects/eventmanager.html">Event Manager tutorial</a> as a pair. We finished all of the iterations, then moved on to refactoring the code. Thanks to the Github forking and merging we figured out yesterday, we were able to switch off as the active coder throughout the afternoon, while the other collaborated over Screen Hero again. Unfortunately, I had to leave before we could finish, so we decided to finish up the refactoring separately. In the morning, we&rsquo;re going to compare our solutions.</p>
+
+<p>The place where we left off was particularly interesting. The tutorial ends after walking you through the creation of a very messy file that has all kinds of methods and variables in it. We opted to try splitting the whole project into separate class files that are then required by the main ruby file. It&rsquo;s my understanding that this is part of what Object Oriented Programming is all about. I&rsquo;m definitely still a noob, so this was a way to take things a little further and challenge myself. Our decision to use Github was also motivated by this desire.</p>
+
+<p>Toward the end of the day, Jeff led the class in a &ldquo;mini retrospective&rdquo;. I got a chance to hearing most of my classmates&#8217; reactions to the bootcamp so far. The process was a confirmation of my impressions: many of us are feeling like we&rsquo;ve been totally thrown into the deep end with these first couple of projects, but also feel like we&rsquo;re up for the challenge. Many also expressed being very impressed with the rest of the students. Everyone seems to be really intelligent, driven, personable, and fun to be around.</p>
+
+<p>I had a great experience today. Although I was super tired (insomnia!), the hours just flew by. I can&rsquo;t wait for tomorrow, when I&rsquo;ll do it all again.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="5">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="3">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/building-a-ruby-list-comprehension/">Building A Ruby List Comprehension</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/better-soa-development-with-foreman-and-nginx/">Better SOA Development With Foreman and NGINX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/">Using Services to Keep Your Rails Controllers Clean and DRY</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

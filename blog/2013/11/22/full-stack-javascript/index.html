@@ -1,0 +1,562 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Full Stack Javascript - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="UPDATE: I now have a working version of JetFuel Express live on Heroku at http://jfx.herokuapp.com. Please check it out! This was JavaScript week at &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2013/11/22/full-stack-javascript">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Full Stack Javascript</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-22T11:12:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>UPDATE:</h2>
+
+<p>I now have a working version of JetFuel Express live on Heroku at <a href="http://jfx.herokuapp.com/">http://jfx.herokuapp.com</a>. Please check it out!</p>
+
+<p>This was JavaScript week at gSchool. For me, this was great. As I&rsquo;ve been learning Ruby, I&rsquo;ve been working on a lot of JavaScript on the side. From what I hear, knowing JS is going to be indispensible as I enter the professional development world. Having done a bit of browser scripting with vanilla JS and jQuery in the past, I&rsquo;ve recently been digging into <a href="http://fluxusfrequency.github.io/blog/2013/10/26/so-many-javascript-libraries/">libraries and frameworks</a>. In the last couple of weeks, I&rsquo;ve been focusing really hard on Backbone.js in particular, and this week gave me a chance to apply my skills with it to build a project. As I went along, I discovered quite a few other new tools written in JavaScript. After hacking away all week, my key takeaway was this:</p>
+
+<p>You can develop full stack with Javascript.</p>
+
+<p>I decided to try to build <a href="http://tutorials.jumpstartlab.com/projects/jet_fuel.html">JetFuel</a>, a Jumpstart Lab project in which you clone <a href="https://bitly.com/">Bitly</a>. But instead of building it with ActiveRecord and Sinatra, I decided to build it all in JS.</p>
+
+<p>At the moment, I have a basic link shortening service working. Here&rsquo;s a glimpse of what it looks like:</p>
+
+<p><img src="http://s5.postimg.org/ihxudv1xj/Jet_Fuel_Express_Production_Shot.png" title="JetFuel Express" alt="A Bitly clone website in production"></p>
+
+<p>And here are the technologies I&rsquo;m using:</p>
+
+<h2>The App</h2>
+
+<h3><a href="http://backbonejs.org/">Backbone.js</a></h3>
+
+<p>I&rsquo;ve been working really hard at learning Backbone, a client-side MVC (actually MV*) library, over the past few weeks. I had started to look into Ember.js, and was having a hard time. My mentor, Mike Pack (who works at <a href="http://modeset.com/">Mode Set</a>), suggested looking into Backbone first, because: &ldquo;you&rsquo;re going to burn a lot of mental cycles trying to learn Ember and Rails at the same time&rdquo;. This has turned out to be some really good advice. For me, Backbone fairly intuitive, yet still quite challenging to learn.</p>
+
+<p>I did a few tutorials. I found this <a href="http://railscasts.com/episodes/323-backbone-on-rails-part-1">RailsCasts</a> one to be the most approachable. This <a href="https://tutsplus.com/course/backbone-on-rails/">Nuttuts+ Premium Tutorial</a> was interesting. It was written with Coffeescript and Handlebars. There were <a href="http://coenraets.org/blog/2011/12/backbone-js-wine-cellar-tutorial-part-1-getting-started/">some</a> <a href="https://www.youtube.com/watch?v=FZSjvWtUxYk">others</a> that were less remarkable, but they still helped me get familiar with the library.</p>
+
+<p>I still felt like I needed to understand more, so I checked out the book <a href="http://addyosmani.github.io/backbone-fundamentals/">Developing Backbone.js Applications</a> by Addy Osmani, available free online. It covers many Backbone topics, and has quite a few tutorials. In the first one, it walks you through building a simple to-do app called <a href="http://todomvc.com/">TodoMVC</a> in Backbone.</p>
+
+<p>My favorite tutorial from the book was the <a href="http://addyosmani.github.io/backbone-fundamentals/#exercise-2-book-library---your-first-restful-backbone.js-app">Book Library</a> tutorial. It really makes it clear how to use Backbone to talk to an API. It also teaches you build that API in Express.js. It was essentially the inspiration for my app.</p>
+
+<p>Backbone can be really hard to debug. The value of the keyword &lsquo;this&rsquo; can get kind of tricky, in particular. For example, in my UrlsView class, the value of &lsquo;this&rsquo; shifts from the Backbone View object to the urlCollection, so I have to assign it to &lsquo;that&rsquo; before passing it into the callback function. This was a subtle problem that was breaking my view, until Mike helped me fix it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">jetfuelexpress</span> <span class="o">=</span> <span class="nx">jetfuelexpress</span> <span class="o">||</span> <span class="p">{};</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">jetfuelexpress</span><span class="p">.</span><span class="nx">UrlsView</span> <span class="o">=</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">el</span><span class="o">:</span> <span class="s1">&#39;.url-list&#39;</span><span class="p">,</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">initialize</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">initialUrls</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">urlCollection</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jetfuelexpress</span><span class="p">.</span><span class="nx">UrlCollection</span><span class="p">();</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">that</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">urlCollection</span><span class="p">.</span><span class="nx">fetch</span><span class="p">({</span><span class="nx">reset</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">success</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">that</span><span class="p">.</span><span class="nx">fetched</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">render</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">listenTo</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">urlCollection</span><span class="p">,</span> <span class="s1">&#39;add&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">renderUrl</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">listenTo</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">urlCollection</span><span class="p">,</span> <span class="s1">&#39;reset&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">render</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here&rsquo;s a look at how I built the rest of my stack:</p>
+
+<h2>The Database</h2>
+
+<h3><a href="http://www.mongodb.org/">MongoDB</a></h3>
+
+<p>I&rsquo;m using of MongoDB to store my data. It plays nicely with my other components, since it stores documents in a JSON-like format. It&rsquo;s also handy that it uses JavaScript internally on the server-side, and has a shell that&rsquo;s based on JS. As a database, it feels a little crazy, because it doesn&rsquo;t auto=increment an id attribute like Postgres. I like it though. It&rsquo;s fast and flexible. My server interfaces with the database via:</p>
+
+<h3><a href="http://mongoosejs.com/">Mongoose.js</a></h3>
+
+<p>It&rsquo;s summed up well on the Mongoose website. Mongoose is a &ldquo;MongoDB object modeling tool designed to work in an asynchronous environment&rdquo;. It&rsquo;s like DataMapper or ActiveRecord in Ruby. It has some really powerful validations baked in:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">UrlSchema</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">Schema</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">originalUrl</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">validate</span> <span class="o">:</span> <span class="p">[</span>
+</span><span class='line'>            <span class="kd">function</span><span class="p">(</span><span class="nx">u</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">u</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/^((http(?:s)?\:\/\/)?[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)*\.[a-zA-Z]{2,6}(?:\/?|(?:\/[\w\-]+)*)(?:\/?|\/\w+\.[a-zA-Z]{2,4}(?:\?[\w]+\=[\w\-]+)?)?(?:\&amp;[\w]+\=[\w\-]+)*)$/</span><span class="p">);</span> <span class="p">},</span>
+</span><span class='line'>            <span class="s1">&#39;Visits must be positive!&#39;</span><span class="p">]</span> <span class="p">},</span>
+</span><span class='line'>  <span class="nx">slug</span>        <span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+</span><span class='line'>  <span class="nx">active</span>      <span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">Boolean</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+</span><span class='line'>  <span class="nx">visits</span>      <span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">Number</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">validate</span> <span class="o">:</span> <span class="p">[</span>
+</span><span class='line'>            <span class="kd">function</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">v</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">},</span>
+</span><span class='line'>            <span class="s1">&#39;Visits must be positive!&#39;</span><span class="p">]</span> <span class="p">},</span>
+</span><span class='line'>  <span class="nx">userId</span>      <span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+</span><span class='line'>  <span class="nx">createdDate</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">Date</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span> <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>The Server</h2>
+
+<h3><a href="http://nodejs.org/">Node.js</a></h3>
+
+<p>Built on Google&rsquo;s V8 JavaScript engine, Node is a super fast platform that compiles JS directly to the hardware without having to be interpreted. It has &ldquo;a built-in HTTP server library, making it possible to run a web server without the use of external software&rdquo;.</p>
+
+<h3><a href="http://expressjs.com/%E2%80%8E">Express.JS</a></h3>
+
+<p>This lovely framework is the foundation of my backend. It is architecturally based on Sinatra, and is very similar to work with. It was really easy to get a project up and running quickly in Express using Node Package Manager (see below). Since it&rsquo;s built on Node, it is very fast. I used it to set up an API server to send and recieve JSON requests from my front end.</p>
+
+<h2>The Tests</h2>
+
+<h3><a href="http://pivotal.github.io/jasmine/">Jasmine-Node</a></h3>
+
+<p>We used this testing framework quite a bit in class for <a href="http://exercism.io/">Exercism</a> exercises. It felt like a natural choice. Although I am usually more comfortable with &lsquo;assert&rsquo; style test statements like you find in Minitest, I found Jasmine to be pretty intuitive. Here&rsquo;s an example of one of my tests:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">describe</span><span class="p">(</span><span class="s2">&quot;api route&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">Url</span><span class="p">.</span><span class="nx">remove</span><span class="p">({},</span> <span class="kd">function</span><span class="p">(){});</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">it</span><span class="p">(</span><span class="s2">&quot;should respond successfully with to an API request&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">request</span><span class="p">(</span><span class="s2">&quot;http://localhost:3000/api&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">error</span><span class="p">,</span> <span class="nx">response</span><span class="p">,</span> <span class="nx">body</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">statusCode</span><span class="p">).</span><span class="nx">toBe</span><span class="p">(</span><span class="mi">200</span><span class="p">);</span>
+</span><span class='line'>      <span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">body</span><span class="p">).</span><span class="nx">toContain</span><span class="p">(</span><span class="s2">&quot;JetFuelExpress API is running!&quot;</span><span class="p">)</span>
+</span><span class='line'>      <span class="nx">expect</span><span class="p">(</span><span class="nx">error</span><span class="p">).</span><span class="nx">toBe</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+</span><span class='line'>      <span class="nx">done</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3><a href="http://visionmedia.github.io/mocha/">Mocha</a></h3>
+
+<p>A couple days into this project, I was tweeting about what I was up to, and an Express.js dev tweeted back at me, suggesting I check out his <a href="http://webapplog.com/expressworks/">Express.js tutorials</a>. He also recommended the Mocha testing framework. I haven&rsquo;t had a chance to dig in yet, but it looks promising. The website says that you can use your favorite style of assertion (&lsquo;should&rsquo;, &lsquo;expect&rsquo;, or &lsquo;assert&rsquo;) by loading different libraries - Chai, Should.js, Expect.js, or Better Assert.</p>
+
+<h3><a href="http://zombie.labnotes.org/">Zombie.js</a></h3>
+
+<p>I was looking around for some kind of acceptance test solution along the lines of Capybara. I couldn&rsquo;t really find anything I liked, but I did stumble on this &ldquo;headless browser&rdquo; testing framework. Although it looks promising, I&rsquo;ve had a lot of trouble making it work the way I want. I wouldn&rsquo;t really recommend it, unless you have extra time to figure out how to make it do what you want.</p>
+
+<h2>The View</h2>
+
+<h3><a href="http://handlebarsjs.com/">Handlebars.js</a></h3>
+
+<p>After giving a lightning talk about <a href="http://mustache.github.io/">Mustache</a> a few weeks ago, I just had to try Handlebars for this project. It went pretty well, as long as I didn&rsquo;t try to inject anything that was null into my templates. When I did that, it killed the server.</p>
+
+<h3><a href="http://www.getbootstrap.com">Bootstrap</a></h3>
+
+<p>Because I was already in over my head with all of these JavaScript libraries, I decided to punt on the design for this one. I bought a template from <a href="http://wrapbootstrap.com/">Wrap Bootstrap</a>.</p>
+
+<h2>Bits and Pieces</h2>
+
+<h3><a href="http://gruntjs.com/">Grunt.js</a></h3>
+
+<p>Having a browser fetching 18 JavaScript files can be slow, so it&rsquo;s nice to uglify and concatenate them all into one big file. Grunt can automate this task for you. It&rsquo;s sort of like Rake in Ruby. Here&rsquo;s what that looked like. I copied the code from gSchool[0] student Raphael Weiner&rsquo;s <a href="https://github.com/raphweiner/elefeely-ui">Elefeely UI</a>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">grunt</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">grunt</span><span class="p">.</span><span class="nx">initConfig</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">connect</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">server</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">options</span><span class="o">:</span> <span class="p">{</span> <span class="nx">port</span><span class="o">:</span> <span class="s2">&quot;3000&quot;</span><span class="p">,</span>
+</span><span class='line'>                   <span class="nx">hostname</span><span class="o">:</span> <span class="s2">&quot;localhost&quot;</span><span class="p">,</span>
+</span><span class='line'>                   <span class="nx">keepalive</span><span class="o">:</span> <span class="kc">true</span> <span class="p">}</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="nx">uglify</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">build</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">files</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>          <span class="s1">&#39;main.js&#39;</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;main.js&#39;</span><span class="p">]</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="nx">concat</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">files</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>        <span class="s1">&#39;src&#39;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;public/javascripts/lib/jquery-1.10.1.min.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/lib/json3.min.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/lib/handlebars.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/lib/underscore-min.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/lib/backbone-min.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/app.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/routers/router.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/models/url_model.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/collections/url_collection.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/views/app_view.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/views/header_view.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/views/footer_view.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/views/shorten_view.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/views/home_view.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/views/url_view.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/views/urls_view.js&quot;</span><span class="p">],</span>
+</span><span class='line'>        <span class="s1">&#39;dest&#39;</span><span class="o">:</span> <span class="s1">&#39;main.js&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>  <span class="nx">grunt</span><span class="p">.</span><span class="nx">loadNpmTasks</span><span class="p">(</span><span class="s1">&#39;grunt-contrib-connect&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="nx">grunt</span><span class="p">.</span><span class="nx">loadNpmTasks</span><span class="p">(</span><span class="s1">&#39;grunt-contrib-concat&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="nx">grunt</span><span class="p">.</span><span class="nx">loadNpmTasks</span><span class="p">(</span><span class="s1">&#39;grunt-contrib-uglify&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="nx">grunt</span><span class="p">.</span><span class="nx">registerTask</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;concat&#39;</span><span class="p">,</span> <span class="s1">&#39;uglify&#39;</span><span class="p">]);</span>
+</span><span class='line'>  <span class="nx">grunt</span><span class="p">.</span><span class="nx">registerTask</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;build&#39;</span><span class="p">]);</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Node Package Manager (NPM)</h3>
+
+<p>I really like how easy it is to install Node.js dependencies. I&rsquo;ve been spoiled with Bundle, so it felt comfortable to be able to add things I needed with ease. You just declare your dependencies in a package.json file in your application root, then run &lsquo;npm install&rsquo;. The package file is in JSON, so it&rsquo;s not as pretty as a Gemfile, but it will give you all the things you need. Here&rsquo;s what mine looks like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;JetFuelExpress&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;version&quot;</span><span class="o">:</span> <span class="s2">&quot;0.0.1&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;description&quot;</span><span class="o">:</span> <span class="s2">&quot;A url shortening service&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;private&quot;</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;scripts&quot;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="s2">&quot;start&quot;</span><span class="o">:</span> <span class="s2">&quot;node app.js&quot;</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>  <span class="s2">&quot;dependencies&quot;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="s2">&quot;express&quot;</span><span class="o">:</span> <span class="s2">&quot;3.4.4&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;jade&quot;</span><span class="o">:</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;less-middleware&quot;</span><span class="o">:</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;path&quot;</span><span class="o">:</span> <span class="s2">&quot;~0.4.9&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;request&quot;</span><span class="o">:</span> <span class="s2">&quot;2.27.0&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;mongoose&quot;</span><span class="o">:</span> <span class="s2">&quot;~3.5.5&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;grunt&quot;</span><span class="o">:</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;grunt-contrib-connect&quot;</span><span class="o">:</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;grunt-contrib-concat&quot;</span><span class="o">:</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;grunt-contrib-uglify&quot;</span><span class="o">:</span> <span class="s2">&quot;*&quot;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Wrapping Up</h2>
+
+<p>Coming to JS app development from Ruby, I felt really uncomfortable at first. There are <strong><em>so</em></strong> many JavaScript libraries and frameworks. I was pretty sure I was in over my head. But somehow I held it together. I think it&rsquo;s because JS has components that serve the same functions as certain Ruby gems:</p>
+
+<p>Mongoose is kind of like ActiveRecord.</p>
+
+<p>Express  is kind of like Sinatra.</p>
+
+<p>Jasmine  is kind of like RSpec.</p>
+
+<p>Zombie   is kind of like Capybara.</p>
+
+<p>Grunt    is kind of like Rake.</p>
+
+<p>NPM      is kind of like Bundle.</p>
+
+<p>Backbone isn&rsquo;t really like anything, but at least its MV* pattern is close enough to Rails that I feel at home.</p>
+
+<p>I saw this <a href="http://coding.smashingmagazine.com/2013/11/21/introduction-to-full-stack-javascript/">cool article</a> in the JavaScript Weekly newsletter today. Reading it made me understand what I&rsquo;d been learning all week: full stack JavaScript development. Up until then, I hadn&rsquo;t quite seen it for what it was.</p>
+
+<p>JS is not as friendly an environment as Ruby, where you get to use intuitive syntax, the community is better established, and there are lots and lots of gems available. But it is very fast and scalable, and at least the components feel familiar when transferring from Sinatra and Rails.</p>
+
+<p>I&rsquo;m looking foward to continuing with JetFuel Express. It&rsquo;s been a good project for extending my understanding of JavaScript.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-22T11:12:00-07:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2013/11/22/full-stack-javascript/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2013/11/22/full-stack-javascript/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/11/18/dinner-dash-complete/" title="Previous Post: Dinner Dash Complete">&laquo; Dinner Dash Complete</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/12/01/practical-object-oriented-design-in-ruby-takeaways/" title="Next Post: Practical Object-Oriented Design in Ruby - Takeaways">Practical Object-Oriented Design in Ruby - Takeaways &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/building-a-ruby-list-comprehension/">Building A Ruby List Comprehension</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/better-soa-development-with-foreman-and-nginx/">Better SOA Development With Foreman and NGINX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/">Using Services to Keep Your Rails Controllers Clean and DRY</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

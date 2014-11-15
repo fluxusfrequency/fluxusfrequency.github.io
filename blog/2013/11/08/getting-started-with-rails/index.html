@@ -1,0 +1,296 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Getting Started With Rails - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="This week at gSchool, we&rsquo;re digging into our first major Rails project, Dinner Dash. It&rsquo;s been a challenging transition. Rails Challenges &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2013/11/08/getting-started-with-rails">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Getting Started With Rails</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-08T10:15:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This week at gSchool, we&rsquo;re digging into our first major Rails project, <a href="http://tutorials.jumpstartlab.com/projects/dinner_dash.html">Dinner Dash</a>. It&rsquo;s been a challenging transition.</p>
+
+<h2>Rails Challenges</h2>
+
+<p>Although I know some Ruby, and I know how to drive development with tests, using Rails is a whole new ball game. There are so many new words! From ActiveRecord associations, to &ldquo;form_for&rdquo; and &ldquo;button_to&rdquo;, to strong params, there&rsquo;s a huge library of methods I don&rsquo;t know.</p>
+
+<p>One particularly difficult challenge for me this week was figuring out how to properly use &ldquo;form_for&rdquo;. I was having a little trouble with forms and HTTP routes. I know how to write an update form like this in HTML:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">&quot;/ideas&quot;</span> <span class="na">method=</span><span class="s">&#39;POST&#39;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&#39;text&#39;</span> <span class="na">name=</span><span class="s">&#39;idea[title]&#39;</span> <span class="na">placeholder=</span><span class="s">&quot;Title&quot;</span> <span class="na">value=</span><span class="s">&quot;title&quot;</span><span class="nt">&gt;&lt;input/&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;_method&quot;</span> <span class="na">value=</span><span class="s">&quot;PUT&quot;</span><span class="nt">&gt;&lt;input/&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&#39;submit&#39;</span> <span class="na">value=</span><span class="s">&#39;Submit&#39;</span><span class="nt">&gt;&lt;input/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/form&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But I was having a lot of trouble submitting PUT and DELETE verbs with &ldquo;form_for&rdquo; in Rails.</p>
+
+<p>I was trying to create a form with some code like this, but it wasn&rsquo;t really working out:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='erb'><span class='line'><span class="cp">&lt;%=</span> <span class="n">form_for</span> <span class="ss">:idea</span><span class="p">,</span> <span class="p">(</span><span class="ss">action</span><span class="p">:</span> <span class="ss">:put</span><span class="p">)</span><span class="sc">??</span> <span class="k">do</span> <span class="o">|</span><span class="n">f</span><span class="o">|</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">  &lt;p&gt;</span>
+</span><span class='line'><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">f</span><span class="o">.</span><span class="n">label</span> <span class="ss">:title</span> <span class="cp">%&gt;</span><span class="x">&lt;br&gt;</span>
+</span><span class='line'><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">f</span><span class="o">.</span><span class="n">text_field</span> <span class="ss">:title</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">  &lt;/p&gt;</span>
+</span><span class='line'><span class="x">  &lt;p&gt;</span>
+</span><span class='line'><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">f</span><span class="o">.</span><span class="n">submit</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">  &lt;/p&gt;</span>
+</span><span class='line'><span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Franklin eventually straigtened us out with a different approach, which he described as the &ldquo;Rails-y way&rdquo; to do it:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='erb'><span class='line'><span class="cp">&lt;%=</span> <span class="n">link_to</span> <span class="s2">&quot;Title&quot;</span><span class="p">,</span> <span class="n">ideas_path</span><span class="p">,</span> <span class="nb">method</span><span class="p">:</span> <span class="ss">:put</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I assume there will be many more &ldquo;Rails-y&rdquo; idioms to learn in my near future.</p>
+
+<h2>Organizing Our Workgroup</h2>
+
+<p>My group for this project is comprised of four people: myself, Bree, Nikhil, and Tyler. So far, we&rsquo;ve been working really well together. We&rsquo;re using <a href="https://www.pivotaltracker.com">Pivotal Tracker</a> and <a href="https://campfirenow.com/">Campfire</a> (this is my first time for both) to drive our development and communication. I&rsquo;ve found it hard to get used to Pivotal Tracker. Although I enjoyed learning how to write epics and stories in <a href="https://github.com/cucumber/cucumber/wiki/Gherkin">Gherkin</a>, I&rsquo;m used to thinking through problems one step at a time in coding. Having to go back to the website and refer to what&rsquo;s in the &lsquo;Current&rsquo; or &lsquo;Icebox&rsquo; list interrupts my flow.</p>
+
+<p>I&rsquo;m also not yet at the point of driving everything with <a href="https://github.com/jnicklas/capybara">Capybara</a>. Although we&rsquo;re testing our models before we implement them, we aren&rsquo;t doing any integration tests in advance. Maybe if we were to transform our Gherkin stories into Cucumber, it would be an easy transition. I&rsquo;m a little shy, though, since it always takes a while to get to know a new testing framework.</p>
+
+<p>Here&rsquo;s one testing success, though: we&rsquo;ve integrated <a href="https://github.com/guard/guard">Guard</a> into our workflow. This is the first time any of us have used it successfully.</p>
+
+<p>I&rsquo;m also trying to itegrate some of the lessons learned from <a href="http://www.therailsview.com/">The Rails View</a>, which I&rsquo;m currently reading. In this project, I&rsquo;m trying to take on a lot of responsibility for the view layer, because I don&rsquo;t feel strong in design and would like to get better. Here&rsquo;s our current view, four days in. Unfortunately, it&rsquo;s mostly Bootstrap. I&rsquo;m planning to shine it up a bit this weekend.</p>
+
+<p><img src="http://s5.postimg.org/8g4kan24n/Ono_Burrito_Beta_Site.png" title="Ono Burrito" alt="Screenshot of a website in development"></p>
+
+<h2>Coming Back to Rails</h2>
+
+<p>Before gSchool, I did a few Rails tutorials online. Coming back to it now, after all the work we&rsquo;ve done with Ruby, hand-built model associations, and SQL, I feel very positive. I may not know what I&rsquo;m doing yet, but it&rsquo;s a lot easier to figure things out, now that I have a context for them. Categorizing confusing bits of code into categories comes much more quickly now. SQL, database tables, models, controllers, views, templates, Ruby expressions, Rails helpers&hellip;these ideas have a lot more meaning than they did before. This means I&rsquo;m able to bounce back from confusion much more quickly.</p>
+
+<h2>Moving Forward</h2>
+
+<p>I&rsquo;m excited to get up to speed in Rails. Our group was able to build out a complete restauarant site, with basic users and ordering functionality, all in the course of a few days. No wonder they say it&rsquo;s easy to get up and running quickly with Rails!</p>
+
+<p>I&rsquo;ve also been working with my mentor (the most awesome Mike Pack) on building a basic API in Rails, as a service for a Backbone.js app on the front end. It will eventually be an online recipe book, with Facebook and Instagram integration. I&rsquo;m really excited to continue working on it.</p>
+
+<h2>Wrapping Up</h2>
+
+<p>I&rsquo;m feeling a little bit intimidated by Rails at the moment, because there&rsquo;s so much to learn. But I&rsquo;m not worried: I relish the challenge of learning how to use a new tool, which is one of the reasons I got into programming in the first place. Plus, there are so many quality resources out there for learning Rails, I&rsquo;m sure I&rsquo;ll be up to speed in no time.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-08T10:15:00-07:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2013/11/08/getting-started-with-rails/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2013/11/08/getting-started-with-rails/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/11/06/restful-archicture/" title="Previous Post: RESTful Architecture">&laquo; RESTful Architecture</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/11/10/javascript-enlightenment/" title="Next Post: JavaScript Enlightenment">JavaScript Enlightenment &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/building-a-ruby-list-comprehension/">Building A Ruby List Comprehension</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/better-soa-development-with-foreman-and-nginx/">Better SOA Development With Foreman and NGINX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/">Using Services to Keep Your Rails Controllers Clean and DRY</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,292 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Practical Object-Oriented Design in Ruby - Takeaways - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="I just finished reading Practical Object-Oriented Design in Ruby by Sandi Metz. Here were my takeaways. Object-Oriented Design Plan your application &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2013/12/01/practical-object-oriented-design-in-ruby-takeaways">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Practical Object-Oriented Design in Ruby - Takeaways</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-01T06:10:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><img class="right" src="http://s5.postimg.org/yh888oh3b/POODR.jpg" width="250" height="327" title="Practical Object-Oriented Design in Ruby" alt="The cover of a programming book"></p>
+
+<p>I just finished reading <a href="http://www.poodr.com/">Practical Object-Oriented Design in Ruby</a> by Sandi Metz.</p>
+
+<p>Here were my takeaways.</p>
+
+<h2>Object-Oriented Design</h2>
+
+<ul>
+<li>Plan your application structure around the messages, rather than the objects.</li>
+<li>Objects should be seen as black boxes that can receive and send specific messages.</li>
+<li>Use <a href="http://www.tracemodeler.com/articles/a_quick_introduction_to_uml_sequence_diagrams/">UML sequence diagrams</a> to help clarify architectural decisions before writing code.</li>
+<li>Defer design decisions as long as you can, waiting for more information. Having three concrete examples of an object before commiting to a solution is best.</li>
+</ul>
+
+
+<h3>Embracing Change</h3>
+
+<ul>
+<li>Write code that is: transparent, reasonable, usable, exemplary (TRUE).</li>
+<li>Write classes and methods that have only a single responsibility (Single Reponsibility Principle).</li>
+<li>Subtypes should be substitutable for their supertypes (Liskov Substitution Principle).</li>
+</ul>
+
+
+<h3>Dependencies</h3>
+
+<ul>
+<li>Dependencies are best managed through Injection, Isolation, and Reliance on Abstractions.</li>
+<li>Dependency Injection: when you have a dependency, inject it into your object as an attribute, without calling another class directly. Then your object can use any other (duck-typed) object that responds to the needed method call.</li>
+<li>Isolation: if you must keep a dependency, isolate it from other code to make it easy to spot and refactor.</li>
+<li>Reliance on Abstractions: objects should depend on things that change less than they do (abstractions).</li>
+</ul>
+
+
+<h3>Interfaces</h3>
+
+<ul>
+<li>Minimize an object&rsquo;s need for context to get its job done.</li>
+<li>Write public interfaces that are explicitly identified, are about <em>what</em> more than <em>how</em>, have names that will not change, and take initialization attributes in a hash (so that order and presence are not required).</li>
+<li>Law of Demeter: don’t reach through a class to get at another class’s data or methods.</li>
+</ul>
+
+
+<h3>Duck-Types</h3>
+
+<ul>
+<li>Sometimes an object expects many different subjects to all respond to the same method. Even if they are of different classes, they all respond. These are duck-types.</li>
+</ul>
+
+
+<h3>Three Approaches to OO Architecture</h3>
+
+<ol>
+<li><p>Use inheritance for <em>is-a</em> relationships. This means using classical inheritance and module mix-ins. With this approach, big changes can be made with little code, which is a double-edged sword. “Inheritance is specialization”. - Bertrand Meyer</p></li>
+<li><p>Use duck-types for <em>behaves-like-a</em> relationships. Use when there is a <em>role</em> that needs to be filled (e.g. <em>schedulable</em>).</p></li>
+<li><p>Use composition for <em>has-a</em> relationships. Composition is modular and flexible, but harder to comprehend all at once. “Use composition when the behavior is more than the sum of its parts”. - Grady Booch</p></li>
+</ol>
+
+
+<h3>Testing</h3>
+
+<ul>
+<li>Don’t write tightly coupled tests.</li>
+<li>Test the right thing only once, in the right place.</li>
+<li>Concentrate on incoming and outgoing messages that cross an object’s boundaries. That is, test its most stable part: its interface.</li>
+<li>Incoming messages should be tested for the state they return. Use <em>object doubles</em> for this, when appropriate.</li>
+<li>Outgoing command messages should be tested to ensure they are sent. Use <em>mocks</em> for this.</li>
+<li>Outgoing query essays should not be tested.</li>
+<li>Testing duck-types: write a module and mix it into the test for each of the duck-types.</li>
+</ul>
+
+
+<h2>Conclusion</h2>
+
+<p>I really liked this book. It clarified some of the little parts of writing code that had previously eluded me. I can&rsquo;t wait to put some of its principles into practice!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-01T06:10:00-07:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2013/12/01/practical-object-oriented-design-in-ruby-takeaways/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2013/12/01/practical-object-oriented-design-in-ruby-takeaways/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/11/22/full-stack-javascript/" title="Previous Post: Full Stack Javascript">&laquo; Full Stack Javascript</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/12/06/multitenancy-and-legacy-code/" title="Next Post: Multitenancy and Legacy Code">Multitenancy and Legacy Code &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/building-a-ruby-list-comprehension/">Building A Ruby List Comprehension</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/better-soa-development-with-foreman-and-nginx/">Better SOA Development With Foreman and NGINX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/">Using Services to Keep Your Rails Controllers Clean and DRY</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

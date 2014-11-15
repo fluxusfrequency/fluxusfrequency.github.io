@@ -1,0 +1,762 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>CoffeeScript Notes - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="I&rsquo;ve been digging into a lot of JavaScript lately, so I thought it would be worthwhile to read The Little Book on CoffeeScript by Alex MacCaw. &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2013/11/03/coffescript-notes">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">CoffeeScript Notes</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-03T08:31:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I&rsquo;ve been digging into a lot of JavaScript lately, so I thought it would be worthwhile to read <a href="http:#%20arcturo.github.io/library/coffeescript/">The Little Book on CoffeeScript</a> by Alex MacCaw.</p>
+
+<p>I took some notes as I went, and I thought I&rsquo;d share them here for easy reference.</p>
+
+<p><br /></p>
+
+<h2>Basic Syntax</h2>
+
+<figure class='code'><figcaption><span>CoffeeScript - Basic Syntax</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="c1"># Functions</span>
+</span><span class='line'><span class="nv">myFunction = </span><span class="nf">-&gt;</span>
+</span><span class='line'><span class="c1"># Translates to:</span>
+</span><span class='line'><span class="nx">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Functions with arguments</span>
+</span><span class='line'><span class="nv">myFunction = </span><span class="nf">(arg) -&gt;</span>
+</span><span class='line'><span class="c1"># Translates to:</span>
+</span><span class='line'><span class="nx">function</span><span class="p">(</span><span class="nx">arg</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># No semicolons are needed in CoffeeScript(CS).</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Maintaining the context of &#39;this&#39; with the &#39;fat arrow&#39;</span>
+</span><span class='line'><span class="nv">myFunction = </span><span class="nf">(arg) =&gt;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Operators</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">is</span>
+</span><span class='line'><span class="c1"># Translates to:</span>
+</span><span class='line'><span class="err">\</span><span class="o">===</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">not</span>
+</span><span class='line'><span class="c1"># Translates to:</span>
+</span><span class='line'><span class="o">!</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">isnt</span>
+</span><span class='line'><span class="c1"># Translates to:</span>
+</span><span class='line'><span class="o">!==</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">and</span>
+</span><span class='line'><span class="c1"># Translates to:</span>
+</span><span class='line'><span class="o">&amp;&amp;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">or</span>
+</span><span class='line'><span class="c1"># Translates to:</span>
+</span><span class='line'><span class="o">||</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Single-line &quot;if&quot; statements</span>
+</span><span class='line'><span class="k">if</span> <span class="nx">x</span> <span class="k">then</span> <span class="nx">y</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Splat operator</span>
+</span><span class='line'><span class="p">(</span><span class="err">…</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># For loops</span>
+</span><span class='line'><span class="nx">myFunction</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="k">for</span> <span class="nx">item</span> <span class="k">in</span> <span class="nx">array</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># While loops</span>
+</span><span class='line'><span class="k">while</span> <span class="nx">num</span> <span class="o">-=</span> <span class="mi">1</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Alias for prototype</span>
+</span><span class='line'><span class="nx">Bob</span><span class="o">::</span><span class="nx">hey</span>
+</span><span class='line'><span class="c1"># Translates to:</span>
+</span><span class='line'><span class="nx">Bob</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">hey</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Executing functions immediately with the keyword do</span>
+</span><span class='line'><span class="nv">type = </span><span class="nx">do</span> <span class="nf">-&gt;</span>
+</span><span class='line'><span class="c1"># Code is then private and cannot be accessed in the future.</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Chained comparison syntax</span>
+</span><span class='line'><span class="nx">a</span> <span class="o">&lt;</span> <span class="nx">b</span> <span class="o">&lt;</span> <span class="nx">c</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Null Checks</span>
+</span><span class='line'><span class="nx">blackKnight</span><span class="p">.</span><span class="nx">getLegs</span><span class="p">()</span><span class="o">?</span><span class="p">.</span><span class="nx">kick</span><span class="p">()</span>
+</span><span class='line'><span class="c1"># Won’t call kick() if getLegs is false.</span>
+</span><span class='line'><span class="nx">blackKnight</span><span class="p">.</span><span class="nx">getLegs</span><span class="p">().</span><span class="nx">kick</span><span class="o">?</span><span class="p">()</span>
+</span><span class='line'><span class="c1"># Won’t call kick() if kick() is null or not a function.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Ruby-Like Features</h2>
+
+<figure class='code'><figcaption><span>CoffeeScript - Ruby-Like Features</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="c1"># Declaring a variable</span>
+</span><span class='line'><span class="nv">string = </span><span class="s">&quot;Foo bar baz&quot;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Inline &quot;if&quot; statments</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s">&quot;Hello, world!&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="kc">true</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># &quot;unless&quot; statments</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s">&quot;Hello, world!&quot;</span><span class="p">)</span> <span class="k">unless</span> <span class="kc">false</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># “==“ converts to “===“, “!=“ converts to “!==“</span>
+</span><span class='line'><span class="mi">1</span> <span class="o">==</span> <span class="mi">2</span>
+</span><span class='line'><span class="c1"># Evaluates as &quot;1 === 2&quot;</span>
+</span><span class='line'><span class="mi">1</span> <span class="o">!=</span> <span class="mi">2</span>
+</span><span class='line'><span class="c1"># Evaluates as &quot;1 !== 2&quot;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># String Interpolation</span>
+</span><span class='line'><span class="nv">code = </span><span class="s">&quot;Hello&quot;</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="err">“</span><span class="c1">#{code}, world!”)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Defining an object literal without curly brackets</span>
+</span><span class='line'><span class="nv">obj = one: </span><span class="mi">1</span><span class="p">,</span> <span class="nv">two: </span><span class="mi">2</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Conditional assignment operator</span>
+</span><span class='line'><span class="nx">variable</span> <span class="o">||=</span> <span class="mi">2</span>
+</span><span class='line'><span class="c1"># Is the same as:</span>
+</span><span class='line'><span class="nx">variable</span> <span class="o">or=</span><span class="mi">2</span>
+</span><span class='line'><span class="c1"># You can also use:</span>
+</span><span class='line'><span class="nx">variable</span> <span class="o">?=</span> <span class="mi">2</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Instance variable</span>
+</span><span class='line'><span class="nx">@snake</span>
+</span><span class='line'><span class="c1"># Evaluates to:</span>
+</span><span class='line'><span class="k">this</span><span class="p">.</span><span class="nx">snake</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Ranges</span>
+</span><span class='line'><span class="p">[</span><span class="mi">1</span><span class="p">..</span><span class="mi">5</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Slice</span>
+</span><span class='line'><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">][</span><span class="mi">0</span><span class="p">..</span><span class="mi">1</span><span class="p">]</span> <span class="nf">=&gt;</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+</span><span class='line'><span class="c1"># Or:</span>
+</span><span class='line'><span class="err">“</span><span class="nx">my</span> <span class="nx">string</span><span class="err">”</span><span class="p">[</span><span class="mi">1</span><span class="p">..</span><span class="mi">4</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Checking Content</span>
+</span><span class='line'><span class="nx">arr</span> <span class="p">[</span><span class="err">“</span><span class="nx">a</span><span class="err">”</span><span class="p">,</span> <span class="err">“</span><span class="nx">b</span><span class="err">”</span><span class="p">,</span> <span class="err">“</span><span class="nx">c</span><span class="err">”</span><span class="p">];</span> <span class="err">“</span><span class="nx">a</span><span class="err">”</span> <span class="k">in</span> <span class="nx">arr</span>
+</span><span class='line'><span class="c1"># Returns true.</span>
+</span><span class='line'><span class="c1"># Like Ruby #include?</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Existential Operator</span>
+</span><span class='line'><span class="nx">praise</span> <span class="k">if</span> <span class="nx">brian</span><span class="o">?</span>
+</span><span class='line'><span class="c1">#  Only returns false for null or undefined (*NOT* for “” or 0).</span>
+</span><span class='line'><span class="c1">#  Like .nil? in Ruby.</span>
+</span><span class='line'><span class="c1">#  Can also be used for ||.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Classes</h2>
+
+<figure class='code'><figcaption><span>CoffeeScript - Classes</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="c1"># Declaring Classes</span>
+</span><span class='line'><span class="k">class</span> <span class="nx">Animal</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Instantiating Classes</span>
+</span><span class='line'><span class="nv">animal = </span><span class="k">new</span> <span class="nx">Animal</span><span class="p">(</span><span class="nx">args</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Instantiating Classes With Instance Variables</span>
+</span><span class='line'><span class="nv">constructor: </span><span class="nf">(arg) -&gt;</span>
+</span><span class='line'><span class="vi">@name = </span><span class="nx">name</span>
+</span><span class='line'><span class="c1"># Or the shorthand:</span>
+</span><span class='line'><span class="nv">contructor: </span><span class="nf">(@arg) -&gt;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Inheritance</span>
+</span><span class='line'><span class="k">class</span> <span class="nx">Parrot</span> <span class="k">extends</span> <span class="nx">Animal</span>
+</span><span class='line'><span class="c1"># In Ruby, this would be: class Parrot &lt; Animal</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Enumerables</h2>
+
+<figure class='code'><figcaption><span>CoffeeScript - Enumerables</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="c1"># each</span>
+</span><span class='line'><span class="nx">myFunction</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="k">for</span> <span class="nx">item</span> <span class="k">in</span> <span class="nx">array</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># each with index</span>
+</span><span class='line'><span class="k">for</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">i</span> <span class="k">in</span> <span class="nx">names</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># map</span>
+</span><span class='line'><span class="nv">result = </span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span> <span class="k">for</span> <span class="nx">item</span> <span class="k">in</span> <span class="nx">array</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># select</span>
+</span><span class='line'><span class="nv">result = </span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">name</span> <span class="k">for</span> <span class="nx">item</span> <span class="k">in</span> <span class="nx">array</span> <span class="k">when</span> <span class="nx">item</span><span class="p">.</span><span class="nx">name</span> <span class="o">==</span> <span class="err">“</span><span class="nx">test</span><span class="err">”</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># includes</span>
+</span><span class='line'><span class="nv">included = </span><span class="err">“</span><span class="nx">a</span> <span class="nx">long</span> <span class="nx">test</span> <span class="nx">string</span><span class="err">”</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="err">“</span><span class="nx">test</span><span class="err">”</span><span class="p">)</span> <span class="nx">isn</span><span class="err">’</span><span class="nx">t</span> <span class="o">-</span><span class="mi">1</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># iterating</span>
+</span><span class='line'><span class="nx">alert</span><span class="p">(</span><span class="err">“</span><span class="c1">#{key}#{value}) for key, value of object</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># min/max</span>
+</span><span class='line'><span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span> <span class="mi">2312</span><span class="p">,</span> <span class="mi">42</span><span class="p">]</span><span class="err">…</span> <span class="nf">=&gt;</span> <span class="mi">2312</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Bad Parts</h2>
+
+<figure class='code'><figcaption><span>CoffeeScript - Bad Parts</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="nb">eval</span><span class="p">()</span>
+</span><span class='line'><span class="c1"># Executes a piece of Javascript code in local scope. Throws complier off.</span>
+</span><span class='line'><span class="c1"># Insecure: this opens code for injection attacks.</span>
+</span><span class='line'><span class="c1"># Instead of:</span>
+</span><span class='line'><span class="nv">model= </span><span class="nb">eval</span><span class="p">(</span><span class="nx">modelName</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># Use:</span>
+</span><span class='line'><span class="nv">model = </span><span class="nb">window</span><span class="p">[</span><span class="nx">modelName</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">typeof</span><span class="p">()</span>
+</span><span class='line'><span class="c1"># Only useful to check if something is undefined, otherwise results are inconsistent.</span>
+</span><span class='line'><span class="c1"># Instead of:</span>
+</span><span class='line'><span class="k">typeof</span><span class="p">(</span><span class="nx">obj</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># Use:</span>
+</span><span class='line'><span class="nb">Object</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">toString</span><span class="p">()</span>
+</span><span class='line'><span class="c1"># Use duck typing with existential operator to try using an object whose type you don’t know.</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">instanceof</span><span class="p">()</span>
+</span><span class='line'><span class="c1"># Broken, like typeof(). Avoid use.</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">delete</span>
+</span><span class='line'><span class="c1"># Can be used safely to remove properties within objects, but not to delete functions or variables.</span>
+</span><span class='line'><span class="c1"># Assign them to null instead.</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="nb">parseInt</span><span class="p">()</span>
+</span><span class='line'><span class="c1"># Pass it a base to ensure it works as expected.</span>
+</span><span class='line'><span class="nb">parseInt</span><span class="p">(</span><span class="err">‘</span><span class="nx">num</span><span class="err">’</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Good Parts</h2>
+
+<ul>
+<li>Semicolons - don’t need them in CoffeeScript!</li>
+<li>Global variables - CS automatically declares var to prevent them!</li>
+<li>Reserved words - CS automatically escapes them!</li>
+<li>Type coercion - CS turns &ldquo;==&rdquo; into &ldquo;===&rdquo;</li>
+<li>Declarative functions - although you can call a function before it’s defined in JS, CS removes this problematic behavior.</li>
+<li>Number property lookups - in JS, &ldquo;.&rdquo; gets interpreted as a decimal. In CS it gets changed to &ldquo;..&rdquo;, to access a property.</li>
+<li>Linting - CS has built in linting, which can be called with
+&ldquo;coffee lint index.coffee&rdquo;</li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-03T08:31:00-07:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2013/11/03/coffescript-notes/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2013/11/03/coffescript-notes/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/11/01/clone-wars/" title="Previous Post: Clone Wars">&laquo; Clone Wars</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/11/06/restful-archicture/" title="Next Post: RESTful Architecture">RESTful Architecture &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/building-a-ruby-list-comprehension/">Building A Ruby List Comprehension</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/better-soa-development-with-foreman-and-nginx/">Better SOA Development With Foreman and NGINX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/">Using Services to Keep Your Rails Controllers Clean and DRY</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
