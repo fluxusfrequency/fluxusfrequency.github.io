@@ -10,7 +10,7 @@
 
   
   <meta name="description" content="This post originally appeared on Engine Yard.
-It also appeard on the Quick Left Blog. Everyone knows more is better. More kittens, more money, more &hellip;">
+It also appeard on the Quick Left Blog. MOAR! Everyone knows more is better. More kittens, more money, &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -97,11 +97,384 @@ It also appeard on the Quick Left Blog. Everyone knows more is better. More kitt
 <div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2014/better-soa-development-with-foreman-and-nginx">Engine Yard</a>.
 It also appeard on the <a href="http://quickleft.com/blog/better-service-oriented-architecture-project-development-with-scripts-foreman-and-nginx">Quick Left Blog</a>.</p>
 
+<h2>MOAR!</h2>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/165/asset.jpg"/></p>
+
 <p>Everyone knows more is better. More kittens, more money, more apps. Why settle for one Ruby project, when you can have three? We&rsquo;ll take one Rails app for authorization and one to serve an API. Hey, let&rsquo;s throw in a Sinatra proxy server serving up an AngularJS app to while we&rsquo;re at it! Now we&rsquo;re cookin&#8217;!</p>
 
-<p>There are many ways organizations stand to gain by splitting their application into multiple projects running in symphony. If we&rsquo;re being good programmers and following the Single Responsibility Principle (SRP), it makes sense to embrace it at all levels of organization, from our methods and classes up through our project structure. To organize this on the macro level, we can use a Service-Oriented Architecture (SOA) approach. In this article, we&rsquo;ll explore some patterns that make it easier to develop SOA apps with a minimum of headaches.</p>
+<p>There are many ways organizations stand to gain by splitting their application into multiple projects running in symphony. If we&rsquo;re being good programmers and following the Single Responsibility Principle (SRP), it makes sense to embrace it at all levels of organization, from our methods and classes up through our project structure. To organize this on the macro level, we can use a Service Oriented Architecture (SOA) approach. In this article, we&rsquo;ll explore some patterns that make it easier to develop SOA apps with a minimum of headaches.</p>
 
-<p><a href="https://blog.engineyard.com/2014/better-soa-development-with-foreman-and-nginx">Read More</a>.</p>
+<h2>Service Oriented Architecture</h2>
+
+<p>In the mid-2000s, some programmers began to organize their applications in a new way. Led by enterprise behemoths like Microsoft and IBM, the programming community saw a rise in the use of Web Services: applications that provide data or functionality to others. When you stick a few of these services together, and coordinate them in some kind of client-facing interface, you&rsquo;ve built an application using SOA. The benefits of this approach remain relevant in modern web development:</p>
+
+<ul>
+<li>Data storage is encapsulated</li>
+<li>You can reuse services between multiple applications (e.g. authentication)</li>
+<li>You can monitor messages sent between services for business intelligence</li>
+<li>Services are modular, and can be composed into new applications without repetition of common functionality</li>
+</ul>
+
+
+<h2>A Sample Project</h2>
+
+<p>To illustrate some processes that make it easier to develop an SOA project, we&rsquo;ll imagine that we&rsquo;re building a project called <code>Panda</code>, that is composed of three services:</p>
+
+<p>PandaAPI: A RESTful API that serves data about Giant Pandas
+PandaAuth: Login page and user authentication service
+PandaClient: An AngularJS app sitting atop a Sinatra proxy server</p>
+
+<h2>Setting Up GitHub</h2>
+
+<p>To deal with an SOA project like this, it&rsquo;s helpful to make sure you have everything well-structured on GitHub, so that all developers working on it can get up to speed quickly, and stay in sync with each other. I recommend creating an <a href="https://github.com/organizations/new">organization</a>, and setting up all of the service project repositories under that organization. For Panda, I would start with a structure that looks like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>panda-org (organization)
+</span><span class='line'>|- panda-auth (repo)
+</span><span class='line'>|- panda-api (repo)
+</span><span class='line'>|- panda-client (repo)
+</span><span class='line'>|- processes (repo)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The first three repos will hold the actual service projects, and the <code>processes</code> repo will hold scripts and processes that are shared between them.</p>
+
+<h2>Git Your S#*&amp; Together</h2>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/168/asset.jpg" /></p>
+
+<p>It can be pretty annoying to have your projects all out of sync. To make it easier to keep things up to date, here&rsquo;s a bash script you can use to pull all of your projects down and update them in one go. Inside of the processes folder, touch a file called <code>git_update.sh</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#git_update.sh</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">BRANCH</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'>: <span class="k">${</span><span class="nv">BRANCH</span><span class="p">:=</span><span class="s2">&quot;master&quot;</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">cd</span> ../panda-auth   <span class="o">&amp;&amp;</span> git checkout <span class="nv">$BRANCH</span> <span class="o">&amp;&amp;</span> git pull origin <span class="nv">$BRANCH</span>
+</span><span class='line'><span class="nb">cd</span> ../panda-api    <span class="o">&amp;&amp;</span> git checkout <span class="nv">$BRANCH</span> <span class="o">&amp;&amp;</span> git pull origin <span class="nv">$BRANCH</span>
+</span><span class='line'><span class="nb">cd</span> ../panda-client <span class="o">&amp;&amp;</span> git checkout <span class="nv">$BRANCH</span> <span class="o">&amp;&amp;</span> git pull origin <span class="nv">$BRANCH</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When executing this script, you can specify the branch by running <code>sh ./git_update &lt;feature-name&gt;</code>.</p>
+
+<p>We can do something similar for bundling and running migrations.</p>
+
+<p>Create the <code>bundle_and_migrate.sh</code> file.</p>
+
+<p>It should look like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Load RVM</span>
+</span><span class='line'><span class="o">[[</span> -s <span class="s2">&quot;$HOME/.rvm/scripts/rvm&quot;</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="nb">source</span> <span class="s2">&quot;$HOME/.rvm/scripts/rvm&quot;</span> <span class="c"># Load RVM into a shell session *as a function*</span>
+</span><span class='line'><span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;/usr/local/bin:/usr/local/sbin:~/bin:$PATH&quot;</span>
+</span><span class='line'><span class="o">[[</span> -s <span class="s2">&quot;$HOME/.rvm/scripts/rvm&quot;</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> . <span class="s2">&quot;$HOME/.rvm/scripts/rvm&quot;</span> <span class="c"># Load RVM function</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">cd</span> ../panda-auth   <span class="o">&amp;&amp;</span> bundle <span class="o">&amp;&amp;</span> bundle <span class="nb">exec </span>rake db:migrate
+</span><span class='line'><span class="nb">cd</span> ../panda-api    <span class="o">&amp;&amp;</span> bundle <span class="o">&amp;&amp;</span> bundle <span class="nb">exec </span>rake db:migrate
+</span><span class='line'><span class="nb">cd</span> ../panda-client <span class="o">&amp;&amp;</span> bundle <span class="o">&amp;&amp;</span> bundle <span class="nb">exec </span>rake db:migrate
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now the projects are all updated and ready to go, and we want to begin developing some features. We could write another script to go start <code>rails server</code> in each of our directories, but there is a better way.</p>
+
+<h2>Call In The Foreman</h2>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/166/asset.gif" /></p>
+
+<p>The <a href="https://github.com/ddollar/foreman">foreman gem</a> is my favorite way to manage multiple applications: it runs them all in a single terminal session. It&rsquo;s pretty simple to get set up, and saves you having to run a lot of shell sessions (and a lot of headaches).</p>
+
+<p>First, we&rsquo;ll need to <code>gem install foreman</code>, to make sure we have the global executable available. Then, we&rsquo;ll set up a <code>Procfile</code> to tell it which processes we want it to run. We&rsquo;ll create ours in the <code>processes</code> directory, since that&rsquo;s where we&rsquo;re keeping things that pertain to all of the projects in our SOA app.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#Procfile</span>
+</span><span class='line'>
+</span><span class='line'>auth:     sh -c <span class="s1">&#39;cd ../panda-auth   &amp;&amp; bundle exec rails s -p 3000&#39;</span>
+</span><span class='line'>api:       sh -c <span class="s1">&#39;cd ../panda-api    &amp;&amp; bundle exec rails s -p 3001&#39;</span>
+</span><span class='line'>client:   sh -c <span class="s1">&#39;cd ../panda-client &amp;&amp; bundle exec rails s -p 3002&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will work great as long as all of your apps are running on the same gemset. If not, you will need to check out the <a href="https://github.com/pitluga/subcontractor">subcontractor gem</a>.</p>
+
+<p>From the <code>processes</code> folder, run <code>foreman start</code>. Sweet. Now everything is all set up. Just open up your browser and navigate to <code>http://localhost:3000</code>. Oh, and pop open two more tabs for <code>http://localhost:3001</code> and <code>http://localhost:3002</code> in them.</p>
+
+<p>Man, wouldn&rsquo;t it be nice if we could just run everything under a single host name?</p>
+
+<h2>NGINX, NGINX #9</h2>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/167/asset.gif" /></p>
+
+<p>To get around the problem of having three different localhosts, we can use <a href="http://nginx.com/">NGINX</a>. If you&rsquo;re not familiar with NGINX, it&rsquo;s an Apache alternative that acts as &ldquo;a web server, a reverse proxy server and an application load balancer&rdquo; (from the official site). We can use it to serve up all three of our apps from the same host, and make things a whole lot easier on ourselves.</p>
+
+<p>To install NGINX, I recommend using <a href="http://brew.sh/">Homebrew</a>. If you have Homebrew, installation is as simple as <code>brew install nginx</code>. If you don&rsquo;t, you can try one of these <a href="http://wiki.nginx.org/Install">alternatives</a>.</p>
+
+<p>Once NGINX is installed, we&rsquo;ll want to locate our <code>nginx.conf</code>. If you installed using Homebrew, it will be located at <code>/usr/local/etc/nginx/nginx.conf</code>. Otherwise, you&rsquo;ll want to use <a href="http://quickleft.com/blog/looking-for-a-needle-in-a-haystack-or-using-ack-to-improve-your-development-workflow">ack</a>, <code>mdfind</code>, or another search tool to locate it.</p>
+
+<p>Once you&rsquo;ve located it, open it in your text editor and locate the <code>server</code> section. Find the block that starts with <code>location /</code> (line 43 for me) and replace it with the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#nginx.conf</span>
+</span><span class='line'>
+</span><span class='line'>http <span class="o">{</span>
+</span><span class='line'>  ...
+</span><span class='line'>
+</span><span class='line'>  server <span class="o">{</span>
+</span><span class='line'>    listen       8080<span class="p">;</span>
+</span><span class='line'>    ...
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Client</span>
+</span><span class='line'>    location / <span class="o">{</span>
+</span><span class='line'>      proxy_pass        http://127.0.0.1:3002<span class="p">;</span>
+</span><span class='line'>      proxy_set_header  X-Real-IP  <span class="nv">$remote_addr</span><span class="p">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># Auth</span>
+</span><span class='line'>    location /auth <span class="o">{</span>
+</span><span class='line'>      proxy_pass        http://127.0.0.1:3000<span class="p">;</span>
+</span><span class='line'>      proxy_set_header  X-Real-IP  <span class="nv">$remote_addr</span><span class="p">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># API</span>
+</span><span class='line'>    location /api <span class="o">{</span>
+</span><span class='line'>      proxy_pass        http://127.0.0.1:3001<span class="p">;</span>
+</span><span class='line'>      proxy_set_header  X-Real-IP  <span class="nv">$remote_addr</span><span class="p">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  ...
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  ...
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now start NGINX with the <code>nginx</code> command. With these <code>proxy_pass</code> settings in place, we should be able to visit see all of our apps from <code>http://localhost:8080</code>:</p>
+
+<ul>
+<li><code>/</code> takes us to the client app</li>
+<li><code>/auth</code> takes us to the auth app</li>
+<li><code>api</code> takes us to the API app</li>
+</ul>
+
+
+<h2>Dealing With Redirects</h2>
+
+<p>One last tricky part of developing SOA apps is figuring out how to deal with url redirects between our apps. Let&rsquo;s say that you want the client app to redirect users to the auth app if they haven&rsquo;t logged in yet.</p>
+
+<p>You would probably want to start with something like this in the client app:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#app/controllers/application_controller.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">ApplicationController</span> <span class="o">&lt;</span> <span class="no">ActionController</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="n">before_action</span> <span class="ss">:check_user</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">check_user</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">!</span><span class="n">session</span><span class="o">[</span><span class="ss">:user_id</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">redirect_to</span> <span class="s1">&#39;/auth&#39;</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Looks good, and it should work locally.</p>
+
+<p> But it could be a problem if some of your apps are served from subdomains in production. Fortunately, there&rsquo;s an easy way to get around this.</p>
+
+<p>Create a <code>config/service_urls.yml</code> file in each project. Inside of it, define the url for each app:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#config/service_urls.yml</span>
+</span><span class='line'>
+</span><span class='line'><span class="ss">defaults</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">defaults</span>
+</span><span class='line'>  <span class="n">service</span><span class="o">-</span><span class="ss">urls</span><span class="p">:</span>
+</span><span class='line'>    <span class="n">panda</span><span class="o">-</span><span class="ss">api</span><span class="p">:</span> <span class="s1">&#39;localhost:8080/api&#39;</span>
+</span><span class='line'>    <span class="n">panda</span><span class="o">-</span><span class="ss">auth</span><span class="p">:</span> <span class="s1">&#39;localhost:8080/auth&#39;</span>
+</span><span class='line'>    <span class="n">panda</span><span class="o">-</span><span class="ss">client</span><span class="p">:</span> <span class="s1">&#39;localhost:8080&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="ss">development</span><span class="p">:</span>
+</span><span class='line'>  <span class="o">&lt;&lt;</span><span class="p">:</span> <span class="o">*</span><span class="n">defaults</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">test</span><span class="p">:</span>
+</span><span class='line'>  <span class="o">&lt;&lt;</span><span class="p">:</span> <span class="o">*</span><span class="n">defaults</span>
+</span><span class='line'>
+</span><span class='line'><span class="ss">production</span><span class="p">:</span>
+</span><span class='line'>  <span class="n">service</span><span class="o">-</span><span class="ss">urls</span><span class="p">:</span>
+</span><span class='line'>    <span class="n">panda</span><span class="o">-</span><span class="ss">api</span><span class="p">:</span> <span class="s1">&#39;TBD&#39;</span>
+</span><span class='line'>    <span class="n">panda</span><span class="o">-</span><span class="ss">auth</span><span class="p">:</span> <span class="s1">&#39;TBD&#39;</span>
+</span><span class='line'>    <span class="n">panda</span><span class="o">-</span><span class="ss">client</span><span class="p">:</span> <span class="s1">&#39;TBD&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We&rsquo;ll also need to register this configuration file in <code>config/application.rb</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#config/application.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">module</span> <span class="nn">PandaClient</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">Application</span> <span class="o">&lt;</span> <span class="no">Rails</span><span class="o">::</span><span class="no">Application</span>
+</span><span class='line'>    <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>    <span class="c1"># In Rails 4.2, you can use:</span>
+</span><span class='line'>    <span class="no">Rails</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">urls</span> <span class="o">=</span> <span class="n">config_for</span><span class="p">(</span><span class="ss">:service_urls</span><span class="p">)</span><span class="o">[</span><span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># For older Rails versions, use:</span>
+</span><span class='line'>    <span class="no">Rails</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">urls</span> <span class="o">=</span> <span class="no">YAML</span><span class="o">.</span><span class="n">load_file</span><span class="p">(</span><span class="no">Rails</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="s1">&#39;service_urls.yml&#39;</span><span class="p">))</span><span class="o">[</span><span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With this configuration in place, we can now update the url redirect to look like the following, and it will work in all environments.</p>
+
+<p>That will look something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#app/controllers/application_controller.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">ApplicationController</span> <span class="o">&lt;</span> <span class="no">ActionController</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">check_user</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">!</span><span class="n">session</span><span class="o">[</span><span class="ss">:user_id</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">redirect_to</span> <span class="n">auth_url</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">auth_url</span>
+</span><span class='line'>    <span class="vi">@auth_url</span> <span class="o">||=</span> <span class="no">Rails</span><span class="o">.</span><span class="n">application</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">urls</span><span class="o">[</span><span class="s1">&#39;service-urls&#39;</span><span class="o">][</span><span class="s1">&#39;panda-auth&#39;</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With these changes in place, our applications will now redirect to the appropriate url in all environments.</p>
+
+<h2>All Your App Are Belong To Us</h2>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/169/asset.jpg" /></p>
+
+<p>By now, you sould have a better idea of what it takes to develop an application using SOA principals. We’ve taken a look at using shell scripts to keep our files in sync, foreman to run several servers at once, and NGINX to pull everything together into a single host address that makes it easier to work with all our services in the browser.</p>
+
+<p>Juggling several services can be pretty confusing, but if you start with the right set up, it makes things a lot easier. All your apps will be under control if you manage them from a central place, and using the strategies discussed in this article should help make the process less painful. Good luck!</p>
+
+<p>P.S. What tricks do you use when you’re developing SOA apps? Did I leave anything out? If you think so, tweet at me @fluxusfrequency.</p>
 </div>
 
 

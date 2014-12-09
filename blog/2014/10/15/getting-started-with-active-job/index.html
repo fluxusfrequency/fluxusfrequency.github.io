@@ -97,9 +97,274 @@ It was also a featured article in Ruby Weekly. With the announcement of Rails 4.
 <div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2014/getting-started-with-active-job">Engine Yard</a>.
 It was also a featured article in <a href="http://rubyweekly.com/issues/215">Ruby Weekly</a>.</p>
 
-<p>With the announcement of Rails 4.2 came some exciting <a href="news:">news:</a> Rails now has built-in support for executing jobs in the background using Active Job. The ability to schedule newsletters, follow-up emails, and database housekeeping tasks is vital to almost any production application. In the past, developers had to hand-roll this functionality, and configuration varied between different queueing services. With the release of Rails 4.2, setting up jobs to be executed by workers at a later time is standardized. In this article, we&rsquo;ll take a look at how to set up Active Job and use it to send a follow-up email to a new user.</p>
+<p>With the <a href="http://edgeguides.rubyonrails.org/4_2_release_notes.html">announcement of Rails 4.2</a> came some exciting <a href="news:">news:</a> Rails now has built-in support for executing jobs in the background using <a href="https://github.com/rails/rails/tree/master/activejob">Active Job</a>. The ability to schedule newsletters, follow-up emails, and database housekeeping tasks is vital to almost any production application. In the past, developers had to hand-roll this functionality, and configuration varied between different queueing services. With the release of Rails 4.2, setting up jobs to be executed by workers at a later time is standardized. In this article, we&rsquo;ll take a look at how to set up Active Job and use it to send a follow-up email to a new user.</p>
 
-<p><a href="https://blog.engineyard.com/2014/getting-started-with-active-job">Read More</a>.</p>
+<h2>Updating Rails</h2>
+
+<p>You&rsquo;ll need Rails 4.2.0beta1 or greater if you want to Active Job available by default (in older versions of Rails, you can require it as a gem). This tutorial is based on Rails 4.2.0beta2 (edge Rails). If you want to use edge Rails, use <code>gem 'rails', github: 'rails/rails'</code> in your <code>Gemfile</code>, and run <code>bundle update</code>.</p>
+
+<h2>Setting Up Resque</h2>
+
+<p>In order to send emails outside of our main application process, we&rsquo;ll need to make use of a queueing system. There are many choices of technology for setting up background workers available, and Active Job abstracts the differences between them. Today we&rsquo;ll use Resque, as it&rsquo;s widely-used and stable.</p>
+
+<p>To use Resque, you&rsquo;ll need to make sure you have <a href="http://redis.io/">Redis</a> installed. If you don&rsquo;t, I recommend getting it with <a href="http://brew.sh/">Homebrew</a>. Otherwise, you can follow the <a href="http://redis.io/download">instructions for download</a> from the official site. Once it&rsquo;s set up, make sure <code>redis-server</code> is running.</p>
+
+<p>The next step is to install and configure the Resque gem. We&rsquo;ll also need <code>resque-scheduler</code> to use ActiveJob. Add them the <code>Gemfile</code> with <code>gem 'resque'</code> and <code>gem 'resque-scheduler'</code> and <code>bundle install</code>. We&rsquo;ll also need to create a Resque configuration file:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#config/initializers/resque.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Resque</span><span class="o">.</span><span class="n">redis</span> <span class="o">=</span> <span class="no">Redis</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:url</span> <span class="o">=&gt;</span> <span class="s1">&#39;http://localhost:6379&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="no">Resque</span><span class="o">.</span><span class="n">after_fork</span> <span class="o">=</span> <span class="no">Proc</span><span class="o">.</span><span class="n">new</span> <span class="p">{</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">establish_connection</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We&rsquo;ll also require the Resque and Resque Scheduler rake tasks, so we can start our workers and scheduler with rake:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#lib/tasks/resque.rake</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;resque/tasks&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;resque/scheduler/tasks&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">namespace</span> <span class="ss">:resque</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">task</span> <span class="ss">:setup</span> <span class="k">do</span>
+</span><span class='line'>    <span class="nb">require</span> <span class="s1">&#39;resque&#39;</span>
+</span><span class='line'>    <span class="nb">require</span> <span class="s1">&#39;resque-scheduler&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We can now start a worker with <code>QUEUE=* rake environment resque:work</code>. If everything&rsquo;s working right, we should be able to see it in the Resque console. Run <code>resque-web</code> and visit <code>http://0.0.0.0:5678/overview</code>. If you see &ldquo;0 of 1 Workers Working&rdquo;, all&rsquo;s well. We&rsquo;ll also need to boot up the scheduler in a separate process with <code>rake environment resque:scheduler</code>.</p>
+
+<h2>Creating the Mailer</h2>
+
+<p>Now that we have a worker, we need it an email to send. Let&rsquo;s imagine that we want to send a follow up email to a user that recently registered for our site. We&rsquo;ll create a <code>UserMailer</code>, with a <code>follow_up_email</code> method that takes an email address.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#app/mailers/user_mailer.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">UserMailer</span> <span class="o">&lt;</span> <span class="no">ActionMailer</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="n">default</span> <span class="ss">from</span><span class="p">:</span> <span class="s1">&#39;noreturn@example.com&#39;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">follow_up_email</span><span class="p">(</span><span class="n">email</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">mail</span><span class="p">(</span>
+</span><span class='line'>      <span class="ss">to</span><span class="p">:</span> <span class="n">email</span><span class="p">,</span>
+</span><span class='line'>      <span class="ss">subject</span><span class="p">:</span> <span class="s1">&#39;We hope you are enjoying our app&#39;</span>
+</span><span class='line'>    <span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We&rsquo;ll also need to write a follow-up email template.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#app/views/user_mailer/follow_up_email.text</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Hey</span><span class="p">,</span> <span class="n">we</span> <span class="n">saw</span> <span class="n">that</span> <span class="n">you</span> <span class="n">recently</span> <span class="n">signed</span> <span class="n">up</span> <span class="k">for</span> <span class="n">our</span> <span class="n">app</span><span class="o">.</span>
+</span><span class='line'><span class="no">We</span> <span class="n">hope</span> <span class="n">you</span><span class="err">&#39;</span><span class="n">re</span> <span class="n">enjoying</span> <span class="n">it!</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Creating the Job</h2>
+
+<p>Now that we have a working mailer, we can set up Active Job. All we really need to do is configure it to use the Resque adapter.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#config/initializers/active_job.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">ActiveJob</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">queue_adapter</span> <span class="o">=</span> <span class="ss">:resque</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next, we&rsquo;ll create a job that tells the background worker to send the email. The conventions for a <code>job</code> include: giving it a <code>queue_as</code>, and defining a <code>perform</code> method.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#app/jobs/follow_up_email_job.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">FollowUpEmailJob</span> <span class="o">&lt;</span> <span class="no">ActiveJob</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="n">queue_as</span> <span class="ss">:email</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">perform</span><span class="p">(</span><span class="n">email</span><span class="p">)</span>
+</span><span class='line'>    <span class="no">UserMailer</span><span class="o">.</span><span class="n">follow_up_email</span><span class="p">(</span><span class="n">email</span><span class="p">)</span><span class="o">.</span><span class="n">deliver_now</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now when a user signs up, we can have the <code>UsersController</code> enqueue the job for execution at a later time. Although you would probably delay the job a few days in a real application, we&rsquo;ll just wait 10 seconds for easier testing.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#app/controllers/users_controller.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">UsersController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">new</span>
+</span><span class='line'>    <span class="vi">@user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>    <span class="vi">@user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">user_params</span><span class="p">)</span>
+</span><span class='line'>    <span class="no">FollowUpEmailJob</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="vi">@user</span><span class="o">.</span><span class="n">email</span><span class="p">)</span><span class="o">.</span><span class="n">enqueue</span><span class="p">(</span><span class="ss">wait</span><span class="p">:</span> <span class="mi">10</span><span class="o">.</span><span class="n">seconds</span><span class="p">)</span>
+</span><span class='line'>    <span class="c1"># redirect somewhere</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To make this work, we&rsquo;ll need some routes and a view template:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#config/routes.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Rails</span><span class="o">.</span><span class="n">application</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">draw</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">resources</span> <span class="ss">:users</span><span class="p">,</span> <span class="ss">only</span><span class="p">:</span> <span class="o">[</span><span class="ss">:new</span><span class="p">,</span> <span class="ss">:create</span><span class="o">]</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='erb'><span class='line'><span class="x">#app/views/users/new.html.erb</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">&lt;%=</span> <span class="n">form_for</span> <span class="vi">@user</span> <span class="k">do</span> <span class="o">|</span><span class="n">f</span><span class="o">|</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">  </span><span class="cp">&lt;%=</span> <span class="n">f</span><span class="o">.</span><span class="n">email_field</span> <span class="ss">:email</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">  </span><span class="cp">&lt;%=</span> <span class="n">f</span><span class="o">.</span><span class="n">submit</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span><span class='line'><span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Setting Up Mailcatcher</h2>
+
+<p>Before we try our job, we&rsquo;ll want to make sure we can intercept the emails we&rsquo;re expecting the mailer to send. To achieve this, we&rsquo;ll use the <code>mailcatcher</code> gem. Do a global install with <code>gem install mailcatcher</code>, and run <code>mailcatcher</code>. Once we configure Action Mailer to send the emails to <code>localhost:1025</code> via smtp, we&rsquo;ll be able to view intercepted emails at <code>http://127.0.0.1:1080</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#config/environments/development.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Rails</span><span class="o">.</span><span class="n">application</span><span class="o">.</span><span class="n">configure</span> <span class="k">do</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>  <span class="n">config</span><span class="o">.</span><span class="n">action_mailer</span><span class="o">.</span><span class="n">delivery_method</span> <span class="o">=</span> <span class="ss">:smtp</span>
+</span><span class='line'>  <span class="n">config</span><span class="o">.</span><span class="n">action_mailer</span><span class="o">.</span><span class="n">smtp_settings</span> <span class="o">=</span> <span class="p">{</span> <span class="ss">:address</span> <span class="o">=&gt;</span> <span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="ss">:port</span> <span class="o">=&gt;</span> <span class="mi">1025</span> <span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Trying It Out</h2>
+
+<p>Now everything is set up. To try it out, we&rsquo;ll sign up as a new user and watch the job get enqueued in the queue, then catch the mail in Mailcatcher. At this point, we have four processes running:</p>
+
+<ul>
+<li><code>mailcatcher</code></li>
+<li><code>QUEUE=* rake environment resque:work</code></li>
+<li><code>rake environment resque:scheduler</code></li>
+<li><code>rails server</code></li>
+</ul>
+
+
+<p>In your browser, view the Resque dashboard at <code>http:/http://0.0.0.0:5678</code>. In another tab, visit <code>http://127.0.0.1:1080</code> to see the Mailcatcher dashboard.</p>
+
+<p>Now, for the moment of truth. Visit <code>localhost:3000/users/new</code> and sign up as a new user. Ten seconds later, a new job will appear in the <code>emails</code> queue of the Resque dashboard. Just afterward, the email will appear in Mailcatcher.</p>
+
+<h2>Using Acive Job with Action Mailer</h2>
+
+<p>The pattern we&rsquo;ve written here woks for scheduling any job. But, since ActiveJob is now baked into ActionMailer, we can also schedule the job directly with the <code>UserMailer</code> in the <code>UsersController</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#app/controllers/users_controller.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">UsersController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>    <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>    <span class="no">UserMailer</span><span class="o">.</span><span class="n">follow_up_email</span><span class="p">(</span><span class="n">email</span><span class="p">)</span><span class="o">.</span><span class="n">deliver_later!</span><span class="p">(</span><span class="ss">wait</span><span class="p">:</span> <span class="mi">10</span><span class="o">.</span><span class="n">seconds</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Conclusion</h2>
+
+<p>Active Job makes scheduling background jobs easier. It&rsquo;s also a great way to set up your job infrastructure without knowing too much about what queueing system you&rsquo;re using. If you needed to switch to <a href="https://github.com/mperham/sidekiq">Sidekiq</a> or <a href="https://github.com/collectiveidea/delayed_job">Delayed Job</a> in the future, it would be as simple as setting ActiveJob to the appropriate adapter.</p>
+
+<p>It can be a little bit tricky to get Active Job set up correctly. Hopefully, this tutorial made the process a little more transparent for you.</p>
+
+<p>Until next time,</p>
+
+<p>Happy hacking!</p>
 </div>
 
 

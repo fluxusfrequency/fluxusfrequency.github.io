@@ -9,7 +9,7 @@
   <meta name="author" content="Ben Lewis">
 
   
-  <meta name="description" content="This post originally appeared on Engine Yard. It also appeared in Ruby Weekly. We&rsquo;ve heard it again and again, like a nagging schoolmaster: &hellip;">
+  <meta name="description" content="This post originally appeared on Engine Yard. It also appeared in Ruby Weekly. Using Services to Keep Your Rails Controllers Clean and DRY We&rsquo; &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -97,9 +97,313 @@
 
 <p>It also appeared in <a href="http://rubyweekly.com/issues/214">Ruby Weekly</a>.</p>
 
+<h1>Using Services to Keep Your Rails Controllers Clean and DRY</h1>
+
 <p>We&rsquo;ve heard it again and again, like a nagging schoolmaster: keep your Rails controllers skinny. Yeah, yeah, we know. But easier said than done, sometimes. Things get complex. We need to talk to some other parts of our codebase or to external APIs to get the job done. Mailers. Stripe. External APIs. All that code starts to add up.</p>
 
-<p><a href="https://blog.engineyard.com/2014/keeping-your-rails-controllers-dry-with-services">Read more</a></p>
+<h2>Ah Tss Push It&hellip;Push It Down the Stack</h2>
+
+<p>If we ask: &ldquo;where, pray tell, should this code live?&rdquo;, the answer comes like a resounding chorus: &ldquo;push it down to the model layer!&rdquo;</p>
+
+<p>But what if we want to keep our models simple? They should actually reflect the business objects related to our app, according to <a href="http://quickleft.com/blog/engineering-lunch-series-building-complex-domains-in-rails">Domain Driven Design</a> and other approaches.</p>
+
+<p>Time to get custom!</p>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/158/asset.gif"/></p>
+
+<p>Crack open the old <code>app</code> folder. What do you see? The usual fare? Guess what?  Just because Rails comes with six folders doesn&rsquo;t mean we&rsquo;re restricted to six types of object. Let&rsquo;s make some new folders!</p>
+
+<h2>At Your Service</h2>
+
+<p>I like to create various kinds of service objects in my Rails app. Tom Pewiński&rsquo;s <a href="https://netguru.co/blog/service-objects-in-rails-will-help">recent article</a> in <a href="http://rubyweekly.com/">Ruby Weekly</a> does a great job of covering how to write service objects that help complete an action, like <code>create_invoice</code> or <code>register_user</code>. While he puts all of his service objects into a single <code>services</code> folder, I like to get a little more granular. I&rsquo;ll typically create an <code>actions</code> folder for things like <code>create_invoice</code>, and folders for other service objects such as <code>decorators</code>, <code>policies</code>, and <code>support</code>. I also use a <code>services</code> folder, but I reserve it for service objects that talk to <em>external</em> entities, like Stripe, AWS, or geolocation services.</p>
+
+<p>Here&rsquo;s how the app folder might look with all of these subfolders in it:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>app
+</span><span class='line'>|- actions
+</span><span class='line'>|- assets
+</span><span class='line'>|- controllers
+</span><span class='line'>|- decorators
+</span><span class='line'>|- models
+</span><span class='line'>|- policies
+</span><span class='line'>|- services
+</span><span class='line'>|- support
+</span><span class='line'>|- views
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Earning Our Stripes</h2>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/159/asset.jpg"/></p>
+
+<p>Let&rsquo;s give it a try, right now! We&rsquo;ll make a credit card service that uses the <a href="https://stripe.com/">Stripe</a> gem.</p>
+
+<p>We&rsquo;ll create an <code>app/services</code> folder and touch a <code>credit_card_service.rb</code> inside of it. It&rsquo;s going to be a Plain Old Ruby Object™ (PORO).</p>
+
+<p>It&rsquo;s probably a good idea to wrap the calls to the Stripe gem in local methods like <code>external_customer_service</code> and <code>external_charge_service</code>, in case we ever want to switch over to Braintree or something else. On object initialization, we&rsquo;ll use dependency injection to accept charge amounts, card tokens, and emails. Our service will expose <code>charge!</code> and <code>create_customer!</code> methods to hook our controllers into.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># app/services/credit_card_service.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;stripe&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">CreditCardService</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@card</span> <span class="o">=</span> <span class="n">params</span><span class="o">[</span><span class="ss">:card</span><span class="o">]</span>
+</span><span class='line'>    <span class="vi">@amount</span> <span class="o">=</span> <span class="n">params</span><span class="o">[</span><span class="ss">:amount</span><span class="o">]</span>
+</span><span class='line'>    <span class="vi">@email</span> <span class="o">=</span> <span class="n">params</span><span class="o">[</span><span class="ss">:email</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">charge</span>
+</span><span class='line'>    <span class="k">begin</span>
+</span><span class='line'>      <span class="c1"># This will return a Stripe::Charge object</span>
+</span><span class='line'>      <span class="n">external_charge_service</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">charge_attributes</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">rescue</span>
+</span><span class='line'>      <span class="kp">false</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create_customer</span>
+</span><span class='line'>    <span class="k">begin</span>
+</span><span class='line'>      <span class="c1"># This will return a Stripe::Customer object</span>
+</span><span class='line'>      <span class="n">external_customer_service</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">customer_attributes</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">rescue</span>
+</span><span class='line'>      <span class="kp">false</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:card</span><span class="p">,</span> <span class="ss">:amount</span><span class="p">,</span> <span class="ss">:email</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">external_charge_service</span>
+</span><span class='line'>    <span class="no">Stripe</span><span class="o">::</span><span class="no">Charge</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">external_customer_service</span>
+</span><span class='line'>    <span class="no">Stripe</span><span class="o">::</span><span class="no">Customer</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">charge_attributes</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="ss">amount</span><span class="p">:</span> <span class="n">amount</span><span class="p">,</span>
+</span><span class='line'>      <span class="ss">card</span><span class="p">:</span> <span class="n">card</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">customer_attributes</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="ss">email</span><span class="p">:</span> <span class="n">email</span><span class="p">,</span>
+</span><span class='line'>      <span class="ss">card</span><span class="p">:</span> <span class="n">card</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Hook it Up</h2>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/160/asset.jpg"></p>
+
+<p>Now we can write some clean, easily maintainable controller code. We keep the registration logic private, and if we ever want to change it, the controller doesn&rsquo;t have to know anything about it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># app/controllers/users_controller.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">UsersController</span> <span class="o">&lt;</span> <span class="no">ActionController</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>    <span class="vi">@user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">user_params</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">registration</span> <span class="o">=</span> <span class="n">register_with_credit_card_service</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">registration</span>
+</span><span class='line'>      <span class="c1"># Save the id from the Stripe::Customer object</span>
+</span><span class='line'>      <span class="n">add_customer_id_to_user</span><span class="p">(</span><span class="n">registration</span><span class="o">[</span><span class="s2">&quot;id&quot;</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">register_with_credit_card_service</span>
+</span><span class='line'>    <span class="no">CreditCardService</span><span class="o">.</span><span class="n">new</span><span class="p">({</span>
+</span><span class='line'>      <span class="ss">card</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:stripe_token</span><span class="o">]</span>
+</span><span class='line'>      <span class="ss">email</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:user</span><span class="o">][</span><span class="ss">:email</span><span class="o">]</span>
+</span><span class='line'>    <span class="p">})</span><span class="o">.</span><span class="n">create_customer</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">add_customer_id_to_user</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@user</span><span class="o">.</span><span class="n">update_attributes</span><span class="p">(</span><span class="ss">external_customer_id</span><span class="p">:</span> <span class="nb">id</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Test It Out</h2>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/161/asset.jpg"></p>
+
+<p>Since we&rsquo;re just using a PORO, this should be nice and easy to test. Let&rsquo;s make a <code>test/services</code> folder. If you want to add its contents to your rake tasks, <a href="http://stackoverflow.com/questions/18894060/rails-and-minitest-add-additional-folder">try this</a>. Let&rsquo;s assume that we already have a <code>test_helper.rb</code> that includes the Rails helpers in ActiveSupport::TestCase and <a href="https://github.com/freerange/mocha">mocha</a>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># test/services/credit_card_service_test.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;test_helper&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">CreditCardServiceTest</span> <span class="o">&lt;</span> <span class="no">ActiveSupport</span><span class="o">::</span><span class="no">TestCase</span>
+</span><span class='line'>  <span class="nb">test</span> <span class="s1">&#39;it creates charges&#39;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>      <span class="ss">amount</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+</span><span class='line'>      <span class="ss">card</span><span class="p">:</span> <span class="s1">&#39;TOKEN&#39;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="no">Stripe</span><span class="o">::</span><span class="no">Charge</span><span class="o">.</span><span class="n">expects</span><span class="p">(</span><span class="ss">:create</span><span class="p">)</span><span class="o">.</span><span class="n">with</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">returns</span><span class="p">(</span><span class="kp">true</span><span class="p">)</span>
+</span><span class='line'>    <span class="c1"># This will return false if it fails</span>
+</span><span class='line'>    <span class="n">charge</span> <span class="o">=</span> <span class="no">CreditCardService</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">charge</span>
+</span><span class='line'>    <span class="n">assert</span> <span class="n">charge</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nb">test</span> <span class="s1">&#39;it creates customers&#39;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>      <span class="ss">email</span><span class="p">:</span> <span class="s1">&#39;test@example.card&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="ss">card</span><span class="p">:</span> <span class="s1">&#39;TOKEN&#39;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="no">Stripe</span><span class="o">::</span><span class="no">Customer</span><span class="o">.</span><span class="n">expects</span><span class="p">(</span><span class="ss">:create</span><span class="p">)</span><span class="o">.</span><span class="n">with</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">returns</span><span class="p">(</span><span class="kp">true</span><span class="p">)</span>
+</span><span class='line'>    <span class="c1"># This will return false if it fails</span>
+</span><span class='line'>    <span class="n">customer</span> <span class="o">=</span> <span class="no">CreditCardService</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">create_customer</span>
+</span><span class='line'>    <span class="n">assert</span> <span class="n">customer</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Keep It Clean</h2>
+
+<p>The last thing you want in your Rails app is a bunch of complicated controllers that are hard to change. Though it may sound pedantic, those voices chanting &ldquo;Skinny Controller, Fat Model&rdquo; are right. It&rsquo;s easy to get caught in the trap of answering &ldquo;where should I put this code&rdquo; with &ldquo;let&rsquo;s open the <code>app</code> folder and see what cubbies I was given&rdquo;. Don&rsquo;t be afraid to take your Rails project by the horns! You can create your own actions, decorators, support objects, and services. Start including these patterns in your Rails app, and your code will come out clean and DRY: so fresh, so clean!</p>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/162/asset.gif"></p>
 </div>
 
 

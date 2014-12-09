@@ -99,11 +99,233 @@ It was also a featured article in <a href="http://rubyweekly.com/issues/221">Rub
 
 <p>As developers, we&rsquo;re in the business of continually bettering ourselves. Part of that process is pushing ourselves to learn and use better code patterns, try new libraries, and pick up new languages. For me, the latest self-learning project has been picking up Python.</p>
 
-<p>As I’ve worked with it, I’ve discovered the joy of list comprehensions, and I’ve been wondering what it would take to implement a similar syntax in Ruby.</p>
+<p>As I’ve worked with it, I’ve discovered the joy of <a href="https://docs.python.org/3.5/tutorial/datastructures.html#list-comprehensions">list comprehensions</a>, and I’ve been wondering what it would take to implement a similar syntax in Ruby. I decided to give it a try. This exercise yielded several insights into the inner workings of Ruby, which we&rsquo;ll explore in this post.</p>
 
-<p>I decided to give it a try. This exercise yielded several insights into the inner workings of Ruby, which we&rsquo;ll explore in this post.</p>
+<h2>Snake Handling</h2>
 
-<p><a href="https://blog.engineyard.com/2014/ruby-list-comprehension">Read More</a>.</p>
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/194/asset.gif"></p>
+
+<p>I’m primarily a Rubyist. I’ve always enjoyed the natural way that Ruby flows off the fingers, and heard that Python was similar. It sounded easy enough, especially since <a href="http://www.stavros.io/tutorials/python/">this article</a> promised I could learn Python in ten minutes.</p>
+
+<p>It took a little while to get used to some of the differences in Python, like capitalizing booleans and passing <code>self</code> into all of my methods&ndash;but they were mostly superficial differences. As I solved more and more Python problems on <a href="http://exercism.io/">exercism.io</a>, the syntax began to feel natural.  I felt like everything I wrote in Python had an analog in Ruby. Except list comprehensions.</p>
+
+<h2>You Cannot Grasp The True Form Of Lists</h2>
+
+<p>In Python, Coffeescript, and many functional languages, there is a really cool operation you can do called a <em>list comprehension</em>. It&rsquo;s something like a <code>map</code>, but it&rsquo;s written in mathematical <a href="http://en.wikipedia.org/wiki/Set-builder_notation">set builder notation</a>, which looks like this:</p>
+
+<p>Instead of doing this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>(1..100).map { |i| 2 * i if i.even? }</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You do this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[2 * x for x in xrange(1, 100)]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can even nest comprehensions:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>return [[print(str(x) for x in y] for 2 * y in xrange(1, 100)]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>These are so cool, in fact, that I decided to see if I could implement them in Ruby.</p>
+
+<h2>How It Works</h2>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/193/asset.gif"></p>
+
+<p>My first thought in writing a list comprehension in Ruby was to make it look like Python. I wanted to be able to write square brackets with an expression inside of them. To make that happen, I would need to override the <code>main</code> <code>[]()</code> method. It turns out that that method is an alias for the <code>Array#[]</code> <a href="http://www.ruby-doc.org/core-2.1.3/Array.html#method-c-5B-5D">singleton method</a>.  It&rsquo;s not so easy to monkey patch, because you can&rsquo;t really call <code>super</code> on it.</p>
+
+<p>I decided to abandon this approach and create a new method called <code>c()</code>, that I would put in a module and include in <code>main</code>.  Ideally, this method would take a single argument with this syntax: <code>x for x in my_array if x.odd?</code>. Since you can&rsquo;t really pass an expression like this into a method and expect Ruby to parse it properly, I opted to pass it in as a string and parse it. I was into this idea, but not really interested in rewriting the Ruby source code.</p>
+
+<h2>Caught In A Loop</h2>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/192/asset.gif"></p>
+
+<p>My first goal was to get the basic <code>x for x in my_array</code> part working.</p>
+
+<p>I wrote a test:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class ComprehensionTest &lt; Minitest::Test
+</span><span class='line'>  def setup
+</span><span class='line'>    extend ListComprehension
+</span><span class='line'>  end
+</span><span class='line'>
+</span><span class='line'>  def test_simple_array
+</span><span class='line'>    result = c('n for n in [1, 2, 3, 4, 5]')
+</span><span class='line'>    assert_equal [1, 2, 3, 4, 5], result
+</span><span class='line'>  end
+</span><span class='line'>end
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This was fairly straightforward to get passing.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>module ListComprehension
+</span><span class='line'>  def c(comprehension)
+</span><span class='line'>    parts = comprehension.split(' ')
+</span><span class='line'>    if parts[0] == parts[2]
+</span><span class='line'>      eval(comprehension.scan(/\[.*\]/).last)
+</span><span class='line'>    end
+</span><span class='line'>  end
+</span><span class='line'>end
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I continued working along, refactoring to have the module instantiate a <code>Comprehension</code> class and evaluate parts of the string:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>module ListComprehension
+</span><span class='line'>  def c(expression)
+</span><span class='line'>    Comprehension.new(expression).comprehend
+</span><span class='line'>  end
+</span><span class='line'>end
+</span><span class='line'>
+</span><span class='line'>class Comprehension
+</span><span class='line'>  def initialize(expression)
+</span><span class='line'>    @expression = expression
+</span><span class='line'>  end
+</span><span class='line'>
+</span><span class='line'>  def comprehend
+</span><span class='line'>    # Do some parsing and call `eval` on some stuff
+</span><span class='line'>  end
+</span><span class='line'>end
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But pretty soon, I ran into a problem.</p>
+
+<h2>No Scope</h2>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/191/asset.gif"></p>
+
+<p>When I defined a variable in the test scope, then tried to evaluate it in the <code>comprehension</code> argument string, my Comprehension couldn&rsquo;t access it.</p>
+
+<p>For example, I wrote this test:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>def test_array_variable
+</span><span class='line'>  example = [1, 2, 3, 4, 5]
+</span><span class='line'>  result = c ('x for x in example)
+</span><span class='line'>  assert_equal [1, 2, 3, 4, 5], result
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When I tried to call <code>eval</code> on <code>example</code>, I got:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>NameError: undefined local variable or method `example' for #&lt;Comprehension:0x007f9cec989fc8&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So how could I acceess the scope where <code>example</code> was defined? I did some googling, and discovered that you can access the calling scope a lot more easily from block than a string that you pass into a method.</p>
+
+<p>With that in mind, I changed the interface of <code>Comprehension</code> to take a block instead of a string. To call <code>c()</code>, you would now write <code>c{ 'x for x in example' }</code> instead of <code>c('x for x in example')</code>.</p>
+
+<p>Inside of the <code>Comprehension</code> class, I did:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class Comprehension
+</span><span class='line'>  def initialize(&block)
+</span><span class='line'>    @comprehension = block.call
+</span><span class='line'>    @scope = block.send(:binding)
+</span><span class='line'>  end
+</span><span class='line'>
+</span><span class='line'>  ...
+</span><span class='line'>
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now I could call <code>eval</code> on the calling scope by doing:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>def comprehend
+</span><span class='line'>  # some parsing
+</span><span class='line'>  collection = scope.send(:eval, parts.last)
+</span><span class='line'>  # carry out some actions on the collection
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I had no idea you could access the calling scope like this in Ruby. It opened my eyes to the whole world of accessing callers and callees in a way that I normally don&rsquo;t think about in Ruby.</p>
+
+<h2>You Obviously Worked Hard On These Plans, Kernel Klink</h2>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/190/asset.gif"></p>
+
+<p>I wasn&rsquo;t all that happy with having to define my <code>c()</code> method in a module and include it in the <code>main</code> scope. I really just wanted it to be available automagically if you required <code>comprehension.rb</code>.</p>
+
+<p>After poking around a bit, I found an <a href="http://hopsoft.github.io/blog/ruby-metaprogramming-idioms/">article</a> on metaprogramming that showed me how you can monkey patch <code>Kernel</code> itself.</p>
+
+<p>After changing <code>module ListComprehension</code> to <code>module Kernel</code>, I was able to remove the setup method entirely from my test suite. I didn&rsquo;t realize it was this easy to get methods defined in the <code>main</code> scope. Even though it is probably very wrong in many situations, it&rsquo;s cool to get an understanding of how Ruby itself is put together.</p>
+
+<h2>Lessons Learned</h2>
+
+<p>I set out to write a list comprehension in Ruby, and in a way, I failed.  I was hoping to be able to write an expression inside of square brackets and have Ruby parse it. I ended up settling for a string inside of a block instead.</p>
+
+<p>What&rsquo;s more, my comprehension implementation is lacking several features. It doesn&rsquo;t support method calls in the conditional, so you can&rsquo;t write <code>c{'x for x in (0..10) if Array(x)'}</code>. You can&rsquo;t pass arguments to the conditional either, so you can&rsquo;t do <code>c{'x for x in (1..10) if x.respond_to?(:even?)'}</code>. You can&rsquo;t access an index while you&rsquo;re looping. And perhaps most disappointing of all, you can&rsquo;t nest comprehensions.</p>
+
+<p>But despite these shortcomings, I felt like this exercise was a great success, because I learned three things:</p>
+
+<ol>
+<li><p>When you call <code>[]</code> to create an array, you&rsquo;re really calling <code>Array#[]</code>, which delegates to <code>Array#new</code>.</p></li>
+<li><p>You can access the calling scope of a block with <code>block.send(:binding)</code>.</p></li>
+<li><p>You can monkey patch <code>module Kernel</code> to get methods available in <code>main</code>.</p></li>
+</ol>
+
+
+<p>To the the knowledge gained from this adventure was totally worth it.  Although I did not create a library I would expect people to use, I learned a lot about how Ruby works, and had a great time solving the problem. To check out the full results, please <a href="https://github.com/fluxusfrequency/ruby-comprehension.git">visit my GitHub profile</a>.</p>
+
+<p>P.S. How would you have solved it? Maybe you&rsquo;ve written a natively parsed list comprehension yourself? If so, tweet at me @fluxusfrequency.</p>
 </div>
 
 

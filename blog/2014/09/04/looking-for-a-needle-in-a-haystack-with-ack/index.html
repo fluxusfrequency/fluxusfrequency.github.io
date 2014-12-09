@@ -9,7 +9,7 @@
   <meta name="author" content="Ben Lewis">
 
   
-  <meta name="description" content="This post originally appeared on the Quick Left Blog. Every day when I&rsquo;m programming, I invariably come to a point where I&rsquo;m looking for &hellip;">
+  <meta name="description" content="This post originally appeared on the Quick Left Blog. or Using Ack to Improve Your Development Workflow Introduction Every day when I&rsquo;m &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -95,11 +95,242 @@
 
 <div class="entry-content"><p>This post originally appeared on the <a href="http://quickleft.com/blog/looking-for-a-needle-in-a-haystack-or-using-ack-to-improve-your-development-workflow">Quick Left Blog</a>.</p>
 
-<p>Every day when I&rsquo;m programming, I invariably come to a point where I&rsquo;m looking for a certain line of code in my project. I could just use my editor&rsquo;s &ldquo;find in files&rdquo; feature and look for it, but sometimes I need more fine grained control. What if I want to find all the lines of code that don&rsquo;t contain a certain phrase? What if I want to search on a Regular Expression? What if I want to easily save the search results to a file?</p>
+<h2>or Using Ack to Improve Your Development Workflow</h2>
 
-<p>When I need MOAR POWER in finding something, I turn my favorite command line search tool: ack. In this blog post, we&rsquo;ll explore the ins and outs of this fantastic application.</p>
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/120/asset.jpg" style="margin:0 auto;display:block;"></p>
 
-<p><a href="http://quickleft.com/blog/looking-for-a-needle-in-a-haystack-or-using-ack-to-improve-your-development-workflow">Read more</a></p>
+<h2>Introduction</h2>
+
+<p>Every day when I&rsquo;m programming, I invariably come to a point where I&rsquo;m looking for a certain line of code in
+my project. Usually, there&rsquo;s a pattern that I saw and want to reuse, and I can&rsquo;t
+find it. I could just use my editor&rsquo;s &ldquo;find in files&rdquo; feature and look for it, but sometimes I need more fine
+grained control. What if I want to find all the lines of code that <em>don&rsquo;t</em>
+contain a certain phrase? What if I want to search on a Regular
+Expression? What if I want to easily save the search results to a file?</p>
+
+<p>When I need more control in finding something, I turn my favorite command line search tool:
+<a href="http://beyondgrep.com/">ack</a>.</p>
+
+<h2>Why Ack?</h2>
+
+<p>Why should you use <code>ack</code>, when your unix distribution comes with <code>find</code>, <code>mdfind</code>, and
+<code>grep</code>? Well, because it has these advantages:</p>
+
+<ul>
+<li>It only searches the stuff you care about. It excludes Git,
+Subversion, binary files, and other irrelevant file types.</li>
+<li>It can search all the files in a certain language, regardless of file
+extension.</li>
+<li>It is a lot easier to remember the command flags to scope your search
+than with other tools.</li>
+</ul>
+
+
+<h2>Installing Ack</h2>
+
+<p>To install Ack, I would suggest using <a href="http://brew.sh/">homebrew</a>. If you
+have it installed, just type <code>brew install ack</code>.</p>
+
+<p>You can also use <code>package</code> on many other Unix distributions, as well as
+Macports, OpenBSD and FreeBSD, or just download it with this command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl http://beyondgrep.com/ack-2.12-single-file &gt; ~/bin/ack && chmod 0755 !#:3</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Basic Seach</h2>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/118/asset.gif" style="margin:0 auto;display:block;"></p>
+
+<p>To do a basic search for a string in a file with ack, the syntax
+is as simple as:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack &lt;search-pattern&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will recursively search for the pattern in specified directory.
+I usually just use a simple text search. For example, if you were to do
+this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mkdir tmp && cd tmp
+</span><span class='line'>echo "Hello, world" &gt; hello.txt
+</span><span class='line'>echo "Goodbye, world" &gt; goodbye.txt
+</span><span class='line'>echo "Hello, squirrel" &gt; hi.txt
+</span><span class='line'>echo "Goodbye, squirrel" &gt; bye.txt</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then you could search for the files containing <code>hello</code> with:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack hello .</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>.</code> here means search the current directory. This is a recursive
+search by default. To turn off recursion, pass the <code>-n</code> flag, like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mkdir child-directory
+</span><span class='line'>mv hello.txt child-directory
+</span><span class='line'>ack -n hello .</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you&rsquo;ll only see one result, <code>hi.txt</code>, because it&rsquo;s the only file
+with &lsquo;hello&rsquo; in it that lives in the current directory.</p>
+
+<h2>Sorting</h2>
+
+<p>Sometimes it would be nice to sort your search results. Easy enough!</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack --sort-files -l</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Inverse Search</h2>
+
+<p>One of my flags is <code>-v</code>, which lets you do a search for all the files
+that <em>don&rsquo;t</em> match a given pattern. It comes in pretty handy.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack -v &lt;search-pattern&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Careful, though, because that could be a lot of output. You might want to shovel
+it into a file like we did before, or at least pipe it to <code>less</code>.</p>
+
+<h2>Searching By File Type</h2>
+
+<p>One of my favoritate uses for <code>ack</code> is to searching for all the files in a certain language. Ack supports
+Ruby, Python, JavaScript, Shell, Clojure, HTML, and a bunch of other
+file types. To see a full listing, do:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack --help-types</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you want to, you can add new types, change the ones that are already
+there, or delete them, with <code>--type-add</code>, <code>--type-set</code>, and <code>--type-del</code>,
+respectively.</p>
+
+<p>Assuming you&rsquo;re good with the default types, let&rsquo;s take it for a spin. Want a list of
+&ldquo;all the things&rdquo; Ruby? Open a Rails project and run this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack -f --ruby &gt; all-ruby-files.txt</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Want to find all the Ruby files that call <code>puts</code>?</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack --ruby puts .</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Want to find all the files that say <code>hello</code>, but <em>aren&rsquo;t</em> Ruby files?</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack --type=noruby hello .</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Using an <code>.ackrc</code> file</h2>
+
+<p>If you do a lot of <code>ack</code>ing, and you want to set up some ack options
+systemwide, or for your specific project, you can define an <code>.ackrc</code>
+file. To have ack generate one for you, run:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack --create-ackrc &gt; .ackrc</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then, if you run a search in the current directory, the settings in the
+<code>.ackrc</code> will be used.</p>
+
+<p>You can also put your ack options into an <code>ACK_OPTIONS</code> environment
+variable like so:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>export ACK_OPTIONS="--nocolor"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you defined some ack options in an <code>.ackrc</code> or an environment variable and want to run a search without those options, you can also turn them off with:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack --noenv &lt;search&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Advanced Searches</h2>
+
+<p>If you&rsquo;re diggin&#8217; it, here are some other fun things you can do with Ack.</p>
+
+<h3>Case Insenstivite Search</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack -i &lt;search-pattern&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Match Whole Words Only</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack -w &lt;search-pattern&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Only Output the Filenames, Without Highlighted Text</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack -l &lt;search-pattern&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack -L &lt;search-pattern&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Just One Result (AKA &ldquo;I&rsquo;m Feeling Lucky&rdquo;)</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack -1 &lt;search-pattern&gt; &lt;directory&gt;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Vim Integration (AckVim)</h2>
+
+<p>If you&rsquo;re a vim user, you might want to check out the <a href="https://github.com/mileszs/ack.vim">AckVim Plugin</a>.
+It lets you run ack inside of vim and see the results in a split window.</p>
+
+<p>Once you&rsquo;ve added it with Git or Vundle, it&rsquo;s as easy as typing:</p>
+
+<p><code>:Ack [options] {pattern} [{directories}]</code></p>
+
+<p>It&rsquo;s pretty nice to have around!</p>
+
+<h2>Ack the Cat, Cathy and Bar</h2>
+
+<p>Well, you&rsquo;ve made it this far, so here&rsquo;s some candy for you. Run these:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack --thpppt
+</span><span class='line'>ack --cathy
+</span><span class='line'>ack --bar</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Goodbye!</h2>
+
+<p>Sometimes it can be like looking for a needle in
+a haystack trying to find what you need in your project.</p>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/119/asset.gif" style="margin:0 auto;display:block;"></p>
+
+<p>Seriously, though, I hope this little tour of the small command line
+tool <code>ack</code> improves your programming experience. Cheers!</p>
 </div>
 
 
