@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "caching-asynchronous-queries-in-backbone"
+title: "Caching Asynchronous Queries In Backbone"
 date: 2014-12-09 06:32:04 -0700
 comments: true
 categories:
