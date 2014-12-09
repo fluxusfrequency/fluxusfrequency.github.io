@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://fluxusfrequency.github.io/blog/2014/12/09/caching-asynchronous-queries-in-backbone/</loc>
+    <lastmod>2014-12-09T06:32:04-07:00</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>http://fluxusfrequency.github.io/blog/2014/11/03/building-a-ruby-list-comprehension/</loc>
     <lastmod>2014-11-03T05:40:09-07:00</lastmod>
     <priority>0.8</priority>
@@ -207,19 +212,19 @@
   </url>
   <url>
     <loc>http://fluxusfrequency.github.io/blog/archives/</loc>
-    <lastmod>2014-12-09T06:31:12-07:00</lastmod>
+    <lastmod>2014-12-09T06:33:13-07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>http://fluxusfrequency.github.io/</loc>
-    <lastmod>2014-12-09T06:31:12-07:00</lastmod>
+    <lastmod>2014-12-09T06:33:13-07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>http://fluxusfrequency.github.io/about/</loc>
-    <lastmod>2014-12-09T06:31:12-07:00</lastmod>
+    <lastmod>2014-12-09T06:33:13-07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
