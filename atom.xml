@@ -4,7 +4,7 @@
   <title><![CDATA[Fluxus Frequency]]></title>
   <link href="http://fluxusfrequency.github.io/atom.xml" rel="self"/>
   <link href="http://fluxusfrequency.github.io/"/>
-  <updated>2014-12-09T06:33:13-07:00</updated>
+  <updated>2014-12-09T06:44:38-07:00</updated>
   <id>http://fluxusfrequency.github.io/</id>
   <author>
     <name><![CDATA[Ben Lewis]]></name>
@@ -15,7 +15,7 @@
   
   <entry>
     
-    <title type="html"><![CDATA[caching-asynchronous-queries-in-backbone]]></title>
+    <title type="html"><![CDATA[Caching Asynchronous Queries In Backbone]]></title>
     <link href="http://fluxusfrequency.github.io/blog/2014/12/09/caching-asynchronous-queries-in-backbone/"/>
     
     <updated>2014-12-09T06:32:04-07:00</updated>
