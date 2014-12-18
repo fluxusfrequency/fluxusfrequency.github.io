@@ -9,7 +9,7 @@
   <meta name="author" content="Ben Lewis">
 
   
-  <meta name="description" content="I just finished reading Practical Object-Oriented Design in Ruby by Sandi Metz. Here were my takeaways. Object-Oriented Design Plan your application &hellip;">
+  <meta name="description" content="This week at gSchool, we started a new rails project called Fourth Meal. The assignment&rsquo;s basic premise is to build a multi-tenant platform for &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,72 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/12/06/multitenancy-and-legacy-code/">Multitenancy and Legacy Code</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-06T09:03:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This week at gSchool, we started a new rails project called <a href="http://tutorials.jumpstartlab.com/projects/fourth_meal.html">Fourth Meal</a>. The assignment&rsquo;s basic premise is to build a multi-tenant platform for restaurant ordering, along the lines of <a href="https://www.grubhub.com/">GrubHub</a>. This is our first time dealing with multi-tenancy. It&rsquo;s also the first time that we are building from a legacy code base - we&rsquo;re using our last projects. Mine was <a href="http://onoburrito.herokuapp.com">OnoBurrito</a>, and that&rsquo;s the project my group chose to build on for this assignment. Finally, this will also be the first time we optimize our apps for performance.</p>
+
+<h2>Project Management</h2>
+
+<p>We&rsquo;re using Pivotal Tracker very seriously in Fourth Meal, with our instructors pretending to be clients that have hired us to build this app. I&rsquo;ve found Tracker restrictive in the past. But I think I felt that way because I was using it as more of a to-do list than a project management tool. After having Jeff help us write about 13 clear stories yesterday, I feel a lot more positive about using it to drive my group&rsquo;s progress. At this point, Tracker is helping me feel more organized. I can translate stories into tests and use Capybara to drive development &ldquo;from the top down&rdquo;.</p>
+
+<h2>Legacy Code</h2>
+
+<p>Although we&rsquo;re working from code that I had a large part in writing, I feel like I&rsquo;m floundering to turn OnoBurrito into a platform. There are a lot of things I would do differently if I were to build the app over again. For example, the category views are stuck inside of the item views, making it really hard to separate them. We also used Active Admin before, so we&rsquo;ve had to rip it out and start the admin panel over again. My group decided to retrofit the admin part of Billy&rsquo;s restaurant onto Ono Burrito, and it&rsquo;s been kind of tricky to get everything working. Currently, I&rsquo;m having a lot of trouble getting carts and orders working. It&rsquo;s hard to decide which of the pieces to store in the session, application, and database.</p>
+
+<h2>Class Progress</h2>
+
+<p>We&rsquo;re now just past the halfway mark for gSchool. Although I can see how other programs would stop here and send their students out into the marketplace, I&rsquo;m very glad that we have some time left to practice proper Test Driven Development, learn about scaling and performance optimization, and hone our Rails chops.</p>
+
+<p>I do feel like I&rsquo;m starting to lose momentum a little bit. I was going full-bore every day (except weekends) up until now, but I could feel that burnout was around the corner. So I&rsquo;ve throttled back a little bit, taking time to cook, read, and exercise so I feel more balanced. I&rsquo;m still totally dedicated to being the best developer I can be by the end of the program, and I think that these changes will help me do that. Meanwhile, I feel like a lot of my classmates have been making amazing progress. No matter who I work with lately, I feel like I am collaborating with a confident, smart, and capable programmer.</p>
+
+<h2>Young Entrepreneurs</h2>
+
+<p>Last night we kicked off a project with Young Entrepreneurs. Several school-aged children came to Galvanize and met with us to get help building a website for their businesses. I&rsquo;m in a small group with Nathaniel and Meeka, two classmates that I really enjoy working with. We&rsquo;re helping a 15-year-old entrepreneur named Jonah, who runs a local snack company. It&rsquo;s a little disheartening that we won&rsquo;t be able to use Sinatra or Rails to help him him, because he&rsquo;ll need the ability to update his site, and we likely don&rsquo;t have time to build a content management system. We&rsquo;ll probably help him get going on <a href="http://www.wix.com">Wix</a>, or a similar platform.</p>
+
+<p>I feel a little conficted about this project. In a way, the kickoff was really bad timing, because I&rsquo;m feeling so overwhelmed by Fourth Meal. On the other hand, it&rsquo;s nice to get back to working with kids. That&rsquo;s the thing I miss most about my previous career as a teacher. More importantly to me, I&rsquo;ve been focusing on trying to find ways to be more generous, so this is a good opportunity to practice doing that.</p>
+
+<h2>New Mentor</h2>
+
+<p>I met my new mentor, Justin Smestad, this week. He&rsquo;s a maintainer of the <a href="https://github.com/hassox/warden">Warden</a> gem, a security specialist, and a musician. I think it&rsquo;s going to be a good fit. I&rsquo;ll miss my old mentor, Mike Pack, but I think that he&rsquo;s willing to keep working with me too. Now I&rsquo;ll have twice the support!</p>
+
+<h2>Overall</h2>
+
+<p>I&rsquo;m feeling really excited about web development. Thanksgiving break really helped me rest up and feel ready to tackle more. I am learning a lot of new things all the time, and I love it. On the other hand, I am feeling somewhat overwhelmed by Rails, and beginning to consider the job search makes me a little anxious. In the end, I&rsquo;m optimistic. I think that the coming weekend will help me get grounded, and I&rsquo;ll come back next week ready to get some good work done on Fourth Meal.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -3170,138 +3236,6 @@ e.g.: formName.elements.name.value = “Eugene”; would set the name field to t
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/26/sequel-gem-methods/">Sequel Gem Methods</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-26T13:28:00-06:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Information is from the <a href="http://tutorials.jumpstartlab.com/topics/sequel.html">Jumpstart Lab Sequel Tutorial</a></p>
-
-<p>Here is the <a href="sequel.rubyforge.org/rdoc/classes/Sequel/Dataset.html">official Sequel documentation</a>.</p>
-
-<p><br /></p>
-
-<h2>Setting Up A Database</h2>
-
-<ol>
-<li>Create a Gemfile requiring ‘sequel’ and ‘sqlite3’.</li>
-<li>run: bundle exec rib; Bundler.require</li>
-<li>Assign a new database like this:
-database = Sequel.sqlite(‘dbname.sqlite3’) Sqlite creates the db automatically. Postgres will not do this.</li>
-</ol>
-
-
-<p><br /></p>
-
-<h2>Database Methods:</h2>
-
-<p>#run &ldquo;SQL query&rdquo; - runs an SQL query</p>
-
-<p>#fetch “SQL query” - runs an SQL query and returns the results (need to call to_a to see) as a dataset. Can be combined with a block.</p>
-
-<p>These two methods alone will allow you to interact with the db via SQL.</p>
-
-<p><br /></p>
-
-<h2>Dataset Methods:</h2>
-
-<p>#enumerable - can run enumerable methods on a dataset returned by database#fetch.</p>
-
-<p>#inspect - shows the database/dataset obj.</p>
-
-<h3>Table manipulation:</h3>
-
-<p>#create_table :table_name do
-     primary key :id
-     String :line_1, :size => 255
-     Integer :person_id
-end
-creates a table</p>
-
-<p>#schema(:table) - shows the existence and column definitions of a table. Returns a nested array.</p>
-
-<p>#add_column
-#rename_column
-#drop_column
-#set_column_default
-#set_column_type</p>
-
-<h3>Selection of records:</h3>
-
-<p>chaining - chain methods:
-e.g. dataset.where(:name => &lsquo;George&rsquo;).or([[:id, [2,3]]])</p>
-
-<p>#from(:column) - equivalent to SELECT * FROM column. Returns a dataset. Doesn’t run search until you call to_a on it.
-After assigning it like this:
-dataset = database.from(:people)
-Do things like this:</p>
-
-<p>#select(:column or [:column1, :column2, etc…]) - selects column(s) from table</p>
-
-<p>#where/#filter(:column => filter) - returns SELECT * FROM table WHERE column = filter. Selecting multiple items requires an extra set of brackets.
-eg.: dataset.where(:id => 1) or
-dataset.where([[:id, [2,3]]])</p>
-
-<p>#grep(:column, ‘search&#8217;) - finds all rows that match the grep string. “%&ldquo; is a 0+ wildcard, “_&rdquo; matches a single character.</p>
-
-<p>#limit(int) - limits the number of returned records to the integer passed as an argument.</p>
-
-<p>#order(:column) - returns SELECT * FROM :table ORDER BY :column. Can add descending sort as follows:
-dataset.order(Sequel.desc(:name))</p>
-
-<p>#exclude - works like Enumerable#reject.</p>
-
-<h3>Working With Rows</h3>
-
-<p>#insert ({:column => “value&#8221;, :column => “value&#8221;) - inserts a new row with the given hash values. Not a delayed method; runs immediately. Verify results using select.</p>
-
-<p>#join(:other_table, :other_column, :foreign_key) - Performs an INNER JOIN with another table. The column name order goes: other table’s column first, local table’s column second.</p>
-
-<p>#update(:column => “value”) - updates one or more existing rows. Combine it with where to select a record first. Runs immediately.
-e.g. addresses.where(:id => 1).update(:zipcode => &ldquo;20500&rdquo;)</p>
-
-<p>#delete(:column => “value) - similar to update, but deletes. Returns number of records deleted.</p>
-
-<p>#count - returns the number of records in the dataset. Useful in chaining.</p>
-
-<h3>Math Utilities:</h3>
-
-<p>#avg
-#sum
-#max
-#min</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="4">&larr; Older</a>
@@ -3319,6 +3253,10 @@ e.g. addresses.where(:id => 1).update(:zipcode => &ldquo;20500&rdquo;)</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/12/18/seven-reasons-i-love-minitest/">Seven Reasons I Love Minitest</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/12/09/caching-asynchronous-queries-in-backbone/">Caching Asynchronous Queries In Backbone</a>
       </li>
     
@@ -3332,10 +3270,6 @@ e.g. addresses.where(:id => 1).update(:zipcode => &ldquo;20500&rdquo;)</p>
     
       <li class="post">
         <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API In A Custom Ruby Gem</a>
       </li>
     
   </ul>

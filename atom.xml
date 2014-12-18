@@ -4,7 +4,7 @@
   <title><![CDATA[Fluxus Frequency]]></title>
   <link href="http://fluxusfrequency.github.io/atom.xml" rel="self"/>
   <link href="http://fluxusfrequency.github.io/"/>
-  <updated>2014-12-09T06:44:38-07:00</updated>
+  <updated>2014-12-18T05:38:39-07:00</updated>
   <id>http://fluxusfrequency.github.io/</id>
   <author>
     <name><![CDATA[Ben Lewis]]></name>
@@ -12,6 +12,195 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    
+    <title type="html"><![CDATA[Seven Reasons I Love Minitest]]></title>
+    <link href="http://fluxusfrequency.github.io/blog/2014/12/18/seven-reasons-i-love-minitest/"/>
+    
+    <updated>2014-12-18T05:36:48-07:00</updated>
+    <id>http://fluxusfrequency.github.io/blog/2014/12/18/seven-reasons-i-love-minitest</id>
+    
+    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2014/seven-reasons-i-love-minitest">Engine Yard</a>.
+It was also a featured article in <a href="http://rubyweekly.com/issues/225">Ruby Weekly</a>.</p>
+
+<p>The other day at our company standup, I mentioned that I was eager to read an article on [Concurrency in Minitest] (<a href="http://chriskottom.com/blog/2014/10/exploring-minitest-concurrency/">http://chriskottom.com/blog/2014/10/exploring-minitest-concurrency/</a>) that was featured in <a href="http://rubyweekly.com/issues/216">Ruby Weekly</a>. One of my coworkers asked: &ldquo;people still use Minitest?&rdquo; My reply: &ldquo;you mean you&rsquo;re not using Minitest yet?&rdquo;</p>
+
+<p>I love Minitest. It&rsquo;s small, lightweight, and ships with Ruby. It&rsquo;s used by respected programmers like <a href="http://rubyrogues.com/001-rr-testing-practices-and-tools/">Aaron Patterson</a>, Katrina Owen, Sandi Metz, and of course, DHH. Here&rsquo;s a look at why Minitest remains a powerful and popular choice for testing Ruby code.</p>
+
+<h2>Witness the Firepower of this Fully Armed and Operational Testing Tool</h2>
+
+<p>Although I come from a <a href="http://fluxusfrequency.github.io/blog/2013/10/03/the-history-of-programming-in-the-life-of-russ-lewis/">family of programmers</a>, I entered the profession by going to a bootcamp.  I was a student in the second <a href="http://www.galvanize.it/school/">gSchool</a> class. At that time, it was being taught by <a href="http://jumpstartlab.com/">Jumpstart Lab</a>.  My instructors were <a href="https://twitter.com/j3">Jeff Casimir</a>, <a href="https://twitter.com/franklinwebber">Franklin Webber</a>, and [Katrina Owen] (<a href="https://twitter.com/kytrinyx">https://twitter.com/kytrinyx</a>).</p>
+
+<p>My classmates and I were brought up with TDD from day one. We practiced it in everything we did. The tool we used was Minitest. When it was first introduced, I scoffed a little because of the name.</p>
+
+<p>&ldquo;Why are we using a &lsquo;mini&rsquo; testing framework?  I want to use what the pros use,&rdquo;
+I complained to Katrina.</p>
+
+<p>&ldquo;Minitest is a fully-featured testing framework, and is used in plenty of production apps,&rdquo; was her reply.</p>
+
+<p>I&rsquo;ve been using it ever since. Here are seven reasons I think Minitest is the bees&#8217; knees.</p>
+
+<h2>1. It&rsquo;s Simple</h2>
+
+<p>Minitest ships with Ruby because it&rsquo;s easy to understand, and can be written by anyone who knows the language.  I love this simplicity because it makes it easy to focus on designing code.  Just imagine what you want it to do, and write your assertion, and make it pass.</p>
+
+<p>I recently reached out to Katrina to ask her thoughts on what&rsquo;s good about Minitest. Its simplicity was at the top of her list:</p>
+
+<p>&ldquo;It&rsquo;s simpler. There&rsquo;s no &lsquo;magic&rsquo; (just plain Ruby) [&hellip;] When there is &#8220;magic&rdquo; then it&rsquo;s very easy to assume that you <em>can&rsquo;t</em> understand it [&hellip;] You can read through the [Minitest] source code, and understand what is going on.&#8221;</p>
+
+<p>I also asked Sandi Metz what she thought of Minitest. She said:</p>
+
+<p>&ldquo;Minitest is wonderfully simple and encourages this same simplicity in tests and code.&rdquo;</p>
+
+<p>Minitest is low in sugar. All you need to know is <code>assert</code> for booleans, and <code>assert_equal</code> for everything else. If you want to test a negative case, use <code>refute</code> or <code>refute_equal</code> instead. For everything else, just write Ruby.</p>
+
+<h2>2. It&rsquo;s Extensible</h2>
+
+<p>The relatively &ldquo;low-level&rdquo; status of Minitest makes it easy to customize tests. Katrina observes:</p>
+
+<p>&ldquo;Because Minitest is so simple, it&rsquo;s not too hard to extend. It feels like a tool that I can shape to my needs, rather than a tool that I need to use the way it was intended.&rdquo;</p>
+
+<p>If you want to repeat an assertion in multiple contexts, you can write a custom assertion for it, and call it in as many tests as you need.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">assert_average_speed</span><span class="p">(</span><span class="n">swallow</span><span class="p">)</span>
+</span><span class='line'>  <span class="c1"># Do some additional work here</span>
+</span><span class='line'>  <span class="n">assert_equal</span> <span class="s1">&#39;11 MPS&#39;</span><span class="p">,</span> <span class="n">swallow</span><span class="o">.</span><span class="n">speed</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">test_african</span>
+</span><span class='line'>  <span class="n">swallow</span> <span class="o">=</span> <span class="no">Swallow</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">type</span><span class="p">:</span> <span class="s1">&#39;African&#39;</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">assert_average_speed</span><span class="p">(</span><span class="n">swallow</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">test_european</span>
+</span><span class='line'>  <span class="n">swallow</span> <span class="o">=</span> <span class="no">Swallow</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">type</span><span class="p">:</span> <span class="s1">&#39;European&#39;</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">assert_average_speed</span><span class="p">(</span><span class="n">swallow</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you are testing something that requires nearly the same test to be run repeatedly, for example when testing a controller that has a user authentication <code>before_action</code>, you can create a shared example by <a href="https://canaryup.com/blog/shared-examples-with-minitest">including a module</a>.</p>
+
+<p>If you need even more control, you can create an object with custom behavior that inherits from <code>Minitest::Test</code>, and have your tests inherit from it. Doing so allows you to completely customize your test suite with new methods as you see fit.</p>
+
+<p>Finally, Minitest comes with hooks to help you easily write extensions to the gem. You can define a plugin by adding a <code>minitest/XXX_plugin.rb</code> file to your project folder, and Minitest will automatically find and require it. You can use extensions to define command-line options, custom reporters, and anything else you want Minitest to be able to do.</p>
+
+<h2>3. It&rsquo;s Flat If You Use Assert</h2>
+
+<p>The default syntax for Minitest is <code>assert</code>. Although the BDD <code>expect</code> syntax is available in <a href="https://github.com/seattlerb/minitest/blob/master/lib/minitest/spec.rb">mintest/spec</a>, I recommend giving <code>assert</code> a try. Maybe you love expectations because they read like English, sort of. Although <code>assert</code> doesn&rsquo;t try to imitate natural language, it&rsquo;s actually quite intuitive to use. It also provides the benefit of making your test files flat.</p>
+
+<p>With nested <code>context</code>, <code>describe</code>, and <code>it</code> blocks, it can be difficult to remember what <code>it</code> refers to, and which <code>before</code> blocks are accessible in your scope. I find myself scanning indentation in BDD tests to figure out what scope I&rsquo;m working in.</p>
+
+<p>When you use <code>assert</code> syntax, your test file is flat. You start with a test class, then you write a bunch of test methods inside of it. It&rsquo;s clear that the only variables available are those defined in the <code>setup</code> method or in the test itself. This flatness also means it gets painful quickly if your test is tied to too many dependencies. As Katrina puts it, &ldquo;the lack of nested contexts means that I&rsquo;m faced with the appropriate amount of pain when I make bad choices. It quickly becomes ugly if I have too many dependencies. I like that.&rdquo;</p>
+
+<p>Using <code>assert</code> also makes it easy to document the desired behavior of your code: just name the test method to describe what you are testing. If you&rsquo;re really worried you&rsquo;ll forget what the test was for, you can output a message to the console if the test fails:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">test</span> <span class="s1">&#39;it calculates the air-speed velocity of an unladen swallow&#39;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">swallow</span> <span class="o">=</span> <span class="no">Swallow</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">wing_span</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="ss">laden</span><span class="p">:</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">type</span><span class="p">:</span> <span class="s1">&#39;European&#39;</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">expected</span> <span class="o">=</span> <span class="s1">&#39;11 MPS&#39;</span>
+</span><span class='line'>  <span class="n">actual</span> <span class="o">=</span> <span class="n">swallow</span><span class="o">.</span><span class="n">average_speed</span>
+</span><span class='line'>  <span class="n">assert_equal</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span><span class="p">,</span> <span class="s1">&#39;The average speed of an unladen</span>
+</span><span class='line'><span class="s1">    swallow was incorrect&#39;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Minitest&rsquo;s flatness is also beneficial when it comes to practicing a Test-Driven workflow. You can <code>skip</code> all of the tests in a file easily, without scanning through nested blocks. Then you can make them pass, one at a time.</p>
+
+<h2>4. It Lends Itself to A Good Test-Driven Workflow</h2>
+
+<p>Minitest is awesome for getting into a red/green/refactor loop. Write a test, watch it fail, make it pass, refactor. Repeat. A Minitest file is just a list of tests that are waiting for you to make them pass.</p>
+
+<p>Plus, since you&rsquo;re just writing Ruby, you can use a style like this to get the next test set up with a minimum of effort:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">test</span> <span class="s1">&#39;something&#39;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">expected</span> <span class="o">=</span> <span class="c1"># some code</span>
+</span><span class='line'>  <span class="n">actual</span> <span class="o">=</span> <span class="c1"># some simple result</span>
+</span><span class='line'>  <span class="n">assert_equal</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you want to repeat an assertion in different contexts, you can write a method for it, and call it in as many tests as you want to. Need a <a href="https://canaryup.com/blog/shared-examples-with-minitest">shared example</a>? Include a module.</p>
+
+<h2>5. Minitest::Benchmark is Awesome</h2>
+
+<p>If you are dealing with large amounts of data, and performance is a concern, <a href="https://github.com/seattlerb/minitest/blob/master/lib/minitest/benchmark.rb">Minitest::Benchmark</a> is your new best friend.</p>
+
+<p>It lets you test your algorithms in a repeatable manner, to make sure that their algorithmic efficiency don&rsquo;t accidentally get changed. You can collect benchmarks in &ldquo;tab-separated format, making it easy to paste into a spreadsheet for graphing or further analysis&rdquo;.</p>
+
+<p>Here are a few of the assertions in Minitest::Benchmark that might be of interest:</p>
+
+<ul>
+<li><code>assert_performance_constant</code></li>
+<li><code>assert_performance_exponential</code></li>
+<li><code>assert_performance_logarithmic</code></li>
+<li><code>assert_performance_linear</code></li>
+</ul>
+
+
+<h2>6. It&rsquo;s Randomized By Default</h2>
+
+<p>Running the tests in a different order each time can help catch bugs caused by unintended dependencies between examples. Here&rsquo;s how Aaron Patterson described the benefit of randomized tests in an <a href="http://rubyrogues.com/001-rr-testing-practices-and-tools/">episode of Ruby Rogues</a>:</p>
+
+<p>&ldquo;I’m sure you’ve been in a situation where your [&hellip;] test fails in isolation, but when you run [the entire test suite] it works. [T]hat’s typically because one test set up some particular environment that another test depended on. [&hellip;] Since Minitest runs the test in a random order, you can’t make one test depend another, so you’ll see an error case.&rdquo;</p>
+
+<h2>7. It&rsquo;s Faster</h2>
+
+<p>Minitest doesn&rsquo;t create any matchers or example objects that have to be garbage collected. Many people have benchmarked Minitest against other frameworks, and it usually comes out at ahead. Often it&rsquo;s a marginal difference, but sometimes it comes out <a href="http://blog.rawonrails.com/2012/01/very-cursory-test-of-rspec-28-speed.html">significantly ahead</a>.</p>
+
+<p>Minitest also supports concurrent test runs. Although I thought this would lead to great speed gains, it turns out that it <a href="http://chriskottom.com/blog/2014/10/exploring-minitest-concurrency/">only makes a difference in JRuby and Rubinius</a>. The Matz Ruby Implementation (MRI) <a href="https://blog.engineyard.com/2010/concurrency-real-and-imagined-in-mri-threads">doesn&rsquo;t get speed gains</a> when using concurrency. Still, it&rsquo;s nice to know that the option is there, in case you are using JRuby or Rubinius, or the MRI changes in the future.</p>
+
+<h2>Have You Tried It?</h2>
+
+<p>I&rsquo;ve talked to a lot of people that are surprised when I say I prefer Minitest. They often ask, &ldquo;why should I switch to Minitest?&rdquo; Perhaps a better question to ask is this one, posed by <a href="https://github.com/metaskills/holy_grail_harness/issues/3">Ken Collins</a>: &ldquo;What is in [other testing frameworks] that you need that Minitest does not offer?&rdquo;</p>
+
+<p>Programming tools are a matter of individual taste. When I&rsquo;ve asked programmers about Minitest, they&rsquo;ve all expressed that they were not <em>against</em> RSpec or other frameworks. Sandi Metz said: &ldquo;I&rsquo;m agnostic about testing frameworks [&hellip;] I also use RSpec and I find it equally useful in it&rsquo;s own way.&rdquo; Katrina Owen said: &ldquo;I don&rsquo;t dislike RSpec, but I do prefer Minitest.&rdquo; In the end, I think most would agree that testing frameworks are a personal choice.</p>
+
+<p>That said, if you haven&rsquo;t used Minitest lately (or ever), why not check it out?  If you&rsquo;re curious, but feel like you still need some convincing, just try it!  It&rsquo;s a small investment. You&rsquo;ll be up and running in a few minutes. Why not go try the first Ruby <a href="http://exercism.io/getting-started">Exercism</a>?</p>
+
+<p>I hope this tour of Minitest&rsquo;s features has been informative, and piqued your interest in this fabulous test framework. Is there anything I missed? Disagree? Let&rsquo;s talk! Please share your point of view in the comments section, or tweet at me at @fluxusfrequency.</p>
+
+<h2>Other Resources</h2>
+
+<p><a href="http://www.slideshare.net/markykang/minitest-2013-0910">A Big Look At Minitest</a>
+<br />
+An informative slide deck that explores the ins and outs of Minitest.</p>
+
+<p><a href="https://speakerdeck.com/ahawkins/bow-before-minitest">Bow Before Minitest</a>
+<br />
+A more opinionated slide deck comparing Minitest with other testing
+tools.</p>
+]]></content>
+    
+  </entry>
   
   <entry>
     
@@ -7519,47 +7708,6 @@ build passing.</p>
 <h2>Moving Forward</h2>
 
 <p>I&rsquo;m really interested in contributing some actual code to projects. I&rsquo;ve been looking around at the issues on Rails, Sorcery, Mechanize, and other popular gems, but I often find that they&rsquo;re way over my head. I was able to fix a small todo in the <a href="http://www.exercism.io">Exercism</a> source code, but beyond that, I&rsquo;m pretty much lost. If anyone reading this has any good leads for something that an advanced beginner can do (somewhere between documentation edits and http response parsing level insanity) please hit me up on Twitter!</p>
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[Multitenancy and Legacy Code]]></title>
-    <link href="http://fluxusfrequency.github.io/blog/2013/12/06/multitenancy-and-legacy-code/"/>
-    
-    <updated>2013-12-06T09:03:00-07:00</updated>
-    <id>http://fluxusfrequency.github.io/blog/2013/12/06/multitenancy-and-legacy-code</id>
-    
-    <content type="html"><![CDATA[<p>This week at gSchool, we started a new rails project called <a href="http://tutorials.jumpstartlab.com/projects/fourth_meal.html">Fourth Meal</a>. The assignment&rsquo;s basic premise is to build a multi-tenant platform for restaurant ordering, along the lines of <a href="https://www.grubhub.com/">GrubHub</a>. This is our first time dealing with multi-tenancy. It&rsquo;s also the first time that we are building from a legacy code base - we&rsquo;re using our last projects. Mine was <a href="http://onoburrito.herokuapp.com">OnoBurrito</a>, and that&rsquo;s the project my group chose to build on for this assignment. Finally, this will also be the first time we optimize our apps for performance.</p>
-
-<h2>Project Management</h2>
-
-<p>We&rsquo;re using Pivotal Tracker very seriously in Fourth Meal, with our instructors pretending to be clients that have hired us to build this app. I&rsquo;ve found Tracker restrictive in the past. But I think I felt that way because I was using it as more of a to-do list than a project management tool. After having Jeff help us write about 13 clear stories yesterday, I feel a lot more positive about using it to drive my group&rsquo;s progress. At this point, Tracker is helping me feel more organized. I can translate stories into tests and use Capybara to drive development &ldquo;from the top down&rdquo;.</p>
-
-<h2>Legacy Code</h2>
-
-<p>Although we&rsquo;re working from code that I had a large part in writing, I feel like I&rsquo;m floundering to turn OnoBurrito into a platform. There are a lot of things I would do differently if I were to build the app over again. For example, the category views are stuck inside of the item views, making it really hard to separate them. We also used Active Admin before, so we&rsquo;ve had to rip it out and start the admin panel over again. My group decided to retrofit the admin part of Billy&rsquo;s restaurant onto Ono Burrito, and it&rsquo;s been kind of tricky to get everything working. Currently, I&rsquo;m having a lot of trouble getting carts and orders working. It&rsquo;s hard to decide which of the pieces to store in the session, application, and database.</p>
-
-<h2>Class Progress</h2>
-
-<p>We&rsquo;re now just past the halfway mark for gSchool. Although I can see how other programs would stop here and send their students out into the marketplace, I&rsquo;m very glad that we have some time left to practice proper Test Driven Development, learn about scaling and performance optimization, and hone our Rails chops.</p>
-
-<p>I do feel like I&rsquo;m starting to lose momentum a little bit. I was going full-bore every day (except weekends) up until now, but I could feel that burnout was around the corner. So I&rsquo;ve throttled back a little bit, taking time to cook, read, and exercise so I feel more balanced. I&rsquo;m still totally dedicated to being the best developer I can be by the end of the program, and I think that these changes will help me do that. Meanwhile, I feel like a lot of my classmates have been making amazing progress. No matter who I work with lately, I feel like I am collaborating with a confident, smart, and capable programmer.</p>
-
-<h2>Young Entrepreneurs</h2>
-
-<p>Last night we kicked off a project with Young Entrepreneurs. Several school-aged children came to Galvanize and met with us to get help building a website for their businesses. I&rsquo;m in a small group with Nathaniel and Meeka, two classmates that I really enjoy working with. We&rsquo;re helping a 15-year-old entrepreneur named Jonah, who runs a local snack company. It&rsquo;s a little disheartening that we won&rsquo;t be able to use Sinatra or Rails to help him him, because he&rsquo;ll need the ability to update his site, and we likely don&rsquo;t have time to build a content management system. We&rsquo;ll probably help him get going on <a href="http://www.wix.com">Wix</a>, or a similar platform.</p>
-
-<p>I feel a little conficted about this project. In a way, the kickoff was really bad timing, because I&rsquo;m feeling so overwhelmed by Fourth Meal. On the other hand, it&rsquo;s nice to get back to working with kids. That&rsquo;s the thing I miss most about my previous career as a teacher. More importantly to me, I&rsquo;ve been focusing on trying to find ways to be more generous, so this is a good opportunity to practice doing that.</p>
-
-<h2>New Mentor</h2>
-
-<p>I met my new mentor, Justin Smestad, this week. He&rsquo;s a maintainer of the <a href="https://github.com/hassox/warden">Warden</a> gem, a security specialist, and a musician. I think it&rsquo;s going to be a good fit. I&rsquo;ll miss my old mentor, Mike Pack, but I think that he&rsquo;s willing to keep working with me too. Now I&rsquo;ll have twice the support!</p>
-
-<h2>Overall</h2>
-
-<p>I&rsquo;m feeling really excited about web development. Thanksgiving break really helped me rest up and feel ready to tackle more. I am learning a lot of new things all the time, and I love it. On the other hand, I am feeling somewhat overwhelmed by Rails, and beginning to consider the job search makes me a little anxious. In the end, I&rsquo;m optimistic. I think that the coming weekend will help me get grounded, and I&rsquo;ll come back next week ready to get some good work done on Fourth Meal.</p>
 ]]></content>
     
   </entry>
