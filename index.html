@@ -10,7 +10,7 @@
 
   
   <meta name="description" content="This post originally appeared on Engine Yard.
-It was also a featured article in Ruby Weekly. The other day at our company standup, I mentioned that I &hellip;">
+It was also the top featured article in Ruby Weekly. There&rsquo;s something magical about the way that &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,302 @@ It was also a featured article in Ruby Weekly. The other day at our company stan
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2015/01/16/five-ruby-methods-you-should-be-using/">Five Ruby Methods You Should Be Using</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-16T06:55:21-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2015/five-ruby-methods-you-should-be-using">Engine Yard</a>.
+It was also the top featured article in <a href="http://rubyweekly.com/issues/229">Ruby Weekly</a>.</p>
+
+<p>There&rsquo;s something magical about the way that Ruby just flows from your fingertips. why once <a href="http://mislav.uniqpath.com/poignant-guide/book/chapter-2.html">said</a> &ldquo;Ruby will teach you to express your ideas through a computer.&rdquo; Maybe that&rsquo;s why Ruby has become such a <a href="http://blog.codeeval.com/codeevalblog/2014">popular choice</a> for modern web development.</p>
+
+<p>Just as in English, there are lots of ways to say the same thing in Ruby. I spend a lot of time reading and nitpicking people&rsquo;s code on <a href="http://exercism.io">Exercism</a>, and I often see exercises solved in a way that could be greatly simplified if the author had only known about a certain Ruby method.</p>
+
+<p>Here&rsquo;s a look at some lesser-used methods solve a specific problem very well.</p>
+
+<h2>Object#tap</h2>
+
+<p>Did you ever find yourself calling a method on some object, and the return value not being what you wanted it to? You were hoping to get back the object, but instead you got back some other value. Maybe you wanted to add an arbitrary value to a set of parameters stored in a hash. You update it with <code>Hash.[]</code>, but you get back <code>'bar</code> instead of the params hash, so you have to return it explicitly.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">params</span><span class="o">[</span><span class="ss">:foo</span><span class="o">]</span> <span class="o">=</span> <span class="s1">&#39;bar&#39;</span>
+</span><span class='line'>  <span class="n">params</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>params</code> line at the end of that method seems extraneous.</p>
+
+<p>We can clean it up with <a href="http://www.ruby-doc.org/core-2.1.5/Object.html#method-i-tap">Object#tap</a>.</p>
+
+<p>It&rsquo;s easy to use. Just call it on the object, then pass <code>tap</code> a block with the code that you wanted to run. The object will be yielded to the block, then be returned. Here&rsquo;s how we could use it to improve <code>update_params</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">params</span><span class="o">.</span><span class="n">tap</span> <span class="p">{</span><span class="o">|</span><span class="nb">p</span><span class="o">|</span> <span class="nb">p</span><span class="o">[</span><span class="ss">:foo</span><span class="o">]</span> <span class="o">=</span> <span class="s1">&#39;bar&#39;</span> <span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are dozens of great places to use <code>Object#tap</code>. Just keep your eyes open for methods called on an object that don&rsquo;t return the object, when you wish that they would.</p>
+
+<h2>Array#bsearch</h2>
+
+<p>I don&rsquo;t know about you, but I do a lot of looking through arrays for data. Ruby enumerables make it easy to find what I need: <code>select</code>, <code>reject</code>, and <code>find</code> are valuable tools that I use daily. But when the dataset is big, I start to worry about the length of time it will take to go through all of those records.</p>
+
+<p>If you&rsquo;re using <code>ActiveRecord</code> and dealing with a <code>SQL</code> database, there&rsquo;s a lot of magic that happens behind the scenes to make sure that your searches are conducted with the least algorithmic complexity. But sometimes you have to pull all of the data out of the database before you can work with it. For example, if the records are encrypted in the database, you can&rsquo;t query them very well with <code>SQL</code>.</p>
+
+<p>At times like these, I think hard about how to sift through the data with an algorithm that has the least complex <em>Big O</em> classification that I can. If you don&rsquo;t know about Big O notation, check out Justin Abrahms&rsquo;s <a href="https://justin.abrah.ms/computer-science/big-o-notation-explained.html">Big-O Notation Explained By A Self-Taught Programmer</a> or the <a href="http://bigocheatsheet.com/">Big-O Complexity Cheat Sheet</a>.</p>
+
+<p>The basic gist is that algorithms can take more or less time, depending on their complexity, which is ranked in this order: O(1), O(log n), O(n), O(n log(n)), O(n<sup>2</sup>), O(2<sup>n</sup>), O(n!). So we prefer searches to be in one of the classifications at the beginning of this list.</p>
+
+<p>When it comes to searching through arrays in Ruby, the first method that comes to mind is <code>Enumerable#find</code>, also known as <code>detect</code>. However, this method will search through the entire list until the match is found. While that&rsquo;s great if the record is at the beginning, it&rsquo;s a problem if the record is at the end of a really long list. It takes O(n) complexity to run a <code>find</code> search.</p>
+
+<p>There is a faster way. Using <a href="http://www.ruby-doc.org/core-2.1.5/Array.html#method-i-bsearch">Array#bsearch</a>, you can find a match with only O(log n) complexity. To find out more about how a Binary Search works, check out my post <a href="http://fluxusfrequency.github.io/blog/2014/01/31/building-a-binary-search/">Building A Binary Search</a>.</p>
+
+<p>Here&rsquo;s a look at the difference in search times between the two approaches when searching a range of 50,000,000 numbers:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;benchmark&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="mi">50_000_000</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Benchmark</span><span class="o">.</span><span class="n">bm</span> <span class="k">do</span> <span class="o">|</span><span class="n">x</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="ss">:find</span><span class="p">)</span> <span class="p">{</span> <span class="n">data</span><span class="o">.</span><span class="n">find</span> <span class="p">{</span><span class="o">|</span><span class="n">number</span><span class="o">|</span> <span class="n">number</span> <span class="o">&gt;</span> <span class="mi">40_000_000</span> <span class="p">}</span> <span class="p">}</span>
+</span><span class='line'>  <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="ss">:bsearch</span><span class="p">)</span> <span class="p">{</span> <span class="n">data</span><span class="o">.</span><span class="n">bsearch</span> <span class="p">{</span><span class="o">|</span><span class="n">number</span><span class="o">|</span> <span class="n">number</span> <span class="o">&gt;</span> <span class="mi">40_000_000</span> <span class="p">}</span> <span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>         <span class="n">user</span>       <span class="nb">system</span>     <span class="n">total</span>       <span class="n">real</span>
+</span><span class='line'><span class="n">find</span>     <span class="mi">3</span><span class="o">.</span><span class="mo">020000</span>   <span class="mi">0</span><span class="o">.</span><span class="mo">010000</span>   <span class="mi">3</span><span class="o">.</span><span class="mo">030000</span>   <span class="p">(</span><span class="mi">3</span><span class="o">.</span><span class="mo">02</span><span class="mi">8417</span><span class="p">)</span>
+</span><span class='line'><span class="n">bsearch</span>  <span class="mi">0</span><span class="o">.</span><span class="mo">000000</span>   <span class="mi">0</span><span class="o">.</span><span class="mo">000000</span>   <span class="mi">0</span><span class="o">.</span><span class="mo">000000</span>   <span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="mo">000006</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, <code>bsearch</code> is much faster. However, there is a pretty big catch involved with using <code>bsearch</code>: the array must be sorted. This somewhat limits its usefulness, but it&rsquo;s still worth keeping in mind for occasions where it might come in handy, such finding a record in by a <code>created_at</code> timestamp that has already been loaded from the database.</p>
+
+<h2>Enumerable#flat_map</h2>
+
+<p>When dealing with relational data, sometimes we need to collect a bunch of unrelated attributes and return them in an array that is not nested. Let&rsquo;s imagine you had a blog application, and you wanted to find the authors of comments left on posts written in the last month by a given set of users.</p>
+
+<p>You might do something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">CommentFinder</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">find_for_users</span><span class="p">(</span><span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">users</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">posts</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">post</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">post</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">map</span> <span class="o">|</span><span class="n">comment</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">comment</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">username</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You would then end up with a result such as:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[[[</span><span class="s1">&#39;Ben&#39;</span><span class="p">,</span> <span class="s1">&#39;Sam&#39;</span><span class="p">,</span> <span class="s1">&#39;David&#39;</span><span class="o">]</span><span class="p">,</span> <span class="o">[</span><span class="s1">&#39;Keith&#39;</span><span class="o">]]</span><span class="p">,</span> <span class="o">[[]</span><span class="p">,</span> <span class="o">[</span><span class="kp">nil</span><span class="o">]]</span><span class="p">,</span> <span class="o">[[</span><span class="s1">&#39;Chris&#39;</span><span class="o">]</span><span class="p">,</span> <span class="o">[]]]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But you just wanted the authors! I guess we can call <code>flatten</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">CommentFinder</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">find_for_users</span><span class="p">(</span><span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">users</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">posts</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">post</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">post</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">comment</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">comment</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">username</span>
+</span><span class='line'>      <span class="p">}</span><span class="o">.</span><span class="n">flatten</span>
+</span><span class='line'>    <span class="p">}</span><span class="o">.</span><span class="n">flatten</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Another option would have been to use <code>flat_map</code>.</p>
+
+<p>This just does the flattening as you go:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">CommentFinder</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">find_for_users</span><span class="p">(</span><span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">users</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">posts</span><span class="o">.</span><span class="n">flat_map</span> <span class="p">{</span> <span class="o">|</span><span class="n">post</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">post</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">flat_map</span> <span class="p">{</span> <span class="o">|</span><span class="n">comment</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">comment</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">username</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It&rsquo;s not too much different, but better than having to call <code>flatten</code> a bunch of times.</p>
+
+<h2>Array.new with a Block</h2>
+
+<p>One time, when I was in bootcamp, our teacher Jeff Casimir (founder of <a href="http://turing.io/">Turing School</a>) asked us to build the game Battleship in an hour. It was a great exercise in object-oriented programming. We needed <code>Rule</code>s, <code>Player</code>s, <code>Game</code>s, and <code>Board</code>s.</p>
+
+<p>Creating a represention of a <code>Board</code> is a fun exercise. After several iterations, I found the easiest way to set up an 8x8 grid was to do this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Board</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">board</span>
+</span><span class='line'>    <span class="vi">@board</span> <span class="o">||=</span> <span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">{</span> <span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">{</span> <span class="s1">&#39;0&#39;</span> <span class="p">}</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What&rsquo;s going on here? When you call <a href="http://www.ruby-doc.org/core-2.1.5/Array.html#method-c-new">Array.new</a> with an argument, it creates an array of that length:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+</span><span class='line'><span class="c1">#=&gt; [nil, nil, nil, nil, nil, nil, nil, nil]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When you pass it a block, it populates each of its members with the result of evaluating that block:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">{</span> <span class="s1">&#39;O&#39;</span> <span class="p">}</span>
+</span><span class='line'><span class="c1">#=&gt; [&#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So if you pass an array with eight elements a block that produces an array with eight elements that are all <code>'O'</code>, you end up with an 8x8 array populated with <code>'O'</code> strings.</p>
+
+<p>Using the <code>Array#new</code> with a block pattern, you can create all kinds of bizarre arrays with default data and any amount of nesting.</p>
+
+<h2>&lt;=></h2>
+
+<p>The <a href="http://www.ruby-doc.org/core-2.1.5/Object.html#method-i-3C-3D-3E">spaceship</a>, or sort, operator is one of my favorite Ruby constructs. It appears in most of the built-in Ruby classes, and is useful when working with enumerables.</p>
+
+<p>To illustrate how it works, let&rsquo;s look at how it behaves for <code>Fixnums</code>.  If you call <code>5&lt;=&gt;5</code>, it returns <code>0</code>. If you call <code>4&lt;=&gt;5</code>, it returns <code>-1</code>. If you call <code>5&lt;=&gt;4</code>, it returns <code>1</code>. Basically, if the two numbers are the same, it returns <code>0</code>, otherwise it returns <code>-1</code> for least to greatest sorting, and <code>1</code> for reverse sorting.</p>
+
+<p>You can use the spaceship in your own classes by including the <code>comparable</code> module and redefining <code>&lt;=&gt;</code> with logic branching to make it return <code>-1</code>, <code>0</code>, and <code>1</code> for the cases you want.</p>
+
+<p>Why would you ever want to do that?</p>
+
+<p>Here&rsquo;s a cool use of it I came across on Exercism one day. There&rsquo;s an exercise called Clock, where you have to adjust the hours an minutes on a clock using custom <code>+</code> and <code>-</code> methods. It gets complicated when you try to add more than 60 minutes, because that will make your minute value invalid. So you have to adjust by incrementing another hour and subtracting 60 from the minutes.</p>
+
+<p>One user, <code>dalexj</code>, had a brilliant way to solve this, using the spaceship operator:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">fix_minutes</span>
+</span><span class='line'>    <span class="k">until</span> <span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">member?</span> <span class="n">minutes</span>
+</span><span class='line'>      <span class="vi">@hours</span> <span class="o">-=</span> <span class="mi">60</span> <span class="o">&lt;=&gt;</span> <span class="n">minutes</span>
+</span><span class='line'>      <span class="vi">@minutes</span> <span class="o">+=</span> <span class="mi">60</span> <span class="o">*</span> <span class="p">(</span><span class="mi">60</span> <span class="o">&lt;=&gt;</span> <span class="n">minutes</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="vi">@hours</span> <span class="o">%=</span> <span class="mi">24</span>
+</span><span class='line'>    <span class="nb">self</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It works like this: until the minutes passed in are between 0 and 60, he subtracts either <code>1</code> or <code>-1</code> from the hours, depending on whether the minute amount is greater than 60. He then adjusts the minutes, adding either <code>-60</code> or <code>60</code> depending on the sort order.</p>
+
+<p>The spaceship is great for defining custom sort orders for your objects, and can also come in handy for arithmetic operations if you remember that it returns one of three <code>Fixnum</code> values.</p>
+
+<h2>Wrapping Up</h2>
+
+<p>Getting better at writing code is a process of learning. Since Ruby is a language, a lot of the time I spend trying to improve is spent of reading &ldquo;literature&rdquo; (i.e. code on Exercism andGitHub), and reading (what is essentially) the dictionary for my language: (<a href="http://ruby-doc.org/">Rubydocs</a>.</p>
+
+<p>It&rsquo;s so much easier to write expressive code when you know more methods. I hope that this collection of curiosities helped expand your Ruby vocabulary.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -3567,261 +3863,6 @@ tweet at me @fluxusfrequency!</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/05/20/five-capybara-hacks-to-make-your-testing-experience-less-painful/">Five Capybara Hacks to Make Your Testing Experience Less Painful</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-05-20T06:20:08-06:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This post originally appeared on the <a href="http://quickleft.com/blog/five-capybara-hacks-to-make-your-testing-experience-less-painful">Quick Left Blog</a>.</p>
-
-<h2>Testing, Testing&hellip;</h2>
-
-<p>Everyone knows it&rsquo;s important to test your code. But sometimes, the experience
-can be a little bit painful. Ok, sometimes it&rsquo;s very painful.</p>
-
-<p><img src="http://quickleft-production.s3.amazonaws.com/uploads/asset/attachment/58/asset.jpg" alt="Painful Testing" /></p>
-
-<p>What to do? Abandon the tests? Never! Smokey, this is not &lsquo;Nam. This is coding. There are rules.</p>
-
-<p>Today I want to share a few of the things I&rsquo;ve learned that help mitigate that
-pain when testing Rails with Capybara. Ladies and gentlemen, I give you&hellip;</p>
-
-<h2>The Hacks</h2>
-
-<h3>1) Execute Script</h3>
-
-<p>In one project I was working on, I wanted to use a fake password input field so
-I could display a text field instead of a password field. I wanted to do
-that so I could give it placeholder text that wouldn&rsquo;t appear as dots.
-When the fake field received focus, it was replaced with the real password
-field using jQuery.</p>
-
-<p>This solution passed the click test, but it was a headache when testing.
-My Capybara spec couldn&rsquo;t find the password field, because it was hidden.
-Since pretty much every integration test I had needed to log in before it could
-do anything, I was stuck.</p>
-
-<p>In order to overcome the difficulty, I had the test execute a script to show the
-field I was looking for.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="n">page</span><span class="o">.</span><span class="n">execute_script</span><span class="p">(</span><span class="s2">&quot;$(&#39;#new_password&#39;).show()&quot;</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I could then fill out the form normally and access the rest of the app.</p>
-
-<p>This trick also comes in useful when using Bootstrap for responsive design.
-Sometimes, the mobile menu dropdown can cause conflicts with other elements on
-the page, and Capybara can&rsquo;t click on them.</p>
-
-<h3>2) Tail the Test Log File</h3>
-
-<p>I&rsquo;ve gotten so used to being able to read the Rails server stack trace when
-troubleshooting in development, that I sometimes I don&rsquo;t know what to do to when
-I want to find my errors in while testing. The test stack trace and pry will only
-take you so far. When things get really hairy, you can get a similar output
-as you would see in development by running <code>tail -f log/test.log</code> in a separate
-terminal tab before running the specs.</p>
-
-<h3>3) Find the Port Address and Pause the Test</h3>
-
-<p>Sometimes I just want to see what&rsquo;s going on in the browser. Although
-<code>save_and_open_page</code> gives you some idea of what&rsquo;s going on, you can&rsquo;t
-really click around, because the page it gives you is static and lacking assets.
-To dig into what&rsquo;s going on, I like to use a trick I learned from my mentor,
-Mike Pack.</p>
-
-<p>Just above the broken line in your test, add these two lines of code.
-Note that you have to have pry installed in your current gemset or
-specified in the Gemfile for this to work.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">puts</span> <span class="n">current_url</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;pry&#39;</span><span class="p">;</span> <span class="nb">binding</span><span class="o">.</span><span class="n">pry</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Run the specs, and when they pause, copy the url and port number from the test
-output. Open your browser and paste the address into the window. Voila!
-You&rsquo;re now browsing your site in test mode!</p>
-
-<h3>4) Make Sure DatabaseCleaner Plays Nice with PhantomJS</h3>
-
-<p>It can get really tricky to test JavaScript in Rails.
-Arguably, using some Jasmine tests may be the best thing if you have
-a lot of JS code. That may work for unit tests, but if you want to test
-a feature from end to end, it usually makes sense to use Capybara. To drive the
-JavaScript, you need an engine like <a href="https://github.com/teampoltergeist/poltergeist">Poltergeist</a>, which relies on <a href="http://phantomjs.org/">PhantomJS</a>.</p>
-
-<p>Meanwhile, you also need to take care of cleaning the database between specs to
-make sure that they are independent. In my apps, I usually take care of this
-with the <a href="https://github.com/bmabey/database_cleaner">DatabaseCleaner</a> gem.</p>
-
-<p>Unfortunately, PhantomJS runs the JavaScript code in a separate thread from the
-application code, which means that JS transactions don&rsquo;t always get
-committed to the database before DatabaseCleaner attempts to clean them.</p>
-
-<p>The answer is to make sure that you set it to use the <code>:truncation</code>
-strategy for JavaScript tests. See Avdi Grimm&rsquo;s
-<a href="http://devblog.avdi.org/2012/08/31/configuring-database_cleaner-with-rails-rspec-capybara-and-selenium/">blog post</a> on the subject for more details.</p>
-
-<p>Here&rsquo;s how to set it up in your <code>spec_helper</code>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">RSpec</span><span class="o">.</span><span class="n">configure</span> <span class="k">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">config</span><span class="o">.</span><span class="n">before</span> <span class="ss">:suite</span> <span class="k">do</span>
-</span><span class='line'>    <span class="no">DatabaseCleaner</span><span class="o">.</span><span class="n">strategy</span> <span class="o">=</span> <span class="ss">:truncation</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">config</span><span class="o">.</span><span class="n">before</span><span class="p">(</span><span class="ss">:each</span><span class="p">)</span> <span class="k">do</span>
-</span><span class='line'>    <span class="no">DatabaseCleaner</span><span class="o">.</span><span class="n">strategy</span> <span class="o">=</span> <span class="ss">:transaction</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">config</span><span class="o">.</span><span class="n">before</span><span class="p">(</span><span class="ss">:each</span><span class="p">,</span> <span class="ss">:js</span> <span class="o">=&gt;</span> <span class="kp">true</span><span class="p">)</span> <span class="k">do</span>
-</span><span class='line'>    <span class="no">DatabaseCleaner</span><span class="o">.</span><span class="n">strategy</span> <span class="o">=</span> <span class="ss">:truncation</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>5) Split VCR/Webmock Specs Into a Separate Rake Task From Your JavaScript Tests</h3>
-
-<p>Sometimes I have service objects that interact with an external API. The easiest
-way to test them without relying on actual HTTP requests is to use the
-<a href="https://github.com/vcr/vcr">VCR</a> gem. With VCR, you can also hook into
-<a href="https://github.com/bblimke/webmock">Webmock</a>, which keeps your computer from
-making any external HTTP requests during the test cycle. This is all well and good
-until you are making requests against a local API with JavaScript as well.
-In that case, Webmock will block the requests. Over the line!</p>
-
-<p>I&rsquo;ve played around with various ways of setting a condition in my test
-helper and before blocks to only run Webmock for a certain test, but I&rsquo;ve come
-up with another solution that I prefer. Instead of running <code>rspec</code>, I split the
-tests into a <code>:services</code> group, and a <code>:local</code> group. Then, I write a rake task
-in lib/tasks called <code>spec.rake</code> that looks like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">namespace</span> <span class="ss">:spec</span> <span class="k">do</span>
-</span><span class='line'>  <span class="n">desc</span> <span class="s2">&quot;run all local specs&quot;</span>
-</span><span class='line'>  <span class="n">task</span> <span class="ss">:local</span>  <span class="k">do</span>
-</span><span class='line'>    <span class="nb">system</span> <span class="s1">&#39;rspec spec/models&#39;</span>
-</span><span class='line'>    <span class="nb">system</span> <span class="s1">&#39;rspec spec/features&#39;</span>
-</span><span class='line'>    <span class="nb">system</span> <span class="s1">&#39;rspec spec/controllers&#39;</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">desc</span> <span class="s2">&quot;run all service specs&quot;</span>
-</span><span class='line'>  <span class="n">task</span> <span class="ss">:services</span> <span class="k">do</span>
-</span><span class='line'>    <span class="nb">system</span> <span class="s1">&#39;rspec spec/services&#39;</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">task</span> <span class="ss">:all</span> <span class="k">do</span>
-</span><span class='line'>    <span class="nb">system</span> <span class="s1">&#39;rspec spec/models&#39;</span>
-</span><span class='line'>    <span class="nb">system</span> <span class="s1">&#39;rspec spec/features&#39;</span>
-</span><span class='line'>    <span class="nb">system</span> <span class="s1">&#39;rspec spec/controllers&#39;</span>
-</span><span class='line'>    <span class="nb">system</span> <span class="s1">&#39;rspec spec/services&#39;</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This way, you only have to type one command to run all of your specs, just as
-you would if you had typed <code>rspec</code>. It&rsquo;s also easy to hook it into your Travis CI
-configuration like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="ss">language</span><span class="p">:</span> <span class="n">ruby</span>
-</span><span class='line'><span class="ss">rvm</span><span class="p">:</span>
-</span><span class='line'>  <span class="o">-</span> <span class="s2">&quot;2.0.0-p353&quot;</span>
-</span><span class='line'><span class="ss">script</span><span class="p">:</span>
-</span><span class='line'>  <span class="o">-</span> <span class="n">bundle</span> <span class="nb">exec</span> <span class="n">rake</span> <span class="ss">db</span><span class="p">:</span><span class="n">create</span>
-</span><span class='line'>  <span class="o">-</span> <span class="n">bundle</span> <span class="nb">exec</span> <span class="n">rake</span> <span class="ss">db</span><span class="p">:</span><span class="n">migrate</span> <span class="no">RAILS_ENV</span><span class="o">=</span><span class="nb">test</span>
-</span><span class='line'>  <span class="o">-</span> <span class="n">bundle</span> <span class="nb">exec</span> <span class="n">rake</span> <span class="ss">spec</span><span class="p">:</span><span class="n">local</span>
-</span><span class='line'>  <span class="o">-</span> <span class="n">bundle</span> <span class="nb">exec</span> <span class="n">rake</span> <span class="ss">spec</span><span class="p">:</span><span class="n">services</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Boom! Local and external APIs all tested, JavaScript tested, and Travis
-build passing.</p>
-
-<h2>Conclusion</h2>
-
-<p>If you&rsquo;re using a lot of JavaScript (and who isn&rsquo;t these days?) in your Rails app, it can sometimes hurt to write your feature tests. I hope these five hacks will make your life a little easier when you are testing, so you can get back to writing the code that makes your app go. Until then, &lsquo;the Dude abides&rsquo;.</p>
-
-<p><img src="http://quickleft-production.s3.amazonaws.com/uploads/asset/attachment/59/asset.gif" alt="The Dude Abides" /></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="2">&larr; Older</a>
@@ -3835,6 +3876,10 @@ build passing.</p>
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/01/16/five-ruby-methods-you-should-be-using/">Five Ruby Methods You Should Be Using</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2014/12/18/seven-reasons-i-love-minitest/">Seven Reasons I Love Minitest</a>
@@ -3852,10 +3897,6 @@ build passing.</p>
         <a href="/blog/2014/11/03/better-soa-development-with-foreman-and-nginx/">Better SOA Development With Foreman and NGINX</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
-      </li>
-    
   </ul>
 </section>
 
@@ -3869,7 +3910,7 @@ build passing.</p>
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 -  Ben Lewis <br/>
+  Copyright &copy; 2015 -  Ben Lewis <br/>
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
 	  
   </span>

@@ -4,7 +4,7 @@
   <title><![CDATA[Fluxus Frequency]]></title>
   <link href="http://fluxusfrequency.github.io/atom.xml" rel="self"/>
   <link href="http://fluxusfrequency.github.io/"/>
-  <updated>2014-12-18T05:38:39-07:00</updated>
+  <updated>2015-01-15T06:57:23-07:00</updated>
   <id>http://fluxusfrequency.github.io/</id>
   <author>
     <name><![CDATA[Ben Lewis]]></name>
@@ -12,6 +12,277 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    
+    <title type="html"><![CDATA[Five Ruby Methods You Should Be Using]]></title>
+    <link href="http://fluxusfrequency.github.io/blog/2015/01/16/five-ruby-methods-you-should-be-using/"/>
+    
+    <updated>2015-01-16T06:55:21-07:00</updated>
+    <id>http://fluxusfrequency.github.io/blog/2015/01/16/five-ruby-methods-you-should-be-using</id>
+    
+    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2015/five-ruby-methods-you-should-be-using">Engine Yard</a>.
+It was also the top featured article in <a href="http://rubyweekly.com/issues/229">Ruby Weekly</a>.</p>
+
+<p>There&rsquo;s something magical about the way that Ruby just flows from your fingertips. why once <a href="http://mislav.uniqpath.com/poignant-guide/book/chapter-2.html">said</a> &ldquo;Ruby will teach you to express your ideas through a computer.&rdquo; Maybe that&rsquo;s why Ruby has become such a <a href="http://blog.codeeval.com/codeevalblog/2014">popular choice</a> for modern web development.</p>
+
+<p>Just as in English, there are lots of ways to say the same thing in Ruby. I spend a lot of time reading and nitpicking people&rsquo;s code on <a href="http://exercism.io">Exercism</a>, and I often see exercises solved in a way that could be greatly simplified if the author had only known about a certain Ruby method.</p>
+
+<p>Here&rsquo;s a look at some lesser-used methods solve a specific problem very well.</p>
+
+<h2>Object#tap</h2>
+
+<p>Did you ever find yourself calling a method on some object, and the return value not being what you wanted it to? You were hoping to get back the object, but instead you got back some other value. Maybe you wanted to add an arbitrary value to a set of parameters stored in a hash. You update it with <code>Hash.[]</code>, but you get back <code>'bar</code> instead of the params hash, so you have to return it explicitly.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">params</span><span class="o">[</span><span class="ss">:foo</span><span class="o">]</span> <span class="o">=</span> <span class="s1">&#39;bar&#39;</span>
+</span><span class='line'>  <span class="n">params</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>params</code> line at the end of that method seems extraneous.</p>
+
+<p>We can clean it up with <a href="http://www.ruby-doc.org/core-2.1.5/Object.html#method-i-tap">Object#tap</a>.</p>
+
+<p>It&rsquo;s easy to use. Just call it on the object, then pass <code>tap</code> a block with the code that you wanted to run. The object will be yielded to the block, then be returned. Here&rsquo;s how we could use it to improve <code>update_params</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">params</span><span class="o">.</span><span class="n">tap</span> <span class="p">{</span><span class="o">|</span><span class="nb">p</span><span class="o">|</span> <span class="nb">p</span><span class="o">[</span><span class="ss">:foo</span><span class="o">]</span> <span class="o">=</span> <span class="s1">&#39;bar&#39;</span> <span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are dozens of great places to use <code>Object#tap</code>. Just keep your eyes open for methods called on an object that don&rsquo;t return the object, when you wish that they would.</p>
+
+<h2>Array#bsearch</h2>
+
+<p>I don&rsquo;t know about you, but I do a lot of looking through arrays for data. Ruby enumerables make it easy to find what I need: <code>select</code>, <code>reject</code>, and <code>find</code> are valuable tools that I use daily. But when the dataset is big, I start to worry about the length of time it will take to go through all of those records.</p>
+
+<p>If you&rsquo;re using <code>ActiveRecord</code> and dealing with a <code>SQL</code> database, there&rsquo;s a lot of magic that happens behind the scenes to make sure that your searches are conducted with the least algorithmic complexity. But sometimes you have to pull all of the data out of the database before you can work with it. For example, if the records are encrypted in the database, you can&rsquo;t query them very well with <code>SQL</code>.</p>
+
+<p>At times like these, I think hard about how to sift through the data with an algorithm that has the least complex <em>Big O</em> classification that I can. If you don&rsquo;t know about Big O notation, check out Justin Abrahms&rsquo;s <a href="https://justin.abrah.ms/computer-science/big-o-notation-explained.html">Big-O Notation Explained By A Self-Taught Programmer</a> or the <a href="http://bigocheatsheet.com/">Big-O Complexity Cheat Sheet</a>.</p>
+
+<p>The basic gist is that algorithms can take more or less time, depending on their complexity, which is ranked in this order: O(1), O(log n), O(n), O(n log(n)), O(n<sup>2</sup>), O(2<sup>n</sup>), O(n!). So we prefer searches to be in one of the classifications at the beginning of this list.</p>
+
+<p>When it comes to searching through arrays in Ruby, the first method that comes to mind is <code>Enumerable#find</code>, also known as <code>detect</code>. However, this method will search through the entire list until the match is found. While that&rsquo;s great if the record is at the beginning, it&rsquo;s a problem if the record is at the end of a really long list. It takes O(n) complexity to run a <code>find</code> search.</p>
+
+<p>There is a faster way. Using <a href="http://www.ruby-doc.org/core-2.1.5/Array.html#method-i-bsearch">Array#bsearch</a>, you can find a match with only O(log n) complexity. To find out more about how a Binary Search works, check out my post <a href="http://fluxusfrequency.github.io/blog/2014/01/31/building-a-binary-search/">Building A Binary Search</a>.</p>
+
+<p>Here&rsquo;s a look at the difference in search times between the two approaches when searching a range of 50,000,000 numbers:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;benchmark&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="mi">50_000_000</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Benchmark</span><span class="o">.</span><span class="n">bm</span> <span class="k">do</span> <span class="o">|</span><span class="n">x</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="ss">:find</span><span class="p">)</span> <span class="p">{</span> <span class="n">data</span><span class="o">.</span><span class="n">find</span> <span class="p">{</span><span class="o">|</span><span class="n">number</span><span class="o">|</span> <span class="n">number</span> <span class="o">&gt;</span> <span class="mi">40_000_000</span> <span class="p">}</span> <span class="p">}</span>
+</span><span class='line'>  <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="ss">:bsearch</span><span class="p">)</span> <span class="p">{</span> <span class="n">data</span><span class="o">.</span><span class="n">bsearch</span> <span class="p">{</span><span class="o">|</span><span class="n">number</span><span class="o">|</span> <span class="n">number</span> <span class="o">&gt;</span> <span class="mi">40_000_000</span> <span class="p">}</span> <span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>         <span class="n">user</span>       <span class="nb">system</span>     <span class="n">total</span>       <span class="n">real</span>
+</span><span class='line'><span class="n">find</span>     <span class="mi">3</span><span class="o">.</span><span class="mo">020000</span>   <span class="mi">0</span><span class="o">.</span><span class="mo">010000</span>   <span class="mi">3</span><span class="o">.</span><span class="mo">030000</span>   <span class="p">(</span><span class="mi">3</span><span class="o">.</span><span class="mo">02</span><span class="mi">8417</span><span class="p">)</span>
+</span><span class='line'><span class="n">bsearch</span>  <span class="mi">0</span><span class="o">.</span><span class="mo">000000</span>   <span class="mi">0</span><span class="o">.</span><span class="mo">000000</span>   <span class="mi">0</span><span class="o">.</span><span class="mo">000000</span>   <span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="mo">000006</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, <code>bsearch</code> is much faster. However, there is a pretty big catch involved with using <code>bsearch</code>: the array must be sorted. This somewhat limits its usefulness, but it&rsquo;s still worth keeping in mind for occasions where it might come in handy, such finding a record in by a <code>created_at</code> timestamp that has already been loaded from the database.</p>
+
+<h2>Enumerable#flat_map</h2>
+
+<p>When dealing with relational data, sometimes we need to collect a bunch of unrelated attributes and return them in an array that is not nested. Let&rsquo;s imagine you had a blog application, and you wanted to find the authors of comments left on posts written in the last month by a given set of users.</p>
+
+<p>You might do something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">CommentFinder</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">find_for_users</span><span class="p">(</span><span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">users</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">posts</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">post</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">post</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">map</span> <span class="o">|</span><span class="n">comment</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">comment</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">username</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You would then end up with a result such as:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[[[</span><span class="s1">&#39;Ben&#39;</span><span class="p">,</span> <span class="s1">&#39;Sam&#39;</span><span class="p">,</span> <span class="s1">&#39;David&#39;</span><span class="o">]</span><span class="p">,</span> <span class="o">[</span><span class="s1">&#39;Keith&#39;</span><span class="o">]]</span><span class="p">,</span> <span class="o">[[]</span><span class="p">,</span> <span class="o">[</span><span class="kp">nil</span><span class="o">]]</span><span class="p">,</span> <span class="o">[[</span><span class="s1">&#39;Chris&#39;</span><span class="o">]</span><span class="p">,</span> <span class="o">[]]]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But you just wanted the authors! I guess we can call <code>flatten</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">CommentFinder</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">find_for_users</span><span class="p">(</span><span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">users</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">posts</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">post</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">post</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">comment</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">comment</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">username</span>
+</span><span class='line'>      <span class="p">}</span><span class="o">.</span><span class="n">flatten</span>
+</span><span class='line'>    <span class="p">}</span><span class="o">.</span><span class="n">flatten</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Another option would have been to use <code>flat_map</code>.</p>
+
+<p>This just does the flattening as you go:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">CommentFinder</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">find_for_users</span><span class="p">(</span><span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">users</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">posts</span><span class="o">.</span><span class="n">flat_map</span> <span class="p">{</span> <span class="o">|</span><span class="n">post</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">post</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">flat_map</span> <span class="p">{</span> <span class="o">|</span><span class="n">comment</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">comment</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">username</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It&rsquo;s not too much different, but better than having to call <code>flatten</code> a bunch of times.</p>
+
+<h2>Array.new with a Block</h2>
+
+<p>One time, when I was in bootcamp, our teacher Jeff Casimir (founder of <a href="http://turing.io/">Turing School</a>) asked us to build the game Battleship in an hour. It was a great exercise in object-oriented programming. We needed <code>Rule</code>s, <code>Player</code>s, <code>Game</code>s, and <code>Board</code>s.</p>
+
+<p>Creating a represention of a <code>Board</code> is a fun exercise. After several iterations, I found the easiest way to set up an 8x8 grid was to do this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Board</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">board</span>
+</span><span class='line'>    <span class="vi">@board</span> <span class="o">||=</span> <span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">{</span> <span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">{</span> <span class="s1">&#39;0&#39;</span> <span class="p">}</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What&rsquo;s going on here? When you call <a href="http://www.ruby-doc.org/core-2.1.5/Array.html#method-c-new">Array.new</a> with an argument, it creates an array of that length:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+</span><span class='line'><span class="c1">#=&gt; [nil, nil, nil, nil, nil, nil, nil, nil]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When you pass it a block, it populates each of its members with the result of evaluating that block:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">{</span> <span class="s1">&#39;O&#39;</span> <span class="p">}</span>
+</span><span class='line'><span class="c1">#=&gt; [&#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So if you pass an array with eight elements a block that produces an array with eight elements that are all <code>'O'</code>, you end up with an 8x8 array populated with <code>'O'</code> strings.</p>
+
+<p>Using the <code>Array#new</code> with a block pattern, you can create all kinds of bizarre arrays with default data and any amount of nesting.</p>
+
+<h2>&lt;=></h2>
+
+<p>The <a href="http://www.ruby-doc.org/core-2.1.5/Object.html#method-i-3C-3D-3E">spaceship</a>, or sort, operator is one of my favorite Ruby constructs. It appears in most of the built-in Ruby classes, and is useful when working with enumerables.</p>
+
+<p>To illustrate how it works, let&rsquo;s look at how it behaves for <code>Fixnums</code>.  If you call <code>5&lt;=&gt;5</code>, it returns <code>0</code>. If you call <code>4&lt;=&gt;5</code>, it returns <code>-1</code>. If you call <code>5&lt;=&gt;4</code>, it returns <code>1</code>. Basically, if the two numbers are the same, it returns <code>0</code>, otherwise it returns <code>-1</code> for least to greatest sorting, and <code>1</code> for reverse sorting.</p>
+
+<p>You can use the spaceship in your own classes by including the <code>comparable</code> module and redefining <code>&lt;=&gt;</code> with logic branching to make it return <code>-1</code>, <code>0</code>, and <code>1</code> for the cases you want.</p>
+
+<p>Why would you ever want to do that?</p>
+
+<p>Here&rsquo;s a cool use of it I came across on Exercism one day. There&rsquo;s an exercise called Clock, where you have to adjust the hours an minutes on a clock using custom <code>+</code> and <code>-</code> methods. It gets complicated when you try to add more than 60 minutes, because that will make your minute value invalid. So you have to adjust by incrementing another hour and subtracting 60 from the minutes.</p>
+
+<p>One user, <code>dalexj</code>, had a brilliant way to solve this, using the spaceship operator:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">fix_minutes</span>
+</span><span class='line'>    <span class="k">until</span> <span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">member?</span> <span class="n">minutes</span>
+</span><span class='line'>      <span class="vi">@hours</span> <span class="o">-=</span> <span class="mi">60</span> <span class="o">&lt;=&gt;</span> <span class="n">minutes</span>
+</span><span class='line'>      <span class="vi">@minutes</span> <span class="o">+=</span> <span class="mi">60</span> <span class="o">*</span> <span class="p">(</span><span class="mi">60</span> <span class="o">&lt;=&gt;</span> <span class="n">minutes</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="vi">@hours</span> <span class="o">%=</span> <span class="mi">24</span>
+</span><span class='line'>    <span class="nb">self</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It works like this: until the minutes passed in are between 0 and 60, he subtracts either <code>1</code> or <code>-1</code> from the hours, depending on whether the minute amount is greater than 60. He then adjusts the minutes, adding either <code>-60</code> or <code>60</code> depending on the sort order.</p>
+
+<p>The spaceship is great for defining custom sort orders for your objects, and can also come in handy for arithmetic operations if you remember that it returns one of three <code>Fixnum</code> values.</p>
+
+<h2>Wrapping Up</h2>
+
+<p>Getting better at writing code is a process of learning. Since Ruby is a language, a lot of the time I spend trying to improve is spent of reading &ldquo;literature&rdquo; (i.e. code on Exercism andGitHub), and reading (what is essentially) the dictionary for my language: (<a href="http://ruby-doc.org/">Rubydocs</a>.</p>
+
+<p>It&rsquo;s so much easier to write expressive code when you know more methods. I hope that this collection of curiosities helped expand your Ruby vocabulary.</p>
+]]></content>
+    
+  </entry>
   
   <entry>
     
@@ -7555,159 +7826,6 @@ build passing.</p>
 <p>Now you can find the biggest files on any part of your hard drive. Just navigate to the folder you want to look at before running the command, or replace the <code>.</code> with the path you want to search (e.g. <code>$ du -a -h ~/Dropbox | sort -n -r | head -n 10 &gt; file_sizes.txt</code>).</p>
 
 <p>Enjoy!</p>
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[Contributing to Open Source &amp; Git Squash]]></title>
-    <link href="http://fluxusfrequency.github.io/blog/2013/12/15/contributing-to-open-source-and-git-squash/"/>
-    
-    <updated>2013-12-15T21:01:00-07:00</updated>
-    <id>http://fluxusfrequency.github.io/blog/2013/12/15/contributing-to-open-source-and-git-squash</id>
-    
-    <content type="html"><![CDATA[<h2>Open Source</h2>
-
-<p>I&rsquo;ve been really interested in contributing to open source lately. In part, because it seems like a really good way to learn about the gems I use. Also, because I am on a campaign of giving right now in my life, and contributing is an easy way to do so in computer code (which is basically all I do/breathe/sleep right now).</p>
-
-<p>I started off with something small, a contribution to the <a href="http://emberjs.com/guides/">Ember.js guides</a>. I noticed that there was an inconsistency in one step of the tutorial: sometimes they called the everyProperty() method, and other times they called everyBy(). I corrected it to use everyProperty() throughout and submitted. Even though my pull request was not accepted, because the latter method was deprecated in favor of the former, it was a magical experience. The people working on Ember were talking to me! And I was helping them make Ember better! I was feeling into it.</p>
-
-<p>Over the next month or so, I submitted some other documentation pull requests. I had pull requests accepted to Sinatra, Express.js, and even Rails! After being scolded for not including &ldquo;[ci skip]&rdquo; in my commit message (to prevent the continuous integration build from running for a simple documentation fix), I got a tip in the form of less than 1% of a Bitcoin. This was getting exciting.</p>
-
-<p>Emboldened, I decided to try for something bigger. As I was reading Addy Osmani&rsquo;s <a href="http://addyosmani.github.io/backbone-fundamentals/">Developing Backbone.js Applications</a>, I noticed that a portion of the chapter on Marionette was not working. I dug into the source code for the book and for the Marionette example, and discovered they didn&rsquo;t match. I updated the book and submitted a pull request. Several days later, it was merged. I contributed to a book! Cool!</p>
-
-<p>About this time, I saw that one of my classmates&#8217; mentors, Austen Ito, was doing the <a href="http://24pullrequests.com/">24 Pull Requests</a> challenge, submitting a pull request every day in December up until Christmas. I decided to jump on board.</p>
-
-<p>In my pursuit of Rails Ninja status, I&rsquo;d been working on learning how to use engines. Ryan Bigg&rsquo;s <a href="https://leanpub.com/multi-tenancy-rails">Multitenancy with Rails</a> and José Valim&rsquo;s <a href="http://pragprog.com/book/jvrails2/crafting-rails-4-applications">Crafting Rails 4 Applications</a> got me off to a good start. An excellent start, actually. I decided to go further with my favorite source for Rails research, <a href="http://guides.rubyonrails.org">The Rails Guides</a>. I was disappointed to find that the engine guide was pretty hard to read, mostly due to a lot of run-on sentences. I decided to edit the whole thing as I went.</p>
-
-<h2>Git Squash</h2>
-
-<p>Things weren&rsquo;t as easy with this pull request. As I went through and made spelling and grammar fixes, I also removed some word wrapping. I submitted the pull request. The Rails contributors on Github were very nice, but were hoping I could change about seven things. I did, and submitted a new commit. Then they asked me to fix the wrapping in a separate commit, so I did that. Now I was up to four commits, when I should really only have two.</p>
-
-<p>How did that git squashing thing work again?</p>
-
-<p>I could have created a new branch, cherry-picked my commits, and submitted a new pull request. But I was feeling stubborn, and wanted to figure out squashing. I asked many of my friends and teachers. We tried <code>git rebase -i</code>, like all of the articles we found online suggested, but it wasn&rsquo;t working. I&rsquo;d either end up with the same commits, or lost in some kind of detached head rebasing state that I couldn&rsquo;t resolve. <a href="http://www.ndpsoftware.com/git-cheatsheet.html">My favorite guide to git</a> was no help. Even <code>git reflog</code> wasn&rsquo;t pointing the way out.</p>
-
-<p>In the end, Katrina Owen came to the rescue (via email, from home). Here was my message to her:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>Hey Katrina,
-</span><span class='line'>
-</span><span class='line'>Thanks for helping. I was trying to use git rebase -i for this, but not getting the results I wanted.
-</span><span class='line'>
-</span><span class='line'>I'm contributing edits to the rails guide for engines. I was asked to revise my original commit, then squash it. I was also asked to send a separate commit with word wrapping.
-</span><span class='line'>
-</span><span class='line'>Here's the history of the branch I'm working on:
-</span><span class='line'>
-</span><span class='line'>* 0cdcf46 2013-12-11 | Word wrap to engines guide \[ci skip] (HEAD, patch-4) [Ben Lewis]
-</span><span class='line'>* 492ac2a 2013-12-11 | Revision to guide edits (origin/patch-4) [Ben Lewis]
-</span><span class='line'>* b55a803 2013-12-04 | Clarification, grammar fixes, punctuation, and capitalization \[ci skip] [Ben Lewis]
-</span><span class='line'>* 49ed8a1 2013-12-04 | Run Travis tests using Ruby 2.1.0-preview2 too [Santiago Pastorino]
-</span><span class='line'>
-</span><span class='line'>I need to squash them so that I only have 0cdcf46 and 492ac2a (although I would like to take the message from b55a803). Here's what I want to see:
-</span><span class='line'>
-</span><span class='line'>* 0cdcf46 2013-12-11 | Word wrap to engines guide \[ci skip] (HEAD, patch-4) [Ben Lewis]
-</span><span class='line'>* 492ac2a 2013-12-11 | Clarification, grammar fixes, punctuation, and capitalization \[ci skip] [Ben Lewis]
-</span><span class='line'>* 49ed8a1 2013-12-04 | Run Travis tests using Ruby 2.1.0-preview2 too [Santiago Pastorino]
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>What should I do?
-</span><span class='line'>
-</span><span class='line'>Thanks!
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Here&rsquo;s what she replied:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>A separate commit, or a separate pull request?
-</span><span class='line'>
-</span><span class='line'>If it's a separate pull request, here's how I'd do it:
-</span><span class='line'>
-</span><span class='line'>Create a separate branch from the most recent upstream master,
-</span><span class='line'>and then do:
-</span><span class='line'>
-</span><span class='line'>   git cherry-pick 0cdcf46
-</span><span class='line'>
-</span><span class='line'>Then you can submit that branch as a separate pull request.
-</span><span class='line'>
-</span><span class='line'>On your branch that you've been working on, you could get rid
-</span><span class='line'>of the most recent commit with
-</span><span class='line'>
-</span><span class='line'>   git reset --hard HEAD~1
-</span><span class='line'>
-</span><span class='line'>Then you can rebase -i with:
-</span><span class='line'>
-</span><span class='line'>   git rebase -i HEAD~4 # or something
-</span><span class='line'>
-</span><span class='line'>Next to the second commit that you want to squash into the first commit,
-</span><span class='line'>replace 'pick' with 'squash'.
-</span><span class='line'>
-</span><span class='line'>Then write and quit, and it will re-open a new editor and ask you to fix
-</span><span class='line'>the message. It will give you both of the previous ones, and you can
-</span><span class='line'>pick one or the other or write a whole new message.
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>It was an easy fix: just use the HEAD~X for the number of commits you want to work with. Worked like a charm! I was able to squash the commits just as I wanted, and resubmit them. Next up, I had to remove the wrapping changes from the first commit (b55a803). This was a good chance to practice squashing again. This time around, I did end up using some cherry-picking magic from a separate branch, but I was still able to squash my commits. Success!</p>
-
-<p>It&rsquo;s crazy how hard it has been to get used to git. Probably, a lot of the overwhelm comes from <a href="https://www.codefellows.org/blogs/this-is-why-learning-rails-is-hard">all of the other things</a> I have been learning at the same time. Anyway, now I know how to squash.</p>
-
-<h2>Moving Forward</h2>
-
-<p>I&rsquo;m really interested in contributing some actual code to projects. I&rsquo;ve been looking around at the issues on Rails, Sorcery, Mechanize, and other popular gems, but I often find that they&rsquo;re way over my head. I was able to fix a small todo in the <a href="http://www.exercism.io">Exercism</a> source code, but beyond that, I&rsquo;m pretty much lost. If anyone reading this has any good leads for something that an advanced beginner can do (somewhere between documentation edits and http response parsing level insanity) please hit me up on Twitter!</p>
 ]]></content>
     
   </entry>

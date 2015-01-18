@@ -9,7 +9,7 @@
   <meta name="author" content="Ben Lewis">
 
   
-  <meta name="description" content="This week at gSchool, we started a new rails project called Fourth Meal. The assignment&rsquo;s basic premise is to build a multi-tenant platform for &hellip;">
+  <meta name="description" content="Open Source I&rsquo;ve been really interested in contributing to open source lately. In part, because it seems like a really good way to learn about &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,184 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/12/15/contributing-to-open-source-and-git-squash/">Contributing to Open Source &amp; Git Squash</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-15T21:01:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>Open Source</h2>
+
+<p>I&rsquo;ve been really interested in contributing to open source lately. In part, because it seems like a really good way to learn about the gems I use. Also, because I am on a campaign of giving right now in my life, and contributing is an easy way to do so in computer code (which is basically all I do/breathe/sleep right now).</p>
+
+<p>I started off with something small, a contribution to the <a href="http://emberjs.com/guides/">Ember.js guides</a>. I noticed that there was an inconsistency in one step of the tutorial: sometimes they called the everyProperty() method, and other times they called everyBy(). I corrected it to use everyProperty() throughout and submitted. Even though my pull request was not accepted, because the latter method was deprecated in favor of the former, it was a magical experience. The people working on Ember were talking to me! And I was helping them make Ember better! I was feeling into it.</p>
+
+<p>Over the next month or so, I submitted some other documentation pull requests. I had pull requests accepted to Sinatra, Express.js, and even Rails! After being scolded for not including &ldquo;[ci skip]&rdquo; in my commit message (to prevent the continuous integration build from running for a simple documentation fix), I got a tip in the form of less than 1% of a Bitcoin. This was getting exciting.</p>
+
+<p>Emboldened, I decided to try for something bigger. As I was reading Addy Osmani&rsquo;s <a href="http://addyosmani.github.io/backbone-fundamentals/">Developing Backbone.js Applications</a>, I noticed that a portion of the chapter on Marionette was not working. I dug into the source code for the book and for the Marionette example, and discovered they didn&rsquo;t match. I updated the book and submitted a pull request. Several days later, it was merged. I contributed to a book! Cool!</p>
+
+<p>About this time, I saw that one of my classmates&#8217; mentors, Austen Ito, was doing the <a href="http://24pullrequests.com/">24 Pull Requests</a> challenge, submitting a pull request every day in December up until Christmas. I decided to jump on board.</p>
+
+<p>In my pursuit of Rails Ninja status, I&rsquo;d been working on learning how to use engines. Ryan Bigg&rsquo;s <a href="https://leanpub.com/multi-tenancy-rails">Multitenancy with Rails</a> and José Valim&rsquo;s <a href="http://pragprog.com/book/jvrails2/crafting-rails-4-applications">Crafting Rails 4 Applications</a> got me off to a good start. An excellent start, actually. I decided to go further with my favorite source for Rails research, <a href="http://guides.rubyonrails.org">The Rails Guides</a>. I was disappointed to find that the engine guide was pretty hard to read, mostly due to a lot of run-on sentences. I decided to edit the whole thing as I went.</p>
+
+<h2>Git Squash</h2>
+
+<p>Things weren&rsquo;t as easy with this pull request. As I went through and made spelling and grammar fixes, I also removed some word wrapping. I submitted the pull request. The Rails contributors on Github were very nice, but were hoping I could change about seven things. I did, and submitted a new commit. Then they asked me to fix the wrapping in a separate commit, so I did that. Now I was up to four commits, when I should really only have two.</p>
+
+<p>How did that git squashing thing work again?</p>
+
+<p>I could have created a new branch, cherry-picked my commits, and submitted a new pull request. But I was feeling stubborn, and wanted to figure out squashing. I asked many of my friends and teachers. We tried <code>git rebase -i</code>, like all of the articles we found online suggested, but it wasn&rsquo;t working. I&rsquo;d either end up with the same commits, or lost in some kind of detached head rebasing state that I couldn&rsquo;t resolve. <a href="http://www.ndpsoftware.com/git-cheatsheet.html">My favorite guide to git</a> was no help. Even <code>git reflog</code> wasn&rsquo;t pointing the way out.</p>
+
+<p>In the end, Katrina Owen came to the rescue (via email, from home). Here was my message to her:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>Hey Katrina,
+</span><span class='line'>
+</span><span class='line'>Thanks for helping. I was trying to use git rebase -i for this, but not getting the results I wanted.
+</span><span class='line'>
+</span><span class='line'>I'm contributing edits to the rails guide for engines. I was asked to revise my original commit, then squash it. I was also asked to send a separate commit with word wrapping.
+</span><span class='line'>
+</span><span class='line'>Here's the history of the branch I'm working on:
+</span><span class='line'>
+</span><span class='line'>* 0cdcf46 2013-12-11 | Word wrap to engines guide \[ci skip] (HEAD, patch-4) [Ben Lewis]
+</span><span class='line'>* 492ac2a 2013-12-11 | Revision to guide edits (origin/patch-4) [Ben Lewis]
+</span><span class='line'>* b55a803 2013-12-04 | Clarification, grammar fixes, punctuation, and capitalization \[ci skip] [Ben Lewis]
+</span><span class='line'>* 49ed8a1 2013-12-04 | Run Travis tests using Ruby 2.1.0-preview2 too [Santiago Pastorino]
+</span><span class='line'>
+</span><span class='line'>I need to squash them so that I only have 0cdcf46 and 492ac2a (although I would like to take the message from b55a803). Here's what I want to see:
+</span><span class='line'>
+</span><span class='line'>* 0cdcf46 2013-12-11 | Word wrap to engines guide \[ci skip] (HEAD, patch-4) [Ben Lewis]
+</span><span class='line'>* 492ac2a 2013-12-11 | Clarification, grammar fixes, punctuation, and capitalization \[ci skip] [Ben Lewis]
+</span><span class='line'>* 49ed8a1 2013-12-04 | Run Travis tests using Ruby 2.1.0-preview2 too [Santiago Pastorino]
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>What should I do?
+</span><span class='line'>
+</span><span class='line'>Thanks!
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here&rsquo;s what she replied:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>A separate commit, or a separate pull request?
+</span><span class='line'>
+</span><span class='line'>If it's a separate pull request, here's how I'd do it:
+</span><span class='line'>
+</span><span class='line'>Create a separate branch from the most recent upstream master,
+</span><span class='line'>and then do:
+</span><span class='line'>
+</span><span class='line'>   git cherry-pick 0cdcf46
+</span><span class='line'>
+</span><span class='line'>Then you can submit that branch as a separate pull request.
+</span><span class='line'>
+</span><span class='line'>On your branch that you've been working on, you could get rid
+</span><span class='line'>of the most recent commit with
+</span><span class='line'>
+</span><span class='line'>   git reset --hard HEAD~1
+</span><span class='line'>
+</span><span class='line'>Then you can rebase -i with:
+</span><span class='line'>
+</span><span class='line'>   git rebase -i HEAD~4 # or something
+</span><span class='line'>
+</span><span class='line'>Next to the second commit that you want to squash into the first commit,
+</span><span class='line'>replace 'pick' with 'squash'.
+</span><span class='line'>
+</span><span class='line'>Then write and quit, and it will re-open a new editor and ask you to fix
+</span><span class='line'>the message. It will give you both of the previous ones, and you can
+</span><span class='line'>pick one or the other or write a whole new message.
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It was an easy fix: just use the HEAD~X for the number of commits you want to work with. Worked like a charm! I was able to squash the commits just as I wanted, and resubmit them. Next up, I had to remove the wrapping changes from the first commit (b55a803). This was a good chance to practice squashing again. This time around, I did end up using some cherry-picking magic from a separate branch, but I was still able to squash my commits. Success!</p>
+
+<p>It&rsquo;s crazy how hard it has been to get used to git. Probably, a lot of the overwhelm comes from <a href="https://www.codefellows.org/blogs/this-is-why-learning-rails-is-hard">all of the other things</a> I have been learning at the same time. Anyway, now I know how to squash.</p>
+
+<h2>Moving Forward</h2>
+
+<p>I&rsquo;m really interested in contributing some actual code to projects. I&rsquo;ve been looking around at the issues on Rails, Sorcery, Mechanize, and other popular gems, but I often find that they&rsquo;re way over my head. I was able to fix a small todo in the <a href="http://www.exercism.io">Exercism</a> source code, but beyond that, I&rsquo;m pretty much lost. If anyone reading this has any good leads for something that an advanced beginner can do (somewhere between documentation edits and http response parsing level insanity) please hit me up on Twitter!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2885,357 +3063,6 @@ Calling typeof on it will return &lsquo;object&rsquo;. It is best to test for nu
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/29/javascript-in-the-browser/">Javascript in the Browser</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-29T19:33:00-06:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Having done many Javascript tutorials and read many Javascript books, I was hoping that I would be better at using the language by now. Since I still had very little clue of how to incorporate JS into developing websites, I decided to reread Chapters 9-11 in Marijn Haverbeke&rsquo;s <a href="http://www.amazon.com/Eloquent-JavaScript-Modern-Introduction-Programming/dp/1593272820/ref=sr_1_1?ie=UTF8&amp;qid=1383098181&amp;sr=8-1&amp;keywords=eloquent+javascript">Eloquent Javascript</a> (which I highly recommend). These chapters, entitled Web Programming: A Crash Course, The Document Object Model, and Browser Events, respectively, cover the use of Javascript in the browser.</p>
-
-<p>I took notes as I read, and decided to share them here for reference.</p>
-
-<p><br /></p>
-
-<h2>The Window Object</h2>
-
-<p>This is the global object in the context a browser.</p>
-
-<h3>Window#open(&ldquo;url&rdquo;)</h3>
-
-<p>Opens a popup.
-e.g.: var popup = window.open(‘www.google.com’);</p>
-
-<h3>Window#close</h3>
-
-<p>Closes a window.
-e.g.: popup.close</p>
-
-<p><br /></p>
-
-<h2>The Document Object</h2>
-
-<p>This property of the window represents the document within the window.</p>
-
-<h3>Document#location#href</h3>
-
-<p>Displays information about the current URL. Use this by having a script call it while document is being loaded, causing the written HTML to be inserted into the page.</p>
-
-<h3>Document#write()</h3>
-
-<p>Write something (perhaps a variable) to the place in the page where this script is run.</p>
-
-<h3>Document#getElementById(‘id’)</h3>
-
-<p>Accesses the node with the given id, which can then be edited.</p>
-
-<figure class='code'><figcaption><span>example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">picture</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="err">“</span><span class="nx">picture</span><span class="err">”</span><span class="p">);</span>
-</span><span class='line'><span class="nx">picture</span><span class="p">.</span><span class="nx">src</span><span class="p">;</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="err">“</span><span class="nx">img</span><span class="o">/</span><span class="nx">bird</span><span class="p">.</span><span class="nx">png</span><span class="err">”</span>
-</span><span class='line'><span class="nx">picture</span><span class="p">.</span><span class="nx">src</span> <span class="o">=</span> <span class="err">“</span><span class="nx">img</span><span class="o">/</span><span class="nx">ostrich</span><span class="p">.</span><span class="nx">png</span><span class="err">”</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Document#createElement(“div”)</h3>
-
-<p>Creates an element of the given type.
-e.g.: header = document.createElement(“H1”);
-title = document.createTextNode(“My Title”);</p>
-
-<h3>Document#createTextNode(“text”)</h3>
-
-<p>Creates some text. It should then be appended with:
-header.appendChild(title);
-document.body.appendChild(header);</p>
-
-<p><br /></p>
-
-<h2>Elements</h2>
-
-<h3>Element#onclick</h3>
-
-<p>Accesses the element when it is clicked.</p>
-
-<h3>Element#focus</h3>
-
-<p>Tells the window to focus on the given element when the code is executed.</p>
-
-<p><br /></p>
-
-<h2>Nodes</h2>
-
-<h3>Element#nodeType</h3>
-
-<p>Returns a number: 1 for regular nodes or 3 for text nodes.</p>
-
-<h3>Document#body#firstChild#nodeName;</h3>
-
-<p>e.g.: “H1”</p>
-
-<h3>Document#body#firstChild#nodeValue;</h3>
-
-<p>e.g.: “Chapter 1: Equipment”</p>
-
-<h3>Document#node#innerHTML = “<p>text</p>”;</h3>
-
-<p>Allows you to replace the text in the specified node.</p>
-
-<h3>Node#appendChild(child)</h3>
-
-<p>Puts the specified child inside the node.</p>
-
-<h3>Node#parentNode#removeChild(node)</h3>
-
-<p>Removes the node from the document.</p>
-
-<h3>Node#setAttribute(“tag”, “attr”)</h3>
-
-<p>Sets attributes on a node.</p>
-
-<figure class='code'><figcaption><span>example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">newImage</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="err">“</span><span class="nx">IMG</span><span class="err">”</span><span class="p">);</span>
-</span><span class='line'><span class="nx">newImage</span><span class="p">.</span><span class="nx">setAttribute</span><span class="p">(</span><span class="err">“</span><span class="nx">src</span><span class="err">”</span><span class="p">,</span> <span class="err">“</span><span class="nx">img</span><span class="o">/</span><span class="nx">yinyang</span><span class="p">.</span><span class="nx">png</span><span class="err">”</span><span class="p">);</span>
-</span><span class='line'><span class="nb">document</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">newImage</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Node#getAttribute(“attr”)</h3>
-
-<p>Gets the specified attribute from the node.
-e.g.:newImage.getAttribute(“src”);
-=>”img/yinyang.png”;</p>
-
-<h3>Node#style</h3>
-
-<p>Accesses the CSS styling for the given node, which can then be set.</p>
-
-<figure class='code'><figcaption><span>example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">picture</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">borderwidth</span> <span class="o">=</span> <span class="err">“</span><span class="mi">4</span><span class="nx">px</span><span class="err">”</span><span class="p">;</span>
-</span><span class='line'><span class="nx">picture</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">display</span> <span class="o">=</span> <span class="err">“</span><span class="nx">none</span><span class="err">”</span><span class="p">;</span>
-</span><span class='line'><span class="nx">picture</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">position</span> <span class="o">=</span> <span class="err">“</span><span class="nx">absolute</span><span class="err">”</span><span class="p">;</span>
-</span><span class='line'><span class="nx">picture</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="err">“</span><span class="mi">400</span><span class="nx">px</span><span class="err">”</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><br /></p>
-
-<h2>Event Handlers</h2>
-
-<h3>Node#attachEvent(event, function)</h3>
-
-<p>Attaches a function to an event, such “on click”, or “charCode” || “keyCode” (the || is used to cover different browsers).</p>
-
-<h3>Node#addEventListener(event, function, boolean)</h3>
-
-<p>Same thing as Node#attachEvent, but for older browsers. The boolean indicates it will bubble up through DOM normally rather than taking priority.</p>
-
-<h3>Node#detachEvent</h3>
-
-<p>Opposite of #attachEvent.</p>
-
-<h3>Node#removeEventListener</h3>
-
-<p>Opposite of #addEventListener.</p>
-
-<h3>Event Handling For All Browsers</h3>
-
-<figure class='code'><figcaption><span>example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">function</span> <span class="nx">registerEventHandler</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="nx">event</span><span class="p">,</span> <span class="nx">handler</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>     <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">node</span><span class="p">.</span><span class="nx">addEventListener</span> <span class="o">===</span> <span class="err">“</span><span class="kd">function</span><span class="err">”</span><span class="p">)</span>
-</span><span class='line'>     <span class="nx">node</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">handler</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
-</span><span class='line'><span class="k">else</span>
-</span><span class='line'>     <span class="nx">node</span><span class="p">.</span><span class="nx">attachEvent</span><span class="p">(</span><span class="err">“</span><span class="nx">on</span><span class="err">”</span> <span class="o">+</span> <span class="nx">event</span><span class="p">,</span> <span class="nx">handler</span><span class="p">);</span>
-</span><span class='line'><span class="p">};</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>e.g.: registerEventHandler(button, “click”, function(){print(“click2”);});</p>
-
-<h3>function unregisterEventHandler</h3>
-
-<p>Opposite of registerEventHandler.</p>
-
-<h3>Internet Explorer</h3>
-
-<p>This pattern is sometimes used for Internet Explorer:
-event = event || window.event;</p>
-
-<p><br /></p>
-
-<h2>Forms</h2>
-
-<h3>encodeURIComponent(string)</h3>
-
-<p>Applies escapes to the string to make it a legal URI.</p>
-
-<h3>decodeURIComponent(encodedURI)</h3>
-
-<p>Transforms an encoded URI back into a string.</p>
-
-<h3>Document#forms</h3>
-
-<p>Links to all forms on the page.
-e.g.: document.forms.userinfo will access the user info form.</p>
-
-<h3>Form#action</h3>
-
-<p>e.g.: “url”</p>
-
-<h3>Form#method</h3>
-
-<p>e.g.: “GET”</p>
-
-<h3>Form#elements</h3>
-
-<p>Accesses one of the elements in the form.
-e.g.: formName.elements.name.value = “Eugene”; would set the name field to that name.</p>
-
-<h3>Form#submit</h3>
-
-<p>Manually submits the form to the server.</p>
-
-<h3>Checking form validity:</h3>
-
-<ol>
-<li> Change input “submit” into “button”.</li>
-<li> Access the form with formName = document.forms.htmlformname.</li>
-<li> Check the form method and action by calling formName.method and formName.action.</li>
-<li> Check the elements using formName.elements.name, etc.</li>
-<li> Write a function to check inputs like so:</li>
-</ol>
-
-
-<figure class='code'><figcaption><span>example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">function</span> <span class="nx">validInfo</span><span class="p">(</span><span class="nx">form</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'><span class="k">return</span> <span class="nx">form</span><span class="p">.</span><span class="nx">elements</span><span class="p">.</span><span class="nx">name</span><span class="p">.</span><span class="nx">value</span> <span class="o">!=</span> <span class="err">“”</span> <span class="o">&amp;&amp;</span>
-</span><span class='line'><span class="sr">/email_verification_regex/</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="nx">form</span><span class="p">.</span><span class="nx">elements</span><span class="p">.</span><span class="nx">email</span><span class="p">.</span><span class="nx">value</span><span class="p">);</span>
-</span><span class='line'><span class="p">};</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>  Then set the button’s onClick event like so:</p>
-
-<figure class='code'><figcaption><span>example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">formName</span><span class="p">.</span><span class="nx">elements</span><span class="p">.</span><span class="nx">send</span><span class="p">.</span><span class="nx">onclick</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>     <span class="k">if</span> <span class="p">(</span><span class="nx">validInfo</span><span class="p">(</span><span class="nx">formName</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>          <span class="nx">formName</span><span class="p">.</span><span class="nx">submit</span><span class="p">();</span>
-</span><span class='line'>     <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>          <span class="nx">alert</span><span class="p">(</span><span class="err">“</span><span class="nx">Invalid</span> <span class="nx">email</span><span class="err">”</span><span class="p">);</span>
-</span><span class='line'>     <span class="p">}</span>
-</span><span class='line'><span class="p">};</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><br /></p>
-
-<h2>Time</h2>
-
-<h3>new Date()</h3>
-
-<p>Creates a new date object</p>
-
-<h3>Date#Gethours()</h3>
-
-<p><br /></p>
-
-<h3>Date#getMinutes()</h3>
-
-<p><br /></p>
-
-<h2>Timers</h2>
-
-<h3>Window#setTimeOut(function(), ms)</h3>
-
-<p>Calls the function in the first argument after the milliseconds have elapsed.</p>
-
-<figure class='code'><figcaption><span>example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nb">window</span><span class="p">.</span><span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'><span class="nb">document</span><span class="p">.</span><span class="nx">loacation</span><span class="p">.</span><span class="nx">href</span> <span class="o">=</span> <span class="err">“</span><span class="o">/</span><span class="nx">spoiler</span><span class="p">.</span><span class="nx">html</span><span class="err">”</span><span class="p">;</span>
-</span><span class='line'><span class="p">},</span> <span class="mi">5000</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This would redirect to spoiler if the user did nothing for 5 seconds.</p>
-
-<h3>Window#clearTimeOut</h3>
-
-<p>Cancels a timeout.</p>
-
-<h3>Window#setInterval(function, ms)</h3>
-
-<p>Runs the function every time n milliseconds elapse.</p>
-
-<p><br /></p>
-
-<h2>Navigator</h2>
-
-<h3>Navigator#userAgent</h3>
-
-<p>Shows the name of the browser being used.</p>
-
-<h3>Navigator#vendor</h3>
-
-<p>Shows the vendor of the browser.</p>
-
-<h3>Navigator#platform</h3>
-
-<p>Shows info about the computer being used. This can be useful to find out what the browser is and run code specific to that browser (IE6, Chrome, etc).</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="4">&larr; Older</a>
@@ -3253,6 +3080,10 @@ e.g.: formName.elements.name.value = “Eugene”; would set the name field to t
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/01/16/five-ruby-methods-you-should-be-using/">Five Ruby Methods You Should Be Using</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/12/18/seven-reasons-i-love-minitest/">Seven Reasons I Love Minitest</a>
       </li>
     
@@ -3268,10 +3099,6 @@ e.g.: formName.elements.name.value = “Eugene”; would set the name field to t
         <a href="/blog/2014/11/03/better-soa-development-with-foreman-and-nginx/">Better SOA Development With Foreman and NGINX</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a>
-      </li>
-    
   </ul>
 </section>
 
@@ -3285,7 +3112,7 @@ e.g.: formName.elements.name.value = “Eugene”; would set the name field to t
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 -  Ben Lewis <br/>
+  Copyright &copy; 2015 -  Ben Lewis <br/>
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
 	  
   </span>

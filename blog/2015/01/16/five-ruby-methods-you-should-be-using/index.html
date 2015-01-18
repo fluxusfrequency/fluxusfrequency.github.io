@@ -1,0 +1,474 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Five Ruby Methods You Should Be Using - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="This post originally appeared on Engine Yard.
+It was also the top featured article in Ruby Weekly. There&rsquo;s something magical about the way that &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2015/01/16/five-ruby-methods-you-should-be-using">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Five Ruby Methods You Should Be Using</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-16T06:55:21-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2015/five-ruby-methods-you-should-be-using">Engine Yard</a>.
+It was also the top featured article in <a href="http://rubyweekly.com/issues/229">Ruby Weekly</a>.</p>
+
+<p>There&rsquo;s something magical about the way that Ruby just flows from your fingertips. why once <a href="http://mislav.uniqpath.com/poignant-guide/book/chapter-2.html">said</a> &ldquo;Ruby will teach you to express your ideas through a computer.&rdquo; Maybe that&rsquo;s why Ruby has become such a <a href="http://blog.codeeval.com/codeevalblog/2014">popular choice</a> for modern web development.</p>
+
+<p>Just as in English, there are lots of ways to say the same thing in Ruby. I spend a lot of time reading and nitpicking people&rsquo;s code on <a href="http://exercism.io">Exercism</a>, and I often see exercises solved in a way that could be greatly simplified if the author had only known about a certain Ruby method.</p>
+
+<p>Here&rsquo;s a look at some lesser-used methods solve a specific problem very well.</p>
+
+<h2>Object#tap</h2>
+
+<p>Did you ever find yourself calling a method on some object, and the return value not being what you wanted it to? You were hoping to get back the object, but instead you got back some other value. Maybe you wanted to add an arbitrary value to a set of parameters stored in a hash. You update it with <code>Hash.[]</code>, but you get back <code>'bar</code> instead of the params hash, so you have to return it explicitly.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">params</span><span class="o">[</span><span class="ss">:foo</span><span class="o">]</span> <span class="o">=</span> <span class="s1">&#39;bar&#39;</span>
+</span><span class='line'>  <span class="n">params</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>params</code> line at the end of that method seems extraneous.</p>
+
+<p>We can clean it up with <a href="http://www.ruby-doc.org/core-2.1.5/Object.html#method-i-tap">Object#tap</a>.</p>
+
+<p>It&rsquo;s easy to use. Just call it on the object, then pass <code>tap</code> a block with the code that you wanted to run. The object will be yielded to the block, then be returned. Here&rsquo;s how we could use it to improve <code>update_params</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">params</span><span class="o">.</span><span class="n">tap</span> <span class="p">{</span><span class="o">|</span><span class="nb">p</span><span class="o">|</span> <span class="nb">p</span><span class="o">[</span><span class="ss">:foo</span><span class="o">]</span> <span class="o">=</span> <span class="s1">&#39;bar&#39;</span> <span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are dozens of great places to use <code>Object#tap</code>. Just keep your eyes open for methods called on an object that don&rsquo;t return the object, when you wish that they would.</p>
+
+<h2>Array#bsearch</h2>
+
+<p>I don&rsquo;t know about you, but I do a lot of looking through arrays for data. Ruby enumerables make it easy to find what I need: <code>select</code>, <code>reject</code>, and <code>find</code> are valuable tools that I use daily. But when the dataset is big, I start to worry about the length of time it will take to go through all of those records.</p>
+
+<p>If you&rsquo;re using <code>ActiveRecord</code> and dealing with a <code>SQL</code> database, there&rsquo;s a lot of magic that happens behind the scenes to make sure that your searches are conducted with the least algorithmic complexity. But sometimes you have to pull all of the data out of the database before you can work with it. For example, if the records are encrypted in the database, you can&rsquo;t query them very well with <code>SQL</code>.</p>
+
+<p>At times like these, I think hard about how to sift through the data with an algorithm that has the least complex <em>Big O</em> classification that I can. If you don&rsquo;t know about Big O notation, check out Justin Abrahms&rsquo;s <a href="https://justin.abrah.ms/computer-science/big-o-notation-explained.html">Big-O Notation Explained By A Self-Taught Programmer</a> or the <a href="http://bigocheatsheet.com/">Big-O Complexity Cheat Sheet</a>.</p>
+
+<p>The basic gist is that algorithms can take more or less time, depending on their complexity, which is ranked in this order: O(1), O(log n), O(n), O(n log(n)), O(n<sup>2</sup>), O(2<sup>n</sup>), O(n!). So we prefer searches to be in one of the classifications at the beginning of this list.</p>
+
+<p>When it comes to searching through arrays in Ruby, the first method that comes to mind is <code>Enumerable#find</code>, also known as <code>detect</code>. However, this method will search through the entire list until the match is found. While that&rsquo;s great if the record is at the beginning, it&rsquo;s a problem if the record is at the end of a really long list. It takes O(n) complexity to run a <code>find</code> search.</p>
+
+<p>There is a faster way. Using <a href="http://www.ruby-doc.org/core-2.1.5/Array.html#method-i-bsearch">Array#bsearch</a>, you can find a match with only O(log n) complexity. To find out more about how a Binary Search works, check out my post <a href="http://fluxusfrequency.github.io/blog/2014/01/31/building-a-binary-search/">Building A Binary Search</a>.</p>
+
+<p>Here&rsquo;s a look at the difference in search times between the two approaches when searching a range of 50,000,000 numbers:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;benchmark&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="mi">50_000_000</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Benchmark</span><span class="o">.</span><span class="n">bm</span> <span class="k">do</span> <span class="o">|</span><span class="n">x</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="ss">:find</span><span class="p">)</span> <span class="p">{</span> <span class="n">data</span><span class="o">.</span><span class="n">find</span> <span class="p">{</span><span class="o">|</span><span class="n">number</span><span class="o">|</span> <span class="n">number</span> <span class="o">&gt;</span> <span class="mi">40_000_000</span> <span class="p">}</span> <span class="p">}</span>
+</span><span class='line'>  <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="ss">:bsearch</span><span class="p">)</span> <span class="p">{</span> <span class="n">data</span><span class="o">.</span><span class="n">bsearch</span> <span class="p">{</span><span class="o">|</span><span class="n">number</span><span class="o">|</span> <span class="n">number</span> <span class="o">&gt;</span> <span class="mi">40_000_000</span> <span class="p">}</span> <span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>         <span class="n">user</span>       <span class="nb">system</span>     <span class="n">total</span>       <span class="n">real</span>
+</span><span class='line'><span class="n">find</span>     <span class="mi">3</span><span class="o">.</span><span class="mo">020000</span>   <span class="mi">0</span><span class="o">.</span><span class="mo">010000</span>   <span class="mi">3</span><span class="o">.</span><span class="mo">030000</span>   <span class="p">(</span><span class="mi">3</span><span class="o">.</span><span class="mo">02</span><span class="mi">8417</span><span class="p">)</span>
+</span><span class='line'><span class="n">bsearch</span>  <span class="mi">0</span><span class="o">.</span><span class="mo">000000</span>   <span class="mi">0</span><span class="o">.</span><span class="mo">000000</span>   <span class="mi">0</span><span class="o">.</span><span class="mo">000000</span>   <span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="mo">000006</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, <code>bsearch</code> is much faster. However, there is a pretty big catch involved with using <code>bsearch</code>: the array must be sorted. This somewhat limits its usefulness, but it&rsquo;s still worth keeping in mind for occasions where it might come in handy, such finding a record in by a <code>created_at</code> timestamp that has already been loaded from the database.</p>
+
+<h2>Enumerable#flat_map</h2>
+
+<p>When dealing with relational data, sometimes we need to collect a bunch of unrelated attributes and return them in an array that is not nested. Let&rsquo;s imagine you had a blog application, and you wanted to find the authors of comments left on posts written in the last month by a given set of users.</p>
+
+<p>You might do something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">CommentFinder</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">find_for_users</span><span class="p">(</span><span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">users</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">posts</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">post</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">post</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">map</span> <span class="o">|</span><span class="n">comment</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">comment</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">username</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You would then end up with a result such as:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[[[</span><span class="s1">&#39;Ben&#39;</span><span class="p">,</span> <span class="s1">&#39;Sam&#39;</span><span class="p">,</span> <span class="s1">&#39;David&#39;</span><span class="o">]</span><span class="p">,</span> <span class="o">[</span><span class="s1">&#39;Keith&#39;</span><span class="o">]]</span><span class="p">,</span> <span class="o">[[]</span><span class="p">,</span> <span class="o">[</span><span class="kp">nil</span><span class="o">]]</span><span class="p">,</span> <span class="o">[[</span><span class="s1">&#39;Chris&#39;</span><span class="o">]</span><span class="p">,</span> <span class="o">[]]]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But you just wanted the authors! I guess we can call <code>flatten</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">CommentFinder</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">find_for_users</span><span class="p">(</span><span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">users</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">posts</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">post</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">post</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">comment</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">comment</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">username</span>
+</span><span class='line'>      <span class="p">}</span><span class="o">.</span><span class="n">flatten</span>
+</span><span class='line'>    <span class="p">}</span><span class="o">.</span><span class="n">flatten</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Another option would have been to use <code>flat_map</code>.</p>
+
+<p>This just does the flattening as you go:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">CommentFinder</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">find_for_users</span><span class="p">(</span><span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">users</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">posts</span><span class="o">.</span><span class="n">flat_map</span> <span class="p">{</span> <span class="o">|</span><span class="n">post</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">post</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">flat_map</span> <span class="p">{</span> <span class="o">|</span><span class="n">comment</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">comment</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">username</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It&rsquo;s not too much different, but better than having to call <code>flatten</code> a bunch of times.</p>
+
+<h2>Array.new with a Block</h2>
+
+<p>One time, when I was in bootcamp, our teacher Jeff Casimir (founder of <a href="http://turing.io/">Turing School</a>) asked us to build the game Battleship in an hour. It was a great exercise in object-oriented programming. We needed <code>Rule</code>s, <code>Player</code>s, <code>Game</code>s, and <code>Board</code>s.</p>
+
+<p>Creating a represention of a <code>Board</code> is a fun exercise. After several iterations, I found the easiest way to set up an 8x8 grid was to do this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Board</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">board</span>
+</span><span class='line'>    <span class="vi">@board</span> <span class="o">||=</span> <span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">{</span> <span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">{</span> <span class="s1">&#39;0&#39;</span> <span class="p">}</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What&rsquo;s going on here? When you call <a href="http://www.ruby-doc.org/core-2.1.5/Array.html#method-c-new">Array.new</a> with an argument, it creates an array of that length:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+</span><span class='line'><span class="c1">#=&gt; [nil, nil, nil, nil, nil, nil, nil, nil]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When you pass it a block, it populates each of its members with the result of evaluating that block:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">{</span> <span class="s1">&#39;O&#39;</span> <span class="p">}</span>
+</span><span class='line'><span class="c1">#=&gt; [&#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So if you pass an array with eight elements a block that produces an array with eight elements that are all <code>'O'</code>, you end up with an 8x8 array populated with <code>'O'</code> strings.</p>
+
+<p>Using the <code>Array#new</code> with a block pattern, you can create all kinds of bizarre arrays with default data and any amount of nesting.</p>
+
+<h2>&lt;=></h2>
+
+<p>The <a href="http://www.ruby-doc.org/core-2.1.5/Object.html#method-i-3C-3D-3E">spaceship</a>, or sort, operator is one of my favorite Ruby constructs. It appears in most of the built-in Ruby classes, and is useful when working with enumerables.</p>
+
+<p>To illustrate how it works, let&rsquo;s look at how it behaves for <code>Fixnums</code>.  If you call <code>5&lt;=&gt;5</code>, it returns <code>0</code>. If you call <code>4&lt;=&gt;5</code>, it returns <code>-1</code>. If you call <code>5&lt;=&gt;4</code>, it returns <code>1</code>. Basically, if the two numbers are the same, it returns <code>0</code>, otherwise it returns <code>-1</code> for least to greatest sorting, and <code>1</code> for reverse sorting.</p>
+
+<p>You can use the spaceship in your own classes by including the <code>comparable</code> module and redefining <code>&lt;=&gt;</code> with logic branching to make it return <code>-1</code>, <code>0</code>, and <code>1</code> for the cases you want.</p>
+
+<p>Why would you ever want to do that?</p>
+
+<p>Here&rsquo;s a cool use of it I came across on Exercism one day. There&rsquo;s an exercise called Clock, where you have to adjust the hours an minutes on a clock using custom <code>+</code> and <code>-</code> methods. It gets complicated when you try to add more than 60 minutes, because that will make your minute value invalid. So you have to adjust by incrementing another hour and subtracting 60 from the minutes.</p>
+
+<p>One user, <code>dalexj</code>, had a brilliant way to solve this, using the spaceship operator:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">fix_minutes</span>
+</span><span class='line'>    <span class="k">until</span> <span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">member?</span> <span class="n">minutes</span>
+</span><span class='line'>      <span class="vi">@hours</span> <span class="o">-=</span> <span class="mi">60</span> <span class="o">&lt;=&gt;</span> <span class="n">minutes</span>
+</span><span class='line'>      <span class="vi">@minutes</span> <span class="o">+=</span> <span class="mi">60</span> <span class="o">*</span> <span class="p">(</span><span class="mi">60</span> <span class="o">&lt;=&gt;</span> <span class="n">minutes</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="vi">@hours</span> <span class="o">%=</span> <span class="mi">24</span>
+</span><span class='line'>    <span class="nb">self</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It works like this: until the minutes passed in are between 0 and 60, he subtracts either <code>1</code> or <code>-1</code> from the hours, depending on whether the minute amount is greater than 60. He then adjusts the minutes, adding either <code>-60</code> or <code>60</code> depending on the sort order.</p>
+
+<p>The spaceship is great for defining custom sort orders for your objects, and can also come in handy for arithmetic operations if you remember that it returns one of three <code>Fixnum</code> values.</p>
+
+<h2>Wrapping Up</h2>
+
+<p>Getting better at writing code is a process of learning. Since Ruby is a language, a lot of the time I spend trying to improve is spent of reading &ldquo;literature&rdquo; (i.e. code on Exercism andGitHub), and reading (what is essentially) the dictionary for my language: (<a href="http://ruby-doc.org/">Rubydocs</a>.</p>
+
+<p>It&rsquo;s so much easier to write expressive code when you know more methods. I hope that this collection of curiosities helped expand your Ruby vocabulary.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-16T06:55:21-07:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2015/01/16/five-ruby-methods-you-should-be-using/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2015/01/16/five-ruby-methods-you-should-be-using/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/12/18/seven-reasons-i-love-minitest/" title="Previous Post: Seven Reasons I Love Minitest">&laquo; Seven Reasons I Love Minitest</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/01/16/five-ruby-methods-you-should-be-using/">Five Ruby Methods You Should Be Using</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/18/seven-reasons-i-love-minitest/">Seven Reasons I Love Minitest</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/09/caching-asynchronous-queries-in-backbone/">Caching Asynchronous Queries In Backbone</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/building-a-ruby-list-comprehension/">Building A Ruby List Comprehension</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/better-soa-development-with-foreman-and-nginx/">Better SOA Development With Foreman and NGINX</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
