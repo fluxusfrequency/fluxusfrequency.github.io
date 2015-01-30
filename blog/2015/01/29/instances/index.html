@@ -1,0 +1,626 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Instances - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="Instances, Classes, and Modules, Oh My! One of the biggest challenges of object oriented programming in Ruby is defining the interface of your &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2015/01/29/instances">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Instances</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-29T21:05:58-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h1>Instances, Classes, and Modules, Oh My!</h1>
+
+<p>One of the biggest challenges of object oriented programming in Ruby is defining the interface of your objects. In other languages, such as Java, there is an explicit way to define an interface that you must conform to. But in Ruby, it&rsquo;s up to you.</p>
+
+<p>Compounding with this difficulty is the problem of deciding which object should own a method that you want to write. Trying to choose between modules, class methods, instance methods, structs, and lambdas can be overwhelming.</p>
+
+<p>In this post, we&rsquo;ll look at several ways to solve the Exercism <a href="http://exercism.io/nitpick/ruby/leap">Leap Year</a> problem, exploring different levels of method visiblitiy and scope level along the way.</p>
+
+<h2>Leap Year</h2>
+
+<p>If you sign up for <a href="http://exercism.io/">Exercism.io</a> and start solving Ruby problems, one of the first problems you will look at is called Leap Year. The tests guide you to write a solution that has an interface that works like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Year</span><span class="o">.</span><span class="n">leap?</span><span class="p">(</span><span class="mi">1984</span><span class="p">)</span>
+</span><span class='line'><span class="c1">#=&gt; true</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>A leap year is defined as a year that is divisible by four, unless it&rsquo;s also divisible by 100. Apparently, centuries aren&rsquo;t leap years. That is, unless they are centuries that are divisible by 400. So there are three rules for leap years:</p>
+
+<p>1) If it&rsquo;s divisible by 400, it&rsquo;s an exceptional century and is a leap year.
+2) If it&rsquo;s divisible by 100, it&rsquo;s a mundane century and in not a leap year.
+3) Otherwise, if it&rsquo;s divisible by 4, it&rsquo;s a leap year, otherwise it&rsquo;s not.</p>
+
+<h2>The First Approach: Using Class Methods</h2>
+
+<p>Here&rsquo;s one simple solution to this problem. You can rearrange the booleans in a couple of different ways and it will still work. This is the version I came up with:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Year</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="n">year</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">||</span> <span class="n">year</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is nice and compact, but not entirely easy to understand. I&rsquo;m a pretty big fan of self-documenting code, so I used the <a href="http://fluxusfrequency.github.io/blog/2014/01/10/refactoring-1-extract-method/">extract method</a> refactoring pattern to name these three rules.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Year</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span> <span class="o">||</span> <span class="n">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">century?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Class Methods and Privacy</h2>
+
+<p>This is a lot more understandable, in my mind. But there&rsquo;s a problem with this. <code>mundane_leap?</code>, <code>century?</code>, and <code>exceptional_century?</code> are all publicly exposed methods. They really only exist in support of <code>leap?</code>, and I&rsquo;m not sure how reusable they are, with the possible exception of <code>century?</code>. If I write this test, it will pass:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">test_exceptional_century</span>
+</span><span class='line'>    <span class="n">assert</span> <span class="no">Year</span><span class="o">.</span><span class="n">exceptional_century?</span><span class="p">(</span><span class="mi">2400</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I would like to make <code>exceptional_century?</code> private, so that it can&rsquo;t be accessed outside of the <code>Year</code> class. I can try something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Year</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">century?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But, unfortunately, this won&rsquo;t work. The test still passes, becuase the <code>private</code> keyword doesn&rsquo;t work on class methods. Instead, I would have to use <code>private_class_method</code> after my method definition.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="nb">private_class_method</span> <span class="ss">:mundane_leap?</span><span class="p">,</span> <span class="ss">:century?</span><span class="p">,</span> <span class="ss">:exceptional_century?</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now if I run that last test, it will raise an error.</p>
+
+<h2>All About the Eigenclass</h2>
+
+<p>In my mind, what we&rsquo;ve now done is somewhat better, but there&rsquo;s still a smell here. I&rsquo;ll get to exactly what that is in just a moment, but for now I&rsquo;ll say that it&rsquo;s due to the fact that we&rsquo;ve defined all of these methods on the singleton class, or eigenclass, of <code>Year</code>. If you don&rsquo;t know about eigenclasses, you can read about them <a href="http://madebydna.com/all/code/2011/06/24/eigenclasses-demystified.html">here</a>.</p>
+
+<p>We can define methods on an eigenclass by prepending each method definition with <code>self.</code>, or we can use <code>class &lt;&lt; self</code> or <code>class &lt;&lt; Year</code> and nesting our method definitions inside of that block. Doing it this way makes it possible to use the <code>private</code> keyword, because we&rsquo;re now working at the instance level of scope. If we were to introduce <code>class &lt;&lt; self</code>, then, we could do away with our <code>private_class_method</code> call.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Year</span>
+</span><span class='line'>  <span class="k">class</span> <span class="o">&lt;&lt;</span> <span class="nb">self</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span> <span class="o">||</span> <span class="n">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">year</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">year</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">year</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But we haven&rsquo;t really changed much here. In my mind, there&rsquo;s still a big smell, which is this. <a href="http://en.wikipedia.org/wiki/Class_%28computer_programming%29">According to Wikipedia</a>, a class is (emphasis mine) &ldquo; an extensible program-code-template for <em>creating objects</em> &rdquo;. Our <code>Year</code> class never creates a single instance. It&rsquo;s just an eigenclass that happens to be able to create (mostly) useless <code>Year</code> instances.</p>
+
+<p>So where <em>should</em> we be putting class-level methods that are not associated with any instance object?</p>
+
+<h2>Second Approach: Module Functions</h2>
+
+<p>In Ruby, the <code>Class</code> object inherits from <code>Module</code>. A module is basically a collection of methods, constants, and classes. Their primary feature is that they can be mixed into other modules and classes to extend their functionality. They&rsquo;re also frequently used for namespacing (for example, the <code>ActiveRecord</code> constant is a module).</p>
+
+<p>We can put our <code>Year</code> implementation into a module without changing much: just swap the word <code>class</code> for <code>module</code>. Instead of using <code>class &lt;&lt; self</code> as we did for the class version, we can use <code>extend self</code> in our module, and get the same effect, allowing us to use the <code>private</code> keyword. <code>extend</code> takes the methods defined in a module and makes them into class-level methods on the target module (or class). This is in contrast with <code>include</code>, which mixes them in as instance-level methods. Thus, if we extend the module into itself, it gets all of it&rsquo;s own methods at the class level.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Year</span>
+</span><span class='line'>  <span class="kp">extend</span> <span class="nb">self</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span> <span class="o">||</span> <span class="n">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If we wanted to define some other methods in a <code>Year</code> class that had nothing to do with leap years, we could change the name of our module to <code>Leap</code> and mix it into a <em>class</em> called <code>Year</code>.</p>
+
+<p>If we want to make the three leap year rule methods private, we now have another choice of how to do it. We can use <code>module_function</code>.  <code>module_function</code> will make these methods available to the module, but when they get mixed into the class, they will be private. Module functions allow you to be selective with what can be called by the module itself, while still defining methods that can be mixed into other modules and classes.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Leap</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span> <span class="o">||</span> <span class="n">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">module_function</span> <span class="ss">:mundane_leap?</span><span class="p">,</span> <span class="ss">:century?</span><span class="p">,</span> <span class="ss">:exceptional_century?</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Year</span><span class="p">;</span> <span class="kp">extend</span> <span class="no">Leap</span><span class="p">;</span> <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, if we run the tests, they will all still pass, with the exception of the one we wrote that tries to call <code>exceptional_century?</code></p>
+
+<h2>Third Approach: Instance Methods</h2>
+
+<p>I want to stay with the idea that we might want a <code>Year</code> class that can do other things unrelated to determining whether we are talking about leap year or not. Really, there are a bunch of different years, but they all have certain things in common (which era they fall in, whether they are leap, etc.). In my mind, this would be a good use case for instances instead of class level methods.</p>
+
+<p>What it look like if we brought the responsibility for knowing whether a year is leap back into a <code>Year</code> class, but passing that behavior onto <em>instances</em> of year, instead of putting it on the eigenclass?</p>
+
+<p>It&rsquo;s a little weird to be able to do something like <code>Year.new(2015).year</code>, so I&rsquo;ll name the state we&rsquo;re going to store <code>reckoning</code> instead.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Year</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">leap?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:reckoning</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">reckoning</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@reckoning</span> <span class="o">=</span> <span class="n">reckoning</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">leap?</span>
+</span><span class='line'>    <span class="n">mundane_leap?</span> <span class="o">||</span> <span class="n">exceptional_century?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">mundane_leap?</span>
+</span><span class='line'>    <span class="n">reckoning</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">century?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">century?</span>
+</span><span class='line'>    <span class="n">reckoning</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">exceptional_century?</span>
+</span><span class='line'>    <span class="n">reckoning</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The instance-based approach has certain advantages. We don&rsquo;t have to use anything exotic like <code>private_class_method</code>, <code>class &lt;&lt; self</code>, or <code>module_function</code>, to make our methods private. This might make things easier to understand for future maintainers of our code.</p>
+
+<p>We also gained access to the <code>reckoning</code>, that could be used to calculate other properites in the future. For example, if we wanted to write <code>to_julian</code> or <code>to_hebrew</code> methods, we&rsquo;d already have the number we&rsquo;d need to use to calculate that available to us.</p>
+
+<p>Finally, we can now use a <code>protected</code> section as well. Methods in this section will only be visible to other instances of <code>Year</code>. We might use it to do something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Year</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">protected</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">==</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">recoking</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">reckoning</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Conclusion</h2>
+
+<p>We&rsquo;ve looked at several different ways to write a program that can tell us whether a given year is a leap year. Each has its advantages and disadvantages.</p>
+
+<p>We started with a class method that was a single-liner. There&rsquo;s a lot of value in the compactness of <code>year % 4 == 0 &amp;&amp; !(year % 100 == 0) || year % 400 == 0</code>. But it&rsquo;s also fairly hard to understand. If we decide to split some of that logic into separate methods, now we&rsquo;re faced with the problem of how to keep these new methods out of the interface of <code>Year</code>.</p>
+
+<p>We used an eigenclass-based approach, simply hiding the implementation methods with <code>private_class_method</code>. We solved it using a module, treating the <code>leap?</code> method both as a mix-in and as a <code>module_function</code>. Finally, we pushed the functionality down to the instance level, which could help us in dealing with multiple <code>Year</code> objects down the road.</p>
+
+<p>Which of these approaches is best?</p>
+
+<p>It depends on lots of things: how you feel about privacy, how you expect the program to change in the future, how comfortable you are with scope and the more arcane methods in Ruby.  At the very least, it&rsquo;s nice to know what&rsquo;s available to you when thinking about what methods you want to expose, and what level of scope you should use it on.  I hope this post will factor into your thoughts when making these kind of decisions in the future.</p>
+
+<p>P.S. What do you think? Did this make sense? Should I have used Structs or Lambdas? Throw us a comment below!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-29T21:05:58-07:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2015/01/29/instances/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2015/01/29/instances/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/01/16/five-ruby-methods-you-should-be-using/" title="Previous Post: Five Ruby Methods You Should Be Using">&laquo; Five Ruby Methods You Should Be Using</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/01/29/instances/">Instances</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/01/16/five-ruby-methods-you-should-be-using/">Five Ruby Methods You Should Be Using</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/18/seven-reasons-i-love-minitest/">Seven Reasons I Love Minitest</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/09/caching-asynchronous-queries-in-backbone/">Caching Asynchronous Queries In Backbone</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/11/03/building-a-ruby-list-comprehension/">Building A Ruby List Comprehension</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

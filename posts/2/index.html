@@ -9,7 +9,7 @@
   <meta name="author" content="Ben Lewis">
 
   
-  <meta name="description" content="This post originally appeared on the Quick Left Blog. Testing, Testing&hellip; Everyone knows it&rsquo;s important to test your code. But sometimes, &hellip;">
+  <meta name="description" content="This post originally appeared on the Quick Left Blog. It also appeared as a featured article in JavaScript Weekly. Introduction When it comes to &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,907 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/24/angular-js-unit-testing-for-real-though/">AngularJS Unit Testing, for Real Though</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-24T06:20:37-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This post originally appeared on the <a href="http://quickleft.com/blog/angularjs-unit-testing-for-real-though">Quick Left Blog</a>.</p>
+
+<p>It also appeared as a featured article in <a href="http://javascriptweekly.com/issues/192">JavaScript Weekly</a>.</p>
+
+<h2>Introduction</h2>
+
+<p>When it comes to contemporary web development, AngularJS is the new hotness. Its unique approach to HTML compilation and two-way data binding make it
+an effective tool for efficiently building client-side web apps. When
+I found out that Quick Left would be using it to build a production application for one of our clients, I was excited to learn as much about it as
+I could. I scoured the interwebs for every tutorial and walkthrough
+to be found on the Google Machine. They were really helpful in understanding directives, template compilation, and the event loop, but when it came to testing, I found that the topic was often hand-waved.</p>
+
+<p>I was trained to practice Test-Driven Development, and I feel like
+something&rsquo;s out of place whenever I&rsquo;m out of the &ldquo;Red-Green-Refactor&rdquo; flow.
+Since we were still learning the ropes for effective testing in Angular, the team sometimes had to rely on &lsquo;test-after&rsquo; development. This started to make me feel itchy, so I decided to focus on figuring out testing. I sprinted on it for a week, and we soon went from about 40% test coverage
+to 86% (By the way, if you haven&rsquo;t tried it yet, check out <a href="http://gotwarlost.github.io/istanbul/">Istabul</a>
+for checking out your test coverage in JS apps).</p>
+
+<p>Today I&rsquo;d like to share some things I learned along the way.
+As good as the <a href="https://docs.angularjs.org/api">Angular docs</a> are, testing a production app is rarely as
+simple as the examples you&rsquo;ll find there. There are a lot of gotchas that pop
+up along the way, and I had to struggle my way through figuring out how
+to make things work. I found several workarounds that came in handy time
+and time again. In this article, we&rsquo;re going to look at some of them:</p>
+
+<ol>
+<li>Reusable End-to-End (e2e) pages</li>
+<li>Dealing with functions that return a promise</li>
+<li>Mocking controller and directive dependencies</li>
+<li>Accessing child and isolate scopes</li>
+</ol>
+
+
+<p>This article is written for intermediate to advanced developers using
+AngularJS to build production applications, who would like to reduce some
+of the pain of testing. It is my hope that feeling secure in testing workflow
+will enable the reader to practice a TDD workflow and build a more solid app.</p>
+
+<h2>Test Tools</h2>
+
+<p>There are many test frameworks and tools available to the Angular
+developer, and you may already have preferences around tooling. Here&rsquo;s
+the setup that we chose, and we&rsquo;ll be using for the rest of this article:</p>
+
+<ul>
+<li><p><a href="http://karma-runner.github.io/0.12/index.html"><em>Karma</em></a>: The official AngularJS team test runner. We&rsquo;ll use it to launch
+Chrome, Firefox, and PhantomJS.</p></li>
+<li><p><a href="https://docs.angularjs.org/api/ngMock/object/angular.mock"><em>AngularMocks</em></a>: Provides support for injecting and mocking Angular services in
+unit tests.</p></li>
+<li><p><a href="https://github.com/angular/protractor"><em>Protractor</em></a>: The feature testing tool for AngularJS, which launches
+your app in a browser and interacts with it via Selenium.</p></li>
+<li><p><a href="http://visionmedia.github.io/mocha/"><em>Mocha</em></a>: A node.js based test framework. Gives us the ability to write <code>describe</code> blocks and make assertions.</p></li>
+<li><p><a href="http://chaijs.com/"><em>Chai</em></a>: Assertion library that hooks into Mocha, and gives us access to Behavior-Driven Development assertions like <code>expect</code>, <code>should</code>, and <code>assert</code>. In this example, we&rsquo;ll be using <code>expect</code>.</p></li>
+<li><p><a href="http://chaijs.com/plugins/chai-as-promised"><em>Chai-as-promised</em></a>: This Chai plugin is really helpful for dealing with function calls that return a promise. It gives us the ability to say things like: <code>expect(foo).to.be.fulfilled</code>, or <code>expect(foo).to.eventually.equal(bar)</code>.</p></li>
+<li><p><a href="http://sinonjs.org/"><em>Sinon</em></a>: Stubbing and mocking library. We&rsquo;ll use it to mock out directive and controller dependencies in unit tests, and to check that functions are being called with the correct arguments.</p></li>
+<li><p><a href="http://browserify.org/"><em>Browserify</em></a>: Allows us to easily require modules of code between files in the project.</p></li>
+<li><p><a href="https://www.npmjs.org/package/partialify"><em>Partialify</em></a>: Allows us to require HTML templates inline in our AngularJS directives.</p></li>
+<li><p><a href="http://lodash.com/"><em>Lodash</em></a>: Utilities used to extend JavaScript and make it easier to work with.</p></li>
+</ul>
+
+
+<h2>Setting Up A Test Helper</h2>
+
+<p>We&rsquo;ll start by creating a test helper that will load in the necessary
+dependencies. Here, I&rsquo;m pulling in Angular Mocks, Chai,
+Chai-as-promised, and Sinon.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// test/test-helper.js</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Load in our actual project</span>
+</span><span class='line'><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;widgetProject&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Dependencies</span>
+</span><span class='line'><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;angular-mocks&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">chai</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;chai&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">chai</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;sinon-chai&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">chai</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;chai-as-promised&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">sinon</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;sinon&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// Create a new sandbox before each test</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">sinon</span> <span class="o">=</span> <span class="nx">sinon</span><span class="p">.</span><span class="nx">sandbox</span><span class="p">.</span><span class="nx">create</span><span class="p">();</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">afterEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// Cleanup the sandbox to remove all the stubs</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">sinon</span><span class="p">.</span><span class="nx">restore</span><span class="p">();</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">rootUrl</span><span class="o">:</span> <span class="s1">&#39;http://localhost:9000&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">expect</span><span class="o">:</span> <span class="nx">chai</span><span class="p">.</span><span class="nx">expect</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Getting Started: Top-Down Testing</h2>
+
+<p>I&rsquo;m a big proponent of a top-down testing style. Starting with a feature
+that I know I want to build, I like to write a pseudo-gherkin scenario
+describing the desired behavior and translate it into a feature test. I run
+that test and let it fail. Then I can begin building all the parts of the system
+that I need to make the feature work, using unit tests to guide me along the way.</p>
+
+<p>For these demos, I&rsquo;ll building an imaginary application called &ldquo;Widgets&rdquo;, that can display a list of widgets, create new widgets, and edit existing widgets. The code you&rsquo;ll see here is not enough to build the complete application, just enough to help the test examples make sense. We&rsquo;ll start by writing an e2e test describing the workflow for creating a new widget.</p>
+
+<p>To start things off, I&rsquo;ll describe a pattern we found useful in e2e testing: creating a reusable &ldquo;page&rdquo; file. For this example, we&rsquo;ll imagine that we&rsquo;re working on a form to create a new widget.</p>
+
+<h2>Reusable e2e Test Pages</h2>
+
+<p>When working on a one-page app, it makes sense to DRY up the feature tests by
+writing a reusable &ldquo;page&rdquo; that you can reference from within multiple e2e tests.</p>
+
+<p>There are many ways to structure the tests in an Angular project. Today,
+we&rsquo;ll go with this setup:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">widgets</span><span class="o">-</span><span class="nx">project</span>
+</span><span class='line'><span class="o">|-</span><span class="nx">test</span>
+</span><span class='line'><span class="o">|</span>  <span class="o">|</span>
+</span><span class='line'><span class="o">|</span>  <span class="o">|-</span><span class="nx">e2e</span>
+</span><span class='line'><span class="o">|</span>  <span class="o">|</span>  <span class="o">|-</span><span class="nx">pages</span>
+</span><span class='line'><span class="o">|</span>  <span class="o">|</span>
+</span><span class='line'><span class="o">|</span>  <span class="o">|-</span><span class="nx">unit</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Inside of the <code>pages</code> folder, we&rsquo;ll create a <code>WidgetsPage</code> function that
+we can require into our e2e tests. It has five references:</p>
+
+<ul>
+<li><code>widgetRepeater</code>: a list of widgets contained in an <code>ng-repeat</code></li>
+<li><code>firstWidget</code>: the first widget in the repeater</li>
+<li><code>widgetCreateForm</code>: the form used to create a widget</li>
+<li><code>widgetCreateNameField</code>: form field to enter the widget&rsquo;s name</li>
+<li><code>widgetCreateSubmit</code>: form submit button</li>
+</ul>
+
+
+<p>In the end, it looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// test/e2e/pages/widgets-page.js</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">helpers</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../test-helper&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">WidgetsPage</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">get</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">browser</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">helpers</span><span class="p">.</span><span class="nx">rootUrl</span> <span class="o">+</span> <span class="s1">&#39;/widgets&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">widgetRepeater</span> <span class="o">=</span> <span class="nx">by</span><span class="p">.</span><span class="nx">repeater</span><span class="p">(</span><span class="s1">&#39;widget in widgets&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">firstWidget</span> <span class="o">=</span> <span class="nx">element</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">widgetRepeater</span><span class="p">.</span><span class="nx">row</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">widgetCreateForm</span> <span class="o">=</span> <span class="nx">element</span><span class="p">(</span><span class="nx">by</span><span class="p">.</span><span class="nx">css</span><span class="p">(</span><span class="s1">&#39;.widget-create-form&#39;</span><span class="p">));</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">widgetCreateNameField</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">widgetCreateForm</span><span class="p">.</span><span class="nx">element</span><span class="p">(</span><span class="nx">by</span><span class="p">.</span><span class="nx">model</span><span class="p">(</span><span class="s1">&#39;widget.name&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">widgetCreateSubmit</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">widgetCreateForm</span><span class="p">.</span><span class="nx">element</span><span class="p">(</span><span class="nx">by</span><span class="p">.</span><span class="nx">buttonText</span><span class="p">(</span><span class="s1">&#39;Create&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">WidgetsPage</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>From within my e2e tests, I can now load up this page and interact with
+the elements on it. Here&rsquo;s how I would use the test page in a test for the widget
+create form:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// e2e/widgets_test.js</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">helpers</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../test-helper&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">expect</span> <span class="o">=</span> <span class="nx">helpers</span><span class="p">.</span><span class="nx">expect</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">WidgetsPage</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./pages/widgets-page&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;creating widgets&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">page</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">WidgetsPage</span><span class="p">();</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">page</span><span class="p">.</span><span class="nx">get</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should create a new widget&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">expect</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">page</span><span class="p">.</span><span class="nx">firstWidget</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">.</span><span class="kc">undefined</span><span class="p">;</span>
+</span><span class='line'>    <span class="nx">expect</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">page</span><span class="p">.</span><span class="nx">widgetCreateForm</span><span class="p">.</span><span class="nx">isDisplayed</span><span class="p">()).</span><span class="nx">to</span><span class="p">.</span><span class="nx">eventually</span><span class="p">.</span><span class="nx">be</span><span class="p">.</span><span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">page</span><span class="p">.</span><span class="nx">widgetCreateNameField</span><span class="p">.</span><span class="nx">sendKeys</span><span class="p">(</span><span class="s1">&#39;New Widget&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">page</span><span class="p">.</span><span class="nx">widgetCreateSubmit</span><span class="p">.</span><span class="nx">click</span><span class="p">();</span>
+</span><span class='line'>    <span class="nx">expect</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">page</span><span class="p">.</span><span class="nx">firstWidget</span><span class="p">.</span><span class="nx">getText</span><span class="p">()).</span><span class="nx">to</span><span class="p">.</span><span class="nx">eventually</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="s1">&#39;Name: New Widget&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let&rsquo;s step through what&rsquo;s happening here. First, we load up the test
+helpers and get <code>expect</code> and the reusable <code>WidgetsPage</code> from them.
+In the <code>beforeEach</code>, we load up the page in the browser.
+Then, in the example, we use the page elements we defined in the
+<code>WidgetsPage</code> to interact with the page. We check that there
+are no widgets, then fill out the form to create one named &ldquo;New Widget&rdquo;,
+and check that it is displayed on the page.</p>
+
+<p>By splitting the logic for the form out into a reusable &ldquo;page&rdquo;, we can
+now reuse it to test form validations or custom form directives later on.</p>
+
+<h2>Dealing With Functions That Return a Promise</h2>
+
+<p>The assertions we get from Protractor in the test above return promises, so we use
+Chai-as-promised to check that functions like <code>isDisplayed</code> and <code>getText</code> return what we expect <em>after</em> they&rsquo;re resolved.</p>
+
+<p>We can also deal with promises inside of unit tests. Take a look at this
+example, in which we test a modal that can be used to edit an existing widget.
+It makes use of the UI Bootstrap <code>$modal</code> service. When a user opens the
+modal, this service returns a promise. When she saves or cancels the modal,
+the promise is resolved or rejected. Here, we&rsquo;ll test that the <code>save</code> and <code>cancel</code> methods are properly hooked up, again using Chai-as-promised.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// widget-editor-service.js</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">angular</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;angular&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;lodash&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;widgetProject.widgetEditor&#39;</span><span class="p">).</span><span class="nx">service</span><span class="p">(</span><span class="s1">&#39;widgetEditor&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;$modal&#39;</span><span class="p">,</span> <span class="s1">&#39;$q&#39;</span><span class="p">,</span> <span class="s1">&#39;$templateCache&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span>
+</span><span class='line'>  <span class="nx">$modal</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">$q</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">$templateCache</span>
+</span><span class='line'><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="kd">function</span><span class="p">(</span><span class="nx">widgetObject</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">deferred</span> <span class="o">=</span> <span class="nx">$q</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">templateId</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">uniqueId</span><span class="p">(</span><span class="s1">&#39;widgetEditorTemplate&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">$templateCache</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="nx">templateId</span><span class="p">,</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./widget-editor-template.html&#39;</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">dialog</span> <span class="o">=</span> <span class="nx">$modal</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">template</span><span class="o">:</span> <span class="nx">templateId</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">dialog</span><span class="p">.</span><span class="nx">$scope</span><span class="p">.</span><span class="nx">widget</span> <span class="o">=</span> <span class="nx">widgetObject</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">dialog</span><span class="p">.</span><span class="nx">$scope</span><span class="p">.</span><span class="nx">save</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// Do some saving things</span>
+</span><span class='line'>      <span class="nx">deferred</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
+</span><span class='line'>      <span class="nx">dialog</span><span class="p">.</span><span class="nx">destroy</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">dialog</span><span class="p">.</span><span class="nx">$scope</span><span class="p">.</span><span class="nx">cancel</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">deferred</span><span class="p">.</span><span class="nx">reject</span><span class="p">();</span>
+</span><span class='line'>      <span class="nx">dialog</span><span class="p">.</span><span class="nx">destroy</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">deferred</span><span class="p">.</span><span class="nx">promise</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'><span class="p">}]);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This service loads the widget editor template into the template cache,
+loads a widget into it, and and sets up a deferred object that will be
+resolved or rejected depending on whether the user saves or cancels from
+the editor. It returns a promise from the deferred.</p>
+
+<p>Here&rsquo;s how you might test something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// test/unit/widget-editor-directive_test.js</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">angular</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;angular&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">helpers</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../test_helper&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">expect</span> <span class="o">=</span> <span class="nx">helpers</span><span class="p">.</span><span class="nx">expect</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;widget storage service&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">self</span><span class="p">.</span><span class="nx">modal</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">$scope</span><span class="o">:</span> <span class="p">{},</span>
+</span><span class='line'>        <span class="nx">destroy</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">sinon</span><span class="p">.</span><span class="nx">stub</span><span class="p">()</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">angular</span><span class="p">.</span><span class="nx">mock</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;widgetProject.widgetEditor&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">$modal</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">modal</span> <span class="p">});</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should persist changes when the user saves&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">angular</span><span class="p">.</span><span class="nx">mock</span><span class="p">.</span><span class="nx">inject</span><span class="p">([</span><span class="s1">&#39;widgetModal&#39;</span><span class="p">,</span> <span class="s1">&#39;$rootScope&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">widgetModal</span><span class="p">,</span> <span class="nx">$rootScope</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">widget</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Widget&#39;</span> <span class="p">};</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">promise</span> <span class="o">=</span> <span class="nx">widgetModal</span><span class="p">(</span><span class="nx">widget</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nx">self</span><span class="p">.</span><span class="nx">modal</span><span class="p">.</span><span class="nx">$scope</span><span class="p">.</span><span class="nx">save</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Somehow test that the widget was saved</span>
+</span><span class='line'>      <span class="nx">expect</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">modal</span><span class="p">.</span><span class="nx">destroy</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">have</span><span class="p">.</span><span class="nx">been</span><span class="p">.</span><span class="nx">called</span><span class="p">;</span>
+</span><span class='line'>      <span class="nx">expect</span><span class="p">(</span><span class="nx">promise</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">.</span><span class="nx">fulfilled</span><span class="p">.</span><span class="nx">and</span><span class="p">.</span><span class="nx">notify</span><span class="p">(</span><span class="nx">done</span><span class="p">);</span>
+</span><span class='line'><span class="nx">st</span>
+</span><span class='line'>      <span class="nx">$rootScope</span><span class="p">.</span><span class="nx">$digest</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}]);</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should not save when the user cancels&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">angular</span><span class="p">.</span><span class="nx">mock</span><span class="p">.</span><span class="nx">inject</span><span class="p">([</span><span class="s1">&#39;widgetModal&#39;</span><span class="p">,</span> <span class="s1">&#39;$rootScope&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">widgetModal</span><span class="p">,</span> <span class="nx">$rootScope</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">widget</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Widget&#39;</span> <span class="p">};</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">promise</span> <span class="o">=</span> <span class="nx">widgetModal</span><span class="p">(</span><span class="nx">widget</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nx">self</span><span class="p">.</span><span class="nx">modal</span><span class="p">.</span><span class="nx">$scope</span><span class="p">.</span><span class="nx">cancel</span><span class="p">();</span>
+</span><span class='line'>      <span class="nx">expect</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">modal</span><span class="p">.</span><span class="nx">destroy</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">have</span><span class="p">.</span><span class="nx">been</span><span class="p">.</span><span class="nx">called</span><span class="p">;</span>
+</span><span class='line'>      <span class="nx">expect</span><span class="p">(</span><span class="nx">promise</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">.</span><span class="nx">rejected</span><span class="p">.</span><span class="nx">and</span><span class="p">.</span><span class="nx">notify</span><span class="p">(</span><span class="nx">done</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nx">$rootScope</span><span class="p">.</span><span class="nx">$digest</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}]);</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To deal with the complexity of the promise that the modal returns in the widget editor test, we have to do a few things. First, we build a mock <code>$modal</code> service in the <code>beforeEach</code> function, replacing it with a function that returns <code>$scope</code> as an empty object, and stubs <code>destroy</code>. In <code>angular.mock.module</code>, we pass this modal double
+into the options to get Angular Mocks to use it instead of the real
+<code>$modal</code> service. This pattern is extremely useful in stubbing out
+dependencies, as we&rsquo;ll discover shortly.</p>
+
+<p>There are two examples here, and each has to wait for the promise
+returned by the widget editor to be resolved before it can be completed.
+Because of this, we have to pass <code>done</code> as parameter to the example
+itself, and <code>notify(done)</code> when the test is complete.</p>
+
+<p>Within the tests, we use Angular Mocks again to inject the widget modal
+and the AngularJS <code>$rootScope</code> service into the test. Having <code>$rootScope</code> gives
+us the ability to trigger a <code>$digest</code> loop. In each of the tests, we load up
+the modal, cancel or reject it, and use Chai-as-expected to test whether the
+promise returned was <code>rejected</code> or <code>resolved</code>. To trigger the actual promise
+resolution and call <code>destroy</code>, we have to have a <code>$digest</code> loop, so we
+do that at the end of each assertion as well.</p>
+
+<p>We&rsquo;ve now looked at how to deal with promises in both e2e and unit
+tests, using these assertions:</p>
+
+<ul>
+<li><code>expect(foo).to.eventually.equal(bar)</code></li>
+<li><code>expect(foo).to.be.fulfilled</code></li>
+<li><code>expect(foo).to.be.rejected</code></li>
+</ul>
+
+
+<h2>Mocking Controller and Directive Dependencies</h2>
+
+<p>In the previous example, we had a service that relied on the <code>$modal</code>
+service, which we mocked out so that we could ensure that <code>destroy</code> was
+being called. The pattern we used to get that hooked up is very useful in
+getting unit tests to work properly in Angular.</p>
+
+<p>The pattern is as follows:</p>
+
+<ul>
+<li>Set <code>var self = this</code> in the beforeEach block.</li>
+<li>Build a double and stub its methods, then make it a property of the <code>self</code> object:</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">self</span><span class="p">.</span><span class="nx">dependency</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">dependencyMethod</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">sinon</span><span class="p">.</span><span class="nx">stub</span><span class="p">()</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>`
+- Pass your doubles into the module under test:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">angular</span><span class="p">.</span><span class="nx">mock</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;mymodule&#39;</span><span class="p">,</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">dependency</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">dependecy</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">otherDependency</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">otherDependency</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Check that the mocked methods within your test examples. You can use
+ <code>expect(foo).to.have.been.called.withArgs</code>, passing in the arguments
+ you expect, for more precise coverage.</li>
+</ul>
+
+
+<p>Sometimes directives or controllers depend on many external and internal
+dependencies, and you need to mock them out. Here&rsquo;s a more complicated example,
+in which directive watches a <code>widgetStorage</code> service and updates the
+widgets in its scope whenever the collection changes. There&rsquo;s also
+an <code>edit</code> method that opens the <code>widgetEditor</code> we created above.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// widget-viewer-directive.js</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">angular</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;angular&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;widgetProject.widgetViewer&#39;</span><span class="p">).</span><span class="nx">directive</span><span class="p">(</span><span class="s1">&#39;widgetViewer&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;widgetStorage&#39;</span><span class="p">,</span> <span class="s1">&#39;widgetEditor&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span>
+</span><span class='line'>  <span class="nx">widgetStorage</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">widgetEditor</span>
+</span><span class='line'><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">restrict</span><span class="o">:</span> <span class="s1">&#39;E&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">template</span><span class="o">:</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./widget-viewer-template.html&#39;</span><span class="p">),</span>
+</span><span class='line'>    <span class="nx">link</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$scope</span><span class="p">,</span> <span class="nx">$element</span><span class="p">,</span> <span class="nx">$attributes</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">$scope</span><span class="p">.</span><span class="nx">$watch</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nx">widgetStorage</span><span class="p">.</span><span class="nx">notify</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">widgets</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">$scope</span><span class="p">.</span><span class="nx">widgets</span> <span class="o">=</span> <span class="nx">widgets</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nx">$scope</span><span class="p">.</span><span class="nx">edit</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">widget</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">widgetEditor</span><span class="p">(</span><span class="nx">widget</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'><span class="p">}]);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here&rsquo;s how we might test something like this, mocking out the
+dependencies on <code>widgetStorage</code> and the <code>widgetEditor</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// test/unit/widget-viewer-directive_test.js</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">angular</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;angular&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">helpers</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../test_helper&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">expect</span> <span class="o">=</span> <span class="nx">helpers</span><span class="p">.</span><span class="nx">expect</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;widget viewer directive&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">self</span><span class="p">.</span><span class="nx">widgetStorage</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">notify</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">sinon</span><span class="p">.</span><span class="nx">stub</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">self</span><span class="p">.</span><span class="nx">widgetEditor</span> <span class="o">=</span> <span class="nx">self</span><span class="p">.</span><span class="nx">sinon</span><span class="p">.</span><span class="nx">stub</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">angular</span><span class="p">.</span><span class="nx">mock</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;widgetProject.widgetViewer&#39;</span><span class="p">,</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">widgetStorage</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">widgetStorage</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">widgetEditor</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">widgetEditor</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// The rest of the test...</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Accessing Child and Isolate Scopes</h2>
+
+<p>Sometimes you need to write a directive that has an isolate or child
+scope inside of it. For example, when using the <a href="http://mgcrea.github.io/angular-strap/">Angular Strap</a> <code>$dropdown</code>
+service, an isolate scope is created. It can be a pain to try to access these from within your tests. Knowing about <code>self.element.isolateScope()</code> is the key to solving this problem. Here&rsquo;s an example using <code>$dropdown</code>, which creates an isolate scope:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// nested-widget-directive.js</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">angular</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;angular&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;widgetSidebar.nestedWidget&#39;</span><span class="p">).</span><span class="nx">directive</span><span class="p">(</span><span class="s1">&#39;nestedSidebar&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;$dropdown&#39;</span><span class="p">,</span> <span class="s1">&#39;widgetStorage&#39;</span><span class="p">,</span> <span class="s1">&#39;widgetEditor&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span>
+</span><span class='line'>  <span class="nx">$dropdown</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">widgetStorage</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">widgetEditor</span>
+</span><span class='line'><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">restrict</span><span class="o">:</span> <span class="s1">&#39;E&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">template</span><span class="o">:</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./widget-sidebar-template.html&#39;</span><span class="p">),</span>
+</span><span class='line'>    <span class="nx">scope</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">widget</span><span class="o">:</span> <span class="s1">&#39;=&#39;</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="nx">link</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$scope</span><span class="p">,</span> <span class="nx">$element</span><span class="p">,</span> <span class="nx">$attributes</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">$scope</span><span class="p">.</span><span class="nx">actions</span> <span class="o">=</span> <span class="p">[{</span>
+</span><span class='line'>        <span class="nx">text</span><span class="o">:</span> <span class="s1">&#39;Edit&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">click</span><span class="o">:</span> <span class="s1">&#39;edit()&#39;</span>
+</span><span class='line'>      <span class="p">},</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">text</span><span class="o">:</span> <span class="s1">&#39;Delete&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">click</span><span class="o">:</span> <span class="s1">&#39;delete()&#39;</span>
+</span><span class='line'>      <span class="p">}]</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nx">$scope</span><span class="p">.</span><span class="nx">edit</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">widgetEditor</span><span class="p">(</span><span class="nx">$scope</span><span class="p">.</span><span class="nx">widget</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nx">$scope</span><span class="p">.</span><span class="k">delete</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">widgetStorage</span><span class="p">.</span><span class="nx">destroy</span><span class="p">(</span><span class="nx">$scope</span><span class="p">.</span><span class="nx">widget</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'><span class="p">}]);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Assuming this directive inherits the widget from a parent directive that
+has a collection of widgets, it can be tough to get ahold of the child scope
+to test its properties are being updated as expected. But it can be done. Here&rsquo;s how:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// test/unit/nested-widget-directive_test.js</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">angular</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;angular&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">helpers</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../test_helper&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">expect</span> <span class="o">=</span> <span class="nx">helpers</span><span class="p">.</span><span class="nx">expect</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;nested widget directive&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">self</span><span class="p">.</span><span class="nx">widgetStorage</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">destroy</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">sinon</span><span class="p">.</span><span class="nx">stub</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">self</span><span class="p">.</span><span class="nx">widgetEditor</span> <span class="o">=</span> <span class="nx">self</span><span class="p">.</span><span class="nx">sinon</span><span class="p">.</span><span class="nx">stub</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">angular</span><span class="p">.</span><span class="nx">mock</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;widgetProject.widgetViewer&#39;</span><span class="p">,</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">widgetStorage</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">widgetStorage</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">widgetEditor</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">widgetEditor</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">angular</span><span class="p">.</span><span class="nx">mock</span><span class="p">.</span><span class="nx">inject</span><span class="p">([</span><span class="s1">&#39;$rootScope&#39;</span><span class="p">,</span> <span class="s1">&#39;$compile&#39;</span><span class="p">,</span> <span class="s1">&#39;$controller&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$rootScope</span><span class="p">,</span> <span class="nx">$compile</span><span class="p">,</span> <span class="nx">$controller</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">self</span><span class="p">.</span><span class="nx">parentScope</span> <span class="o">=</span> <span class="nx">$rootScope</span><span class="p">.</span><span class="k">new</span><span class="p">();</span>
+</span><span class='line'>      <span class="nx">self</span><span class="p">.</span><span class="nx">childScope</span> <span class="o">=</span> <span class="nx">$rootScope</span><span class="p">.</span><span class="k">new</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nx">self</span><span class="p">.</span><span class="nx">compile</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">self</span><span class="p">.</span><span class="nx">childScope</span><span class="p">.</span><span class="nx">widget</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">id</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;widget1&#39;</span> <span class="p">};</span>
+</span><span class='line'>        <span class="nx">self</span><span class="p">.</span><span class="nx">parentElement</span>
+</span><span class='line'>        <span class="o">=</span> <span class="nx">$compile</span><span class="p">(</span><span class="s1">&#39;&lt;widget-organizer&gt;&lt;/widget-organizer&gt;&#39;</span><span class="p">)(</span><span class="nx">self</span><span class="p">.</span><span class="nx">parentScope</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nx">self</span><span class="p">.</span><span class="nx">parentScope</span><span class="p">.</span><span class="nx">$digest</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nx">self</span><span class="p">.</span><span class="nx">childElement</span> <span class="o">=</span> <span class="nx">angular</span><span class="p">.</span><span class="nx">element</span><span class="p">(</span><span class="s1">&#39;&lt;nested-widget</span>
+</span><span class='line'><span class="s1">        widget=&quot;widget&quot;&gt;&lt;/nested-widget&gt;&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nx">self</span><span class="p">.</span><span class="nx">parentElement</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">childElement</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nx">self</span><span class="p">.</span><span class="nx">element</span> <span class="o">=</span> <span class="nx">$compile</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">childElement</span><span class="p">)(</span><span class="nx">self</span><span class="p">.</span><span class="nx">childScope</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">self</span><span class="p">.</span><span class="nx">childScope</span><span class="p">.</span><span class="nx">$digest</span><span class="p">();</span>
+</span><span class='line'>      <span class="p">}]);</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">self</span><span class="p">.</span><span class="nx">compile</span><span class="p">();</span>
+</span><span class='line'>    <span class="nx">self</span><span class="p">.</span><span class="nx">isolateScope</span> <span class="o">=</span> <span class="nx">self</span><span class="p">.</span><span class="nx">element</span><span class="p">.</span><span class="nx">isolateScope</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;edits the widget&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>    <span class="nx">self</span><span class="p">.</span><span class="nx">isolateScope</span><span class="p">.</span><span class="nx">edit</span><span class="p">();</span>
+</span><span class='line'>    <span class="nx">self</span><span class="p">.</span><span class="nx">rootScope</span><span class="p">.</span><span class="nx">$digest</span><span class="p">();</span>
+</span><span class='line'>    <span class="nx">expect</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">widgetEditor</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">have</span><span class="p">.</span><span class="nx">been</span><span class="p">.</span><span class="nx">calledWith</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">childScope</span><span class="p">.</span><span class="nx">widget</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Craziness, right? First we mock out the <code>widgetStorage</code> and <code>widgetEditor</code> again, then we proceed to create a <code>compile</code> function. This function will instantiate two scopes, a <code>parentScope</code> and a <code>childScope</code>, stub out a widget, and put it on the child scope. Then <code>compile</code> goes on to do some complicated template and scope setup: first, compiling a parent element called <code>widget-organizer</code>, which gets the parent scope passed into it.  Once that&rsquo;s all set up, we add a <code>nested-widget</code> child element to it, pass it the child scope, and trigger the <code>$digest</code> loop.</p>
+
+<p>Finally, we get to the magic: we call the <code>compile</code> function, then hook
+into the compiled template&rsquo;s isolate scope (which is the <code>$dropdown</code>
+scope), with <code>self.element.isolateScope()</code>. When we actually get to the
+assertion at the end, we can hook into the isolate scope to call <code>edit</code>,
+and finally check that the stubbed out <code>widgetEditor</code> was called with
+the stubbed widget.</p>
+
+<h2>Conclusion</h2>
+
+<p>Testing can get painful. I know that there were several times in our
+project where the pain of figuring out what to do was so great that it
+was tempting to just move on, writing code and falling back to the &ldquo;click test&rdquo; to
+make sure everything was working. Unfortunately, once you get out of that flow, the feeling of uncertainty begins to grow and grow.</p>
+
+<p>After we took the time to figure out how to deal with these difficult
+cases, it became a lot easier to know what to do when similar
+complicated cases presented themselves. Armed with the patterns
+described in this article, we were able to get into a TDD workflow
+and move forward with confidence.</p>
+
+<p>I hope that the testing patterns we&rsquo;ve looked at today prove useful in
+your own development practice. AngularJS is still a young, growing framework.
+What other patterns have you found to make it easier to test? Please
+tweet at me @fluxusfrequency!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -4499,94 +5400,6 @@ build passing.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/12/30/how-to-find-big-directories-in-os-x-darwin-linux/">How to Find Big Directories in OS X (Darwin Linux)</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-12-30T14:36:00-07:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>My Dropbox was full this morning. Since I couldn&rsquo;t afford to buy more space, I needed to clear some room. I set out to find the biggest files and delete them.</p>
-
-<p>Before I got comfortable with the command line, I always downloaded some junky freeware to solve this problem. But today, I figured that there must be a smart way to do this with some arcane Linux incantation, so I did a little research and figured it out. It turned out to be really easy. Here&rsquo;s what to do:</p>
-
-<h2>Step 1</h2>
-
-<p>Navigate to the folder you want to search through.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ cd Dropbox</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Step 2</h2>
-
-<p>Use the <code>du</code> (Disk Usage) command to get a list of the files in your current folder (indicated by a <code>.</code>) and their sizes. Pass the <code>-a</code> flag to search all the files (not just directories), and the <code>-h</code> flag to have it display a human readable format.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ du -a -h .</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Step 3</h2>
-
-<p>Use a pipe to send the results to the <code>sort</code> command. Pass <code>-n</code> to sort the results numerically, and <code>-r</code> to make the biggest files show up at the top of the list.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ du -a -h . | sort -n -r</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Step 4</h2>
-
-<p>Limit the results to only ten entries so you only have the biggest files.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ du -a -h . | sort -n -r | head -n 10</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Step 5</h2>
-
-<p>Optionally, dump the whole thing into a text file using the <code>&gt;</code> shovel, so you can reference it while you are deleting files.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ du -a -h . | sort -n -r | head -n 10 &gt; file_sizes.txt</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Open file_sizes.txt in your favorite text editor, and start deleting files in the terminal. To keep the text file up to date, you can hit up arrow a couple of times to get the above command back and run it again after you&rsquo;ve deleted a few things.</p>
-
-<h2>Conclusion</h2>
-
-<p>Now you can find the biggest files on any part of your hard drive. Just navigate to the folder you want to look at before running the command, or replace the <code>.</code> with the path you want to search (e.g. <code>$ du -a -h ~/Dropbox | sort -n -r | head -n 10 &gt; file_sizes.txt</code>).</p>
-
-<p>Enjoy!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="3">&larr; Older</a>
@@ -4604,6 +5417,10 @@ build passing.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/01/29/instances/">Instances</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/01/16/five-ruby-methods-you-should-be-using/">Five Ruby Methods You Should Be Using</a>
       </li>
     
@@ -4617,10 +5434,6 @@ build passing.</p>
     
       <li class="post">
         <a href="/blog/2014/11/03/building-a-ruby-list-comprehension/">Building A Ruby List Comprehension</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/11/03/better-soa-development-with-foreman-and-nginx/">Better SOA Development With Foreman and NGINX</a>
       </li>
     
   </ul>

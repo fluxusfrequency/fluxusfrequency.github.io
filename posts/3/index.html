@@ -9,7 +9,7 @@
   <meta name="author" content="Ben Lewis">
 
   
-  <meta name="description" content="Open Source I&rsquo;ve been really interested in contributing to open source lately. In part, because it seems like a really good way to learn about &hellip;">
+  <meta name="description" content="My Dropbox was full this morning. Since I couldn&rsquo;t afford to buy more space, I needed to clear some room. I set out to find the biggest files &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,94 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/12/30/how-to-find-big-directories-in-os-x-darwin-linux/">How to Find Big Directories in OS X (Darwin Linux)</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-30T14:36:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>My Dropbox was full this morning. Since I couldn&rsquo;t afford to buy more space, I needed to clear some room. I set out to find the biggest files and delete them.</p>
+
+<p>Before I got comfortable with the command line, I always downloaded some junky freeware to solve this problem. But today, I figured that there must be a smart way to do this with some arcane Linux incantation, so I did a little research and figured it out. It turned out to be really easy. Here&rsquo;s what to do:</p>
+
+<h2>Step 1</h2>
+
+<p>Navigate to the folder you want to search through.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cd Dropbox</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Step 2</h2>
+
+<p>Use the <code>du</code> (Disk Usage) command to get a list of the files in your current folder (indicated by a <code>.</code>) and their sizes. Pass the <code>-a</code> flag to search all the files (not just directories), and the <code>-h</code> flag to have it display a human readable format.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ du -a -h .</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Step 3</h2>
+
+<p>Use a pipe to send the results to the <code>sort</code> command. Pass <code>-n</code> to sort the results numerically, and <code>-r</code> to make the biggest files show up at the top of the list.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ du -a -h . | sort -n -r</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Step 4</h2>
+
+<p>Limit the results to only ten entries so you only have the biggest files.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ du -a -h . | sort -n -r | head -n 10</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Step 5</h2>
+
+<p>Optionally, dump the whole thing into a text file using the <code>&gt;</code> shovel, so you can reference it while you are deleting files.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ du -a -h . | sort -n -r | head -n 10 &gt; file_sizes.txt</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Open file_sizes.txt in your favorite text editor, and start deleting files in the terminal. To keep the text file up to date, you can hit up arrow a couple of times to get the above command back and run it again after you&rsquo;ve deleted a few things.</p>
+
+<h2>Conclusion</h2>
+
+<p>Now you can find the biggest files on any part of your hard drive. Just navigate to the folder you want to look at before running the command, or replace the <code>.</code> with the path you want to search (e.g. <code>$ du -a -h ~/Dropbox | sort -n -r | head -n 10 &gt; file_sizes.txt</code>).</p>
+
+<p>Enjoy!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2721,348 +2809,6 @@ Calling typeof on it will return &lsquo;object&rsquo;. It is best to test for nu
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/11/01/clone-wars/">Clone Wars</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-11-01T09:15:00-06:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This week, our assignment in gSchool was to rip an existing website from a local business, rebuild the site using Sinatra on the back end, and add a Content Managament System (CMS) so the site owner could login and edit the site. The project was called <a href="http://tutorials.jumpstartlab.com/projects/clone_wars.html">Clone Wars</a>. I was grouped with classmates Luke Martinez and Antony Siegert. We chose to rip <a href="http://thebikedepot.org/">The Bike Depot</a>. Since we never got our site pushed up to Heroku, but here is a screenshot of our CMS:</p>
-
-<p><img src="http://s5.postimg.org/n4h93oltz/Screen_Shot_2013_11_01_at_9_20_51_AM.png" title="The Bike Depot CMS" alt="A website with a Content Management System"></p>
-
-<h2>What I Learned</h2>
-
-<p>Although I already felt pretty comfortable with Sinatra and HTTP requests before we began Clone Wars, I also learned quite a bit along the way.</p>
-
-<p>This was the first project where we were really able to use a database, so I got some good practice using the Sequel gem to talk to sqlite3. I posted a summary of Sequel methods on <a href="http://fluxusfrequency.github.io/blog/2013/10/26/sequel-gem-methods/">a post</a> earlier this week. Clone Wars was a good chance to practice accessing the database through class objects, like this:</p>
-
-<figure class='code'><figcaption><span>page_store.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;sequel&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">PageStore</span>
-</span><span class='line'>  <span class="k">class</span> <span class="o">&lt;&lt;</span> <span class="nb">self</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">page_table</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span>
-</span><span class='line'>        <span class="s2">&quot;title&quot;</span> <span class="o">=&gt;</span> <span class="n">page</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
-</span><span class='line'>        <span class="s2">&quot;body&quot;</span> <span class="o">=&gt;</span> <span class="n">page</span><span class="o">.</span><span class="n">body</span><span class="p">,</span>
-</span><span class='line'>        <span class="s2">&quot;url&quot;</span> <span class="o">=&gt;</span> <span class="n">page</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
-</span><span class='line'>        <span class="p">})</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">result</span> <span class="o">=</span> <span class="n">page_table</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="ss">:id</span> <span class="o">=&gt;</span> <span class="nb">id</span><span class="p">)</span><span class="o">.</span><span class="n">to_a</span><span class="o">.</span><span class="n">last</span>
-</span><span class='line'>      <span class="no">Page</span><span class="o">.</span><span class="n">new</span><span class="p">(</span>
-</span><span class='line'>        <span class="p">{</span><span class="s2">&quot;id&quot;</span> <span class="o">=&gt;</span> <span class="n">result</span><span class="o">[</span><span class="ss">:id</span><span class="o">]</span><span class="p">,</span>
-</span><span class='line'>        <span class="s2">&quot;body&quot;</span> <span class="o">=&gt;</span> <span class="n">result</span><span class="o">[</span><span class="ss">:body</span><span class="o">]</span><span class="p">,</span>
-</span><span class='line'>        <span class="s2">&quot;title&quot;</span> <span class="o">=&gt;</span> <span class="n">result</span><span class="o">[</span><span class="ss">:title</span><span class="o">]</span><span class="p">,</span>
-</span><span class='line'>        <span class="s2">&quot;url&quot;</span> <span class="o">=&gt;</span> <span class="n">result</span><span class="o">[</span><span class="ss">:url</span><span class="o">]</span> <span class="p">}</span>
-</span><span class='line'>        <span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">attributes</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">found</span> <span class="o">=</span> <span class="n">find_by_url</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">new_page</span> <span class="o">=</span> <span class="no">Page</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">found</span><span class="o">.</span><span class="n">to_h</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">attributes</span><span class="p">))</span>
-</span><span class='line'>      <span class="n">delete</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">save</span><span class="p">(</span><span class="n">new_page</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">new_page</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">page_table</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="ss">:url</span> <span class="o">=&gt;</span> <span class="n">page</span><span class="o">.</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">delete_all</span>
-</span><span class='line'>      <span class="n">page_table</span><span class="o">.</span><span class="n">delete</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">database</span>
-</span><span class='line'>      <span class="k">if</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;RACK_ENV&#39;</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span>
-</span><span class='line'>        <span class="vi">@database</span> <span class="o">||=</span> <span class="no">Sequel</span><span class="o">.</span><span class="n">sqlite</span><span class="p">(</span><span class="s1">&#39;./test.sqlite3&#39;</span><span class="p">)</span>
-</span><span class='line'>      <span class="k">else</span>
-</span><span class='line'>        <span class="vi">@database</span> <span class="o">||=</span> <span class="no">Sequel</span><span class="o">.</span><span class="n">sqlite</span><span class="p">(</span><span class="s1">&#39;./clone_wars.sqlite3&#39;</span><span class="p">)</span>
-</span><span class='line'>      <span class="k">end</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">page_table</span>
-</span><span class='line'>      <span class="n">database</span><span class="o">[</span><span class="ss">:pages</span><span class="o">]</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I also had a great time using the Mechanize gem to rip the html files from the original site. We split the head, header, navbar, and footer sections off into a layout file, and sticking a &lt;%= yield %> tag in its body, then scraped the main content of each page on the site and rendered it as a partial.</p>
-
-<figure class='code'><figcaption><span>scraper.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;nokogiri&#39;</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;open-uri&#39;</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;fileutils&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">urls</span> <span class="o">=</span> <span class="o">[</span>
-</span><span class='line'><span class="s1">&#39;http://thebikedepot.org/&#39;</span><span class="p">,</span>
-</span><span class='line'><span class="s1">&#39;http://thebikedepot.org/index.php/about&#39;</span><span class="p">,</span>
-</span><span class='line'><span class="s1">&#39;http://thebikedepot.org/index.php/about/mission-vision-and-values&#39;</span>
-</span><span class='line'><span class="c1"># etc...</span>
-</span><span class='line'><span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">urls</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">url</span><span class="o">|</span>
-</span><span class='line'>  <span class="n">page</span> <span class="o">=</span> <span class="no">Nokogiri</span><span class="o">::</span><span class="no">HTML</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
-</span><span class='line'>  <span class="n">body</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">css</span><span class="p">(</span><span class="s2">&quot;div#content-w2&quot;</span><span class="p">)</span>
-</span><span class='line'>  <span class="n">title</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">to_s</span>
-</span><span class='line'>  <span class="no">FileUtils</span><span class="o">.</span><span class="n">touch</span><span class="p">(</span><span class="s2">&quot;./scraped/</span><span class="si">#{</span><span class="n">title</span><span class="si">}</span><span class="s2">.html&quot;</span><span class="p">)</span>
-</span><span class='line'>  <span class="no">File</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;./scraped/</span><span class="si">#{</span><span class="n">title</span><span class="si">}</span><span class="s2">.html&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">file</span><span class="o">|</span>
-</span><span class='line'>    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Finally, I got some practice using the FileUtils library to hand write a database migration. If I had to do it again, I&rsquo;d use a Rake task, but it was fun to hack it together this way. Given a directory of erb files, I collected their filenames, html bodies, and routes, combined them into hashes, and inserted them into the database with this:</p>
-
-<figure class='code'><figcaption><span>database_populater.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;fileutils&#39;</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;sequel&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">titles</span> <span class="o">=</span> <span class="o">[]</span>
-</span><span class='line'><span class="n">pgs</span> <span class="o">=</span> <span class="o">[]</span>
-</span><span class='line'><span class="n">urls</span> <span class="o">=</span> <span class="o">[</span>
-</span><span class='line'><span class="s1">&#39;/about&#39;</span><span class="p">,</span>
-</span><span class='line'><span class="s1">&#39;/programs/bike-camp&#39;</span><span class="p">,</span>
-</span><span class='line'><span class="s1">&#39;/programs/bike-rodeo&#39;</span><span class="p">,</span>
-</span><span class='line'><span class="s1">&#39;/bike-shop&#39;</span><span class="p">,</span>
-</span><span class='line'><span class="s1">&#39;/about/staff-board/17-about/staff-board/43-bill-davis&#39;</span><span class="p">,</span>
-</span><span class='line'><span class="s1">&#39;/about/staff-board/17-about/staff-board/7-board&#39;</span>
-</span><span class='line'><span class="c1"># etc...</span>
-</span><span class='line'><span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">database</span> <span class="o">=</span> <span class="no">Sequel</span><span class="o">.</span><span class="n">sqlite</span><span class="p">(</span><span class="s1">&#39;clone_wars.sqlite3&#39;</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="no">Dir</span><span class="o">[</span><span class="s2">&quot;./lib/app/views/*.erb&quot;</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">file</span><span class="o">|</span>
-</span><span class='line'>  <span class="n">filename</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">to_s</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/.erb/</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span class='line'>  <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/\.\/lib\/app\/views\//</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span class='line'>  <span class="n">titles</span> <span class="o">&lt;&lt;</span> <span class="n">filename</span>
-</span><span class='line'>  <span class="n">pgs</span> <span class="o">&lt;&lt;</span> <span class="no">File</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="n">pgs</span><span class="o">.</span><span class="n">each_with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">page</span><span class="p">,</span> <span class="n">i</span><span class="o">|</span>
-</span><span class='line'>  <span class="nb">hash</span> <span class="o">=</span> <span class="p">{</span><span class="ss">:title</span> <span class="o">=&gt;</span> <span class="n">titles</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">,</span> <span class="ss">:body</span> <span class="o">=&gt;</span> <span class="n">pgs</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">,</span> <span class="ss">:url</span> <span class="o">=&gt;</span> <span class="n">urls</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">}</span>
-</span><span class='line'>  <span class="n">database</span><span class="o">.</span><span class="n">from</span><span class="p">(</span><span class="ss">:pages</span><span class="p">)</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="nb">hash</span><span class="p">)</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Confusing Parts</h2>
-
-<p>One part of this project that was really confusing was an inital misstep I made: trying to convert all of the scraped html files into Ruby Slim. I mechanized the process of converting them with an <a href="http://html2slim.herokuapp.com/">html-to-slim</a> conversion website, but there were way too many problems with the resulting files. I ended up wasting several hours going through this process before scrapping it.</p>
-
-<h2>Acceptance Tests</h2>
-
-<p>I still feel unsure about acceptance tests and Capybara. Although I know how to get started, I have trouble using it for TDD. Here&rsquo;s what I started with:</p>
-
-<figure class='code'><figcaption><span>acceptance_test.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;./test/helpers/acceptance_helper.rb&#39;</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;./lib/clone_wars&#39;</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;./lib/app&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">BikeCoopAppTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
-</span><span class='line'>  <span class="kp">include</span> <span class="no">Capybara</span><span class="o">::</span><span class="no">DSL</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">app</span>
-</span><span class='line'>    <span class="vi">@app</span> <span class="o">||=</span> <span class="no">BikeCoopApp</span><span class="o">.</span><span class="n">new</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">test_it_exists</span>
-</span><span class='line'>    <span class="n">visit</span> <span class="s1">&#39;/&#39;</span>
-</span><span class='line'>    <span class="n">assert</span> <span class="n">page</span><span class="o">.</span><span class="n">has_content?</span><span class="p">(</span><span class="s2">&quot;Bike Depot&quot;</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">assert</span> <span class="n">page</span><span class="o">.</span><span class="n">has_content?</span><span class="p">(</span><span class="s2">&quot;Home&quot;</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">test_it_has_a_login_link</span>
-</span><span class='line'>    <span class="n">visit</span> <span class="s1">&#39;/&#39;</span>
-</span><span class='line'>    <span class="n">click_on</span> <span class="s1">&#39;#admin&#39;</span>
-</span><span class='line'>    <span class="n">assert</span> <span class="n">page</span><span class="o">.</span><span class="n">has_content?</span><span class="p">(</span><span class="s2">&quot;Login&quot;</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">assert</span> <span class="n">page</span><span class="o">.</span><span class="n">has_content?</span><span class="p">(</span><span class="s2">&quot;Username:&quot;</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This was probably a good start, but I also feel like I have to test <em>everything</em>, and get overwhelmed. In this case, I didn&rsquo;t want to test all of the interactions from the scraped pages, because everything already fit together. When building someone else&rsquo;s site, Capybara seems superfluous. On the other hand, when I used it with a site I was building from scratch (<a href="http://ideabox-flux.herokuapp.com/">IdeaBox</a>), I was annoyed that the test would break whenever I changed my mind about the layout. I spoke to Katrina Owen about it, and she suggested only using acceptance tests for parts of the site that you are going to have to test repeatedly anyway, rather than every single route.</p>
-
-<p>I&rsquo;m going to keep working on the practice of Capybara, because I believe deeply that TDD is the best way to go. This project was unsuccessful in this regard, but it&rsquo;s been a valuable learning experience, and will surely change the way I test my future projects.</p>
-
-<h2>If I Had More Time&hellip;</h2>
-
-<p>If I had more time for this project, I would have build a better CMS that displayed the text to be edited in either markdown or something like <a href="http://ckeditor.com/">CK Editor</a>, rather than raw html, to provide a better user experience for the site administrator.</p>
-
-<h2>Working In A Trio</h2>
-
-<p>Working in a three person group was much different than working solo or pairing. I really enjoyed having other minds working on the same problem, seeing solutions that I might not have considered. Both Luke and Antony were very positive about screensharing and mobbing. We practiced some &lsquo;dummy keyboard&rsquo; and &lsquo;navigator&rsquo; approaches, both of which worked really well. I also really enjoyed being able to split up and work on separate features of the project, because it was a load off my shoulders compared to IdeaBox, where I had to build all of the features myself. One thing that was challenging about working in a trio was being unable to move forward until a certain task was done. For example, we couldn&rsquo;t write any classes until we got the test environment set up correctly. It was also hard to slow down and explain my thinking at each step, rather than just blasting through everything. But this process was probably good for me. I tend to work through problems internally, and being able to process out loud will be a valuable soft skill to have down the road when I begin working as a professional developer.</p>
-
-<h2>Final Thoughts</h2>
-
-<p>In retrospect, I wasn&rsquo;t a huge fan of the Clone Wars project. I would prefer to create something new, rather than take an existing layout and add a wrapper to it. However, I was pretty stimulated by some aspects of the project: using mechanize, sequel, and a full fledged database. I&rsquo;m looking forward to starting Rails next week, and getting even deeper into working with ORM patterns and small groups.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="4">&larr; Older</a>
@@ -3080,6 +2826,10 @@ Calling typeof on it will return &lsquo;object&rsquo;. It is best to test for nu
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/01/29/instances/">Instances</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/01/16/five-ruby-methods-you-should-be-using/">Five Ruby Methods You Should Be Using</a>
       </li>
     
@@ -3093,10 +2843,6 @@ Calling typeof on it will return &lsquo;object&rsquo;. It is best to test for nu
     
       <li class="post">
         <a href="/blog/2014/11/03/building-a-ruby-list-comprehension/">Building A Ruby List Comprehension</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/11/03/better-soa-development-with-foreman-and-nginx/">Better SOA Development With Foreman and NGINX</a>
       </li>
     
   </ul>
