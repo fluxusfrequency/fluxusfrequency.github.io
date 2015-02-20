@@ -1,0 +1,483 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Measuring Client-Side JavaScript Test Coverage With Istanbul - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="This post originally appeared on Engine Yard.
+It was also published on the Quick Left Blog. Testing is a vital part of any development process. &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2015/01/22/measuring-client-side-javascript-test-coverage-with-istanbul">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Measuring Client-Side JavaScript Test Coverage With Istanbul</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-22T21:16:59-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2015/measuring-clientside-javascript-test-coverage-with-istanbul">Engine Yard</a>.
+It was also published on the <a href="https://quickleft.com/blog/measuring-clientside-javascript-test-coverage-istanbul/">Quick Left Blog</a>.</p>
+
+<p>Testing is a vital part of any development process. Whether a project&rsquo;s authors are hoping for scalability, fewer bugs, or just code that stands the test of time, a solid test suite is essential.</p>
+
+<p>It&rsquo;s all well and good writing tests, but how do you know that you&rsquo;ve tested the code that matters? Did you cover the most important components? Did you test <a href="http://engineering.imvu.com/2012/05/08/writing-resilient-unit-tests-3/">the sad path</a>? The edge cases? What about the <a href="http://emptystat.es/">zero states</a>?</p>
+
+<p>Using <a href="http://gotwarlost.github.io/istanbul/">Istanbul</a>, you can generate a nice coverage report to answer these questions. In this article, we&rsquo;ll look at how to get it set up in a typical clientside JS project.</p>
+
+<h2>A Note About Metrics</h2>
+
+<p>Before we get into the process of setting up Istanbul, I&rsquo;d like to talk about code coverage as a metric. Metrics in programming can be very two-sided. On the one hand, they can be very useful in measuring velocity and predicting completion of new features. But, they can also become self-fulfilling prophecies leading to bad code.</p>
+
+<p>For example, if a project manager or tech lead measures her programmers&#8217; effectiveness by counting the lines of code they write, she will not find that those who wrote the most lines are the ones that wrote the best code. In fact, there&rsquo;s a danger that some of the programmers will adopt a verbose style, using far more lines than necessary to get the same thing done, in order to bump their ranking.</p>
+
+<p>Placing a strong emphasis on test coverage as a metric can lead to a similar problem. Imagine that a company adopts a policy that any pull request must increase or maintain the percentage of lines tested. What will be the result?</p>
+
+<p>I imagine that in many cases, developers will write good tests to accompany their features and bugfixes. But what happens if there’s a rush and they just want to get the code in?</p>
+
+<p>Test coverage tools only count the lines that were hit when the test suite was run, so the developer can just run the line in question during the test, while making a trivial assertion. The result? The line is marked covered, but nothing meaningful is being tested.</p>
+
+<p>Rather than using test coverage as a measure of developer thoroughness, it makes a lot more sense to use coverage as a way of seeing which code <em>isn&rsquo;t</em> covered (hint: it&rsquo;s often <code>else</code> branches). That information can then be used to prioritize testing goals.</p>
+
+<p>In summary: don&rsquo;t use code coverage to measure what&rsquo;s tested, use it to find out what isn&rsquo;t.</p>
+
+<h2>Time to Test</h2>
+
+<p>Let&rsquo;s imagine that we have a clientside JavaScript application written in Angular, Ember, or Backbone and templated with Handlebars. It&rsquo;s compiled with Browserify and built with NPM scripts.</p>
+
+<p>This application has been around for a couple of years, and due to business pressures, its authors have only managed to write a handful of tests. At this point, the app is well-established, and there <em>is</em> a testing setup in place, but there&rsquo;s also a lot of code that&rsquo;s untested.</p>
+
+<p>Recently, the company behind the application closed a funding round, and they&rsquo;re feeling flush. We&rsquo;ve been brought in to write some tests.</p>
+
+<p>Because we&rsquo;re hotshots and we want to show off, we decide to begin by taking a snapshot of the current code coverage, so that we can brag about how many percentage points we added to the coverage when we&rsquo;re done.</p>
+
+<h2>Setting up Istanbul</h2>
+
+<p>This is where <a href="http://gotwarlost.github.io/istanbul/">Istanbul</a> comes in. Istanbul is a code coverage tool written in JavaScript by <a href="https://github.com/gotwarlost">Krishnan Anantheswaran</a> of Yahoo!.</p>
+
+<p>It can be a little tricky to set up, so let&rsquo;s take a look at one way to do it.</p>
+
+<p>There are four steps in our approach:</p>
+
+<ol>
+<li>Instrument the source code with Istanbul</li>
+<li>Run <code>mocha-phantomjs</code>, passing in a <code>hooks</code> argument</li>
+<li>Use a <code>phantomjs</code> hook file to write out the results when testing is complete</li>
+<li>Run the <code>Istanbul</code> cli to generate the full report as an HTML file</li>
+</ol>
+
+
+<p>Let&rsquo;s get started.</p>
+
+<h3>1. Instrument the Source</h3>
+
+<p>We&rsquo;ll need to find a way to run our code through Istanbul after it&rsquo;s been compiled, so the first step is to set up an NPM task that will pipe compiled code into a tool like <a href="https://github.com/devongovett/browserify-istanbul">browserify-istanbul</a>.</p>
+
+<p>Just in case you&rsquo;re not using <code>browserify</code>, a variety of other Istanbul NPM packages exist for instrumenting code, including <a href="https://github.com/SBoudrias/gulp-istanbul">browserify-gulp</a>, <a href="https://github.com/justspamjustin/grunt-istanbul-reporter">grunt-istanbul-reporter</a>, and <a href="https://github.com/bem/borschik-tech-istanbul">borschik-tech-istanbul</a>.</p>
+
+<p>For the moment, let&rsquo;s imagine that we <em>are</em> using Browserify. We already have NPM tasks in place to compile our code for development/production and for testing. Here&rsquo;s what they look like. Note that the <code>-o</code> option to <code>browserify</code> specifies the output file for the build and the <code>-d</code> option turns on debugging.</p>
+
+<p>In <code>package.json</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="s2">&quot;scripts&quot;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="s2">&quot;build&quot;</span><span class="o">:</span> <span class="s2">&quot;browserify ./js/main.js -o html/static/build/js/myapp.js&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;build-test&quot;</span><span class="o">:</span> <span class="s2">&quot;browserify -r handlebars:hbsfy/runtime ./js/test/index.js -o html/static/build/js/test.js -d --verbose&quot;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We can use the <code>build-test</code> task as a template for a new <code>build-test-coverage</code> task.</p>
+
+<p>Before we do that, we&rsquo;ll want to make sure we pull in <code>browserify-istanbul</code> with <code>npm install --save-dev browserify-istanbul</code>.</p>
+
+<p>Next, we&rsquo;ll write the task in <code>package.json</code>. We&rsquo;ll ignore the Handlebars templates and Node modules when we load everything into Istanbul. We&rsquo;ll also use the <code>-t</code> option to Browserify to use a <a href="https://github.com/substack/module-deps#transforms">transform module</a>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="s2">&quot;scripts&quot;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="s2">&quot;build-test-coverage&quot;</span><span class="o">:</span> <span class="s2">&quot;mkdir -p html/static/build/js/ &amp;&amp; browserify -r handlebars:hbsfy/runtime -t [ browserify-istanbul --ignore **/*.hbs **/bower_components/** ] ./js/test/index.js -o html/static/build/js/test.js -d&quot;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With the <code>browserify-istanbul</code> package and the <code>build-test-coverage</code> script in place, we&rsquo;ve got our code instrumented, and we&rsquo;re ready to move on to step two.</p>
+
+<h3>2. Run <code>mocha-phantomjs</code>, Passing in a Hooks Argument</h3>
+
+<p>Now that the code is all built and ready to go, we need to pass it into a test framework. We&rsquo;ll use write a cli script that spawns <a href="https://github.com/metaskills/mocha-phantomjs">mocha-phantomjs</a> in a child process. We&rsquo;ll pass in a hooks argument that specifies a <code>phantom_hooks.js</code> file we&rsquo;ve yet to write.</p>
+
+<p>(Note: if you&rsquo;re using <code>gulp</code> or <code>grunt</code>, you may want to check out <a href="https://github.com/mrhooray/gulp-mocha-phantomjs">gulp-mocha-phantomjs</a> or <a href="https://github.com/jdcataldo/grunt-mocha-phantomjs">grunt-mocha-phantomjs</a> for this step.)</p>
+
+<p>In <code>js/test/cli.js</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="err">#</span><span class="o">!</span><span class="err">/usr/bin/env node</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">spawn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;child_process&#39;</span><span class="p">).</span><span class="nx">spawn</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">child</span> <span class="o">=</span> <span class="nx">spawn</span><span class="p">(</span><span class="s1">&#39;mocha-phantomjs&#39;</span><span class="p">,</span> <span class="p">[</span>
+</span><span class='line'>  <span class="s1">&#39;http://localhost:9000/static/js/test/index.html&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s1">&#39;--timeout&#39;</span><span class="p">,</span> <span class="s1">&#39;25000&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s1">&#39;--hooks&#39;</span><span class="p">,</span> <span class="s1">&#39;./js/test/phantom_hooks.js&#39;</span>
+</span><span class='line'><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">child</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;close&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">code</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Mocha process exited with code &#39;</span> <span class="o">+</span> <span class="nx">code</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nx">code</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With our cli script in place, we&rsquo;ve now got a way to put our Istanbulified code into PhantomJS, so we&rsquo;ll move to step three.</p>
+
+<h3>3. Use a PhantomJS Hook File to Write the Results</h3>
+
+<p>In the script we wrote in the last section, we passed a hooks file to <code>mocha-phantomjs</code>, but we hadn&rsquo;t created it yet. Let&rsquo;s do that now.</p>
+
+<p>After all the tests have run, our hook will grab the <code>__coverage__</code> property of the window, which contains the result of our coverage run, and write it to a <code>coverage/coverage.json</code> file.</p>
+
+<p>We&rsquo;ll load this data into the Istanbul CLI to generate a more readable report in the next step.</p>
+
+<p>In <code>js/test/phantom_hooks.js</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">afterEnd</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">runner</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">coverage</span> <span class="o">=</span> <span class="nx">runner</span><span class="p">.</span><span class="nx">page</span><span class="p">.</span><span class="nx">evaluate</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nb">window</span><span class="p">.</span><span class="nx">__coverage__</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nx">coverage</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Writing coverage to coverage/coverage.json&#39;</span><span class="p">);</span>
+</span><span class='line'>      <span class="nx">fs</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s1">&#39;coverage/coverage.json&#39;</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">coverage</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;No coverage data generated&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With our coverage data saved, we&rsquo;re ready to move on to the last step.</p>
+
+<h3>4. Run the Istanbul CLI to Generate the Full Report</h3>
+
+<p>The final step in our process is to take the coverage data generated in step three and plug it into the Istanbul CLI to generate a coverage report HTML file.</p>
+
+<p>We&rsquo;ll write an NPM script that executes the <code>instanbul report</code> command, passing it the folder where we saved our results (<code>coverage</code>), and specifying <code>lcov</code> as our output format. This option will save both <code>lcov</code> and <code>html</code> files.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="s2">&quot;scripts&quot;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="s2">&quot;coverage-report&quot;</span><span class="o">:</span> <span class="s2">&quot;istanbul report --root coverage lcov&quot;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we have all the scripts we need to generate and view our coverage report.</p>
+
+<h2>Generating the Report</h2>
+
+<p>We&rsquo;ll need to run each of the commands that we&rsquo;ve defined before we&rsquo;ll be able to view our results (you may want to wrap these in a single NPM task for convenience).</p>
+
+<ul>
+<li><code>npm run build-test-coverage</code> to compile our test code and load it into Istanbul</li>
+<li><code>./js/test/cli.js</code> to run the tests with <code>mocha-phantomjs</code> and write the <code>coverage.json</code> file</li>
+<li><code>npm run coverage-report</code> to format the coverage results as an HTML file</li>
+</ul>
+
+
+<p>Once we&rsquo;ve completed these steps, we should see a new <code>coverage/lcov-report</code> folder containing an <code>index.html</code> file and a few assets to make it look pretty.</p>
+
+<h2>Viewing the Report</h2>
+
+<p>If we open the generated file in our browser, we&rsquo;ll see an easy-to-read breakdown of our coverage.</p>
+
+<p>There are four category columns at the top of the page, each telling us about a different aspect of our coverage.</p>
+
+<ul>
+<li><em>Statements</em> tells up how many of the statements in our code were touched during the test run.</li>
+<li><em>Branches</em> tells us how many of our logical <code>if</code>/<code>else</code> branches were touched</li>
+<li><em>Functions</em> tells us how many of our functions were touched</li>
+<li><em>Lines</em> tells us the total lines of code that were touched</li>
+</ul>
+
+
+<p>There&rsquo;s also a list of the folders in our project, each with a categorical coverage breakdown. You can also click on each of the folders to further break down the coverage file by file. If you then click on a file, you&rsquo;ll see its contents highlighted in green and red to indicate covered and uncovered lines.</p>
+
+<p>The ability to zoom in and out on our project and see the categorical breakdown at each level makes Istanbul particularly nice to work with.  It also makes it easy to dig in and explore places in your code base that might benefit from some additional testing.</p>
+
+<h2>Wrapping Up</h2>
+
+<p>If you haven&rsquo;t added code coverage to your JS projects yet, I highly recommend it. Getting everything up and running is a minimal time investment, and it can really pay off.</p>
+
+<p>Although I would discourage you from measuring the success of your test suite based on percentage points only, getting an in-depth look at what you currently are and aren&rsquo;t touching can really pave the way to uncovering bugs you didn&rsquo;t even know you had.</p>
+
+<p>I hope that this post has helped you get Istanbul up and running with a minimum of heartache. Until next time, keep testing!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-22T21:16:59-07:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2015/01/22/measuring-client-side-javascript-test-coverage-with-istanbul/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2015/01/22/measuring-client-side-javascript-test-coverage-with-istanbul/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/01/16/five-ruby-methods-you-should-be-using/" title="Previous Post: Five Ruby Methods You Should Be Using">&laquo; Five Ruby Methods You Should Be Using</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/01/29/instances/" title="Next Post: Instances, Classes, and Modules, Oh My!">Instances, Classes, and Modules, Oh My! &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/02/04/setting-up-a-client-side-javascript-project-with-gulp-and-browserify/">Setting Up A Client-Side JavaScript Project With Gulp and Browserify</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/01/29/instances/">Instances, Classes, and Modules, Oh My!</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/01/22/measuring-client-side-javascript-test-coverage-with-istanbul/">Measuring Client-Side JavaScript Test Coverage With Istanbul</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/01/16/five-ruby-methods-you-should-be-using/">Five Ruby Methods You Should Be Using</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/18/seven-reasons-i-love-minitest/">Seven Reasons I Love Minitest</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

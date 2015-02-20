@@ -4,7 +4,7 @@
   <title><![CDATA[Fluxus Frequency]]></title>
   <link href="http://fluxusfrequency.github.io/atom.xml" rel="self"/>
   <link href="http://fluxusfrequency.github.io/"/>
-  <updated>2015-01-30T05:56:15-07:00</updated>
+  <updated>2015-02-19T21:34:04-07:00</updated>
   <id>http://fluxusfrequency.github.io/</id>
   <author>
     <name><![CDATA[Ben Lewis]]></name>
@@ -15,13 +15,492 @@
   
   <entry>
     
+    <title type="html"><![CDATA[Setting Up A Client-Side JavaScript Project With Gulp and Browserify]]></title>
+    <link href="http://fluxusfrequency.github.io/blog/2015/02/04/setting-up-a-client-side-javascript-project-with-gulp-and-browserify/"/>
+    
+    <updated>2015-02-04T21:17:21-07:00</updated>
+    <id>http://fluxusfrequency.github.io/blog/2015/02/04/setting-up-a-client-side-javascript-project-with-gulp-and-browserify</id>
+    
+    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2015/client-side-javascript-project-gulp-and-browserify">Engine Yard</a>.</p>
+
+<p>For JavaScript developers, it can be hard to keep up to date with the latest frameworks and libraries. It seems like every day there&rsquo;s a new <em>something</em>.js to check out. Luckily, there is one part of the toolchain that doesn&rsquo;t change as often, and that&rsquo;s the build process. That said, it&rsquo;s worth checking out your options every now and then.</p>
+
+<p>My build process toolset has traditionally been comprised of <a href="http://requirejs.org/">RequireJS</a> for dependency loading, and <a href="http://gruntjs.com/">Grunt</a>. They&rsquo;ve worked great, but recently I was pairing with someone who prefers to use <a href="http://gulpjs.com/">Gulp</a> and <a href="http://browserify.org/">Browserify</a> instead. After using them on a couple of projects, I&rsquo;m coming to like them quite a bit. They&rsquo;re great for use with Backbone, Angular, Ember, React, and my own hand-rolled JavaScript projects.</p>
+
+<p>In this post, we&rsquo;ll explore how to set up a clientside JavaScript project for success using Gulp and Browserify.</p>
+
+<h2>Defining the Project Structure</h2>
+
+<p>For the purposes of this post, we&rsquo;ll pretend we&rsquo;re building an app called Car Finder, that helps you remember where you parked your car. If you want to follow along, check out the <a href="https://github.com/fluxusfrequency/car-finder">code on GitHub</a>.</p>
+
+<p>When building a full application that includes both an API server and a clientside JavaScript app, there&rsquo;s a certain project structure that I&rsquo;ve found often works well for me. I like to put my clientside app in a folder one level down from the root of my project, called <code>client</code>. This folder usually has sibling folders named <code>server</code>, <code>test</code>, <code>public</code>, and <code>build</code>. Here&rsquo;s how this would look for Car Finder:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>car-finder
+</span><span class='line'>|- build
+</span><span class='line'>|- client
+</span><span class='line'>   |- less
+</span><span class='line'>|- public
+</span><span class='line'>   |- javascripts
+</span><span class='line'>   |- stylesheets
+</span><span class='line'>|- server
+</span><span class='line'>|- test</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The idea is to do our app developent inside of <code>client</code>, then use a build task to compile the JS and copy it to the <code>build</code> folder, where it will be minified, uglified, and copied to <code>public</code> to be served by the backend.</p>
+
+<h2>Pulling In Dependencies</h2>
+
+<p>To get up and running, we&rsquo;ll need to pull in some dependencies.</p>
+
+<p>Run <code>npm init</code> and follow the prompts.</p>
+
+<p>Add <code>browserify</code>, <code>gulp</code>, and our build and testing dependencies:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>npm install --save-dev gulp gulp-browserify browserify-shim gulp-jshint gulp-mocha-phantomjs <span class="se">\</span>
+</span><span class='line'>gulp-rename gulp-uglify gulp-less gulp-autoprefixer gulp-minify-css mocha chai
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you&rsquo;re using git, you may want to ignore your <code>node_modules</code> folder with <code>echo "node_modules" &gt;&gt; .gitignore</code>.</p>
+
+<h2>Shimming Your Frameworks</h2>
+
+<p>You&rsquo;ll probably want to use <code>browserify-shim</code> to shim jQuery and your JavaScript framework so that you can write <code>var $ = require('jquery')</code> into your code. We&rsquo;ll use jQuery here, but the process is the same for any other library (Angular, Ember, Backbone, React, etc.). To set it up, modify your <code>package.json</code> like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;car-finder&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;author&quot;</span><span class="p">:</span> <span class="s2">&quot;Ben Lewis&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;devDependencies&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nt">&quot;gulp-rename&quot;</span><span class="p">:</span> <span class="s2">&quot;^1.2.0&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;gulp&quot;</span><span class="p">:</span> <span class="s2">&quot;^3.8.10&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;gulp-mocha-phantomjs&quot;</span><span class="p">:</span> <span class="s2">&quot;^0.5.1&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;gulp-jshint&quot;</span><span class="p">:</span> <span class="s2">&quot;^1.9.0&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;gulp-browserify&quot;</span><span class="p">:</span> <span class="s2">&quot;^0.5.0&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;browserify&quot;</span><span class="p">:</span> <span class="s2">&quot;^6.3.4&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;browserify-shim&quot;</span><span class="p">:</span> <span class="s2">&quot;^3.8.0&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;mocha&quot;</span><span class="p">:</span> <span class="s2">&quot;^2.0.1&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;gulp-minify-css&quot;</span><span class="p">:</span> <span class="s2">&quot;^0.3.11&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;gulp-uglify&quot;</span><span class="p">:</span> <span class="s2">&quot;^1.0.1&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;gulp-autoprefixer&quot;</span><span class="p">:</span> <span class="s2">&quot;^2.0.0&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;gulp-less&quot;</span><span class="p">:</span> <span class="s2">&quot;^1.3.6&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;chai&quot;</span><span class="p">:</span> <span class="s2">&quot;^1.10.0&quot;</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>  <span class="nt">&quot;browserify-shim&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nt">&quot;jquery&quot;</span><span class="p">:</span> <span class="s2">&quot;$&quot;</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>  <span class="nt">&quot;browserify&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nt">&quot;transform&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span class='line'>      <span class="s2">&quot;browserify-shim&quot;</span>
+</span><span class='line'>    <span class="p">]</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you&rsquo;re getting JSHint errors in your editor for this file, you can turn them off with <code>echo "package.json" &gt;&gt; .jshintignore</code>.</p>
+
+<h2>Setting Up Gulp</h2>
+
+<p>Now that we have the <code>gulp</code> package installed, we&rsquo;ll configure <code>gulp</code> tasks to lint our code, test it, trigger the compilation process, and copy our minified JS into the <code>public</code> folder.  We&rsquo;ll also set up a <code>watch</code> task that we can use to trigger a lint and recompile of our project whenever a source file is changed.</p>
+
+<p>We&rsquo;ll start by requiring the <code>gulp</code> packages we want in a <code>gulpfile.js</code> that lives in the root of the project.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// Gulp Dependencies</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">gulp</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;gulp&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">rename</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;gulp-rename&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Build Dependencies</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">browserify</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;gulp-browserify&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">uglify</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;gulp-uglify&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Style Dependencies</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">less</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;gulp-less&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">prefix</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;gulp-autoprefixer&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">minifyCSS</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;gulp-minify-css&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Development Dependencies</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">jshint</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;gulp-jshint&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Test Dependencies</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">mochaPhantomjs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;gulp-mocha-phantomjs&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we can start defining some tasks.</p>
+
+<h3>JSHint</h3>
+
+<p>To set up linting for our clientside code as well as our test code, we&rsquo;ll add the following to the <code>gulpfile</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">gulp</span><span class="p">.</span><span class="nx">task</span><span class="p">(</span><span class="s1">&#39;lint-client&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">gulp</span><span class="p">.</span><span class="nx">src</span><span class="p">(</span><span class="s1">&#39;./client/**/*.js&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">jshint</span><span class="p">())</span>
+</span><span class='line'>    <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">jshint</span><span class="p">.</span><span class="nx">reporter</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">));</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">gulp</span><span class="p">.</span><span class="nx">task</span><span class="p">(</span><span class="s1">&#39;lint-test&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">gulp</span><span class="p">.</span><span class="nx">src</span><span class="p">(</span><span class="s1">&#39;./test/**/*.js&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">jshint</span><span class="p">())</span>
+</span><span class='line'>    <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">jshint</span><span class="p">.</span><span class="nx">reporter</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">));</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'><span class="err">``</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">We</span><span class="s1">&#39;ll also need to define a `.jshintrc` in the root of our project, so that JSHint will know which rules to apply. If you have a JSHint plugin turned on in your editor, it will show you any linting errors as well. I use [jshint.vim](https://github.com/wookiehangover/jshint.vim). Here&#39;</span><span class="nx">s</span> <span class="nx">an</span> <span class="nx">example</span> <span class="nx">of</span> <span class="nx">a</span> <span class="nx">typical</span> <span class="err">`</span><span class="p">.</span><span class="nx">jshintrc</span><span class="err">`</span> <span class="k">for</span> <span class="nx">one</span> <span class="nx">of</span> <span class="nx">my</span> <span class="nx">projects</span><span class="p">.</span> <span class="nx">You</span><span class="s1">&#39;ll notice that it has some predefined globals that we&#39;</span><span class="nx">ll</span> <span class="nx">be</span> <span class="nx">using</span> <span class="k">in</span> <span class="nx">our</span> <span class="nx">testing</span> <span class="nx">environment</span><span class="p">.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>json
+{
+  &ldquo;camelcase&rdquo;: true,
+  &ldquo;curly&rdquo;: true,
+  &ldquo;eqeqeq&rdquo;: true,
+  &ldquo;expr&rdquo; : true,
+  &ldquo;forin&rdquo;: true,
+  &ldquo;immed&rdquo;: true,
+  &ldquo;indent&rdquo;: 2,
+  &ldquo;latedef&rdquo;: &ldquo;nofunc&rdquo;,
+  &ldquo;newcap&rdquo;: false,
+  &ldquo;noarg&rdquo;: true,
+  &ldquo;node&rdquo;: true,
+  &ldquo;nonbsp&rdquo;: true,
+  &ldquo;quotmark&rdquo;: &ldquo;single&rdquo;,
+  &ldquo;undef&rdquo;: true,
+  &ldquo;unused&rdquo;: &ldquo;vars&rdquo;,
+  &ldquo;trailing&rdquo;: true,
+  &ldquo;globals&rdquo;: {
+    &ldquo;after&rdquo;      : false,
+    &ldquo;afterEach&rdquo;  : false,
+    &ldquo;before&rdquo;     : false,
+    &ldquo;beforeEach&rdquo; : false,
+    &ldquo;context&rdquo;    : false,
+    &ldquo;describe&rdquo;   : false,
+    &ldquo;it&rdquo;         : false,
+    &ldquo;window&rdquo;     : false
+  }
+}</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="err">###</span> <span class="nx">Mocha</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">I</span><span class="s1">&#39;m a Test-Driven Development junkie, so one of the first things I always do when setting up a project is to make sure I have a working testing framework. For clientside unit testing, I like to use [gulp-mocha-phantomjs](https://www.npmjs.org/package/gulp-mocha-phantomjs), which we already pulled in above.</span>
+</span><span class='line'>
+</span><span class='line'><span class="s1">Before we can run any tests, we&#39;</span><span class="nx">ll</span> <span class="nx">need</span> <span class="nx">to</span> <span class="nx">create</span> <span class="nx">a</span> <span class="err">`</span><span class="nx">test</span><span class="o">/</span><span class="nx">client</span><span class="o">/</span><span class="nx">index</span><span class="p">.</span><span class="nx">html</span><span class="err">`</span> <span class="nx">file</span> <span class="k">for</span> <span class="nx">Mocha</span> <span class="nx">to</span> <span class="nx">load</span> <span class="nx">up</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">headless</span> <span class="nx">PhantomJS</span> <span class="nx">browser</span> <span class="nx">environment</span><span class="p">.</span> <span class="nx">It</span> <span class="nx">will</span> <span class="nx">pull</span> <span class="nx">Mocha</span> <span class="k">in</span> <span class="nx">from</span> <span class="nx">our</span> <span class="err">`</span><span class="nx">node_modules</span><span class="err">`</span> <span class="nx">folder</span><span class="p">,</span> <span class="nx">require</span> <span class="err">`</span><span class="nx">build</span><span class="o">/</span><span class="nx">client</span><span class="o">-</span><span class="nx">test</span><span class="p">.</span><span class="nx">js</span><span class="err">`</span> <span class="p">(</span><span class="nx">more</span> <span class="nx">on</span> <span class="k">this</span> <span class="k">in</span> <span class="nx">a</span> <span class="nx">minute</span><span class="p">),</span> <span class="nx">then</span> <span class="nx">run</span> <span class="nx">the</span> <span class="nx">scripts</span><span class="o">:</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>html
+&lt;!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mocha Test Runner</title>
+    <link rel="stylesheet" href="../../node_modules/mocha/mocha.css">
+  </head>
+  <body>
+    <div id="mocha"></div>
+    <script src="../../node_modules/mocha/mocha.js"></script>
+    <script>mocha.setup(&lsquo;bdd&rsquo;)</script>
+    <script src="../../build/client-test.js"></script>
+    <script>
+      if (window.mochaPhantomJS) {
+        mochaPhantomJS.run();
+      } else {
+        mocha.run();
+      }
+    </script>
+  </body>
+</html></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="err">##</span> <span class="nx">Setting</span> <span class="nx">Up</span> <span class="nx">Browserify</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">Now</span> <span class="nx">we</span> <span class="nx">need</span> <span class="nx">to</span> <span class="nx">set</span> <span class="nx">up</span> <span class="nx">Browserify</span> <span class="nx">to</span> <span class="nx">compile</span> <span class="nx">our</span> <span class="nx">code</span><span class="p">.</span> <span class="nx">First</span><span class="p">,</span> <span class="nx">we</span><span class="s1">&#39;ll define a couple of `gulp` tasks: one to build the app, and one to build the tests. We&#39;</span><span class="nx">ll</span> <span class="nx">copy</span> <span class="nx">the</span> <span class="nx">result</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">compile</span> <span class="nx">to</span> <span class="err">`</span><span class="kr">public</span><span class="err">`</span> <span class="nx">so</span> <span class="nx">we</span> <span class="nx">can</span> <span class="nx">serve</span> <span class="nx">it</span> <span class="nx">unminified</span> <span class="k">in</span> <span class="nx">development</span><span class="p">,</span> <span class="nx">and</span> <span class="nx">we</span><span class="s1">&#39;ll also put a copy into `build`, where we&#39;</span><span class="nx">ll</span> <span class="nx">grab</span> <span class="nx">it</span> <span class="k">for</span> <span class="nx">minification</span><span class="p">.</span> <span class="nx">The</span>  <span class="nx">compiled</span> <span class="nx">test</span> <span class="nx">file</span> <span class="nx">will</span> <span class="nx">also</span> <span class="nx">go</span> <span class="nx">into</span> <span class="err">`</span><span class="nx">build</span><span class="err">`</span><span class="p">.</span> <span class="nx">Finally</span><span class="p">,</span> <span class="nx">we</span><span class="err">&#39;</span><span class="nx">ll</span> <span class="nx">set</span> <span class="nx">up</span> <span class="nx">a</span> <span class="err">`</span><span class="nx">watch</span><span class="err">`</span> <span class="nx">task</span> <span class="nx">to</span> <span class="nx">trigger</span> <span class="nx">rebuilds</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">app</span> <span class="nx">and</span> <span class="nx">test</span> <span class="nx">when</span> <span class="nx">one</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">source</span> <span class="nx">files</span> <span class="nx">changes</span><span class="p">.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>javascript
+gulp.task(&lsquo;browserify-client&rsquo;, [&lsquo;lint-client&rsquo;], function() {
+  return gulp.src(&lsquo;client/index.js&rsquo;)
+    .pipe(browserify({
+      insertGlobals: true
+    }))
+    .pipe(rename(&lsquo;car-finder.js&rsquo;))
+    .pipe(gulp.dest(&lsquo;build&rsquo;));
+    .pipe(gulp.dest(&lsquo;public/javascripts&rsquo;));
+});</p>
+
+<p>gulp.task(&lsquo;browserify-test&rsquo;, [&lsquo;lint-test&rsquo;], function() {
+  return gulp.src(&lsquo;test/client/index.js&rsquo;)
+    .pipe(browserify({
+      insertGlobals: true
+    }))
+    .pipe(rename(&lsquo;client-test.js&rsquo;))
+    .pipe(gulp.dest(&lsquo;build&rsquo;));
+});</p>
+
+<p>gulp.task(&lsquo;watch&rsquo;, function() {
+  gulp.watch(&lsquo;client/<strong>/*.js&rsquo;, [&lsquo;browserify-client&rsquo;]);
+  gulp.watch(&lsquo;test/client/</strong>/*.js&rsquo;, [&lsquo;browserify-test&rsquo;]);
+});</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">There</span><span class="s1">&#39;s one more thing we&#39;</span><span class="nx">ll</span> <span class="nx">need</span> <span class="nx">to</span> <span class="k">do</span> <span class="nx">before</span> <span class="nx">we</span> <span class="nx">can</span> <span class="nx">run</span> <span class="nx">our</span> <span class="err">`</span><span class="nx">gulp</span><span class="err">`</span> <span class="nx">tasks</span><span class="p">,</span> <span class="nx">which</span> <span class="nx">is</span> <span class="nx">to</span> <span class="nx">make</span> <span class="nx">sure</span> <span class="nx">we</span> <span class="nx">actually</span> <span class="nx">have</span> <span class="err">`</span><span class="nx">index</span><span class="p">.</span><span class="nx">js</span><span class="err">`</span> <span class="nx">files</span> <span class="k">in</span> <span class="nx">each</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">folders</span> <span class="nx">we</span><span class="s1">&#39;ve it to look at, so it doesn&#39;</span><span class="nx">t</span> <span class="nx">raise</span> <span class="nx">an</span> <span class="nx">error</span><span class="p">.</span> <span class="nx">Add</span> <span class="nx">one</span> <span class="nx">to</span> <span class="nx">the</span> <span class="err">`</span><span class="nx">client</span><span class="err">`</span> <span class="nx">and</span> <span class="err">`</span><span class="nx">test</span><span class="o">/</span><span class="nx">client</span><span class="err">`</span> <span class="nx">folders</span><span class="p">.</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">Now</span><span class="p">,</span> <span class="nx">when</span> <span class="nx">we</span> <span class="nx">run</span> <span class="err">`</span><span class="nx">gulp</span> <span class="nx">browserify</span><span class="o">-</span><span class="nx">client</span><span class="err">`</span> <span class="nx">from</span> <span class="nx">the</span> <span class="nx">command</span> <span class="nx">line</span><span class="p">,</span> <span class="nx">we</span> <span class="nx">see</span> <span class="k">new</span> <span class="err">`</span><span class="nx">build</span><span class="o">/</span><span class="nx">car</span><span class="o">-</span><span class="nx">finder</span><span class="p">.</span><span class="nx">js</span><span class="err">`</span> <span class="nx">and</span> <span class="err">`</span><span class="kr">public</span><span class="o">/</span><span class="nx">javascripts</span><span class="o">/</span><span class="nx">car</span><span class="o">-</span><span class="nx">finder</span><span class="p">.</span><span class="nx">js</span><span class="err">`</span> <span class="nx">files</span><span class="p">.</span> <span class="nx">In</span> <span class="nx">the</span> <span class="nx">same</span> <span class="nx">way</span><span class="p">,</span> <span class="err">`</span><span class="nx">gulp</span> <span class="nx">browserify</span><span class="o">-</span><span class="nx">test</span><span class="err">`</span> <span class="nx">creates</span> <span class="nx">a</span> <span class="err">`</span><span class="nx">build</span><span class="o">/</span><span class="nx">client</span><span class="o">-</span><span class="nx">test</span><span class="p">.</span><span class="nx">js</span><span class="err">`</span> <span class="nx">file</span><span class="p">.</span>
+</span><span class='line'>
+</span><span class='line'><span class="err">##</span> <span class="nx">More</span> <span class="nx">Testing</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">Now</span> <span class="nx">that</span> <span class="nx">we</span> <span class="nx">have</span> <span class="nx">Browserify</span> <span class="nx">set</span> <span class="nx">up</span><span class="p">,</span> <span class="nx">we</span> <span class="nx">can</span> <span class="nx">finish</span> <span class="nx">getting</span> <span class="nx">our</span> <span class="nx">test</span> <span class="nx">environment</span> <span class="nx">up</span> <span class="nx">and</span> <span class="nx">running</span><span class="p">.</span> <span class="nx">Let</span><span class="s1">&#39;s define a `test` Gulp task and add it to our `watch`. We&#39;</span><span class="nx">ll</span> <span class="nx">add</span> <span class="err">`</span><span class="nx">browserify</span><span class="o">-</span><span class="nx">test</span><span class="err">`</span> <span class="nx">as</span> <span class="nx">a</span> <span class="nx">dependency</span> <span class="k">for</span> <span class="nx">the</span> <span class="err">`</span><span class="nx">test</span><span class="err">`</span> <span class="nx">task</span><span class="p">,</span> <span class="nx">so</span> <span class="nx">our</span> <span class="err">`</span><span class="nx">watch</span><span class="err">`</span> <span class="nx">will</span> <span class="nx">just</span> <span class="nx">require</span> <span class="err">`</span><span class="nx">test</span><span class="err">`</span><span class="p">.</span> <span class="nx">We</span> <span class="nx">should</span> <span class="nx">also</span> <span class="nx">update</span> <span class="nx">our</span> <span class="nx">watch</span> <span class="nx">to</span> <span class="nx">run</span> <span class="nx">the</span> <span class="nx">tests</span> <span class="nx">whenever</span> <span class="nx">we</span> <span class="nx">change</span> <span class="nx">any</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">app</span> <span class="nx">_or_</span> <span class="nx">test</span> <span class="nx">files</span><span class="p">.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>javascript
+gulp.task(&lsquo;test&rsquo;, [&lsquo;lint-test&rsquo;, &lsquo;browserify-test&rsquo;], function() {
+  return gulp.src(&lsquo;test/client/index.html&rsquo;)
+    .pipe(mochaPhantomjs());
+});</p>
+
+<p>gulp.task(&lsquo;watch&rsquo;, function() {
+  gulp.watch(&lsquo;client/<strong>/*.js&rsquo;, [&lsquo;browserify-client&rsquo;, &lsquo;test&rsquo;]);
+  gulp.watch(&lsquo;test/client/</strong>/*.js&rsquo;, [&lsquo;test&rsquo;]);
+});</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">To</span> <span class="nx">verify</span> <span class="nx">that</span> <span class="k">this</span> <span class="nx">is</span> <span class="nx">working</span><span class="p">,</span> <span class="kd">let</span><span class="err">&#39;</span><span class="nx">s</span> <span class="nx">write</span> <span class="nx">a</span> <span class="nx">simple</span> <span class="nx">test</span> <span class="k">in</span> <span class="err">`</span><span class="nx">test</span><span class="o">/</span><span class="nx">client</span><span class="o">/</span><span class="nx">index</span><span class="p">.</span><span class="nx">js</span><span class="err">`</span><span class="o">:</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>javascript
+var expect = require(&lsquo;chai&rsquo;).expect;</p>
+
+<p>describe(&lsquo;test setup&rsquo;, function() {
+  it(&lsquo;should work&rsquo;, function() {
+    expect(true).to.be.true;
+  });
+});</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Now</span><span class="p">,</span> <span class="nx">when</span> <span class="nx">we</span> <span class="nx">run</span> <span class="err">`</span><span class="nx">gulp</span> <span class="nx">test</span><span class="err">`</span><span class="p">,</span> <span class="nx">we</span> <span class="nx">should</span> <span class="nx">see</span> <span class="nx">Gulp</span> <span class="nx">run</span> <span class="nx">the</span> <span class="err">`</span><span class="nx">lint</span><span class="o">-</span><span class="nx">test</span><span class="err">`</span><span class="p">,</span> <span class="err">`</span><span class="nx">browserify</span><span class="o">-</span><span class="nx">test</span><span class="err">`</span><span class="p">,</span> <span class="nx">and</span> <span class="err">`</span><span class="nx">test</span><span class="err">`</span> <span class="nx">tasks</span> <span class="nx">and</span> <span class="nx">exit</span> <span class="kd">with</span> <span class="nx">one</span> <span class="nx">passing</span> <span class="nx">example</span><span class="p">.</span> <span class="nx">We</span> <span class="nx">can</span> <span class="nx">also</span> <span class="nx">test</span> <span class="nx">the</span> <span class="err">`</span><span class="nx">watch</span><span class="err">`</span> <span class="nx">task</span> <span class="nx">by</span> <span class="nx">running</span> <span class="err">`</span><span class="nx">gulp</span> <span class="nx">watch</span><span class="err">`</span><span class="p">,</span> <span class="nx">then</span> <span class="nx">making</span> <span class="nx">changes</span> <span class="nx">to</span> <span class="err">`</span><span class="nx">test</span><span class="o">/</span><span class="nx">client</span><span class="o">/</span><span class="nx">index</span><span class="p">.</span><span class="nx">js</span><span class="err">`</span> <span class="nx">or</span> <span class="err">`</span><span class="nx">client</span><span class="o">/</span><span class="nx">index</span><span class="p">.</span><span class="nx">js</span><span class="err">`</span><span class="p">,</span> <span class="nx">which</span> <span class="nx">should</span> <span class="nx">trigger</span> <span class="nx">the</span> <span class="nx">tests</span><span class="p">.</span>
+</span><span class='line'>
+</span><span class='line'><span class="err">##</span> <span class="nx">Building</span> <span class="nx">Assets</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">Next</span><span class="p">,</span> <span class="kd">let</span><span class="s1">&#39;s turn our attention to the rest of our build process. I like to use `less` for styling. We&#39;</span><span class="nx">ll</span> <span class="nx">need</span> <span class="nx">a</span> <span class="err">`</span><span class="nx">styles</span><span class="err">`</span> <span class="nx">task</span> <span class="nx">to</span> <span class="nx">compile</span> <span class="nx">it</span> <span class="nx">down</span> <span class="nx">to</span> <span class="nx">CSS</span><span class="p">.</span> <span class="nx">In</span> <span class="nx">the</span> <span class="nx">process</span><span class="p">,</span> <span class="nx">we</span><span class="s1">&#39;ll use [gulp-autoprefixer](https://www.npmjs.org/package/gulp-autoprefixer) so that we don&#39;</span><span class="nx">t</span> <span class="nx">have</span> <span class="nx">to</span> <span class="nx">write</span> <span class="nx">vendor</span> <span class="nx">prefixes</span> <span class="k">in</span> <span class="nx">our</span> <span class="nx">CSS</span> <span class="nx">rules</span><span class="p">.</span> <span class="nx">As</span> <span class="nx">we</span> <span class="nx">did</span> <span class="kd">with</span> <span class="nx">the</span> <span class="nx">app</span><span class="p">,</span> <span class="nx">we</span><span class="s1">&#39;ll create a development copy and a build copy, and place them in `public/stylesheets` and `build`, respectively. We&#39;</span><span class="nx">ll</span> <span class="nx">also</span> <span class="nx">add</span> <span class="nx">the</span> <span class="err">`</span><span class="nx">less</span><span class="err">`</span> <span class="nx">directory</span> <span class="nx">to</span> <span class="nx">our</span> <span class="err">`</span><span class="nx">watch</span><span class="err">`</span><span class="p">,</span> <span class="nx">so</span> <span class="nx">changes</span> <span class="nx">to</span> <span class="nx">our</span> <span class="nx">styles</span> <span class="nx">will</span> <span class="nx">get</span> <span class="nx">picked</span> <span class="nx">up</span><span class="p">.</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">We</span> <span class="nx">should</span> <span class="nx">also</span> <span class="nx">uglify</span> <span class="nx">our</span> <span class="nx">JavaScript</span> <span class="nx">files</span> <span class="nx">to</span> <span class="nx">improve</span> <span class="nx">page</span> <span class="nx">load</span> <span class="nx">time</span><span class="p">.</span> <span class="nx">We</span><span class="s1">&#39;ll write tasks for minification and uglification, then copy the minified production versions of the files to `public/stylesheets` and `public/javascripts`. Finally, we&#39;</span><span class="nx">ll</span> <span class="nx">wrap</span> <span class="nx">it</span> <span class="nx">all</span> <span class="nx">up</span> <span class="nx">into</span> <span class="nx">a</span> <span class="err">`</span><span class="nx">build</span><span class="err">`</span> <span class="nx">task</span><span class="p">.</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">Here</span> <span class="nx">are</span> <span class="nx">the</span> <span class="nx">changes</span> <span class="nx">to</span> <span class="nx">the</span> <span class="err">`</span><span class="nx">gulpfile</span><span class="err">`</span><span class="o">:</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>javascript
+gulp.task(&lsquo;styles&rsquo;, function() {
+  return gulp.src(&lsquo;client/less/index.less&rsquo;)
+    .pipe(less())
+    .pipe(prefix({ cascade: true }))
+    .pipe(rename(&lsquo;car-finder.css&rsquo;))
+    .pipe(gulp.dest(&lsquo;build&rsquo;))
+    .pipe(gulp.dest(&lsquo;public/stylesheets&rsquo;));
+});</p>
+
+<p>gulp.task(&lsquo;minify&rsquo;, [&lsquo;styles&rsquo;], function() {
+  return gulp.src(&lsquo;build/car-finder.css&rsquo;)
+    .pipe(minifyCSS())
+    .pipe(rename(&lsquo;car-finder.min.css&rsquo;))
+    .pipe(gulp.dest(&lsquo;public/stylesheets&rsquo;));
+});</p>
+
+<p>gulp.task(&lsquo;uglify&rsquo;, [&lsquo;browserify-client&rsquo;], function() {
+  return gulp.src(&lsquo;build/car-finder.js&rsquo;)
+    .pipe(uglify())
+    .pipe(rename(&lsquo;car-finder.min.js&rsquo;))
+    .pipe(gulp.dest(&lsquo;public/javascripts&rsquo;));
+});</p>
+
+<p>gulp.task(&lsquo;build&rsquo;, [&lsquo;uglify&rsquo;, &lsquo;minify&rsquo;]);</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">If</span> <span class="nx">we</span> <span class="nx">now</span> <span class="nx">run</span> <span class="err">`</span><span class="nx">gulp</span> <span class="nx">build</span><span class="err">`</span><span class="p">,</span> <span class="nx">we</span> <span class="nx">see</span> <span class="nx">the</span> <span class="nx">following</span> <span class="nx">files</span> <span class="nx">appear</span><span class="o">:</span>
+</span><span class='line'><span class="o">-</span> <span class="err">`</span><span class="nx">build</span><span class="o">/</span><span class="nx">car</span><span class="o">-</span><span class="nx">finder</span><span class="p">.</span><span class="nx">css</span><span class="err">`</span>
+</span><span class='line'><span class="o">-</span> <span class="err">`</span><span class="kr">public</span><span class="o">/</span><span class="nx">javascripts</span><span class="o">/</span><span class="nx">car</span><span class="o">-</span><span class="nx">finder</span><span class="p">.</span><span class="nx">min</span><span class="p">.</span><span class="nx">js</span><span class="err">`</span>
+</span><span class='line'><span class="o">-</span> <span class="err">`</span><span class="kr">public</span><span class="o">/</span><span class="nx">stylesheets</span><span class="o">/</span><span class="nx">car</span><span class="o">-</span><span class="nx">finder</span><span class="p">.</span><span class="nx">css</span><span class="err">`</span>
+</span><span class='line'><span class="o">-</span> <span class="err">`</span><span class="kr">public</span><span class="o">/</span><span class="nx">stylesheets</span><span class="o">/</span><span class="nx">car</span><span class="o">-</span><span class="nx">finder</span><span class="p">.</span><span class="nx">min</span><span class="p">.</span><span class="nx">css</span><span class="err">`</span>
+</span><span class='line'>
+</span><span class='line'><span class="err">##</span> <span class="nx">Did</span> <span class="nx">It</span> <span class="nx">Work</span><span class="o">?</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">We</span><span class="s1">&#39;ll want to check that what we&#39;</span><span class="nx">ve</span> <span class="nx">built</span> <span class="nx">is</span> <span class="nx">actually</span> <span class="nx">going</span> <span class="nx">to</span> <span class="nx">work</span><span class="p">.</span>  <span class="nx">Let</span><span class="s1">&#39;s add a little bit of styling and JS code to make sure it&#39;</span><span class="nx">s</span> <span class="nx">all</span> <span class="nx">getting</span> <span class="nx">compiled</span> <span class="nx">and</span> <span class="nx">served</span> <span class="nx">the</span> <span class="nx">way</span> <span class="nx">we</span> <span class="nx">hope</span> <span class="nx">it</span> <span class="nx">is</span><span class="p">.</span> <span class="nx">We</span><span class="err">&#39;</span><span class="nx">ll</span> <span class="nx">start</span> <span class="kd">with</span> <span class="nx">an</span> <span class="err">`</span><span class="nx">index</span><span class="p">.</span><span class="nx">html</span><span class="err">`</span> <span class="nx">file</span> <span class="k">in</span> <span class="nx">the</span> <span class="err">`</span><span class="kr">public</span><span class="err">`</span> <span class="nx">folder</span><span class="p">.</span> <span class="nx">It</span> <span class="nx">will</span> <span class="nx">load</span> <span class="nx">up</span> <span class="nx">the</span> <span class="nx">development</span> <span class="nx">versions</span> <span class="nx">of</span> <span class="nx">our</span> <span class="nx">CSS</span> <span class="nx">and</span> <span class="nx">JS</span> <span class="nx">files</span><span class="p">.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>html
+&lt;!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Finder</title>
+    <link rel="stylesheet" href="stylesheets/car-finder.css">
+  </head>
+  <body>
+    <script src="javascripts/car-finder.js"></script>
+  </body>
+</html></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">We</span><span class="err">&#39;</span><span class="nx">ll</span> <span class="nx">add</span> <span class="nx">some</span> <span class="nx">styling</span> <span class="k">in</span> <span class="err">`</span><span class="nx">client</span><span class="o">/</span><span class="nx">less</span><span class="o">/</span><span class="nx">index</span><span class="p">.</span><span class="nx">less</span><span class="err">`</span><span class="o">:</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>less
+body {
+  background-color: DarkOliveGreen;
+}</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Now</span> <span class="nx">we</span><span class="err">&#39;</span><span class="nx">ll</span> <span class="nx">write</span> <span class="nx">our</span> <span class="nx">million</span> <span class="nx">dollar</span> <span class="nx">app</span> <span class="k">in</span> <span class="err">`</span><span class="nx">client</span><span class="o">/</span><span class="nx">index</span><span class="p">.</span><span class="nx">js</span><span class="err">`</span><span class="o">:</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>javascript
+alert(&lsquo;I found your car!&rsquo;);</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Let</span><span class="s1">&#39;s put it all together. Run `grunt build`, then `open public/index.html`. Our default browser opens a beautiful olive green screen with an alert box. Profit!</span>
+</span><span class='line'>
+</span><span class='line'><span class="s1">## One Task To Rule Them All</span>
+</span><span class='line'>
+</span><span class='line'><span class="s1">At this point, I usually like to tie it all together with a `default` Gulp task, so all I have to do is run `gulp` to check that everything&#39;</span><span class="nx">s</span> <span class="nx">going</span> <span class="nx">together</span> <span class="nx">the</span> <span class="nx">way</span> <span class="nx">I</span> <span class="nx">expect</span><span class="p">,</span> <span class="nx">and</span> <span class="nx">start</span> <span class="nx">watching</span> <span class="k">for</span> <span class="nx">changes</span><span class="p">.</span> <span class="nx">Since</span> <span class="err">`</span><span class="nx">test</span><span class="err">`</span> <span class="nx">already</span> <span class="nx">does</span> <span class="nx">the</span> <span class="nx">linting</span> <span class="nx">and</span> <span class="nx">browserifying</span><span class="p">,</span> <span class="nx">all</span> <span class="nx">we</span> <span class="nx">really</span> <span class="nx">need</span> <span class="nx">here</span> <span class="nx">is</span> <span class="err">`</span><span class="nx">test</span><span class="err">`</span><span class="p">,</span> <span class="err">`</span><span class="nx">build</span><span class="err">`</span><span class="p">,</span> <span class="nx">and</span> <span class="err">`</span><span class="nx">watch</span><span class="err">`</span><span class="p">.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>javascript
+gulp.task(&lsquo;default&rsquo;, [&lsquo;test&rsquo;, &lsquo;build&rsquo;, &lsquo;watch&rsquo;]);
+&#8220;`</p>
+
+<h2>Wrapping Up</h2>
+
+<p>We&rsquo;ve now set up our project to use Browserify and Gulp. The former took the headache out of requiring modules and dependencies, and the latter made defining tasks for linting, testing, <code>less</code> compilation, minification, and uglification a breeze.</p>
+
+<p>I hope you&rsquo;ve found this exploration of Gulp and Browserify has been enlightening. I personally love these tools. For the moment, they&rsquo;re my defaults when creating a personal project. I hope this post helps make your day-to-day development more fun by simplifying things. Thanks for reading!</p>
+]]></content>
+    
+  </entry>
+  
+  <entry>
+    
     <title type="html"><![CDATA[Instances, Classes, and Modules, Oh My!]]></title>
     <link href="http://fluxusfrequency.github.io/blog/2015/01/29/instances/"/>
     
     <updated>2015-01-29T21:05:58-07:00</updated>
     <id>http://fluxusfrequency.github.io/blog/2015/01/29/instances</id>
     
-    <content type="html"><![CDATA[<p>One of the biggest challenges of object oriented programming in Ruby is defining the interface of your objects. In other languages, such as Java, there is an explicit way to define an interface that you must conform to. But in Ruby, it&rsquo;s up to you.</p>
+    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2015/instances-classes-and-modules">Engine Yard</a> and was later published on the <a href="https://quickleft.com/blog/instances-classes-and-modules-oh-my/">Quick Left Blog</a>.</p>
+
+<p>One of the biggest challenges of object oriented programming in Ruby is defining the interface of your objects. In other languages, such as Java, there is an explicit way to define an interface that you must conform to. But in Ruby, it&rsquo;s up to you.</p>
 
 <p>Compounding with this difficulty is the problem of deciding which object should own a method that you want to write. Trying to choose between modules, class methods, instance methods, structs, and lambdas can be overwhelming.</p>
 
@@ -437,14 +916,293 @@
   
   <entry>
     
+    <title type="html"><![CDATA[Measuring Client-Side JavaScript Test Coverage With Istanbul]]></title>
+    <link href="http://fluxusfrequency.github.io/blog/2015/01/22/measuring-client-side-javascript-test-coverage-with-istanbul/"/>
+    
+    <updated>2015-01-22T21:16:59-07:00</updated>
+    <id>http://fluxusfrequency.github.io/blog/2015/01/22/measuring-client-side-javascript-test-coverage-with-istanbul</id>
+    
+    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2015/measuring-clientside-javascript-test-coverage-with-istanbul">Engine Yard</a>.
+It was also published on the <a href="https://quickleft.com/blog/measuring-clientside-javascript-test-coverage-istanbul/">Quick Left Blog</a>.</p>
+
+<p>Testing is a vital part of any development process. Whether a project&rsquo;s authors are hoping for scalability, fewer bugs, or just code that stands the test of time, a solid test suite is essential.</p>
+
+<p>It&rsquo;s all well and good writing tests, but how do you know that you&rsquo;ve tested the code that matters? Did you cover the most important components? Did you test <a href="http://engineering.imvu.com/2012/05/08/writing-resilient-unit-tests-3/">the sad path</a>? The edge cases? What about the <a href="http://emptystat.es/">zero states</a>?</p>
+
+<p>Using <a href="http://gotwarlost.github.io/istanbul/">Istanbul</a>, you can generate a nice coverage report to answer these questions. In this article, we&rsquo;ll look at how to get it set up in a typical clientside JS project.</p>
+
+<h2>A Note About Metrics</h2>
+
+<p>Before we get into the process of setting up Istanbul, I&rsquo;d like to talk about code coverage as a metric. Metrics in programming can be very two-sided. On the one hand, they can be very useful in measuring velocity and predicting completion of new features. But, they can also become self-fulfilling prophecies leading to bad code.</p>
+
+<p>For example, if a project manager or tech lead measures her programmers&#8217; effectiveness by counting the lines of code they write, she will not find that those who wrote the most lines are the ones that wrote the best code. In fact, there&rsquo;s a danger that some of the programmers will adopt a verbose style, using far more lines than necessary to get the same thing done, in order to bump their ranking.</p>
+
+<p>Placing a strong emphasis on test coverage as a metric can lead to a similar problem. Imagine that a company adopts a policy that any pull request must increase or maintain the percentage of lines tested. What will be the result?</p>
+
+<p>I imagine that in many cases, developers will write good tests to accompany their features and bugfixes. But what happens if there’s a rush and they just want to get the code in?</p>
+
+<p>Test coverage tools only count the lines that were hit when the test suite was run, so the developer can just run the line in question during the test, while making a trivial assertion. The result? The line is marked covered, but nothing meaningful is being tested.</p>
+
+<p>Rather than using test coverage as a measure of developer thoroughness, it makes a lot more sense to use coverage as a way of seeing which code <em>isn&rsquo;t</em> covered (hint: it&rsquo;s often <code>else</code> branches). That information can then be used to prioritize testing goals.</p>
+
+<p>In summary: don&rsquo;t use code coverage to measure what&rsquo;s tested, use it to find out what isn&rsquo;t.</p>
+
+<h2>Time to Test</h2>
+
+<p>Let&rsquo;s imagine that we have a clientside JavaScript application written in Angular, Ember, or Backbone and templated with Handlebars. It&rsquo;s compiled with Browserify and built with NPM scripts.</p>
+
+<p>This application has been around for a couple of years, and due to business pressures, its authors have only managed to write a handful of tests. At this point, the app is well-established, and there <em>is</em> a testing setup in place, but there&rsquo;s also a lot of code that&rsquo;s untested.</p>
+
+<p>Recently, the company behind the application closed a funding round, and they&rsquo;re feeling flush. We&rsquo;ve been brought in to write some tests.</p>
+
+<p>Because we&rsquo;re hotshots and we want to show off, we decide to begin by taking a snapshot of the current code coverage, so that we can brag about how many percentage points we added to the coverage when we&rsquo;re done.</p>
+
+<h2>Setting up Istanbul</h2>
+
+<p>This is where <a href="http://gotwarlost.github.io/istanbul/">Istanbul</a> comes in. Istanbul is a code coverage tool written in JavaScript by <a href="https://github.com/gotwarlost">Krishnan Anantheswaran</a> of Yahoo!.</p>
+
+<p>It can be a little tricky to set up, so let&rsquo;s take a look at one way to do it.</p>
+
+<p>There are four steps in our approach:</p>
+
+<ol>
+<li>Instrument the source code with Istanbul</li>
+<li>Run <code>mocha-phantomjs</code>, passing in a <code>hooks</code> argument</li>
+<li>Use a <code>phantomjs</code> hook file to write out the results when testing is complete</li>
+<li>Run the <code>Istanbul</code> cli to generate the full report as an HTML file</li>
+</ol>
+
+
+<p>Let&rsquo;s get started.</p>
+
+<h3>1. Instrument the Source</h3>
+
+<p>We&rsquo;ll need to find a way to run our code through Istanbul after it&rsquo;s been compiled, so the first step is to set up an NPM task that will pipe compiled code into a tool like <a href="https://github.com/devongovett/browserify-istanbul">browserify-istanbul</a>.</p>
+
+<p>Just in case you&rsquo;re not using <code>browserify</code>, a variety of other Istanbul NPM packages exist for instrumenting code, including <a href="https://github.com/SBoudrias/gulp-istanbul">browserify-gulp</a>, <a href="https://github.com/justspamjustin/grunt-istanbul-reporter">grunt-istanbul-reporter</a>, and <a href="https://github.com/bem/borschik-tech-istanbul">borschik-tech-istanbul</a>.</p>
+
+<p>For the moment, let&rsquo;s imagine that we <em>are</em> using Browserify. We already have NPM tasks in place to compile our code for development/production and for testing. Here&rsquo;s what they look like. Note that the <code>-o</code> option to <code>browserify</code> specifies the output file for the build and the <code>-d</code> option turns on debugging.</p>
+
+<p>In <code>package.json</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="s2">&quot;scripts&quot;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="s2">&quot;build&quot;</span><span class="o">:</span> <span class="s2">&quot;browserify ./js/main.js -o html/static/build/js/myapp.js&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;build-test&quot;</span><span class="o">:</span> <span class="s2">&quot;browserify -r handlebars:hbsfy/runtime ./js/test/index.js -o html/static/build/js/test.js -d --verbose&quot;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We can use the <code>build-test</code> task as a template for a new <code>build-test-coverage</code> task.</p>
+
+<p>Before we do that, we&rsquo;ll want to make sure we pull in <code>browserify-istanbul</code> with <code>npm install --save-dev browserify-istanbul</code>.</p>
+
+<p>Next, we&rsquo;ll write the task in <code>package.json</code>. We&rsquo;ll ignore the Handlebars templates and Node modules when we load everything into Istanbul. We&rsquo;ll also use the <code>-t</code> option to Browserify to use a <a href="https://github.com/substack/module-deps#transforms">transform module</a>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="s2">&quot;scripts&quot;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="s2">&quot;build-test-coverage&quot;</span><span class="o">:</span> <span class="s2">&quot;mkdir -p html/static/build/js/ &amp;&amp; browserify -r handlebars:hbsfy/runtime -t [ browserify-istanbul --ignore **/*.hbs **/bower_components/** ] ./js/test/index.js -o html/static/build/js/test.js -d&quot;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With the <code>browserify-istanbul</code> package and the <code>build-test-coverage</code> script in place, we&rsquo;ve got our code instrumented, and we&rsquo;re ready to move on to step two.</p>
+
+<h3>2. Run <code>mocha-phantomjs</code>, Passing in a Hooks Argument</h3>
+
+<p>Now that the code is all built and ready to go, we need to pass it into a test framework. We&rsquo;ll use write a cli script that spawns <a href="https://github.com/metaskills/mocha-phantomjs">mocha-phantomjs</a> in a child process. We&rsquo;ll pass in a hooks argument that specifies a <code>phantom_hooks.js</code> file we&rsquo;ve yet to write.</p>
+
+<p>(Note: if you&rsquo;re using <code>gulp</code> or <code>grunt</code>, you may want to check out <a href="https://github.com/mrhooray/gulp-mocha-phantomjs">gulp-mocha-phantomjs</a> or <a href="https://github.com/jdcataldo/grunt-mocha-phantomjs">grunt-mocha-phantomjs</a> for this step.)</p>
+
+<p>In <code>js/test/cli.js</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="err">#</span><span class="o">!</span><span class="err">/usr/bin/env node</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">spawn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;child_process&#39;</span><span class="p">).</span><span class="nx">spawn</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">child</span> <span class="o">=</span> <span class="nx">spawn</span><span class="p">(</span><span class="s1">&#39;mocha-phantomjs&#39;</span><span class="p">,</span> <span class="p">[</span>
+</span><span class='line'>  <span class="s1">&#39;http://localhost:9000/static/js/test/index.html&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s1">&#39;--timeout&#39;</span><span class="p">,</span> <span class="s1">&#39;25000&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s1">&#39;--hooks&#39;</span><span class="p">,</span> <span class="s1">&#39;./js/test/phantom_hooks.js&#39;</span>
+</span><span class='line'><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">child</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;close&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">code</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Mocha process exited with code &#39;</span> <span class="o">+</span> <span class="nx">code</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nx">code</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With our cli script in place, we&rsquo;ve now got a way to put our Istanbulified code into PhantomJS, so we&rsquo;ll move to step three.</p>
+
+<h3>3. Use a PhantomJS Hook File to Write the Results</h3>
+
+<p>In the script we wrote in the last section, we passed a hooks file to <code>mocha-phantomjs</code>, but we hadn&rsquo;t created it yet. Let&rsquo;s do that now.</p>
+
+<p>After all the tests have run, our hook will grab the <code>__coverage__</code> property of the window, which contains the result of our coverage run, and write it to a <code>coverage/coverage.json</code> file.</p>
+
+<p>We&rsquo;ll load this data into the Istanbul CLI to generate a more readable report in the next step.</p>
+
+<p>In <code>js/test/phantom_hooks.js</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">afterEnd</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">runner</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">coverage</span> <span class="o">=</span> <span class="nx">runner</span><span class="p">.</span><span class="nx">page</span><span class="p">.</span><span class="nx">evaluate</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nb">window</span><span class="p">.</span><span class="nx">__coverage__</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nx">coverage</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Writing coverage to coverage/coverage.json&#39;</span><span class="p">);</span>
+</span><span class='line'>      <span class="nx">fs</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s1">&#39;coverage/coverage.json&#39;</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">coverage</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;No coverage data generated&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With our coverage data saved, we&rsquo;re ready to move on to the last step.</p>
+
+<h3>4. Run the Istanbul CLI to Generate the Full Report</h3>
+
+<p>The final step in our process is to take the coverage data generated in step three and plug it into the Istanbul CLI to generate a coverage report HTML file.</p>
+
+<p>We&rsquo;ll write an NPM script that executes the <code>instanbul report</code> command, passing it the folder where we saved our results (<code>coverage</code>), and specifying <code>lcov</code> as our output format. This option will save both <code>lcov</code> and <code>html</code> files.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="s2">&quot;scripts&quot;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="s2">&quot;coverage-report&quot;</span><span class="o">:</span> <span class="s2">&quot;istanbul report --root coverage lcov&quot;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we have all the scripts we need to generate and view our coverage report.</p>
+
+<h2>Generating the Report</h2>
+
+<p>We&rsquo;ll need to run each of the commands that we&rsquo;ve defined before we&rsquo;ll be able to view our results (you may want to wrap these in a single NPM task for convenience).</p>
+
+<ul>
+<li><code>npm run build-test-coverage</code> to compile our test code and load it into Istanbul</li>
+<li><code>./js/test/cli.js</code> to run the tests with <code>mocha-phantomjs</code> and write the <code>coverage.json</code> file</li>
+<li><code>npm run coverage-report</code> to format the coverage results as an HTML file</li>
+</ul>
+
+
+<p>Once we&rsquo;ve completed these steps, we should see a new <code>coverage/lcov-report</code> folder containing an <code>index.html</code> file and a few assets to make it look pretty.</p>
+
+<h2>Viewing the Report</h2>
+
+<p>If we open the generated file in our browser, we&rsquo;ll see an easy-to-read breakdown of our coverage.</p>
+
+<p>There are four category columns at the top of the page, each telling us about a different aspect of our coverage.</p>
+
+<ul>
+<li><em>Statements</em> tells up how many of the statements in our code were touched during the test run.</li>
+<li><em>Branches</em> tells us how many of our logical <code>if</code>/<code>else</code> branches were touched</li>
+<li><em>Functions</em> tells us how many of our functions were touched</li>
+<li><em>Lines</em> tells us the total lines of code that were touched</li>
+</ul>
+
+
+<p>There&rsquo;s also a list of the folders in our project, each with a categorical coverage breakdown. You can also click on each of the folders to further break down the coverage file by file. If you then click on a file, you&rsquo;ll see its contents highlighted in green and red to indicate covered and uncovered lines.</p>
+
+<p>The ability to zoom in and out on our project and see the categorical breakdown at each level makes Istanbul particularly nice to work with.  It also makes it easy to dig in and explore places in your code base that might benefit from some additional testing.</p>
+
+<h2>Wrapping Up</h2>
+
+<p>If you haven&rsquo;t added code coverage to your JS projects yet, I highly recommend it. Getting everything up and running is a minimal time investment, and it can really pay off.</p>
+
+<p>Although I would discourage you from measuring the success of your test suite based on percentage points only, getting an in-depth look at what you currently are and aren&rsquo;t touching can really pave the way to uncovering bugs you didn&rsquo;t even know you had.</p>
+
+<p>I hope that this post has helped you get Istanbul up and running with a minimum of heartache. Until next time, keep testing!</p>
+]]></content>
+    
+  </entry>
+  
+  <entry>
+    
     <title type="html"><![CDATA[Five Ruby Methods You Should Be Using]]></title>
     <link href="http://fluxusfrequency.github.io/blog/2015/01/16/five-ruby-methods-you-should-be-using/"/>
     
     <updated>2015-01-16T06:55:21-07:00</updated>
     <id>http://fluxusfrequency.github.io/blog/2015/01/16/five-ruby-methods-you-should-be-using</id>
     
-    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2015/five-ruby-methods-you-should-be-using">Engine Yard</a>.
-It was also the top featured article in <a href="http://rubyweekly.com/issues/229">Ruby Weekly</a>.</p>
+    <content type="html"><![CDATA[<p>This post was the top featured article in <a href="http://rubyweekly.com/issues/229">Ruby Weekly #229</a>.</p>
+
+<p>It was originally published on <a href="https://blog.engineyard.com/2015/five-ruby-methods-you-should-be-using">Engine Yard</a> and also appeared on the <a href="https://quickleft.com/blog/five-ruby-methods-you-should-be-using/">Quick Left Blog</a>.</p>
 
 <p>There&rsquo;s something magical about the way that Ruby just flows from your fingertips. why once <a href="http://mislav.uniqpath.com/poignant-guide/book/chapter-2.html">said</a> &ldquo;Ruby will teach you to express your ideas through a computer.&rdquo; Maybe that&rsquo;s why Ruby has become such a <a href="http://blog.codeeval.com/codeevalblog/2014">popular choice</a> for modern web development.</p>
 
@@ -714,8 +1472,9 @@ It was also the top featured article in <a href="http://rubyweekly.com/issues/22
     <updated>2014-12-18T05:36:48-07:00</updated>
     <id>http://fluxusfrequency.github.io/blog/2014/12/18/seven-reasons-i-love-minitest</id>
     
-    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2014/seven-reasons-i-love-minitest">Engine Yard</a>.
-It was also a featured article in <a href="http://rubyweekly.com/issues/225">Ruby Weekly</a>.</p>
+    <content type="html"><![CDATA[<p>This post was a featured article in <a href="http://rubyweekly.com/issues/225">Ruby Weekly</a>.</p>
+
+<p>It originally appeared on <a href="https://blog.engineyard.com/2014/seven-reasons-i-love-minitest">Engine Yard</a>, and was also published on the <a href="https://quickleft.com/blog/seven-reasons-i-love-minitest/">Quick Left Blog</a>.</p>
 
 <p>The other day at our company standup, I mentioned that I was eager to read an article on [Concurrency in Minitest] (<a href="http://chriskottom.com/blog/2014/10/exploring-minitest-concurrency/">http://chriskottom.com/blog/2014/10/exploring-minitest-concurrency/</a>) that was featured in <a href="http://rubyweekly.com/issues/216">Ruby Weekly</a>. One of my coworkers asked: &ldquo;people still use Minitest?&rdquo; My reply: &ldquo;you mean you&rsquo;re not using Minitest yet?&rdquo;</p>
 
@@ -903,7 +1662,8 @@ tools.</p>
     <updated>2014-12-09T06:32:04-07:00</updated>
     <id>http://fluxusfrequency.github.io/blog/2014/12/09/caching-asynchronous-queries-in-backbone</id>
     
-    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2014/caching-asynchronous-queries-backbone">Engine Yard</a>.</p>
+    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2014/caching-asynchronous-queries-backbone">Engine Yard</a>.
+It was also published on the <a href="https://quickleft.com/blog/caching-asynchronous-queries-in-backbone-js/">Quick Left Blog</a>.</p>
 
 <p>I was working on a <em>Backbone</em> project with Bob Bonifield recently, when we came across a problem. We were building an administration panel to be used internally by a client, and there were a couple of views that needed to display the same information about users in a slightly different way. To prevent unnecessary AJAX calls, we decided to cache the result of <code>Backbone.Model#fetch</code> at two levels of our application.</p>
 
@@ -1198,8 +1958,8 @@ handle the appropriate routes.</p>
     <updated>2014-11-03T05:40:09-07:00</updated>
     <id>http://fluxusfrequency.github.io/blog/2014/11/03/building-a-ruby-list-comprehension</id>
     
-    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2014/ruby-list-comprehension">Engine Yard</a>.
-It was also a featured article in <a href="http://rubyweekly.com/issues/221">Ruby Weekly</a>.</p>
+    <content type="html"><![CDATA[<p>This post was a featured article in <a href="http://rubyweekly.com/issues/221">Ruby Weekly</a>.
+It was originally published on <a href="https://blog.engineyard.com/2014/ruby-list-comprehension">Engine Yard</a> and appeared on the <a href="https://quickleft.com/blog/building-a-ruby-list-comprehension/">Quick Left Blog</a>.</p>
 
 <p>As developers, we&rsquo;re in the business of continually bettering ourselves. Part of that process is pushing ourselves to learn and use better code patterns, try new libraries, and pick up new languages. For me, the latest self-learning project has been picking up Python.</p>
 
@@ -1442,8 +2202,8 @@ It was also a featured article in <a href="http://rubyweekly.com/issues/221">Rub
     <updated>2014-11-03T05:40:09-07:00</updated>
     <id>http://fluxusfrequency.github.io/blog/2014/11/03/better-soa-development-with-foreman-and-nginx</id>
     
-    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2014/better-soa-development-with-foreman-and-nginx">Engine Yard</a>.
-It also appeard on the <a href="http://quickleft.com/blog/better-service-oriented-architecture-project-development-with-scripts-foreman-and-nginx">Quick Left Blog</a>.</p>
+    <content type="html"><![CDATA[<p>This post was originally published on <a href="https://blog.engineyard.com/2014/better-soa-development-with-foreman-and-nginx">Engine Yard</a>.
+It also appeared on the <a href="http://quickleft.com/blog/better-service-oriented-architecture-project-development-with-scripts-foreman-and-nginx">Quick Left Blog</a>.</p>
 
 <h2>MOAR!</h2>
 
@@ -1835,8 +2595,9 @@ PandaClient: An AngularJS app sitting atop a Sinatra proxy server</p>
     <updated>2014-10-15T06:40:09-06:00</updated>
     <id>http://fluxusfrequency.github.io/blog/2014/10/15/getting-started-with-active-job</id>
     
-    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2014/getting-started-with-active-job">Engine Yard</a>.
-It was also a featured article in <a href="http://rubyweekly.com/issues/215">Ruby Weekly</a>.</p>
+    <content type="html"><![CDATA[<p>This post was featured article in <a href="http://rubyweekly.com/issues/215">Ruby Weekly</a>.</p>
+
+<p>This post originally appeared on <a href="https://blog.engineyard.com/2014/getting-started-with-active-job">Engine Yard</a> and was also published on the <a href="https://quickleft.com/blog/getting-started-with-active-job/">Quick Left Blog</a>.</p>
 
 <p>With the <a href="http://edgeguides.rubyonrails.org/4_2_release_notes.html">announcement of Rails 4.2</a> came some exciting <a href="news:">news:</a> Rails now has built-in support for executing jobs in the background using <a href="https://github.com/rails/rails/tree/master/activejob">Active Job</a>. The ability to schedule newsletters, follow-up emails, and database housekeeping tasks is vital to almost any production application. In the past, developers had to hand-roll this functionality, and configuration varied between different queueing services. With the release of Rails 4.2, setting up jobs to be executed by workers at a later time is standardized. In this article, we&rsquo;ll take a look at how to set up Active Job and use it to send a follow-up email to a new user.</p>
 
@@ -2118,7 +2879,8 @@ It was also a featured article in <a href="http://rubyweekly.com/issues/215">Rub
     <updated>2014-10-02T07:03:19-06:00</updated>
     <id>http://fluxusfrequency.github.io/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem</id>
     
-    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2014/wrapping-your-api-in-a-ruby-gem">Engine Yard</a>.</p>
+    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2014/wrapping-your-api-in-a-ruby-gem">Engine Yard</a>.
+It also appeard on the <a href="https://quickleft.com/blog/wrapping-your-api-in-a-custom-ruby-gem/">Quick Left Blog</a>.</p>
 
 <h2>Introduction</h2>
 
@@ -2542,7 +3304,7 @@ Given these API results, we could write a test like this:</p>
     
     <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2014/keeping-your-rails-controllers-dry-with-services">Engine Yard</a>.</p>
 
-<p>It also appeared in <a href="http://rubyweekly.com/issues/214">Ruby Weekly</a>.</p>
+<p>It also appeared in <a href="http://rubyweekly.com/issues/214">Ruby Weekly</a> and on the <a href="https://quickleft.com/blog/using-services-to-keep-your-rails-controllers-clean-and-dry/">Quick Left Blog</a>.</p>
 
 <h1>Using Services to Keep Your Rails Controllers Clean and DRY</h1>
 
@@ -8054,137 +8816,6 @@ build passing.</p>
 
 
 <p>Ahh, much better. Thanks, Extract Method strategy!</p>
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[Looking Ahead to the Last Two Months of gSchool]]></title>
-    <link href="http://fluxusfrequency.github.io/blog/2014/01/03/looking-ahead-to-the-last-two-months-of-gschool/"/>
-    
-    <updated>2014-01-03T09:01:00-07:00</updated>
-    <id>http://fluxusfrequency.github.io/blog/2014/01/03/looking-ahead-to-the-last-two-months-of-gschool</id>
-    
-    <content type="html"><![CDATA[<p>We&rsquo;re coming into the home stretch at gSchool. With only 56 days left, I&rsquo;m reflecting on what I&rsquo;ve learned so far, and trying to sort out what I want to make of the time I have left.</p>
-
-<h2>Goals - Where I&rsquo;ve Been</h2>
-
-<p>My biggest goals for gSchool have been to become a great developer, and to build a solid foundation for continued learning.</p>
-
-<p>I&rsquo;ve worked hard to get good at pure Ruby, focusing on writing clean, DRY, test-driven code. I&rsquo;ve prioritized learning how to do Rails &ldquo;the right way&rdquo;, and to understand its intricacies. I&rsquo;ve also prioritized JavaScript as a second area of expertise, learning to use it in the DOM, in the context of client-side frameworks, and dabbled in a little bit of Node.js.</p>
-
-<p>So far, I&rsquo;ve been meeting all of these goals. I really enjoy working with these technologies, and am feeling more comfortable with them every day.</p>
-
-<h2>Goals - Where I&rsquo;m Going</h2>
-
-<p>During January and February, I want to continue to hone my skills with Ruby and JavaScript. Now that I understand the basis of these languages, I&rsquo;m working on using the best idioms and designs for each.</p>
-
-<p>I&rsquo;ll keep doing a lot of reading. I&rsquo;ve just completed <a href="http://pragprog.com/book/jvrails2/crafting-rails-4-applications">Crafting Rails 4 Applications</a>, and I&rsquo;m still reading <a href="https://leanpub.com/multi-tenancy-rails">Multitenancy With Rails</a>, and I&rsquo;m excited about starting <a href="http://designpatternsinruby.com/">Design Patterns in Ruby</a> this weekend.</p>
-
-<p>Pure computer science topics have started to interest me lately. I&rsquo;m hoping that Ruby Design Patterns will help me understand patterns like Factories, Facades, and Observers. I&rsquo;ll also continue to look at algorithms. One of my current projects is implementing a linked list in JavaScript. In the future, I&rsquo;ll explore Binary Trees, the A* algorithm, and perhaps the MD5 algorithm.</p>
-
-<h2>Milestones</h2>
-
-<p>For me, the easiest way to break up the coming time is to think of it in terms of the projects we&rsquo;ll complete. We&rsquo;re just starting Feed Engine. After that, it&rsquo;s the Service Oriented Architecture project, then the personal mastery project. Every project in gSchool thus far has built on the last. I&rsquo;m looking forward to growing through each of these remaining experiences.</p>
-
-<h2>How I Will Succeed</h2>
-
-<p>There is little blocking me from succeess, in my mind. As long as I can keep my energy level up, I&rsquo;ll be able to grok everything left on the docket: what it takes to build killer Rails apps, consuming APIs, feeds, and SOAs. Hopefully, I&rsquo;ll pick up a few other tricks along the way. Given the good rest I got over the holidays, I feel refreshed and ready to keep working hard for the last two months, so I feel confident.</p>
-
-<p>The parts of my personality that will best serve me are my stubbornness/tenacity, curiousity and resourcefulness. I find it hard to give up on problems, so I follow through on them. I&rsquo;m always finding new things to learn about, and I&rsquo;m good at finding ways to learn more about the things I&rsquo;m interested in.</p>
-
-<p>Finally, I&rsquo;ve been really interested in productivity lately. Some of my strategies to &ldquo;work smarter, not harder&rdquo; are:</p>
-
-<ul>
-<li>Avoid distractions</li>
-<li>Use a todo list</li>
-<li>Clarify my goals at the start of each day</li>
-<li>Stay true to the pomodore timer</li>
-</ul>
-
-
-<p>With the combination of my love for learning and my productivity, I know I&rsquo;ll succeed in the last couple of months as a gSchool student, and will also continue to be a valuable programmer and a life-long learner.</p>
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[What I've Been Reading]]></title>
-    <link href="http://fluxusfrequency.github.io/blog/2013/12/30/what-ive-been-reading/"/>
-    
-    <updated>2013-12-30T15:44:00-07:00</updated>
-    <id>http://fluxusfrequency.github.io/blog/2013/12/30/what-ive-been-reading</id>
-    
-    <content type="html"><![CDATA[<p>This post is a list of the books I&rsquo;ve read and am currently reading.</p>
-
-<h2>Currently Reading</h2>
-
-<ul>
-<li><a href="http://www.amazon.com/Introduction-Algorithms-Thomas-H-Cormen/dp/0262033844">Introduction to Algorithms</a>, Charles E. Leiserson, Ronald Rivest, Thomas H. Cormen, and Clifford Stein</li>
-</ul>
-
-
-<h2>Previous Titles</h2>
-
-<h3>JavaScript</h3>
-
-<ul>
-<li><a href="http://addyosmani.github.io/backbone-fundamentals/">Developing Backbone.js Applications</a>, Addy Osmani</li>
-<li><a href="http://eloquentjavascript.net/">Eloquent JavaScript</a>, Marijn Haverbeke</li>
-<li><a href="http://www.javascriptenlightenment.com/">JavaScript Enlightenment</a>, Cody Lindley</li>
-<li><a href="http://shop.oreilly.com/product/9780596806767.do">JavaScript Patterns</a>, Stoyan Stefanov</li>
-<li><a href="http://shop.oreilly.com/product/9780596517748.do">JavaScript: The Good Parts</a>, Douglas Crockford</li>
-<li><a href="http://arcturo.github.io/library/coffeescript/">The Little Book on CoffeeScript</a>, Alex MacCaw</li>
-<li><a href="http://shop.oreilly.com/product/0636920021506.do">What is Node.js?</a>, Brett McLaughlin</li>
-</ul>
-
-
-<h3>Ruby</h3>
-
-<ul>
-<li><a href="http://pragprog.com/book/jvrails2/crafting-rails-4-applications">Crafting Rails 4 Applications</a>, José Valim</li>
-<li><a href="http://designpatternsinruby.com/">Design Patterns in Ruby</a>, Russ Olsen</li>
-<li><a href="http://eloquentruby.com/">Eloquent Ruby</a>, Russ Olsen</li>
-<li><a href="http://www.sitepoint.com/store/jump-start-sinatra/">Jump Start Sinatra</a>, Darren Jones</li>
-</ul>
-
-
-<!-- Multitenancy With Rails](https://leanpub.com/multi-tenancy-rails), Ryan Bigg -->
-
-
-<ul>
-<li><a href="http://www.poodr.com/">Practical Object-Oriented Design in Ruby</a>, Sandi Metz</li>
-<li><a href="http://martinfowler.com/books/refactoringRubyEd.html">Refactoring Ruby</a>, Jay Fields, Sean Harvie, Martin Fowler and Kent Beck</li>
-<li><a href="http://guides.rubyonrails.org/">The Rails Guides</a>, Open Source</li>
-<li><a href="http://www.therailsview.com/">The Rails View</a>, Bruce Williams and John Athayde</li>
-<li><a href="http://shop.oreilly.com/product/0636920019664.do">Sinatra: Up and Running</a>, Alan Harris and Konstantin Haase</li>
-</ul>
-
-
-<h3>Design</h3>
-
-<ul>
-<li><a href="http://abovethefoldbook.com/">Above the Fold</a>, Brian Miller</li>
-<li><a href="http://www.abookapart.com/products/designing-for-emotion">Designing For Emotion</a>, Aaron Walter</li>
-<li><a href="http://www.htmlandcssbook.com/">HTML and CSS</a>, Jon Duckett</li>
-<li><a href="http://www.amazon.com/The-Non-Designers-Design-Book-Edition/dp/0321534042">The Non-Designer&rsquo;s Design Book</a>, Robin Williams</li>
-<li><a href="http://www.amazon.com/The-Principles-Beautiful-Web-Design/dp/098057689X/ref=sr_1_2?ie=UTF8&amp;qid=1385902814&amp;sr=8-2&amp;keywords=sitepoint+web+design">The Principles of Beautiful Web Design</a>, Jason Beaird</li>
-</ul>
-
-
-<h3>Other</h3>
-
-<ul>
-<li><a href="http://www.danpink.com/books/drive/">Drive: The Surprising Truth About What Motivates Us</a>, Daniel H. Pink</li>
-<li><a href="http://www.amazon.com/How-Count-Programming-Mere-Mortals-ebook/dp/B005DPIKPE/ref=sr_1_1?ie=UTF8&amp;qid=1385903319&amp;sr=8-1&amp;keywords=how+to+count+programming+for+mere+mortals">How to Count (Programming for Mere Mortals)</a>, Steven Frank</li>
-<li><a href="http://shop.oreilly.com/product/9780596003425.do">Learning Unix for OS X: Going Deep With the Terminal and Shell</a>, Dave Taylor</li>
-<li><a href="http://chadfowler.com/passionate-programmer/">The Passionate Programmer</a>, Chad Fowler</li>
-<li><a href="http://37signals.com/rework/">ReWork</a>, Jason Fried and David Heinemeier Hansson</li>
-<li><a href="http://www.amazon.com/Test-Driven-Development-By-Example/dp/0321146530">Test Driven Development by Example</a>, Kent Beck</li>
-</ul>
-
 ]]></content>
     
   </entry>

@@ -9,7 +9,7 @@
   <meta name="author" content="Ben Lewis">
 
   
-  <meta name="description" content="This post originally appeared on the Quick Left Blog. It also appeared as a featured article in JavaScript Weekly. Introduction When it comes to &hellip;">
+  <meta name="description" content="This post originally appeared on Engine Yard. It also appeared in Ruby Weekly and on the Quick Left Blog. Using Services to Keep Your Rails &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,629 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry/">Using Services to Keep Your Rails Controllers Clean and DRY</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-25T07:02:57-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2014/keeping-your-rails-controllers-dry-with-services">Engine Yard</a>.</p>
+
+<p>It also appeared in <a href="http://rubyweekly.com/issues/214">Ruby Weekly</a> and on the <a href="https://quickleft.com/blog/using-services-to-keep-your-rails-controllers-clean-and-dry/">Quick Left Blog</a>.</p>
+
+<h1>Using Services to Keep Your Rails Controllers Clean and DRY</h1>
+
+<p>We&rsquo;ve heard it again and again, like a nagging schoolmaster: keep your Rails controllers skinny. Yeah, yeah, we know. But easier said than done, sometimes. Things get complex. We need to talk to some other parts of our codebase or to external APIs to get the job done. Mailers. Stripe. External APIs. All that code starts to add up.</p>
+
+<h2>Ah Tss Push It&hellip;Push It Down the Stack</h2>
+
+<p>If we ask: &ldquo;where, pray tell, should this code live?&rdquo;, the answer comes like a resounding chorus: &ldquo;push it down to the model layer!&rdquo;</p>
+
+<p>But what if we want to keep our models simple? They should actually reflect the business objects related to our app, according to <a href="http://quickleft.com/blog/engineering-lunch-series-building-complex-domains-in-rails">Domain Driven Design</a> and other approaches.</p>
+
+<p>Time to get custom!</p>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/158/asset.gif"/></p>
+
+<p>Crack open the old <code>app</code> folder. What do you see? The usual fare? Guess what?  Just because Rails comes with six folders doesn&rsquo;t mean we&rsquo;re restricted to six types of object. Let&rsquo;s make some new folders!</p>
+
+<h2>At Your Service</h2>
+
+<p>I like to create various kinds of service objects in my Rails app. Tom Pewiński&rsquo;s <a href="https://netguru.co/blog/service-objects-in-rails-will-help">recent article</a> in <a href="http://rubyweekly.com/">Ruby Weekly</a> does a great job of covering how to write service objects that help complete an action, like <code>create_invoice</code> or <code>register_user</code>. While he puts all of his service objects into a single <code>services</code> folder, I like to get a little more granular. I&rsquo;ll typically create an <code>actions</code> folder for things like <code>create_invoice</code>, and folders for other service objects such as <code>decorators</code>, <code>policies</code>, and <code>support</code>. I also use a <code>services</code> folder, but I reserve it for service objects that talk to <em>external</em> entities, like Stripe, AWS, or geolocation services.</p>
+
+<p>Here&rsquo;s how the app folder might look with all of these subfolders in it:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>app
+</span><span class='line'>|- actions
+</span><span class='line'>|- assets
+</span><span class='line'>|- controllers
+</span><span class='line'>|- decorators
+</span><span class='line'>|- models
+</span><span class='line'>|- policies
+</span><span class='line'>|- services
+</span><span class='line'>|- support
+</span><span class='line'>|- views
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Earning Our Stripes</h2>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/159/asset.jpg"/></p>
+
+<p>Let&rsquo;s give it a try, right now! We&rsquo;ll make a credit card service that uses the <a href="https://stripe.com/">Stripe</a> gem.</p>
+
+<p>We&rsquo;ll create an <code>app/services</code> folder and touch a <code>credit_card_service.rb</code> inside of it. It&rsquo;s going to be a Plain Old Ruby Object™ (PORO).</p>
+
+<p>It&rsquo;s probably a good idea to wrap the calls to the Stripe gem in local methods like <code>external_customer_service</code> and <code>external_charge_service</code>, in case we ever want to switch over to Braintree or something else. On object initialization, we&rsquo;ll use dependency injection to accept charge amounts, card tokens, and emails. Our service will expose <code>charge!</code> and <code>create_customer!</code> methods to hook our controllers into.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># app/services/credit_card_service.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;stripe&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">CreditCardService</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@card</span> <span class="o">=</span> <span class="n">params</span><span class="o">[</span><span class="ss">:card</span><span class="o">]</span>
+</span><span class='line'>    <span class="vi">@amount</span> <span class="o">=</span> <span class="n">params</span><span class="o">[</span><span class="ss">:amount</span><span class="o">]</span>
+</span><span class='line'>    <span class="vi">@email</span> <span class="o">=</span> <span class="n">params</span><span class="o">[</span><span class="ss">:email</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">charge</span>
+</span><span class='line'>    <span class="k">begin</span>
+</span><span class='line'>      <span class="c1"># This will return a Stripe::Charge object</span>
+</span><span class='line'>      <span class="n">external_charge_service</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">charge_attributes</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">rescue</span>
+</span><span class='line'>      <span class="kp">false</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create_customer</span>
+</span><span class='line'>    <span class="k">begin</span>
+</span><span class='line'>      <span class="c1"># This will return a Stripe::Customer object</span>
+</span><span class='line'>      <span class="n">external_customer_service</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">customer_attributes</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">rescue</span>
+</span><span class='line'>      <span class="kp">false</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:card</span><span class="p">,</span> <span class="ss">:amount</span><span class="p">,</span> <span class="ss">:email</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">external_charge_service</span>
+</span><span class='line'>    <span class="no">Stripe</span><span class="o">::</span><span class="no">Charge</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">external_customer_service</span>
+</span><span class='line'>    <span class="no">Stripe</span><span class="o">::</span><span class="no">Customer</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">charge_attributes</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="ss">amount</span><span class="p">:</span> <span class="n">amount</span><span class="p">,</span>
+</span><span class='line'>      <span class="ss">card</span><span class="p">:</span> <span class="n">card</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">customer_attributes</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="ss">email</span><span class="p">:</span> <span class="n">email</span><span class="p">,</span>
+</span><span class='line'>      <span class="ss">card</span><span class="p">:</span> <span class="n">card</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Hook it Up</h2>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/160/asset.jpg"></p>
+
+<p>Now we can write some clean, easily maintainable controller code. We keep the registration logic private, and if we ever want to change it, the controller doesn&rsquo;t have to know anything about it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># app/controllers/users_controller.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">UsersController</span> <span class="o">&lt;</span> <span class="no">ActionController</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>    <span class="vi">@user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">user_params</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">registration</span> <span class="o">=</span> <span class="n">register_with_credit_card_service</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">registration</span>
+</span><span class='line'>      <span class="c1"># Save the id from the Stripe::Customer object</span>
+</span><span class='line'>      <span class="n">add_customer_id_to_user</span><span class="p">(</span><span class="n">registration</span><span class="o">[</span><span class="s2">&quot;id&quot;</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">register_with_credit_card_service</span>
+</span><span class='line'>    <span class="no">CreditCardService</span><span class="o">.</span><span class="n">new</span><span class="p">({</span>
+</span><span class='line'>      <span class="ss">card</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:stripe_token</span><span class="o">]</span>
+</span><span class='line'>      <span class="ss">email</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:user</span><span class="o">][</span><span class="ss">:email</span><span class="o">]</span>
+</span><span class='line'>    <span class="p">})</span><span class="o">.</span><span class="n">create_customer</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">add_customer_id_to_user</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@user</span><span class="o">.</span><span class="n">update_attributes</span><span class="p">(</span><span class="ss">external_customer_id</span><span class="p">:</span> <span class="nb">id</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Test It Out</h2>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/161/asset.jpg"></p>
+
+<p>Since we&rsquo;re just using a PORO, this should be nice and easy to test. Let&rsquo;s make a <code>test/services</code> folder. If you want to add its contents to your rake tasks, <a href="http://stackoverflow.com/questions/18894060/rails-and-minitest-add-additional-folder">try this</a>. Let&rsquo;s assume that we already have a <code>test_helper.rb</code> that includes the Rails helpers in ActiveSupport::TestCase and <a href="https://github.com/freerange/mocha">mocha</a>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># test/services/credit_card_service_test.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;test_helper&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">CreditCardServiceTest</span> <span class="o">&lt;</span> <span class="no">ActiveSupport</span><span class="o">::</span><span class="no">TestCase</span>
+</span><span class='line'>  <span class="nb">test</span> <span class="s1">&#39;it creates charges&#39;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>      <span class="ss">amount</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+</span><span class='line'>      <span class="ss">card</span><span class="p">:</span> <span class="s1">&#39;TOKEN&#39;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="no">Stripe</span><span class="o">::</span><span class="no">Charge</span><span class="o">.</span><span class="n">expects</span><span class="p">(</span><span class="ss">:create</span><span class="p">)</span><span class="o">.</span><span class="n">with</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">returns</span><span class="p">(</span><span class="kp">true</span><span class="p">)</span>
+</span><span class='line'>    <span class="c1"># This will return false if it fails</span>
+</span><span class='line'>    <span class="n">charge</span> <span class="o">=</span> <span class="no">CreditCardService</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">charge</span>
+</span><span class='line'>    <span class="n">assert</span> <span class="n">charge</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nb">test</span> <span class="s1">&#39;it creates customers&#39;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>      <span class="ss">email</span><span class="p">:</span> <span class="s1">&#39;test@example.card&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="ss">card</span><span class="p">:</span> <span class="s1">&#39;TOKEN&#39;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="no">Stripe</span><span class="o">::</span><span class="no">Customer</span><span class="o">.</span><span class="n">expects</span><span class="p">(</span><span class="ss">:create</span><span class="p">)</span><span class="o">.</span><span class="n">with</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">returns</span><span class="p">(</span><span class="kp">true</span><span class="p">)</span>
+</span><span class='line'>    <span class="c1"># This will return false if it fails</span>
+</span><span class='line'>    <span class="n">customer</span> <span class="o">=</span> <span class="no">CreditCardService</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">create_customer</span>
+</span><span class='line'>    <span class="n">assert</span> <span class="n">customer</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Keep It Clean</h2>
+
+<p>The last thing you want in your Rails app is a bunch of complicated controllers that are hard to change. Though it may sound pedantic, those voices chanting &ldquo;Skinny Controller, Fat Model&rdquo; are right. It&rsquo;s easy to get caught in the trap of answering &ldquo;where should I put this code&rdquo; with &ldquo;let&rsquo;s open the <code>app</code> folder and see what cubbies I was given&rdquo;. Don&rsquo;t be afraid to take your Rails project by the horns! You can create your own actions, decorators, support objects, and services. Start including these patterns in your Rails app, and your code will come out clean and DRY: so fresh, so clean!</p>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/162/asset.gif"></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/09/04/looking-for-a-needle-in-a-haystack-with-ack/">Looking for a Needle in a Haystack! (or Using Ack to Improve Your Development Workflow)</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-04T06:19:42-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This post originally appeared on the <a href="http://quickleft.com/blog/looking-for-a-needle-in-a-haystack-or-using-ack-to-improve-your-development-workflow">Quick Left Blog</a>.</p>
+
+<h2>or Using Ack to Improve Your Development Workflow</h2>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/120/asset.jpg" style="margin:0 auto;display:block;"></p>
+
+<h2>Introduction</h2>
+
+<p>Every day when I&rsquo;m programming, I invariably come to a point where I&rsquo;m looking for a certain line of code in
+my project. Usually, there&rsquo;s a pattern that I saw and want to reuse, and I can&rsquo;t
+find it. I could just use my editor&rsquo;s &ldquo;find in files&rdquo; feature and look for it, but sometimes I need more fine
+grained control. What if I want to find all the lines of code that <em>don&rsquo;t</em>
+contain a certain phrase? What if I want to search on a Regular
+Expression? What if I want to easily save the search results to a file?</p>
+
+<p>When I need more control in finding something, I turn my favorite command line search tool:
+<a href="http://beyondgrep.com/">ack</a>.</p>
+
+<h2>Why Ack?</h2>
+
+<p>Why should you use <code>ack</code>, when your unix distribution comes with <code>find</code>, <code>mdfind</code>, and
+<code>grep</code>? Well, because it has these advantages:</p>
+
+<ul>
+<li>It only searches the stuff you care about. It excludes Git,
+Subversion, binary files, and other irrelevant file types.</li>
+<li>It can search all the files in a certain language, regardless of file
+extension.</li>
+<li>It is a lot easier to remember the command flags to scope your search
+than with other tools.</li>
+</ul>
+
+
+<h2>Installing Ack</h2>
+
+<p>To install Ack, I would suggest using <a href="http://brew.sh/">homebrew</a>. If you
+have it installed, just type <code>brew install ack</code>.</p>
+
+<p>You can also use <code>package</code> on many other Unix distributions, as well as
+Macports, OpenBSD and FreeBSD, or just download it with this command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl http://beyondgrep.com/ack-2.12-single-file &gt; ~/bin/ack && chmod 0755 !#:3</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Basic Seach</h2>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/118/asset.gif" style="margin:0 auto;display:block;"></p>
+
+<p>To do a basic search for a string in a file with ack, the syntax
+is as simple as:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack &lt;search-pattern&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will recursively search for the pattern in specified directory.
+I usually just use a simple text search. For example, if you were to do
+this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mkdir tmp && cd tmp
+</span><span class='line'>echo "Hello, world" &gt; hello.txt
+</span><span class='line'>echo "Goodbye, world" &gt; goodbye.txt
+</span><span class='line'>echo "Hello, squirrel" &gt; hi.txt
+</span><span class='line'>echo "Goodbye, squirrel" &gt; bye.txt</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then you could search for the files containing <code>hello</code> with:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack hello .</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>.</code> here means search the current directory. This is a recursive
+search by default. To turn off recursion, pass the <code>-n</code> flag, like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mkdir child-directory
+</span><span class='line'>mv hello.txt child-directory
+</span><span class='line'>ack -n hello .</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you&rsquo;ll only see one result, <code>hi.txt</code>, because it&rsquo;s the only file
+with &lsquo;hello&rsquo; in it that lives in the current directory.</p>
+
+<h2>Sorting</h2>
+
+<p>Sometimes it would be nice to sort your search results. Easy enough!</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack --sort-files -l</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Inverse Search</h2>
+
+<p>One of my flags is <code>-v</code>, which lets you do a search for all the files
+that <em>don&rsquo;t</em> match a given pattern. It comes in pretty handy.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack -v &lt;search-pattern&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Careful, though, because that could be a lot of output. You might want to shovel
+it into a file like we did before, or at least pipe it to <code>less</code>.</p>
+
+<h2>Searching By File Type</h2>
+
+<p>One of my favoritate uses for <code>ack</code> is to searching for all the files in a certain language. Ack supports
+Ruby, Python, JavaScript, Shell, Clojure, HTML, and a bunch of other
+file types. To see a full listing, do:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack --help-types</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you want to, you can add new types, change the ones that are already
+there, or delete them, with <code>--type-add</code>, <code>--type-set</code>, and <code>--type-del</code>,
+respectively.</p>
+
+<p>Assuming you&rsquo;re good with the default types, let&rsquo;s take it for a spin. Want a list of
+&ldquo;all the things&rdquo; Ruby? Open a Rails project and run this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack -f --ruby &gt; all-ruby-files.txt</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Want to find all the Ruby files that call <code>puts</code>?</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack --ruby puts .</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Want to find all the files that say <code>hello</code>, but <em>aren&rsquo;t</em> Ruby files?</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack --type=noruby hello .</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Using an <code>.ackrc</code> file</h2>
+
+<p>If you do a lot of <code>ack</code>ing, and you want to set up some ack options
+systemwide, or for your specific project, you can define an <code>.ackrc</code>
+file. To have ack generate one for you, run:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack --create-ackrc &gt; .ackrc</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then, if you run a search in the current directory, the settings in the
+<code>.ackrc</code> will be used.</p>
+
+<p>You can also put your ack options into an <code>ACK_OPTIONS</code> environment
+variable like so:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>export ACK_OPTIONS="--nocolor"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you defined some ack options in an <code>.ackrc</code> or an environment variable and want to run a search without those options, you can also turn them off with:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack --noenv &lt;search&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Advanced Searches</h2>
+
+<p>If you&rsquo;re diggin&#8217; it, here are some other fun things you can do with Ack.</p>
+
+<h3>Case Insenstivite Search</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack -i &lt;search-pattern&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Match Whole Words Only</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack -w &lt;search-pattern&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Only Output the Filenames, Without Highlighted Text</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack -l &lt;search-pattern&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack -L &lt;search-pattern&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Just One Result (AKA &ldquo;I&rsquo;m Feeling Lucky&rdquo;)</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack -1 &lt;search-pattern&gt; &lt;directory&gt;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Vim Integration (AckVim)</h2>
+
+<p>If you&rsquo;re a vim user, you might want to check out the <a href="https://github.com/mileszs/ack.vim">AckVim Plugin</a>.
+It lets you run ack inside of vim and see the results in a split window.</p>
+
+<p>Once you&rsquo;ve added it with Git or Vundle, it&rsquo;s as easy as typing:</p>
+
+<p><code>:Ack [options] {pattern} [{directories}]</code></p>
+
+<p>It&rsquo;s pretty nice to have around!</p>
+
+<h2>Ack the Cat, Cathy and Bar</h2>
+
+<p>Well, you&rsquo;ve made it this far, so here&rsquo;s some candy for you. Run these:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ack --thpppt
+</span><span class='line'>ack --cathy
+</span><span class='line'>ack --bar</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Goodbye!</h2>
+
+<p>Sometimes it can be like looking for a needle in
+a haystack trying to find what you need in your project.</p>
+
+<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/119/asset.gif" style="margin:0 auto;display:block;"></p>
+
+<p>Seriously, though, I hope this little tour of the small command line
+tool <code>ack</code> improves your programming experience. Cheers!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -5219,187 +5842,6 @@ build passing.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/01/03/looking-ahead-to-the-last-two-months-of-gschool/">Looking Ahead to the Last Two Months of gSchool</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-03T09:01:00-07:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>We&rsquo;re coming into the home stretch at gSchool. With only 56 days left, I&rsquo;m reflecting on what I&rsquo;ve learned so far, and trying to sort out what I want to make of the time I have left.</p>
-
-<h2>Goals - Where I&rsquo;ve Been</h2>
-
-<p>My biggest goals for gSchool have been to become a great developer, and to build a solid foundation for continued learning.</p>
-
-<p>I&rsquo;ve worked hard to get good at pure Ruby, focusing on writing clean, DRY, test-driven code. I&rsquo;ve prioritized learning how to do Rails &ldquo;the right way&rdquo;, and to understand its intricacies. I&rsquo;ve also prioritized JavaScript as a second area of expertise, learning to use it in the DOM, in the context of client-side frameworks, and dabbled in a little bit of Node.js.</p>
-
-<p>So far, I&rsquo;ve been meeting all of these goals. I really enjoy working with these technologies, and am feeling more comfortable with them every day.</p>
-
-<h2>Goals - Where I&rsquo;m Going</h2>
-
-<p>During January and February, I want to continue to hone my skills with Ruby and JavaScript. Now that I understand the basis of these languages, I&rsquo;m working on using the best idioms and designs for each.</p>
-
-<p>I&rsquo;ll keep doing a lot of reading. I&rsquo;ve just completed <a href="http://pragprog.com/book/jvrails2/crafting-rails-4-applications">Crafting Rails 4 Applications</a>, and I&rsquo;m still reading <a href="https://leanpub.com/multi-tenancy-rails">Multitenancy With Rails</a>, and I&rsquo;m excited about starting <a href="http://designpatternsinruby.com/">Design Patterns in Ruby</a> this weekend.</p>
-
-<p>Pure computer science topics have started to interest me lately. I&rsquo;m hoping that Ruby Design Patterns will help me understand patterns like Factories, Facades, and Observers. I&rsquo;ll also continue to look at algorithms. One of my current projects is implementing a linked list in JavaScript. In the future, I&rsquo;ll explore Binary Trees, the A* algorithm, and perhaps the MD5 algorithm.</p>
-
-<h2>Milestones</h2>
-
-<p>For me, the easiest way to break up the coming time is to think of it in terms of the projects we&rsquo;ll complete. We&rsquo;re just starting Feed Engine. After that, it&rsquo;s the Service Oriented Architecture project, then the personal mastery project. Every project in gSchool thus far has built on the last. I&rsquo;m looking forward to growing through each of these remaining experiences.</p>
-
-<h2>How I Will Succeed</h2>
-
-<p>There is little blocking me from succeess, in my mind. As long as I can keep my energy level up, I&rsquo;ll be able to grok everything left on the docket: what it takes to build killer Rails apps, consuming APIs, feeds, and SOAs. Hopefully, I&rsquo;ll pick up a few other tricks along the way. Given the good rest I got over the holidays, I feel refreshed and ready to keep working hard for the last two months, so I feel confident.</p>
-
-<p>The parts of my personality that will best serve me are my stubbornness/tenacity, curiousity and resourcefulness. I find it hard to give up on problems, so I follow through on them. I&rsquo;m always finding new things to learn about, and I&rsquo;m good at finding ways to learn more about the things I&rsquo;m interested in.</p>
-
-<p>Finally, I&rsquo;ve been really interested in productivity lately. Some of my strategies to &ldquo;work smarter, not harder&rdquo; are:</p>
-
-<ul>
-<li>Avoid distractions</li>
-<li>Use a todo list</li>
-<li>Clarify my goals at the start of each day</li>
-<li>Stay true to the pomodore timer</li>
-</ul>
-
-
-<p>With the combination of my love for learning and my productivity, I know I&rsquo;ll succeed in the last couple of months as a gSchool student, and will also continue to be a valuable programmer and a life-long learner.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/12/30/what-ive-been-reading/">What I&#8217;ve Been Reading</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-12-30T15:44:00-07:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This post is a list of the books I&rsquo;ve read and am currently reading.</p>
-
-<h2>Currently Reading</h2>
-
-<ul>
-<li><a href="http://www.amazon.com/Introduction-Algorithms-Thomas-H-Cormen/dp/0262033844">Introduction to Algorithms</a>, Charles E. Leiserson, Ronald Rivest, Thomas H. Cormen, and Clifford Stein</li>
-</ul>
-
-
-<h2>Previous Titles</h2>
-
-<h3>JavaScript</h3>
-
-<ul>
-<li><a href="http://addyosmani.github.io/backbone-fundamentals/">Developing Backbone.js Applications</a>, Addy Osmani</li>
-<li><a href="http://eloquentjavascript.net/">Eloquent JavaScript</a>, Marijn Haverbeke</li>
-<li><a href="http://www.javascriptenlightenment.com/">JavaScript Enlightenment</a>, Cody Lindley</li>
-<li><a href="http://shop.oreilly.com/product/9780596806767.do">JavaScript Patterns</a>, Stoyan Stefanov</li>
-<li><a href="http://shop.oreilly.com/product/9780596517748.do">JavaScript: The Good Parts</a>, Douglas Crockford</li>
-<li><a href="http://arcturo.github.io/library/coffeescript/">The Little Book on CoffeeScript</a>, Alex MacCaw</li>
-<li><a href="http://shop.oreilly.com/product/0636920021506.do">What is Node.js?</a>, Brett McLaughlin</li>
-</ul>
-
-
-<h3>Ruby</h3>
-
-<ul>
-<li><a href="http://pragprog.com/book/jvrails2/crafting-rails-4-applications">Crafting Rails 4 Applications</a>, José Valim</li>
-<li><a href="http://designpatternsinruby.com/">Design Patterns in Ruby</a>, Russ Olsen</li>
-<li><a href="http://eloquentruby.com/">Eloquent Ruby</a>, Russ Olsen</li>
-<li><a href="http://www.sitepoint.com/store/jump-start-sinatra/">Jump Start Sinatra</a>, Darren Jones</li>
-</ul>
-
-
-<!-- Multitenancy With Rails](https://leanpub.com/multi-tenancy-rails), Ryan Bigg -->
-
-
-<ul>
-<li><a href="http://www.poodr.com/">Practical Object-Oriented Design in Ruby</a>, Sandi Metz</li>
-<li><a href="http://martinfowler.com/books/refactoringRubyEd.html">Refactoring Ruby</a>, Jay Fields, Sean Harvie, Martin Fowler and Kent Beck</li>
-<li><a href="http://guides.rubyonrails.org/">The Rails Guides</a>, Open Source</li>
-<li><a href="http://www.therailsview.com/">The Rails View</a>, Bruce Williams and John Athayde</li>
-<li><a href="http://shop.oreilly.com/product/0636920019664.do">Sinatra: Up and Running</a>, Alan Harris and Konstantin Haase</li>
-</ul>
-
-
-<h3>Design</h3>
-
-<ul>
-<li><a href="http://abovethefoldbook.com/">Above the Fold</a>, Brian Miller</li>
-<li><a href="http://www.abookapart.com/products/designing-for-emotion">Designing For Emotion</a>, Aaron Walter</li>
-<li><a href="http://www.htmlandcssbook.com/">HTML and CSS</a>, Jon Duckett</li>
-<li><a href="http://www.amazon.com/The-Non-Designers-Design-Book-Edition/dp/0321534042">The Non-Designer&rsquo;s Design Book</a>, Robin Williams</li>
-<li><a href="http://www.amazon.com/The-Principles-Beautiful-Web-Design/dp/098057689X/ref=sr_1_2?ie=UTF8&amp;qid=1385902814&amp;sr=8-2&amp;keywords=sitepoint+web+design">The Principles of Beautiful Web Design</a>, Jason Beaird</li>
-</ul>
-
-
-<h3>Other</h3>
-
-<ul>
-<li><a href="http://www.danpink.com/books/drive/">Drive: The Surprising Truth About What Motivates Us</a>, Daniel H. Pink</li>
-<li><a href="http://www.amazon.com/How-Count-Programming-Mere-Mortals-ebook/dp/B005DPIKPE/ref=sr_1_1?ie=UTF8&amp;qid=1385903319&amp;sr=8-1&amp;keywords=how+to+count+programming+for+mere+mortals">How to Count (Programming for Mere Mortals)</a>, Steven Frank</li>
-<li><a href="http://shop.oreilly.com/product/9780596003425.do">Learning Unix for OS X: Going Deep With the Terminal and Shell</a>, Dave Taylor</li>
-<li><a href="http://chadfowler.com/passionate-programmer/">The Passionate Programmer</a>, Chad Fowler</li>
-<li><a href="http://37signals.com/rework/">ReWork</a>, Jason Fried and David Heinemeier Hansson</li>
-<li><a href="http://www.amazon.com/Test-Driven-Development-By-Example/dp/0321146530">Test Driven Development by Example</a>, Kent Beck</li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="3">&larr; Older</a>
@@ -5417,7 +5859,15 @@ build passing.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/02/04/setting-up-a-client-side-javascript-project-with-gulp-and-browserify/">Setting Up A Client-Side JavaScript Project With Gulp and Browserify</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/01/29/instances/">Instances, Classes, and Modules, Oh My!</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/01/22/measuring-client-side-javascript-test-coverage-with-istanbul/">Measuring Client-Side JavaScript Test Coverage With Istanbul</a>
       </li>
     
       <li class="post">
@@ -5426,14 +5876,6 @@ build passing.</p>
     
       <li class="post">
         <a href="/blog/2014/12/18/seven-reasons-i-love-minitest/">Seven Reasons I Love Minitest</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/12/09/caching-asynchronous-queries-in-backbone/">Caching Asynchronous Queries In Backbone</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/11/03/building-a-ruby-list-comprehension/">Building A Ruby List Comprehension</a>
       </li>
     
   </ul>
