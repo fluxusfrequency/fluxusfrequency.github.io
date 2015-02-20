@@ -4,7 +4,7 @@
   <title><![CDATA[Fluxus Frequency]]></title>
   <link href="http://fluxusfrequency.github.io/atom.xml" rel="self"/>
   <link href="http://fluxusfrequency.github.io/"/>
-  <updated>2015-02-19T21:34:04-07:00</updated>
+  <updated>2015-02-19T21:40:02-07:00</updated>
   <id>http://fluxusfrequency.github.io/</id>
   <author>
     <name><![CDATA[Ben Lewis]]></name>
@@ -22,6 +22,8 @@
     <id>http://fluxusfrequency.github.io/blog/2015/02/04/setting-up-a-client-side-javascript-project-with-gulp-and-browserify</id>
     
     <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2015/client-side-javascript-project-gulp-and-browserify">Engine Yard</a>.</p>
+
+<h2>Introduction</h2>
 
 <p>For JavaScript developers, it can be hard to keep up to date with the latest frameworks and libraries. It seems like every day there&rsquo;s a new <em>something</em>.js to check out. Luckily, there is one part of the toolchain that doesn&rsquo;t change as often, and that&rsquo;s the build process. That said, it&rsquo;s worth checking out your options every now and then.</p>
 
@@ -500,6 +502,8 @@ gulp.task(&lsquo;default&rsquo;, [&lsquo;test&rsquo;, &lsquo;build&rsquo;, &lsqu
     
     <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2015/instances-classes-and-modules">Engine Yard</a> and was later published on the <a href="https://quickleft.com/blog/instances-classes-and-modules-oh-my/">Quick Left Blog</a>.</p>
 
+<h2>Introduction</h2>
+
 <p>One of the biggest challenges of object oriented programming in Ruby is defining the interface of your objects. In other languages, such as Java, there is an explicit way to define an interface that you must conform to. But in Ruby, it&rsquo;s up to you.</p>
 
 <p>Compounding with this difficulty is the problem of deciding which object should own a method that you want to write. Trying to choose between modules, class methods, instance methods, structs, and lambdas can be overwhelming.</p>
@@ -922,8 +926,11 @@ gulp.task(&lsquo;default&rsquo;, [&lsquo;test&rsquo;, &lsquo;build&rsquo;, &lsqu
     <updated>2015-01-22T21:16:59-07:00</updated>
     <id>http://fluxusfrequency.github.io/blog/2015/01/22/measuring-client-side-javascript-test-coverage-with-istanbul</id>
     
-    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2015/measuring-clientside-javascript-test-coverage-with-istanbul">Engine Yard</a>.
-It was also published on the <a href="https://quickleft.com/blog/measuring-clientside-javascript-test-coverage-istanbul/">Quick Left Blog</a>.</p>
+    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2015/measuring-clientside-javascript-test-coverage-with-istanbul">Engine Yard</a>.</p>
+
+<p>It was also published on the <a href="https://quickleft.com/blog/measuring-clientside-javascript-test-coverage-istanbul/">Quick Left Blog</a>.</p>
+
+<h2>Introduction</h2>
 
 <p>Testing is a vital part of any development process. Whether a project&rsquo;s authors are hoping for scalability, fewer bugs, or just code that stands the test of time, a solid test suite is essential.</p>
 
@@ -1204,6 +1211,8 @@ It was also published on the <a href="https://quickleft.com/blog/measuring-clien
 
 <p>It was originally published on <a href="https://blog.engineyard.com/2015/five-ruby-methods-you-should-be-using">Engine Yard</a> and also appeared on the <a href="https://quickleft.com/blog/five-ruby-methods-you-should-be-using/">Quick Left Blog</a>.</p>
 
+<h2>Introduction</h2>
+
 <p>There&rsquo;s something magical about the way that Ruby just flows from your fingertips. why once <a href="http://mislav.uniqpath.com/poignant-guide/book/chapter-2.html">said</a> &ldquo;Ruby will teach you to express your ideas through a computer.&rdquo; Maybe that&rsquo;s why Ruby has become such a <a href="http://blog.codeeval.com/codeevalblog/2014">popular choice</a> for modern web development.</p>
 
 <p>Just as in English, there are lots of ways to say the same thing in Ruby. I spend a lot of time reading and nitpicking people&rsquo;s code on <a href="http://exercism.io">Exercism</a>, and I often see exercises solved in a way that could be greatly simplified if the author had only known about a certain Ruby method.</p>
@@ -1476,6 +1485,8 @@ It was also published on the <a href="https://quickleft.com/blog/measuring-clien
 
 <p>It originally appeared on <a href="https://blog.engineyard.com/2014/seven-reasons-i-love-minitest">Engine Yard</a>, and was also published on the <a href="https://quickleft.com/blog/seven-reasons-i-love-minitest/">Quick Left Blog</a>.</p>
 
+<h2>Introduction</h2>
+
 <p>The other day at our company standup, I mentioned that I was eager to read an article on [Concurrency in Minitest] (<a href="http://chriskottom.com/blog/2014/10/exploring-minitest-concurrency/">http://chriskottom.com/blog/2014/10/exploring-minitest-concurrency/</a>) that was featured in <a href="http://rubyweekly.com/issues/216">Ruby Weekly</a>. One of my coworkers asked: &ldquo;people still use Minitest?&rdquo; My reply: &ldquo;you mean you&rsquo;re not using Minitest yet?&rdquo;</p>
 
 <p>I love Minitest. It&rsquo;s small, lightweight, and ships with Ruby. It&rsquo;s used by respected programmers like <a href="http://rubyrogues.com/001-rr-testing-practices-and-tools/">Aaron Patterson</a>, Katrina Owen, Sandi Metz, and of course, DHH. Here&rsquo;s a look at why Minitest remains a powerful and popular choice for testing Ruby code.</p>
@@ -1662,8 +1673,11 @@ tools.</p>
     <updated>2014-12-09T06:32:04-07:00</updated>
     <id>http://fluxusfrequency.github.io/blog/2014/12/09/caching-asynchronous-queries-in-backbone</id>
     
-    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2014/caching-asynchronous-queries-backbone">Engine Yard</a>.
-It was also published on the <a href="https://quickleft.com/blog/caching-asynchronous-queries-in-backbone-js/">Quick Left Blog</a>.</p>
+    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2014/caching-asynchronous-queries-backbone">Engine Yard</a>.</p>
+
+<p>It was also published on the <a href="https://quickleft.com/blog/caching-asynchronous-queries-in-backbone-js/">Quick Left Blog</a>.</p>
+
+<h2>Introduction</h2>
 
 <p>I was working on a <em>Backbone</em> project with Bob Bonifield recently, when we came across a problem. We were building an administration panel to be used internally by a client, and there were a couple of views that needed to display the same information about users in a slightly different way. To prevent unnecessary AJAX calls, we decided to cache the result of <code>Backbone.Model#fetch</code> at two levels of our application.</p>
 
@@ -1958,8 +1972,11 @@ handle the appropriate routes.</p>
     <updated>2014-11-03T05:40:09-07:00</updated>
     <id>http://fluxusfrequency.github.io/blog/2014/11/03/building-a-ruby-list-comprehension</id>
     
-    <content type="html"><![CDATA[<p>This post was a featured article in <a href="http://rubyweekly.com/issues/221">Ruby Weekly</a>.
-It was originally published on <a href="https://blog.engineyard.com/2014/ruby-list-comprehension">Engine Yard</a> and appeared on the <a href="https://quickleft.com/blog/building-a-ruby-list-comprehension/">Quick Left Blog</a>.</p>
+    <content type="html"><![CDATA[<p>This post was a featured article in <a href="http://rubyweekly.com/issues/221">Ruby Weekly</a>.</p>
+
+<p>It was originally published on <a href="https://blog.engineyard.com/2014/ruby-list-comprehension">Engine Yard</a> and appeared on the <a href="https://quickleft.com/blog/building-a-ruby-list-comprehension/">Quick Left Blog</a>.</p>
+
+<h2>Introduction</h2>
 
 <p>As developers, we&rsquo;re in the business of continually bettering ourselves. Part of that process is pushing ourselves to learn and use better code patterns, try new libraries, and pick up new languages. For me, the latest self-learning project has been picking up Python.</p>
 
@@ -2202,8 +2219,9 @@ It was originally published on <a href="https://blog.engineyard.com/2014/ruby-li
     <updated>2014-11-03T05:40:09-07:00</updated>
     <id>http://fluxusfrequency.github.io/blog/2014/11/03/better-soa-development-with-foreman-and-nginx</id>
     
-    <content type="html"><![CDATA[<p>This post was originally published on <a href="https://blog.engineyard.com/2014/better-soa-development-with-foreman-and-nginx">Engine Yard</a>.
-It also appeared on the <a href="http://quickleft.com/blog/better-service-oriented-architecture-project-development-with-scripts-foreman-and-nginx">Quick Left Blog</a>.</p>
+    <content type="html"><![CDATA[<p>This post was originally published on <a href="https://blog.engineyard.com/2014/better-soa-development-with-foreman-and-nginx">Engine Yard</a>.</p>
+
+<p>It also appeared on the <a href="http://quickleft.com/blog/better-service-oriented-architecture-project-development-with-scripts-foreman-and-nginx">Quick Left Blog</a>.</p>
 
 <h2>MOAR!</h2>
 
@@ -2595,9 +2613,11 @@ PandaClient: An AngularJS app sitting atop a Sinatra proxy server</p>
     <updated>2014-10-15T06:40:09-06:00</updated>
     <id>http://fluxusfrequency.github.io/blog/2014/10/15/getting-started-with-active-job</id>
     
-    <content type="html"><![CDATA[<p>This post was featured article in <a href="http://rubyweekly.com/issues/215">Ruby Weekly</a>.</p>
+    <content type="html"><![CDATA[<p>This post was a featured article in <a href="http://rubyweekly.com/issues/215">Ruby Weekly</a>.</p>
 
-<p>This post originally appeared on <a href="https://blog.engineyard.com/2014/getting-started-with-active-job">Engine Yard</a> and was also published on the <a href="https://quickleft.com/blog/getting-started-with-active-job/">Quick Left Blog</a>.</p>
+<p>It originally appeared on <a href="https://blog.engineyard.com/2014/getting-started-with-active-job">Engine Yard</a> and was also published on the <a href="https://quickleft.com/blog/getting-started-with-active-job/">Quick Left Blog</a>.</p>
+
+<h2>Introduction</h2>
 
 <p>With the <a href="http://edgeguides.rubyonrails.org/4_2_release_notes.html">announcement of Rails 4.2</a> came some exciting <a href="news:">news:</a> Rails now has built-in support for executing jobs in the background using <a href="https://github.com/rails/rails/tree/master/activejob">Active Job</a>. The ability to schedule newsletters, follow-up emails, and database housekeeping tasks is vital to almost any production application. In the past, developers had to hand-roll this functionality, and configuration varied between different queueing services. With the release of Rails 4.2, setting up jobs to be executed by workers at a later time is standardized. In this article, we&rsquo;ll take a look at how to set up Active Job and use it to send a follow-up email to a new user.</p>
 
@@ -2879,8 +2899,9 @@ PandaClient: An AngularJS app sitting atop a Sinatra proxy server</p>
     <updated>2014-10-02T07:03:19-06:00</updated>
     <id>http://fluxusfrequency.github.io/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem</id>
     
-    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2014/wrapping-your-api-in-a-ruby-gem">Engine Yard</a>.
-It also appeard on the <a href="https://quickleft.com/blog/wrapping-your-api-in-a-custom-ruby-gem/">Quick Left Blog</a>.</p>
+    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2014/wrapping-your-api-in-a-ruby-gem">Engine Yard</a>.</p>
+
+<p>It also appeard on the <a href="https://quickleft.com/blog/wrapping-your-api-in-a-custom-ruby-gem/">Quick Left Blog</a>.</p>
 
 <h2>Introduction</h2>
 
@@ -3302,11 +3323,11 @@ Given these API results, we could write a test like this:</p>
     <updated>2014-09-25T07:02:57-06:00</updated>
     <id>http://fluxusfrequency.github.io/blog/2014/09/25/using-services-to-keep-your-rails-controllers-clean-and-dry</id>
     
-    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2014/keeping-your-rails-controllers-dry-with-services">Engine Yard</a>.</p>
+    <content type="html"><![CDATA[<p>This post appeared in <a href="http://rubyweekly.com/issues/214">Ruby Weekly</a>.</p>
 
-<p>It also appeared in <a href="http://rubyweekly.com/issues/214">Ruby Weekly</a> and on the <a href="https://quickleft.com/blog/using-services-to-keep-your-rails-controllers-clean-and-dry/">Quick Left Blog</a>.</p>
+<p>It originally appeared on <a href="https://blog.engineyard.com/2014/keeping-your-rails-controllers-dry-with-services">Engine Yard</a>, and later on the <a href="https://quickleft.com/blog/using-services-to-keep-your-rails-controllers-clean-and-dry/">Quick Left Blog</a>.</p>
 
-<h1>Using Services to Keep Your Rails Controllers Clean and DRY</h1>
+<h2>Introduction</h2>
 
 <p>We&rsquo;ve heard it again and again, like a nagging schoolmaster: keep your Rails controllers skinny. Yeah, yeah, we know. But easier said than done, sometimes. Things get complex. We need to talk to some other parts of our codebase or to external APIs to get the job done. Mailers. Stripe. External APIs. All that code starts to add up.</p>
 
@@ -3875,9 +3896,9 @@ tool <code>ack</code> improves your programming experience. Cheers!</p>
     <updated>2014-07-24T06:20:37-06:00</updated>
     <id>http://fluxusfrequency.github.io/blog/2014/07/24/angular-js-unit-testing-for-real-though</id>
     
-    <content type="html"><![CDATA[<p>This post originally appeared on the <a href="http://quickleft.com/blog/angularjs-unit-testing-for-real-though">Quick Left Blog</a>.</p>
+    <content type="html"><![CDATA[<p>This post was a featured article in <a href="http://javascriptweekly.com/issues/192">JavaScript Weekly</a>.</p>
 
-<p>It also appeared as a featured article in <a href="http://javascriptweekly.com/issues/192">JavaScript Weekly</a>.</p>
+<p>It originally appeared on the <a href="http://quickleft.com/blog/angularjs-unit-testing-for-real-though">Quick Left Blog</a>.</p>
 
 <h2>Introduction</h2>
 
