@@ -7,6 +7,7 @@ categories:
 ---
 
 This post was originally published on [Engine Yard](https://blog.engineyard.com/2014/better-soa-development-with-foreman-and-nginx).
+
 It also appeared on the [Quick Left Blog](http://quickleft.com/blog/better-service-oriented-architecture-project-development-with-scripts-foreman-and-nginx).
 
 ## MOAR!

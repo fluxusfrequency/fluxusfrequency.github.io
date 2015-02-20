@@ -8,6 +8,8 @@ categories:
 
 This post originally appeared on [Engine Yard](https://blog.engineyard.com/2015/client-side-javascript-project-gulp-and-browserify).
 
+## Introduction
+
 For JavaScript developers, it can be hard to keep up to date with the latest frameworks and libraries. It seems like every day there's a new _something_.js to check out. Luckily, there is one part of the toolchain that doesn't change as often, and that's the build process. That said, it's worth checking out your options every now and then.
 
 My build process toolset has traditionally been comprised of [RequireJS](http://requirejs.org/) for dependency loading, and [Grunt](http://gruntjs.com/). They've worked great, but recently I was pairing with someone who prefers to use [Gulp](http://gulpjs.com/) and [Browserify](http://browserify.org/) instead. After using them on a couple of projects, I'm coming to like them quite a bit. They're great for use with Backbone, Angular, Ember, React, and my own hand-rolled JavaScript projects.

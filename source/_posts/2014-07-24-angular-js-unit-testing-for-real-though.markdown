@@ -4,9 +4,9 @@ title: "AngularJS Unit Testing, For Real Though"
 date: 2014-07-24 06:20:37 -0600
 ---
 
-This post originally appeared on the [Quick Left Blog](http://quickleft.com/blog/angularjs-unit-testing-for-real-though).
+This post was a featured article in [JavaScript Weekly](http://javascriptweekly.com/issues/192).
 
-It also appeared as a featured article in [JavaScript Weekly](http://javascriptweekly.com/issues/192).
+It originally appeared on the [Quick Left Blog](http://quickleft.com/blog/angularjs-unit-testing-for-real-though).
 
 ## Introduction
 

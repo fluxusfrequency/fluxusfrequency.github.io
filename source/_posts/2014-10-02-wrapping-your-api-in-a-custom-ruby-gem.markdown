@@ -5,6 +5,7 @@ date: 2014-10-02 07:03:19 -0600
 ---
 
 This post originally appeared on [Engine Yard](https://blog.engineyard.com/2014/wrapping-your-api-in-a-ruby-gem).
+
 It also appeard on the [Quick Left Blog](https://quickleft.com/blog/wrapping-your-api-in-a-custom-ruby-gem/).
 
 ## Introduction

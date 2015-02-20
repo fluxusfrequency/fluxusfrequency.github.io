@@ -10,6 +10,8 @@ This post was the top featured article in [Ruby Weekly #229](http://rubyweekly.c
 
 It was originally published on [Engine Yard](https://blog.engineyard.com/2015/five-ruby-methods-you-should-be-using) and also appeared on the [Quick Left Blog](https://quickleft.com/blog/five-ruby-methods-you-should-be-using/).
 
+## Introduction
+
 There's something magical about the way that Ruby just flows from your fingertips. why once [said](http://mislav.uniqpath.com/poignant-guide/book/chapter-2.html) "Ruby will teach you to express your ideas through a computer." Maybe that's why Ruby has become such a [popular choice](http://blog.codeeval.com/codeevalblog/2014) for modern web development.
 
 Just as in English, there are lots of ways to say the same thing in Ruby. I spend a lot of time reading and nitpicking people's code on [Exercism](http://exercism.io), and I often see exercises solved in a way that could be greatly simplified if the author had only known about a certain Ruby method.

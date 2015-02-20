@@ -7,7 +7,10 @@ categories:
 ---
 
 This post originally appeared on [Engine Yard](https://blog.engineyard.com/2015/measuring-clientside-javascript-test-coverage-with-istanbul).
+
 It was also published on the [Quick Left Blog](https://quickleft.com/blog/measuring-clientside-javascript-test-coverage-istanbul/).
+
+## Introduction
 
 Testing is a vital part of any development process. Whether a project's authors are hoping for scalability, fewer bugs, or just code that stands the test of time, a solid test suite is essential.
 

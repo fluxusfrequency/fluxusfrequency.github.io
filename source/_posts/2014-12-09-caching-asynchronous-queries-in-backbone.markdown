@@ -7,7 +7,10 @@ categories:
 ---
 
 This post originally appeared on [Engine Yard](https://blog.engineyard.com/2014/caching-asynchronous-queries-backbone).
+
 It was also published on the [Quick Left Blog](https://quickleft.com/blog/caching-asynchronous-queries-in-backbone-js/).
+
+## Introduction
 
 I was working on a _Backbone_ project with Bob Bonifield recently, when we came across a problem. We were building an administration panel to be used internally by a client, and there were a couple of views that needed to display the same information about users in a slightly different way. To prevent unnecessary AJAX calls, we decided to cache the result of `Backbone.Model#fetch` at two levels of our application.
 
