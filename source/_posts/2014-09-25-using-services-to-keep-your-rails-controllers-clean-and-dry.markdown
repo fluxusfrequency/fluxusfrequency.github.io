@@ -6,7 +6,7 @@ date: 2014-09-25 07:02:57 -0600
 
 This post originally appeared on [Engine Yard](https://blog.engineyard.com/2014/keeping-your-rails-controllers-dry-with-services).
 
-It also appeared in [Ruby Weekly](http://rubyweekly.com/issues/214).
+It also appeared in [Ruby Weekly](http://rubyweekly.com/issues/214) and on the [Quick Left Blog](https://quickleft.com/blog/using-services-to-keep-your-rails-controllers-clean-and-dry/).
 
 # Using Services to Keep Your Rails Controllers Clean and DRY
 

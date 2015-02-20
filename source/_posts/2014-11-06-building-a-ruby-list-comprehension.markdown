@@ -6,8 +6,8 @@ comments: true
 categories:
 ---
 
-This post originally appeared on [Engine Yard](https://blog.engineyard.com/2014/ruby-list-comprehension).
-It was also a featured article in [Ruby Weekly](http://rubyweekly.com/issues/221).
+This post was a featured article in [Ruby Weekly](http://rubyweekly.com/issues/221).
+It was originally published on [Engine Yard](https://blog.engineyard.com/2014/ruby-list-comprehension) and appeared on the [Quick Left Blog](https://quickleft.com/blog/building-a-ruby-list-comprehension/).
 
 As developers, we're in the business of continually bettering ourselves. Part of that process is pushing ourselves to learn and use better code patterns, try new libraries, and pick up new languages. For me, the latest self-learning project has been picking up Python.
 

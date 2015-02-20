@@ -6,6 +6,8 @@ comments: true
 categories:
 ---
 
+This post originally appeared on [Engine Yard](https://blog.engineyard.com/2015/instances-classes-and-modules) and was later published on the [Quick Left Blog](https://quickleft.com/blog/instances-classes-and-modules-oh-my/).
+
 One of the biggest challenges of object oriented programming in Ruby is defining the interface of your objects. In other languages, such as Java, there is an explicit way to define an interface that you must conform to. But in Ruby, it's up to you.
 
 Compounding with this difficulty is the problem of deciding which object should own a method that you want to write. Trying to choose between modules, class methods, instance methods, structs, and lambdas can be overwhelming.

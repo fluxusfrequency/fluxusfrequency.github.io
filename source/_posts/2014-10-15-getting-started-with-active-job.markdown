@@ -6,8 +6,9 @@ comments: true
 categories:
 ---
 
-This post originally appeared on [Engine Yard](https://blog.engineyard.com/2014/getting-started-with-active-job).
-It was also a featured article in [Ruby Weekly](http://rubyweekly.com/issues/215).
+This post was featured article in [Ruby Weekly](http://rubyweekly.com/issues/215).
+
+This post originally appeared on [Engine Yard](https://blog.engineyard.com/2014/getting-started-with-active-job) and was also published on the [Quick Left Blog](https://quickleft.com/blog/getting-started-with-active-job/).
 
 
 With the [announcement of Rails 4.2](http://edgeguides.rubyonrails.org/4_2_release_notes.html) came some exciting news: Rails now has built-in support for executing jobs in the background using [Active Job](https://github.com/rails/rails/tree/master/activejob). The ability to schedule newsletters, follow-up emails, and database housekeeping tasks is vital to almost any production application. In the past, developers had to hand-roll this functionality, and configuration varied between different queueing services. With the release of Rails 4.2, setting up jobs to be executed by workers at a later time is standardized. In this article, we'll take a look at how to set up Active Job and use it to send a follow-up email to a new user.

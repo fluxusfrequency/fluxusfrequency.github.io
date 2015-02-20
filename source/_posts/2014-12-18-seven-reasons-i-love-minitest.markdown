@@ -6,8 +6,9 @@ comments: true
 categories:
 ---
 
-This post originally appeared on [Engine Yard](https://blog.engineyard.com/2014/seven-reasons-i-love-minitest).
-It was also a featured article in [Ruby Weekly](http://rubyweekly.com/issues/225).
+This post was a featured article in [Ruby Weekly](http://rubyweekly.com/issues/225).
+
+It originally appeared on [Engine Yard](https://blog.engineyard.com/2014/seven-reasons-i-love-minitest), and was also published on the [Quick Left Blog](https://quickleft.com/blog/seven-reasons-i-love-minitest/).
 
 The other day at our company standup, I mentioned that I was eager to read an article on [Concurrency in Minitest] (http://chriskottom.com/blog/2014/10/exploring-minitest-concurrency/) that was featured in [Ruby Weekly](http://rubyweekly.com/issues/216). One of my coworkers asked: "people still use Minitest?" My reply: "you mean you're not using Minitest yet?"
 
