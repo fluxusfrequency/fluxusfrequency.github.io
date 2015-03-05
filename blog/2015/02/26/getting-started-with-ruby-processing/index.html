@@ -1,0 +1,515 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Getting Started With Ruby Processing - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="This post was a featured article in Ruby Weekly #234. It was originally published on Engine Yard. Intrudction If you&rsquo;re like me, you love to &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2015/02/26/getting-started-with-ruby-processing">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Getting Started With Ruby Processing</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-26T06:20:55-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This post was a featured article in <a href="http://rubyweekly.com/issues/234">Ruby Weekly #234</a>.</p>
+
+<p>It was originally published on <a href="https://blog.engineyard.com/2015/getting-started-with-ruby-processing">Engine Yard</a>.</p>
+
+<h1>Intrudction</h1>
+
+<p>If you&rsquo;re like me, you love to code because it is a creative process. In another life, I am a musician.</p>
+
+<p>I&rsquo;ve always loved music because it represents a synthesis of the measurable concreteness of math and the ambiguity of language. Programming is the same way.</p>
+
+<p>But desipite the creative potential of programming, I often myself spending my days working out the kinks of HTTP requests or dealing with SSL certificates. Some part of my yearns for a purely <a href="http://en.wikipedia.org/wiki/Apollonian_and_Dionysian">Apollonion</a> environment in which to use code to make something new and unseen.</p>
+
+<p>When I feel a void for purely creative coding, I turn to the <a href="https://processing.org/">Processing language</a>. Processing is a simple language, based on Java, that you can use to create digital graphics. It&rsquo;s easy to learn, fun to use, and has an amazing online community comprised of programmers, visual artists, musicians, and interdiscplinary artists of all kinds.</p>
+
+<p>In 2009, <a href="https://twitter.com/jashkenas">Jeremy Ashkenas</a>, creator of Backbone.JS, Underscore.JS, and Coffeescript), published the <a href="https://rubygems.org/gems/ruby-processing">ruby-processing gem</a>. It wraps Processing in a &ldquo;thin little shim&rdquo; that makes it even easier to get started as a Ruby developer. In this post, we&rsquo;ll take a look at how you can create your first interactive digital art project in just a few minutes.</p>
+
+<h2>What Is Processing?</h2>
+
+<p>Processing is programming language and IDE built by <a href="http://reas.com/">Casey Reas</a> and <a href="http://benfry.com/">Benjamin Fry</a>, two protegés of indisciplinary digital art guru <a href="http://www.maedastudio.com/">John Maeda</a> at the MIT Media Lab.</p>
+
+<p>Since the project began in 2001, it&rsquo;s been helping teach people to program in a visual art context using a simplified version of Java. It comes packaged as an <a href="https://processing.org/download/">IDE</a> that can be downloaded and used to create and save sketches.</p>
+
+<h2>Why Ruby Processing?</h2>
+
+<p>Since Processing already comes wrapped in an easy-to-use package, you may ask: &ldquo;why should I bother with Ruby Processing?&rdquo;</p>
+
+<p>The answer: if you know how to write Ruby, you can use Processing as a visual interface to a much more complex program. Games, interactive art exhibits, innovative music projects, anything you can imagine; it&rsquo;s all at your fingertips.</p>
+
+<p>Additionally, you don&rsquo;t have to declare types, <code>void</code>s, or understand the differences between <code>float</code>s and <code>int</code>s to get started.</p>
+
+<p>Although there are some drawbacks to using Ruby Processing, most notably slower performance, having Ruby&rsquo;s API available to translate your ideas into sketches more than makes up for it.</p>
+
+<h2>Setup</h2>
+
+<p>When getting started with Ruby Processing for the first time, it can be a little bit overwhelming to get all of the dependencies set up correctly. The gem relies on JRuby, Processing, and a handful of other things. Here&rsquo;s how to get them all installed and working.</p>
+
+<p>I&rsquo;ll assume you already have the following installed: homebrew, wget, java, and a ruby manager such as rvm, rbenv or chruby.</p>
+
+<h3>Processing</h3>
+
+<p><a href="https://www.processing.org/download/">Download Processing</a> from the official website and install it.</p>
+
+<p>When you&rsquo;re done, make sure that the resulting app is located in your <code>/Applications</code> directory.</p>
+
+<h3>JRuby</h3>
+
+<p>Although it&rsquo;s possible to run Ruby Processing on the <a href="http://en.wikipedia.org/wiki/Ruby_MRI">MRI</a>, I highly suggest using JRuby. It works much better, since Processing itself is built on Java.</p>
+
+<p>Install the latest JRuby version (1.7.18 at the time of this writing). For example, if you&rsquo;re using <code>rbenv</code>, the command would be <code>rbenv install jruby-1.7.18</code>, followed by <code>rbenv global jruby-1.7.18</code> to set your current ruby to JRuby.</p>
+
+<h3>Ruby Processing</h3>
+
+<p>Install the <code>ruby-processing</code> gem globally with <code>gem install ruby-processing</code>.
+If you&rsquo;re using <code>rbenv</code>, don&rsquo;t forget to run <code>rbenv rehash</code>.</p>
+
+<h3>JRuby Complete</h3>
+
+<p>You&rsquo;ll need the <code>jruby-complete</code> Java jar. Fortunately, there are a couple of built-in Ruby Processing commands that make it easy to install. <code>rp5</code> is the Ruby Processing command. It can be used to do many things, one of which is to install <code>jruby-complete</code> using <code>wget</code>. To do so, run:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rp5 setup install</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once it&rsquo;s complete, you can use <code>rp5 setup check</code> to make sure everything worked.</p>
+
+<h3>Setup Processing Root</h3>
+
+<p>One final step. You&rsquo;ll need to set the root of your Processing app. This one-liner should take care of it for you:</p>
+
+<p><code>echo 'PROCESSING_ROOT: /Applications/Processing.app/Contents/Java' &gt;&gt; ~/.rp5rc</code></p>
+
+<h3>Ready To Go</h3>
+
+<p>Now that we have everything installed and ready to go, we can start creating our first piece of art!</p>
+
+<h2>Making Your First Sketch</h2>
+
+<p>There are two basic parts to a Processing program: <code>setup</code> and <code>draw</code>.</p>
+
+<p>The code in <code>setup</code> runs one time, to get everything ready to go.</p>
+
+<p>The code in <code>draw</code> runs repeatedly in a loop. How fast is the loop? By default, it&rsquo;s 60 frames per second, although it can be limited by your machine&rsquo;s processing power. You can also manipulate it with the <code>frame_rate</code> method.</p>
+
+<p>Here&rsquo;s an example sketch that sets the window size, background and stroke colors, and draws a circle with a square around it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">setup</span>
+</span><span class='line'>  <span class="n">size</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">600</span>
+</span><span class='line'>  <span class="n">background</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="n">stroke</span> <span class="mi">255</span>
+</span><span class='line'>  <span class="n">no_fill</span>
+</span><span class='line'>  <span class="n">rect_mode</span> <span class="no">CENTER</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'>  <span class="n">ellipse</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span>
+</span><span class='line'>  <span class="n">rect</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here&rsquo;s a quick run-through of what each of these methods is doing:</p>
+
+<p>-<code>size()</code>: Sets the window size. It takes two arguments: width and height (in pixels).
+-<code>background()</code>: Sets the background color. It takes four arguments: R, G, B, and an alpha (opacity) value.
+-<code>stroke()</code>: Sets the stroke color. Takes RGBA arguments, like <code>background()</code>.
+-<code>no_fill()</code>: Tells Processing not to fill in shapes with the fill color. You can turn it back on with <code>fill()</code>, which takes RGBA values.
+-<code>rect_mode</code>: Tells Processing to draw rectangles using the x and y coordinates as a center point, with the other two arguments specifying width and height. The other <a href="https://processing.org/reference/rectMode_.html">available modes</a> are: CORNER, CORNERS, and RADIUS.
+-<code>ellipse</code>: Draws an ellipse or circle. Takes four arguments: x-coordinate, y-coordinate, width, and height.
+-<code>rect</code>: Draws a rectangle or square. Takes four arguments: x-coordinate, y-coordinate, width, and height.</p>
+
+<p>Note that the coordinate system in Processing starts at the top-left corner, not in the middle as in the Cartesian Coordinate System.</p>
+
+<h2>Running the Program</h2>
+
+<p>If you&rsquo;re following along at home, let&rsquo;s see what we&rsquo;ve made! Save the code above into a file called <code>my_sketch.rb</code>.</p>
+
+<p>There are two ways to run your program: you can either have it run once with <code>rp5 run my_sketch.rb</code>, or you can watch the filesystem for changes with <code>rp5 watch my_sketch.rb</code>. Let&rsquo;s just use the <code>run</code> version for now.</p>
+
+<p><img src="http://i.imgur.com/VhQo15W.png"/></p>
+
+<p>Pretty basic, but it&rsquo;s a good start! Using just the seven methods above, you can create all kinds of sketches.</p>
+
+<h2>Other Commonly Used Methods</h2>
+
+<p>Here are a few other useful Processing methods to add to your toolbox:</p>
+
+<p>-<code>line()</code>: Draws a line. Takes four argments: x1, y1, x2, y2. The line is drawn from the point at the x, y coordinates of the first two arguments to the point at the coordinates of the last two arguments.
+-<code>stroke_weight()</code>: Sets the width of the stroke in pixels.
+-<code>no_stroke()</code>: Tells Processing to draw shapes without outlines.
+-<code>smooth()</code>: Tells Processing to draw shapws with anti-aliased edges. On by default, but can be disables with <code>noSmooth()</code>.
+-<code>fill()</code>: Sets the fill color of shapes. Takes RGBA arguments.</p>
+
+<p>For a list of all the methods available in vanilla Processing, check out <a href="https://www.processing.org/reference/">this list</a>. Note that the Java implementation of these methods is in <code>camelCase</code>, but in Ruby they are <em>probably</em> in <code>snake_case</code>.</p>
+
+<p><a href="https://github.com/jashkenas/ruby-processing/wiki/Deprecation-of-methods">Some methods have also been deprecated</a>, usually because you can use Ruby to do the same thing more easily.</p>
+
+<p>If you see anything in the Processing docs and can&rsquo;t get it to run in Ruby Processing, use <code>$app.find_method("foo")</code> to to search the method names available in Ruby Processing.</p>
+
+<h2>Responding to Input</h2>
+
+<p>Now that we know how to make a basic sketch, let&rsquo;s build something that can respond to user input. This is where we leave static visual art behind, and start to make interactive digital art.</p>
+
+<p>Although you can use all kinds of physical inputs to control Processing (e.g. Arduino, Kinect, LeapMotion), today we&rsquo;ll just use the mouse.</p>
+
+<p>Processing exposes a number of variables exposing its state at runtime, such as <code>frame_count</code>, <code>width</code>, <code>height</code>. We can use the <code>mouse_x</code> and <code>mouse_y</code> coordinates to control aspects of our program.</p>
+
+<p>Here&rsquo;s a sketch based on the <code>mouse_x</code> and <code>mouse_y</code> positions. It draws lines of random weight starting at the top of the screen at the mouse&rsquo;s x position (<code>mouse_x, 0</code>) to a y coordinate between 0 and 200 pixels to the right of the mouse&rsquo;s y position (<code>mouse_y + offset, height</code>).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">setup</span>
+</span><span class='line'>  <span class="n">size</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">600</span>
+</span><span class='line'>  <span class="n">background</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="n">stroke</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">60</span> <span class="c1"># first argument is grayscale value, second is opacity</span>
+</span><span class='line'>  <span class="n">frame_rate</span> <span class="mi">8</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'>  <span class="n">r</span> <span class="o">=</span> <span class="nb">rand</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">stroke_weight</span> <span class="n">r</span>
+</span><span class='line'>  <span class="n">offset</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="mi">10</span>
+</span><span class='line'>  <span class="n">line</span> <span class="n">mouse_x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">mouse_y</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="n">height</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Load that up and check it out!</p>
+
+<p><img src="http://i.imgur.com/HkS0XiH.png" /></p>
+
+<h2>Wrapping Your Sketch in a Class</h2>
+
+<p>One last not before we go: you can totally call other methods from within your <code>setup</code> and <code>draw</code> methods. In fact, you can even wrap everything in a class that inherits from <code>Processing::App</code>.</p>
+
+<p>You can do everything you normally do in Ruby, so you can build a whole project, with logic branches and state, that controls the visual effect through these two methods.</p>
+
+<p>Here&rsquo;s a snippet from a version of Tic Tac Toe I built with <a href="https://twitter.com/RolenTLe">Rolen Le</a> during gSchool.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;ruby-processing&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">TicTacToe</span> <span class="o">&lt;</span> <span class="no">Processing</span><span class="o">::</span><span class="no">App</span>
+</span><span class='line'>  <span class="kp">attr_accessor</span> <span class="ss">:current_player</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">setup</span>
+</span><span class='line'>    <span class="n">size</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">800</span>
+</span><span class='line'>    <span class="n">background</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@current_player</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'>    <span class="n">create_lines</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create_lines</span>
+</span><span class='line'>    <span class="n">stroke</span> <span class="mi">256</span><span class="p">,</span><span class="mi">256</span><span class="p">,</span><span class="mi">256</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">301</span><span class="p">,</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">301</span><span class="p">,</span> <span class="mi">666</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">488</span><span class="p">,</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">488</span><span class="p">,</span> <span class="mi">666</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">301</span><span class="p">,</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">301</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">488</span><span class="p">,</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">488</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">#borders</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">133</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">666</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">666</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">666</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To see the rest of the code, visit the <a href="https://github.com/fluxusfrequency/tic-tac-toe">GitHub repo</a>.</p>
+
+<p>Another example of a game I built early on in my programming career can be found <a href="https://github.com/fluxusfrequency/mancala">here</a>. I later did a <a href="http://fluxusfrequency.github.io/blog/2014/01/17/refactoring-2-replace-method-with-method-object/">series</a> of <a href="http://fluxusfrequency.github.io/blog/2014/01/18/refactoring-3-introduce-named-parameter-and-introduce-class-annotation/">refactorings</a> of this <a href="http://fluxusfrequency.github.io/blog/2014/01/27/refactoring-4-remove-middle-man/">code</a> on my <a href="http://fluxusfrequency.github.io/blog/archives/">personal blog</a>.</p>
+
+<p>I&rsquo;m still working on a pattern for game development with that I like. Keep an eye out for future posts about the best way to build a game with Ruby Processing.</p>
+
+<h2>Learning More</h2>
+
+<p>There&rsquo;s so much more you can do in Processing than what we&rsquo;ve covered here! Bézier curves, translations, rotations, images, fonts, audio, video, and 3D sketching are all available.</p>
+
+<p>The best way to figure out how to do a lot of sketching. Just tinkering with the methods covered in this post would be enough to keep you busy creating new things for years.</p>
+
+<p>If you&rsquo;ve really caught the bug and want to go even <em>deeper</em>, check out some of these resources to learn more.</p>
+
+<h3>Built-in Samples</h3>
+
+<p>If you run <code>rp5 setup unpack_samples</code>, you&rsquo;ll get a bunch of Processing sketch samples in a directory located at <code>~/rp_samples</code>. I encourage you to open them up and take a look. There&rsquo;s a lot you can glean by changing little bits of code in other projects.</p>
+
+<h3>Online Examples From Books</h3>
+
+<p>Learning Processing is an excellent book by Daniel Shiffman. In addition to being a valuable resource for Processing users, it has a number of <a href="http://www.learningprocessing.com/examples/">examples available online</a>.</p>
+
+<p>Daniel Shiffman also wrote a book called <a href="http://natureofcode.com/">The Nature of Code</a>. The examples from it have been <a href="https://github.com/ruby-processing/The-Nature-of-Code-Examples-in-Ruby">ported to Ruby</a> and are another great resource for learning more.</p>
+
+<h3>Process Artist</h3>
+
+<p>There&rsquo;s a great Jumpstart Lab tutorial called <a href="http://tutorials.jumpstartlab.com/projects/process_artist.html">Process Artist</a>, that walks you through building a drawing program à la MSPaint.</p>
+
+<h2>Conclusion</h2>
+
+<p>Processing is an awesome multi-disciplinary tool. It sits at the intersection of coding, visual art, photography, sound art, and interactive digital experiences. With the availability of Ruby Processing, it&rsquo;s super easy to get started.</p>
+
+<p>If you&rsquo;re a programmer looking for a way to express your creativity, you couldn&rsquo;t find a better way to do it than to try tinkering with Processing. I hope this post gets you off to a great start. Good luck and keep sketching!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-26T06:20:55-07:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2015/02/26/getting-started-with-ruby-processing/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2015/02/26/getting-started-with-ruby-processing/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/02/04/setting-up-a-client-side-javascript-project-with-gulp-and-browserify/" title="Previous Post: Setting Up A Client-Side JavaScript Project With Gulp and Browserify">&laquo; Setting Up A Client-Side JavaScript Project With Gulp and Browserify</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/03/01/serving-custom-json-from-your-rails-api-with-activemodel-serializers/" title="Next Post: Serving Custom JSON From Your Rails API With ActiveModel::Serializers">Serving Custom JSON From Your Rails API With ActiveModel::Serializers &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/03/01/serving-custom-json-from-your-rails-api-with-activemodel-serializers/">Serving Custom JSON From Your Rails API With ActiveModel::Serializers</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/02/26/getting-started-with-ruby-processing/">Getting Started With Ruby Processing</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/02/04/setting-up-a-client-side-javascript-project-with-gulp-and-browserify/">Setting Up A Client-Side JavaScript Project With Gulp and Browserify</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/01/29/instances/">Instances, Classes, and Modules, Oh My!</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/01/22/measuring-client-side-javascript-test-coverage-with-istanbul/">Measuring Client-Side JavaScript Test Coverage With Istanbul</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

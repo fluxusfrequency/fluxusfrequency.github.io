@@ -9,7 +9,7 @@
   <meta name="author" content="Ben Lewis">
 
   
-  <meta name="description" content="The gSchool students began our first big Rails project this week. We&rsquo;re building a restaurant site with online ordering. The project is called &hellip;">
+  <meta name="description" content="I read JavaScript Enlightenment by Cory Lindley over the weekend. It was the perfect thing for me right now, as an advanced beginner. It really &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,1083 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/10/javascript-enlightenment/">JavaScript Enlightenment</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-10T21:30:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I read <a href="http://www.javascriptenlightenment.com/">JavaScript Enlightenment</a> by Cory Lindley over the weekend. It was the perfect thing for me right now, as an advanced beginner. It really breaks down all the parts of tha langauge in an understandable way. I feel like I get the &lsquo;big picture&rsquo; much better after having read it. Here are some notes I took along the way.</p>
+
+<h1>Explanations</h1>
+
+<h2>Objects</h2>
+
+<p>In javascript, object is king.
+An object is a set of properties with keys and values.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObject</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Object</span><span class="p">();</span>
+</span><span class='line'><span class="nx">myObject</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="err">“</span><span class="nx">Ben</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">myObject</span><span class="p">.</span><span class="nx">age</span> <span class="o">=</span> <span class="mi">29</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Javascript’s Native Object Constructors</h2>
+
+<p>These are the nine object constructors built into JavaScript:</p>
+
+<ul>
+<li>Number()</li>
+<li>String()</li>
+<li>Boolean()</li>
+<li>Object()</li>
+<li>Array()</li>
+<li>Function()</li>
+<li>Date()</li>
+<li>RegExp()</li>
+<li>Error()</li>
+</ul>
+
+
+<p>There’s also Math, which is not a constructor. It acts like an instantiated object.</p>
+
+<p>Thus, you can do:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But NOT:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myMath</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="k">new</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Contructors &amp; Instantiating With Constructors</h2>
+
+<p>Every object can be built with a constructor. You instantiate the object with the ‘new’ keyword.</p>
+
+<p>Here’s the syntax:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObject</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Object</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can also define your own constructors, like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Person</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span><span class="nx">age</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>     <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="nx">name</span><span class="p">;</span>
+</span><span class='line'>     <span class="k">this</span><span class="p">.</span><span class="nx">age</span> <span class="o">=</span> <span class="nx">age</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// People can be instantiated like this:</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">Ben</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Person</span><span class="p">(</span><span class="err">“</span><span class="nx">Ben</span><span class="err">”</span><span class="p">,</span> <span class="mi">29</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Object Literal Notation</h2>
+
+<p>Instead of using the new keyword, you can create an object with the literal syntax:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="o">*</span><span class="kd">var</span> <span class="nx">myNumber</span> <span class="o">=</span> <span class="mi">23</span><span class="p">;</span>
+</span><span class='line'><span class="o">*</span><span class="kd">var</span> <span class="nx">myString</span> <span class="o">=</span> <span class="err">“</span><span class="nx">Hello</span><span class="p">,</span> <span class="nx">world</span><span class="o">!</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="o">*</span><span class="kd">var</span> <span class="nx">myBoolean</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myObject</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myArray</span> <span class="o">=</span> <span class="p">[];</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myFunction</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){};</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myRegExp</span> <span class="o">=</span> <span class="sr">/.*/</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myError</span> <span class="o">=</span> <span class="p">(</span><span class="err">‘</span><span class="nx">crap</span><span class="o">!</span><span class="err">’</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>* These tjree literals do NOT return an object, but a Javascript primitive. Their constructors DO return objects.
+A primitive is an irreducible value.
+If they are later treated as an object, for example by calling a method on them, they are temporarily wrapped in an object.</p>
+
+<h2>The Third Notation</h2>
+
+<p>Another way to create a primitive (does not use the new keyword):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myNumber</span> <span class="o">=</span> <span class="nb">Number</span><span class="p">(</span><span class="mi">23</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myString</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myBoolean</span> <span class="o">=</span> <span class="nb">Boolean</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Complex Objects</h2>
+
+<p>Objects that contain multiple values, which can be primitives or other complex objects.
+These are objects created created with the new keyword, or literal notation (and are NOT one of the primitives).</p>
+
+<p>They are also known as “composite objects” or a “reference types”.
+These objects store an address reference to an object.
+If you copy them, the copies are also references to the same address.
+Therefore, they will all mutate if the object is changed.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarC</span> <span class="o">=</span> <span class="p">{</span><span class="nx">name</span><span class="o">:</span> <span class="err">“</span><span class="nx">Ben</span><span class="err">”</span><span class="p">};</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myVarD</span> <span class="o">=</span> <span class="nx">myVarC</span><span class="p">;</span>
+</span><span class='line'><span class="nx">myVarC</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="err">“</span><span class="nx">John</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarD</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="err">“</span><span class="nx">John</span><span class="err">&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Complex Objects - Native Properties</h2>
+
+<h3>&lsquo;constructor&rsquo;</h3>
+
+<p>In addition to their basic property keys, all instantiated objects have a property called &lsquo;constructor&rsquo;.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarE</span> <span class="o">=</span> <span class="p">{</span><span class="nx">age</span><span class="o">:</span> <span class="mi">29</span><span class="p">};</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarE</span><span class="p">.</span><span class="nx">constructor</span><span class="p">);</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="nb">Object</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>&lsquo;instanceof&rsquo;</h3>
+
+<p>The type of an instantiated object can be checked with &lsquo;instanceof&rsquo;.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">MyVarF</span> <span class="o">=</span> <span class="p">{</span><span class="nx">gender</span><span class="o">:</span> <span class="err">“</span><span class="nx">male</span><span class="err">”</span><span class="p">};</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarF</span> <span class="k">instanceof</span> <span class="nb">Object</span><span class="p">();)</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="nx">True</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Instance Properties</h3>
+
+<p>Instances of a constructor can be given their own properties. This includes objects created from the nine native constructors, but does not include primitives.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarG</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Boolean</span><span class="p">();</span>
+</span><span class='line'><span class="nx">myVarG</span><span class="p">.</span><span class="nx">prop</span> <span class="o">=</span> <span class="err">“</span><span class="nx">test</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarG</span><span class="p">.</span><span class="nx">prop</span><span class="p">);</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="err">“</span><span class="nx">test</span><span class="err">”</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarH</span> <span class="o">=</span> <span class="err">“</span><span class="nx">hello</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">myVarH</span><span class="p">.</span><span class="nx">prop</span> <span class="o">=</span> <span class="err">“</span><span class="nx">world</span><span class="p">;</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myVarH</span><span class="p">.</span><span class="nx">prop</span><span class="p">);</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="kc">undefined</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Accessing Properties</h3>
+
+<p>Dot notation vs. Bracket notation:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">myVarJ</span><span class="p">.</span><span class="nx">prop1</span> <span class="o">=</span> <span class="err">“</span><span class="nx">test</span><span class="err">”</span>
+</span><span class='line'><span class="nx">myVarJ</span><span class="p">[</span><span class="err">‘</span><span class="nx">prop2</span><span class="err">’</span><span class="p">]</span> <span class="o">=</span> <span class="err">“</span><span class="nx">bar</span><span class="err">”</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Bracket notation has two advantages: it can be used to concatenate strings in the property name, and it can use reserved words.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// Dot Notation</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">str</span> <span class="mi">1</span> <span class="o">=</span> <span class="err">“</span><span class="nx">foo</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">str2</span> <span class="o">=</span> <span class="err">“</span><span class="nx">bar</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myVarK</span><span class="p">[</span><span class="nx">str1</span> <span class="o">+</span> <span class="nx">str2</span><span class="p">]</span> <span class="o">=</span> <span class="err">“</span><span class="nx">baz</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">myVarK</span><span class="p">.</span><span class="nx">foobar</span><span class="p">;</span>
+</span><span class='line'><span class="o">=&gt;</span><span class="err">”</span><span class="nx">baz</span><span class="err">&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Bracket Notation</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myVarL</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="err">“</span><span class="nx">Algebra</span><span class="err">”</span><span class="p">;</span>
+</span><span class='line'><span class="nx">myVarL</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">];</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="err">“</span><span class="nx">Algebra</span><span class="err">”</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Deleting Properties</h3>
+
+<p>There is only only way to delete a property, which is to use the <em>delete</em> keyword.
+Setting it to null or undefined will not remove it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="k">delete</span> <span class="nx">myVarL</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>hasOwnProperty()</h3>
+
+<p>This method can be used to check if a property belongs to a given object. It may return false when an object&rsquo;s constructor does have the property; it only tells whether the object itself has the property.</p>
+
+<h3>The Prototype Property</h3>
+
+<p>All instances of a constructor contain this property. The properties of the &lsquo;prototype&rsquo; property itself are inherited by instances of the constructor.
+Object.prototype is at the top of the inheritance chain, so all objects inherit from it. It is a very bad idea to change Object.prototype&rsquo;s properties.</p>
+
+<h3>The &lsquo;in&rsquo; Keyword</h3>
+
+<p>Checks for a property in an object. Similar to hasOwnProperty(), but it <em>does</em> look up the inheritance chain.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVar</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;hello&#39;</span><span class="p">,</span> <span class="s1">&#39;world&#39;</span><span class="p">];</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;toString&#39;</span> <span class="k">in</span> <span class="nx">myVar</span><span class="p">);</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="kc">true</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Inheritance and Looping</h2>
+
+<p>If you run a for/in loop on the properties of an object, it will return inherited properties unless you use a guard clause checking each property with hasOwnProperty().</p>
+
+<h2>Host Objects</h2>
+
+<p>These objects are provided by the JavaScript environment. Examples include &lsquo;window&rsquo; and &lsquo;document&rsquo; in the browser.</p>
+
+<h2>The &lsquo;this&rsquo; Keyword</h2>
+
+<p>The &lsquo;this&rsquo; keyword is available within the scope of a function, but it refers to the object which called the current function. It does not refer to the function itself, but its containing object.</p>
+
+<p>&lsquo;this&rsquo; acts like any other variable, only it can&rsquo;t be modified.</p>
+
+<p>In EcmaScript 3, calling &lsquo;this&rsquo; from a nested function referred to the Head Object. This was a serious mistake that was fixed in ES5. As a workaround, programmers used a variable &lsquo;that&rsquo; to keep track of the value of &lsquo;this&rsquo; inside of nested functions.</p>
+
+<p>&lsquo;this&rsquo; can be overridden with call() and apply(), which redefine &lsquo;this&rsquo; to be their first parameter (the object they are targetting).</p>
+
+<p>When using a constructor to create an instance, &lsquo;this&rsquo; refers to the object-to-be (the instance that has not yet been created). This pattern works for both properties and methods.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Person</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="nx">name</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Scope</h2>
+
+<p>There are three kinds of scope in JavaScript:</p>
+
+<ol>
+<li>Global Scope</li>
+<li>Function Scope</li>
+<li>Eval Scope</li>
+</ol>
+
+
+<p>There is no scope created by &lsquo;for&rsquo; or &lsquo;while&rsquo; loops, nor by &lsquo;if&rsquo;.</p>
+
+<p>If a variable is declared without the keyword &lsquo;var&rsquo;, it is created in the global scope. This is to be avoided.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">myVar</span> <span class="o">=</span> <span class="s2">&quot;hello&quot;</span><span class="p">;</span> <span class="c1">// this is global</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myVar2</span> <span class="o">=</span> <span class="s2">&quot;world&quot;</span><span class="p">;</span> <span class="c1">// this is local</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Lexical Scoping</h3>
+
+<p>Objects can look up the inheritance chain to find properties, functions, and methods, but they cannot look into their childrens&#8217; scopes. When looking for a value up the inheritance chain, the first found value is returned. Any values in higher scopes are &lsquo;shadowed&rsquo;, or &lsquo;masked&rsquo; by the value found in the lowest scope.</p>
+
+<p>Priority of inheritance is defined in the definition (the code), not the state of objects at the time of invocation.</p>
+
+<h2>Prototype</h2>
+
+<p>Prototype is a property found in instances created by the Function() constructor. These functions can be used as constructors themselves.</p>
+
+<p>Why should you care?</p>
+
+<ol>
+<li>Prototype is what the nine native constructors use to pass methods to their object children.</li>
+<li>You can use prototypes to orchestrate inheritance.</li>
+<li>You may inherit code that uses it.</li>
+<li>It&rsquo;s efficient in that all instances of an object can share a method defined in only one place: the prototype object.</li>
+</ol>
+
+
+<p>The prototype property is basically a container (an object) for properties and methods you want instances of a given object to inherit. They will inherit the current value of the property (it is updated dynamically).</p>
+
+<p>The values passed into prototype must be complex (not JavaScript primitives).</p>
+
+<p>Instances of an object access the prototype&rsquo;s host object with their &lsquo;constructor&rsquo; property.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myArray</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">();</span>
+</span><span class='line'><span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">foo</span> <span class="o">=</span> <span class="s1">&#39;bar&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">myArray</span><span class="p">.</span><span class="nx">constructor</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">foo</span><span class="p">;</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="s1">&#39;bar&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// This is the same as line 4. The &#39;foo&#39; property is found by inheritance.</span>
+</span><span class='line'><span class="nx">myArray</span><span class="p">.</span><span class="nx">foo</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>All objects have a common highest ancestor: Object.prototype. Overriding the &lsquo;prototype&rsquo; property on Object will break its functionality.</p>
+
+<p><br/></p>
+
+<hr />
+
+
+<p><br/></p>
+
+<h1>The Parts of JavaScript</h1>
+
+<h2>The Head/Global Object</h2>
+
+<p>This object represents the highest scope in a given JavaScript environment. In the browser, it is &lsquo;window&rsquo;. It contains ALL objects in the environment.</p>
+
+<p>Global properties and variables are contained in the Head Object, and are accessible from any other scope through inheritance.</p>
+
+<p>The Head Object can be referenced by referring to &lsquo;window&rsquo;, or using the keyword &lsquo;this&rsquo; from the global scope. Thus, its scope is implied from outside of a function.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// These mean the same thing:</span>
+</span><span class='line'><span class="nx">alert</span><span class="p">();</span>
+</span><span class='line'><span class="nb">window</span><span class="p">.</span><span class="nx">alert</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Global Functions</h3>
+
+<p>These are provided by the environment.</p>
+
+<ul>
+<li>decodeURI()</li>
+<li>decodeURIComponent()</li>
+<li>encodeURI()</li>
+<li>encodeURIComponent()</li>
+<li>eval()</li>
+<li>isFinite()</li>
+<li>isNaN()</li>
+<li>parseFloat()</li>
+<li>parseInt()</li>
+</ul>
+
+
+<h2>Object()</h2>
+
+<p>Gives an empty object container. Creating objects with a literal is the preferred syntax.</p>
+
+<h3>Parameters</h3>
+
+<p>Object() takes a parameter that is a value. It is null/undefined by default.</p>
+
+<h3>Properties and Methods</h3>
+
+<p>Note: ALL JavaScript objects inherit the following properties and methods from Object.prototype.</p>
+
+<p>When defining property keys, one can use dot notation or bracket notation. Bracket notation is more flexible, because it allows for the use of concatenation and reserved words.</p>
+
+<h4>Properties</h4>
+
+<ul>
+<li>prototype</li>
+</ul>
+
+
+<h4>Instance Properties</h4>
+
+<ul>
+<li>constructor</li>
+</ul>
+
+
+<h4>Instance Methods</h4>
+
+<ul>
+<li>hasOwnProperty()</li>
+<li>isPrototypeOf()</li>
+<li>propertyIsEnumerable()</li>
+<li>toLocaleString()</li>
+<li>toString()</li>
+<li>valueOf()</li>
+</ul>
+
+
+<p><br /></p>
+
+<h2>Function()</h2>
+
+<p>Functions always return a value. This will be &lsquo;undefined&rsquo; if another return value is not specified.</p>
+
+<p>Functions define a new scope. Variables within it cannot be seen from objects containing the function, but they <em>can</em> be seen by objects it contains. This is called &lsquo;lexical scoping&rsquo;.</p>
+
+<p>There are three ways to define a new function:</p>
+
+<ol>
+<li>With the constructor: var myFunction = new Function(){};</li>
+<li>With a literal, as an expression: var myFunction = function(){};</li>
+<li>With a literal, as a statement: function myFunction(){};</li>
+</ol>
+
+
+<p>Functions are &lsquo;first class citizens&rsquo; in JavaScript. They are objects, they can be stored, they have properties, and they can be passed into other functions (higher-order functions).</p>
+
+<h3>Invoking Functions</h3>
+
+<p>Functions are invoked with (). This can be done in three ways:</p>
+
+<ol>
+<li>As a function - func();</li>
+<li>As a method - when attached to an object - myVar.func();</li>
+<li>Using apply() or call()</li>
+<li>As a constructor:</li>
+</ol>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Cody</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){};</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">cody</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Cody</span><span class="p">();</span>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">cody</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Anonymous Functions</h3>
+
+<p>Functions not given an identifier are anonymous.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">function</span><span class="p">(){};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Self-Invoking Functions</h3>
+
+<p>Functions that call themselves immediately upon definition. This doesn&rsquo;t work with the Function() constructor.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myFunction</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">input</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">input</span><span class="p">)</span>
+</span><span class='line'><span class="p">}();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Self-Invoking Anonymous Functions</h3>
+
+<p>Functions with no identifier that immediately call themselves. These often wrap code to keep it from polluting the global object. Note that it must be wrapped in additional parentheses.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>  <span class="c1">// code goes here</span>
+</span><span class='line'><span class="p">})();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Hoisting</h3>
+
+<p>A function can be invoked before it is defined, because JavaScript collects the functions before runtime. This is called hoisting. It does not work with function expressions.</p>
+
+<h3>Recursion</h3>
+
+<p>Functions may call themselves while executing. This is called recursion.</p>
+
+<h3>Parameters</h3>
+
+<p>When creating a function with the constructor, the last param passed in becomes the inside of the function.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myFunction</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Function</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;return foo+bar&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can create a function with too few parameters. The missing ones will be treated as &lsquo;undefined.&rsquo;</p>
+
+<p>You can also create a function with too many parameters. The extras will be ignored, although they are accessible from the &lsquo;arguments&rsquo; property.</p>
+
+<h3>Properties and Methods</h3>
+
+<h4>Properties</h4>
+
+<ul>
+<li>prototype</li>
+</ul>
+
+
+<h4>Instance Properties</h4>
+
+<ul>
+<li>constructor</li>
+<li>length</li>
+<li>arguments</li>
+</ul>
+
+
+<p>Arguments has a property &lsquo;callee&rsquo; that contains a reference to the function currently executing. This can be used in creating recursive functions.</p>
+
+<p>Arguments also has a property &lsquo;length&rsquo;, containing the number of arguments at invocation. This property is being depricated in favor of arguments.callee.length.</p>
+
+<p><br /></p>
+
+<h4>Instance Methods</h4>
+
+<ul>
+<li>apply()</li>
+<li>call()</li>
+<li>toString()</li>
+</ul>
+
+
+<p><br /></p>
+
+<h2>Array()</h2>
+
+<p>A special type of object with a couple of extra functions.</p>
+
+<h3>Parameters</h3>
+
+<p>Any comma-separated parameters passed in will become elements in the array.
+If a single integer is passed alone, it will define the length of the array instead of an element value. If you define a high index, the elements before it will be filled in with &lsquo;undefined&rsquo;. Setting an array&rsquo;s length can add or remove values automatically.</p>
+
+<h3>Properties and Methods</h3>
+
+<h4>Properties</h4>
+
+<ul>
+<li>prototype</li>
+</ul>
+
+
+<h4>Instance Properties</h4>
+
+<ul>
+<li>constructor</li>
+<li>index</li>
+<li>input</li>
+<li>length</li>
+</ul>
+
+
+<h4>Instance Methods</h4>
+
+<ul>
+<li>pop()</li>
+<li>push()</li>
+<li>reverse()</li>
+<li>shift()</li>
+<li>sort()</li>
+<li>splice()</li>
+<li>unshift()</li>
+<li>concat()</li>
+<li>join()</li>
+<li>slice()</li>
+</ul>
+
+
+<p><br/></p>
+
+<h2>String()</h2>
+
+<h3>Creating Strings</h3>
+
+<p>This will create a string object.
+It is best to avoid this syntax due to potential problems with typeof.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObj</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">String</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span> <span class="c1">// constructor function</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>These two create a primitive:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myString</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span> <span class="c1">// without new keyword</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myString</span> <span class="o">=</span> <span class="s1">&#39;foo&#39;</span> <span class="c1">// literal</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Parameters</h3>
+
+<p>Takes one parameter: the string value being created.</p>
+
+<h3>Properties and Methods</h3>
+
+<h4>Properties</h4>
+
+<ul>
+<li>prototype</li>
+</ul>
+
+
+<h4>Methods</h4>
+
+<ul>
+<li>fromCharChode()</li>
+</ul>
+
+
+<h4>Instance Properties</h4>
+
+<ul>
+<li>constructor</li>
+<li>length</li>
+</ul>
+
+
+<h4>Instance Methods</h4>
+
+<ul>
+<li>charAt()</li>
+<li>charCodeAt()</li>
+<li>concat()</li>
+<li>indexOf()</li>
+<li>lastIndexOf()</li>
+<li>localeCompare()</li>
+<li>match()</li>
+<li>quote()</li>
+<li>replace()</li>
+<li>search()</li>
+<li>slice()</li>
+<li>split()</li>
+<li>substr()</li>
+<li>substring()</li>
+<li>toLocaleLowerCase()</li>
+<li>toLocaleUpperCase()</li>
+<li>toLowerCase()</li>
+<li>toUpperCase()</li>
+<li>valueOf()</li>
+</ul>
+
+
+<p><br /></p>
+
+<h2>Number()</h2>
+
+<h3>Creating Numbers</h3>
+
+<p>This will create a number object.
+It is best to avoid this syntax due to potential problems with typeof.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObj</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Number</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="c1">// constructor function</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>These two create a primitive:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myNumber</span> <span class="o">=</span> <span class="nb">Number</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span> <span class="c1">// without new keyword</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myNumber</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span> <span class="c1">// literal</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Parameters</h3>
+
+<p>Takes one parameter: the number value being created.</p>
+
+<h3>Properties and Methods</h3>
+
+<h4>Properties</h4>
+
+<ul>
+<li>MAX_VALUE</li>
+<li>MIN_VALUE</li>
+<li>NaN</li>
+<li>NEGATIVE_INFINITY</li>
+<li>POSITIVE_INFINITY</li>
+<li>prototype</li>
+</ul>
+
+
+<h4>Instance Properties</h4>
+
+<ul>
+<li>constructor</li>
+</ul>
+
+
+<h4>Instance Methods</h4>
+
+<ul>
+<li>toExponential()</li>
+<li>toFixed()</li>
+<li>toLocaleString()</li>
+<li>toPrecision()</li>
+<li>toString()</li>
+<li>valueOf()</li>
+</ul>
+
+
+<p><br /></p>
+
+<h2>Boolean()</h2>
+
+<h3>Creating Booleans</h3>
+
+<p>This will create a boolean object.
+It is best to avoid this syntax due to potential problems with typeof.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myObj</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Boolean</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="c1">// constructor function</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">These</span> <span class="nx">two</span> <span class="nx">create</span> <span class="nx">a</span> <span class="nx">primitive</span><span class="o">:</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myBoolean</span> <span class="o">=</span> <span class="nb">Boolean</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span> <span class="c1">// without new keyword</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myBoolean</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span> <span class="c1">// literal</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Parameters</h3>
+
+<p>Takes one parameter to be converted into a boolean.</p>
+
+<p>The only false values are: 0, -0, null, false, NaN, undefined, and &ldquo;&rdquo;.</p>
+
+<h3>Properties and Methods</h3>
+
+<h4>Properties</h4>
+
+<ul>
+<li>prototype</li>
+</ul>
+
+
+<h4>Instance Properties</h4>
+
+<ul>
+<li>constructor</li>
+</ul>
+
+
+<h4>Instance Methods</h4>
+
+<ul>
+<li>toSource()</li>
+<li>toString()</li>
+<li>valueOf()</li>
+</ul>
+
+
+<h4>Notes</h4>
+
+<p>If you create a false boolean object with a constructor, it creates an object. Objects convert to true. Thus do not use the constructor with false booleans.</p>
+
+<p><br /></p>
+
+<h2>Primitives: String, Number, and Boolean</h2>
+
+<p>A primitive is an irreducible value.
+The Primitives are: number, string, boolean, null, and undefined.</p>
+
+<p>Primitives are stored in memory with their value:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">myVarA</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">myVarB</span> <span class="o">=</span> <span class="nx">myVarA</span><span class="p">;</span>
+</span><span class='line'><span class="nx">myVarA</span> <span class="o">=</span> <span class="mi">13</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">myVarA</span> <span class="o">===</span> <span class="mi">13</span><span class="p">;</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="kc">true</span>
+</span><span class='line'><span class="nx">myVarB</span> <span class="o">===</span> <span class="mi">12</span><span class="p">;</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="kc">true</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It is best to write these using the literal form. Using a constructor will result in a typeof result of &ldquo;object&rdquo; instead of the actual type.</p>
+
+<h3>Object Wrappers</h3>
+
+<p>When you call a property or method on a primitive, it is wrapped in a temporary object.
+The temporary object is discarded once the properties have been accessed.</p>
+
+<p><br /></p>
+
+<h2>Null</h2>
+
+<p>Use null to indicate that an object property doesn&rsquo;t have a value.
+It means that a value is expected but not yet available.
+Calling typeof on it will return &lsquo;object&rsquo;. It is best to test for null with ===.</p>
+
+<p><br /></p>
+
+<h2>Undefined</h2>
+
+<p>Used in two ways:</p>
+
+<ul>
+<li>Indicate that a variable has no assigned value.</li>
+<li>Indicate that an object property you want to access is not defined or named, and can&rsquo;t be found in the prototype lookup chain.</li>
+</ul>
+
+
+<p>It is best to let JavaScript itself use undefined. Don&rsquo;t use it yourself.</p>
+
+<p><br /></p>
+
+<h2>Math</h2>
+
+<p>This is a built-in, static object. It is not a constructor and cannot be instantiated.</p>
+
+<h3>Properties and Methods</h3>
+
+<h4>Properties</h4>
+
+<ul>
+<li>E</li>
+<li>LN2</li>
+<li>LN10</li>
+<li>LOG2E</li>
+<li>LOG10E</li>
+<li>PI</li>
+<li>SQRT1_2</li>
+<li>SQRT2</li>
+</ul>
+
+
+<h4>Methods</h4>
+
+<ul>
+<li>abs()</li>
+<li>acos()</li>
+<li>asin()</li>
+<li>atan()</li>
+<li>atan2()</li>
+<li>ceil()</li>
+<li>cos()</li>
+<li>exp()</li>
+<li>floor()</li>
+<li>log()</li>
+<li>max()</li>
+<li>min()</li>
+<li>pow()</li>
+<li>random()</li>
+<li>sin()</li>
+<li>sort()</li>
+<li>tan()</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/08/getting-started-with-rails/">Getting Started With Rails</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-08T10:15:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This week at gSchool, we&rsquo;re digging into our first major Rails project, <a href="http://tutorials.jumpstartlab.com/projects/dinner_dash.html">Dinner Dash</a>. It&rsquo;s been a challenging transition.</p>
+
+<h2>Rails Challenges</h2>
+
+<p>Although I know some Ruby, and I know how to drive development with tests, using Rails is a whole new ball game. There are so many new words! From ActiveRecord associations, to &ldquo;form_for&rdquo; and &ldquo;button_to&rdquo;, to strong params, there&rsquo;s a huge library of methods I don&rsquo;t know.</p>
+
+<p>One particularly difficult challenge for me this week was figuring out how to properly use &ldquo;form_for&rdquo;. I was having a little trouble with forms and HTTP routes. I know how to write an update form like this in HTML:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">&quot;/ideas&quot;</span> <span class="na">method=</span><span class="s">&#39;POST&#39;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&#39;text&#39;</span> <span class="na">name=</span><span class="s">&#39;idea[title]&#39;</span> <span class="na">placeholder=</span><span class="s">&quot;Title&quot;</span> <span class="na">value=</span><span class="s">&quot;title&quot;</span><span class="nt">&gt;&lt;input/&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;_method&quot;</span> <span class="na">value=</span><span class="s">&quot;PUT&quot;</span><span class="nt">&gt;&lt;input/&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&#39;submit&#39;</span> <span class="na">value=</span><span class="s">&#39;Submit&#39;</span><span class="nt">&gt;&lt;input/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/form&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But I was having a lot of trouble submitting PUT and DELETE verbs with &ldquo;form_for&rdquo; in Rails.</p>
+
+<p>I was trying to create a form with some code like this, but it wasn&rsquo;t really working out:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='erb'><span class='line'><span class="cp">&lt;%=</span> <span class="n">form_for</span> <span class="ss">:idea</span><span class="p">,</span> <span class="p">(</span><span class="ss">action</span><span class="p">:</span> <span class="ss">:put</span><span class="p">)</span><span class="sc">??</span> <span class="k">do</span> <span class="o">|</span><span class="n">f</span><span class="o">|</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">  &lt;p&gt;</span>
+</span><span class='line'><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">f</span><span class="o">.</span><span class="n">label</span> <span class="ss">:title</span> <span class="cp">%&gt;</span><span class="x">&lt;br&gt;</span>
+</span><span class='line'><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">f</span><span class="o">.</span><span class="n">text_field</span> <span class="ss">:title</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">  &lt;/p&gt;</span>
+</span><span class='line'><span class="x">  &lt;p&gt;</span>
+</span><span class='line'><span class="x">    </span><span class="cp">&lt;%=</span> <span class="n">f</span><span class="o">.</span><span class="n">submit</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span><span class='line'><span class="x">  &lt;/p&gt;</span>
+</span><span class='line'><span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Franklin eventually straigtened us out with a different approach, which he described as the &ldquo;Rails-y way&rdquo; to do it:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='erb'><span class='line'><span class="cp">&lt;%=</span> <span class="n">link_to</span> <span class="s2">&quot;Title&quot;</span><span class="p">,</span> <span class="n">ideas_path</span><span class="p">,</span> <span class="nb">method</span><span class="p">:</span> <span class="ss">:put</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I assume there will be many more &ldquo;Rails-y&rdquo; idioms to learn in my near future.</p>
+
+<h2>Organizing Our Workgroup</h2>
+
+<p>My group for this project is comprised of four people: myself, Bree, Nikhil, and Tyler. So far, we&rsquo;ve been working really well together. We&rsquo;re using <a href="https://www.pivotaltracker.com">Pivotal Tracker</a> and <a href="https://campfirenow.com/">Campfire</a> (this is my first time for both) to drive our development and communication. I&rsquo;ve found it hard to get used to Pivotal Tracker. Although I enjoyed learning how to write epics and stories in <a href="https://github.com/cucumber/cucumber/wiki/Gherkin">Gherkin</a>, I&rsquo;m used to thinking through problems one step at a time in coding. Having to go back to the website and refer to what&rsquo;s in the &lsquo;Current&rsquo; or &lsquo;Icebox&rsquo; list interrupts my flow.</p>
+
+<p>I&rsquo;m also not yet at the point of driving everything with <a href="https://github.com/jnicklas/capybara">Capybara</a>. Although we&rsquo;re testing our models before we implement them, we aren&rsquo;t doing any integration tests in advance. Maybe if we were to transform our Gherkin stories into Cucumber, it would be an easy transition. I&rsquo;m a little shy, though, since it always takes a while to get to know a new testing framework.</p>
+
+<p>Here&rsquo;s one testing success, though: we&rsquo;ve integrated <a href="https://github.com/guard/guard">Guard</a> into our workflow. This is the first time any of us have used it successfully.</p>
+
+<p>I&rsquo;m also trying to itegrate some of the lessons learned from <a href="http://www.therailsview.com/">The Rails View</a>, which I&rsquo;m currently reading. In this project, I&rsquo;m trying to take on a lot of responsibility for the view layer, because I don&rsquo;t feel strong in design and would like to get better. Here&rsquo;s our current view, four days in. Unfortunately, it&rsquo;s mostly Bootstrap. I&rsquo;m planning to shine it up a bit this weekend.</p>
+
+<p><img src="http://s5.postimg.org/8g4kan24n/Ono_Burrito_Beta_Site.png" title="Ono Burrito" alt="Screenshot of a website in development"></p>
+
+<h2>Coming Back to Rails</h2>
+
+<p>Before gSchool, I did a few Rails tutorials online. Coming back to it now, after all the work we&rsquo;ve done with Ruby, hand-built model associations, and SQL, I feel very positive. I may not know what I&rsquo;m doing yet, but it&rsquo;s a lot easier to figure things out, now that I have a context for them. Categorizing confusing bits of code into categories comes much more quickly now. SQL, database tables, models, controllers, views, templates, Ruby expressions, Rails helpers&hellip;these ideas have a lot more meaning than they did before. This means I&rsquo;m able to bounce back from confusion much more quickly.</p>
+
+<h2>Moving Forward</h2>
+
+<p>I&rsquo;m excited to get up to speed in Rails. Our group was able to build out a complete restauarant site, with basic users and ordering functionality, all in the course of a few days. No wonder they say it&rsquo;s easy to get up and running quickly with Rails!</p>
+
+<p>I&rsquo;ve also been working with my mentor (the most awesome Mike Pack) on building a basic API in Rails, as a service for a Backbone.js app on the front end. It will eventually be an online recipe book, with Facebook and Instagram integration. I&rsquo;m really excited to continue working on it.</p>
+
+<h2>Wrapping Up</h2>
+
+<p>I&rsquo;m feeling a little bit intimidated by Rails at the moment, because there&rsquo;s so much to learn. But I&rsquo;m not worried: I relish the challenge of learning how to use a new tool, which is one of the reasons I got into programming in the first place. Plus, there are so many quality resources out there for learning Rails, I&rsquo;m sure I&rsquo;ll be up to speed in no time.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1973,412 +3050,6 @@ Node.js contains a built-in HTTP server library, making it possible to run a web
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/11/making-games/">Making Games</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-11T09:03:00-06:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>My brain is completely saturated with code. For five weeks, I&rsquo;ve lived, eaten, and breathed Ruby about 12 hours per day. I texted my brother (who&rsquo;s studying real estate) a few nights ago to tell him about it.</p>
-
-<p>Me: &ldquo;I&rsquo;m up to my eyeballs in code.&rdquo;
-Him: &ldquo;I&rsquo;m up to my eyeballs in water rights through the doctrine of prior appropriation and fee simple defeasible.&rdquo;</p>
-
-<p>When pounding away at the same subject day in and day out, there comes a time when my brain starts to shut down, and I start to scream &ldquo;NO MORE!!!&rdquo; inside. I was just getting to that point as the week started, so I was relieved when Jeff announced that this would be a &ldquo;Focus Week&rdquo;. Focus Week is a time when those who are behind can catch up, those who are progressing can solidify what they&rsquo;ve learned, and those who are excelling can challenge themselves by exploring new things. It&rsquo;s also a time when everyone can take a breath; the pressure is off.</p>
-
-<h2>Focus Week and Ruby Processing</h2>
-
-<p>Being in the &ldquo;excelling&rdquo; group at the current moment, I was given a simple assignment: choose a partner and build Tic Tac Toe using <a href="https://github.com/jashkenas/ruby-processing">Ruby Processing</a> (RP). We&rsquo;d gotten a brief introduction to RP last Friday as a fun activity, via the Jumpstart Lab <a href="http://tutorials.jumpstartlab.com/projects/process_artist.html">Process Artist Tutorial</a>. RP is a shim between Ruby and the <a href="http://processing.org/">Java Processing</a>, a language used to create graphics simulations. I dug a little deeper into RP over the weekend, using it to build a simple Mandelbrot fractal and attempting to animate it. Here&rsquo;s a still what I built by translating a Java <a href="http://processing.org/examples/mandelbrot.html">tutorial</a> into Ruby:</p>
-
-<p><img src="http://s9.postimg.org/8fghj6iin/Screen_Shot_2013_10_11_at_9_14_33_AM.png" title="'Mandelbrot Fractal'" ></p>
-
-<h2>Tic Tac Toe</h2>
-
-<p>On Monday morning, I paired up with Rolen Le and we set out to build Tic Tac Toe, using a <a href="http://en.wikipedia.org/wiki/Model-view-controller">Model View Controller</a> (MVC) framework. It was slow going at first. We were having a lot of trouble getting any file that contained &ldquo;require &lsquo;ruby-processing&rsquo;&rdquo; to be able to talk to any other files via require. This meant that splitting our app into separate Model, View, and Controller files was not working. We compromised by put all the classes into a single file. But there was another problem:</p>
-
-<p>We couldn&rsquo;t run tests.</p>
-
-<p>So we didn&rsquo;t. It would have been difficult to run tests on the views of the app anyway, but once we threw up our hands and decided we couldn&rsquo;t test anything, we started down a very <em>dark</em> path. We wrote the whole app using no tests. Well, actually, we play tested. But it was terrible. Time after time, we would think that everything was working, then discover there was a weird bug. One of the funniest was: you could click on a square after it was taken, and it would change players even though no move was made. Thus, you could fill the whole board with just x&rsquo;s or o&rsquo;s. We eventually fixed all of the bugs. At least, I think we did. Without tests we&rsquo;ll never know.</p>
-
-<p>At this point, the obvious thing to do would have been to write tests. But now that we&rsquo;d whet our whistles on building games, we opted to split up and write some other games. Rolen headed off to build Chess, and I got started on Mancala.</p>
-
-<h2>Mancala</h2>
-
-<p>Thankfully, Nathaniel Watts and Brian Winterling turned us on to the fact that you can use JRuby instead of Ruby 2.0 to get RP working a little better. Once I knew this, I was able to build Mancala with seperate files, and tests! The process was <strong><em>so</em></strong> much cleaner and easier with TDD. I built Mancala over three days, using an MVC framework. I also built extra classes for the pits and stores, and for the rules. My implementation uses the <a href="http://boardgames.about.com/cs/mancala/ht/play_mancala.htm">Kalah Rules</a>, but I wanted to make it so that you could write another rule set and use the same board to play with it. I ended up a small file that just runs RP, a model, two views, the ruleset (which is big controller), and a small controller to links them all together.</p>
-
-<p>I was pretty happy with the result. I haven&rsquo;t refactored the code at all, so it&rsquo;s pretty messy. Next week, I&rsquo;ll probably try to clean it up. I&rsquo;d also like to build custom graphics in Photoshop, like Nathaniel and Brian did for <em>their</em> <a href="https://github.com/thewatts/tic-tac-toe">tic-tac-toe app</a>.</p>
-
-<p>My biggest takeaway from this game building adventure: TDD is <em>way</em> better than naked coding. There was so much messy, wasteful code in the first versions of Tic Tac Toe and Mancala. I was much happier with my results once JRuby enabled me to start using require again.</p>
-
-<h2>On Groupings</h2>
-
-<p>Having been a teacher in the past, I&rsquo;m interested in the teaching approaches Jumpstart Lab uses in gSchool. One thing that I saw work really well in my education career was grouping students together in a meaningful way. This week, we went from our usual whole class group to ability level groups. Although I like having the opportunity to talk and collaborate with other students at my level, I would not want to be ability grouped throughout the entire 24 weeks of gSchool. I enjoy having the chance to work with people of other skill levels, because it puts me into other roles: mentor, student, or just comrade on the path to being a Ruby ninja.</p>
-
-<p>I experienced all kinds of grouping this week: the full class (at the beginning of the week and for the retrospective at the end), the challenge ability group of about eight students, pairing with Rolen, and working individually on Mancala. I think that changing up the setting like this is good for me. Being an introvert, I feel more comfortable with the smaller groupings than the full class setting. On the other hand, I think I get different benefits from being in groups of each size, and I wouldn&rsquo;t give up the full class environment if given the option.</p>
-
-<h2>Web Applications</h2>
-
-<p>Next week we&rsquo;ll start building web applications. I&rsquo;m pretty excited about it. Focusing on pure Ruby these past few weeks has really boosted my confidence in using the language, but I&rsquo;m also ready for a change of focus. Exploring the world of HTTP requests, SQL, and Sinatra will be a nice change of pace. Outside of getting our Tic Tac Toe games to talk to each other this week (through threading and polling a simple server), I&rsquo;ve never really worked with HTTP requests. My SQL experience is limited, and I know nothing about Sinatra.</p>
-
-<p>It&rsquo;s my understanding that we&rsquo;ll also be expected to understand HTML, CSS, and a little bit of JavaScript to integrate the front and back-end parts of our app. I&rsquo;m feeling glad that I spent some time going through tutorials on Codecademy, Code School, and Treebook before gSchool started; I already have some grounding in these languages. Next week, I&rsquo;ll be forced to recall my knowledge of HTML, CSS, JS, and SQL, and put it into practice <em>with</em> my newly learned back-end skills. I&rsquo;m looking forward to integrating so many different languages toward a single goal (which is also the goal of gSchool): building web applications.</p>
-
-<p>Our first web project will be using Sinatra to build <a href="http://tutorials.jumpstartlab.com/projects/idea_box.html">IdeaBox</a>, a simple system for recording ideas.</p>
-
-<h2>Wrapping Up</h2>
-
-<p>I was grateful to have some time to reset my brain this week. It was starting to feel saturated. Playing with games and graphics has helped me feel fresh again. I plan to spend the upcoming weekend with the computer shut, reading a little of <a href="http://www.amazon.com/gp/product/1118008189/ref=oh_details_o00_s00_i00?ie=UTF8&amp;psc=1">HTML and CSS</a> by Jon Duckett, and coming back on Monday ready to dive headlong into building the web.</p>
-
-<h2>Games</h2>
-
-<p>Here are the links to the games I built this week. You&rsquo;ll need JRuby with the ruby-processing gem installed to run them.</p>
-
-<ul>
-<li><p><a href="https://github.com/fluxusfrequency/tic-tac-toe.git">Tic Tac Toe</a></p></li>
-<li><p><a href="https://github.com/fluxusfrequency/mancala">Mancala</a></p></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/04/sales-engine-retrospective/">Sales Engine Retrospective</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-04T09:08:00-06:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>We&rsquo;ve spent the last week and a half at gSchool working on the next hardest thing to EventReporter (from week two): <a href="http://tutorials.jumpstartlab.com/projects/sales_engine.html">SalesEngine</a>.</p>
-
-<h2>The Code and The Problem</h2>
-
-<p>This project built on our skills of creating collections of objects, and building classes that inherit multiple attributes from CSV rows. This time, instead of one class, we had six: Customers, Invoices, InvoiceItems, Items, Merchants, and Transactions. Using six corresponding CSV files, we had to build basic class definitions for each and repositories to hold data about the collections found in the CSV files.</p>
-
-<p>It was easy enough to stitch those together in a basic way, but the real challenge was finding ways to implement the &ldquo;business intelligence&rdquo; parts of the assignment. In these places, classes had to reach across many other classes to access data. It was very difficult to make this work correctly. Jeff told us there was really no good solution to the problem using pure Ruby. You either have to create a database class that ends up being a global variable, or pass information between many classes, creating high coupling. I assume that we&rsquo;re being asked to feel this pain so we will be very thankful when we&rsquo;re finally introduced to databases and/or ActiveRecord. I was really hurting for an SQL INNER JOIN.</p>
-
-<p>Here&rsquo;s an example of one of the problems we faced:</p>
-
-<p>The ItemRepository needs to have a method called most_revenue(x) that returns the top x Item instances ranked by total revenue generated. But the Item itself doesn&rsquo;t have an attribute for revenue. You have to access that through the InvoiceItem class, which must be accessed via an Invoice. Therefore, for the ItemRepository to find out the Item with the most revenue, it has to talk to the Invoice, which can then find the InvoiceItems.</p>
-
-<p>Reaching across classes like this is very difficult, and the process of figuring it out was a good lesson in following the <a href="http://devblog.avdi.org/2011/07/05/demeter-its-not-just-a-good-idea-its-the-law/">Law of Demeter</a>.</p>
-
-<p>It was really tempting to write code like this:</p>
-
-<figure class='code'><figcaption><span>ItemRepository#most_revenue(x) - Bad Implementation</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SalesEngine</span>
-</span><span class='line'>  <span class="k">class</span> <span class="nc">ItemRepository</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1"># some code omitted</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">most_revenue</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">sum</span> <span class="o">=</span> <span class="no">BigDecimal</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">item</span><span class="o">.</span><span class="n">invoice</span><span class="o">.</span><span class="n">invoice_items</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">invoice_item</span><span class="o">|</span>
-</span><span class='line'>        <span class="n">sum</span> <span class="o">+=</span> <span class="no">BigDecimal</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">invoice_item</span><span class="o">.</span><span class="n">total</span><span class="p">)</span>
-</span><span class='line'>      <span class="k">end</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">result</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">sort</span><span class="o">.</span><span class="n">reverse</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1"># some more code omitted</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The problem with this code is that it has to iterate through all of the Items (there are 2,484 of them), and iterate through each of their Invoices, then each Invoice&rsquo;s InvoiceItems, totalling each one, to get the result. A better solution is to leave the lookups to each class, never going more than one level deep to get information. It also helps to use the Enumerable#group_by to store the total for each item in a hash for a faster lookup. Here&rsquo;s what that looks like:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="p">{</span><span class="mi">5243</span> <span class="o">=&gt;</span> <span class="c1">#&lt;Merchant 1&gt;, 1523 =&gt; #&lt;Merchant 2&gt;, etc...}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You can then easily lookup the Merchant with the greatest revenue.
-Here was my eventual solution to this problem, using #group_by:</p>
-
-<figure class='code'><figcaption><span>ItemRepository#most_revenue(x) - Better Implementation</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SalesEngine</span>
-</span><span class='line'>  <span class="k">class</span> <span class="nc">ItemRepository</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1"># some code omitted</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">most_revenue</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">sorted_totals</span> <span class="o">=</span> <span class="n">items_grouped_by_revenue</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">sort</span><span class="o">.</span><span class="n">reverse</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">most_revenue</span> <span class="o">=</span> <span class="n">sorted_totals</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">total</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">items_grouped_by_revenue</span><span class="o">[</span><span class="n">total</span><span class="o">]</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">most_revenue</span><span class="o">.</span><span class="n">flatten</span><span class="o">[</span><span class="mi">0</span><span class="p">,</span><span class="n">x</span><span class="o">]</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">items_grouped_by_revenue</span>
-</span><span class='line'>    <span class="n">items</span><span class="o">.</span><span class="n">group_by</span> <span class="p">{</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span> <span class="n">item</span><span class="o">.</span><span class="n">revenue</span> <span class="p">}</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1"># some more code omitted</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">SalesEngine</span>
-</span><span class='line'>  <span class="k">class</span> <span class="nc">Item</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1"># some code omitted</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">revenue</span>
-</span><span class='line'>    <span class="n">total_up</span><span class="p">(</span><span class="n">successful_invoice_items</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">total_up</span><span class="p">(</span><span class="n">invoice_items</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">sum</span> <span class="o">=</span> <span class="n">invoice_items</span><span class="o">.</span><span class="n">collect</span> <span class="p">{</span> <span class="o">|</span><span class="n">invoice_item</span><span class="o">|</span> <span class="n">invoice_item</span><span class="o">.</span><span class="n">total</span> <span class="p">}</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="ss">:+</span><span class="p">)</span>
-</span><span class='line'>    <span class="no">BigDecimal</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">sum</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1"># some code omitted</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Pairing</h2>
-
-<p>SalesEngine was meant to be a pairing project. I started off pairing with my classmate Louisa Barrett. Things started off well. We created a skeleton of the project, then split up the work of building the basic classes. We did the same with the tests, the repositories and the repository tests. But when it came time to implement searching and business intelligence methods, Louisa started having trouble. She said she &ldquo;hit a wall&rdquo;. At this point, she paired with another classmate who was feeling the same way, and I went on by myself.</p>
-
-<p>I think the difference between us was that she is a novice and I&rsquo;m an advanced beginner, labels from Andy Hunt’s <a href="http://pragprog.com/book/ahptl/pragmatic-thinking-and-learning">Pragmatic Thinking &amp; Learning</a>. Our teacher, Katrina Owen, recently explored how these levels of learning are playing out at gSchool on the <a href="http://jumpstartlab.com/news/archives/2013/10/03/pragmatic-learning-at-gschool-part-i">Jumpstart Lab blog</a>.</p>
-
-<p>I don&rsquo;t mind working alone. I do well with challenges on my own. It&rsquo;s also easier when you don&rsquo;t have to compromise your ideas of what should come next. But sometimes, I did feel a little jealous of some of my advanced beginner classmates that were paired together. It looked like they were learning a lot from each other. Hopefully, I&rsquo;ll get to pair with someone on the next project.</p>
-
-<h2>The Rebuild</h2>
-
-<p>The day before the project was due, I was starting to hit a wall. I&rsquo;d finished implementing all the features, so I ran the spec harness. There were over thirty failures. Franklin looked at my code and rewrote huge chunks of it. I started to lose confidence in my archtecture.</p>
-
-<p>At 6:00 the night before it was due, I decided to tear it down and rebuild. It actually went pretty quickly, now that I knew what everything would look like. I built up all the classes and repos again. I recreated the SalesEngine class and the Database. I was practicing TDD with MiniTest all the way. I ran the spec with the business intelligence tests commented out. Everything passed, except a few places where I had typos. I fixed them, and everything in my tests and the spec was green.</p>
-
-<p>My next step was to take all of the specs for business intelligence, and rewrite them as an integration test in Minitest. I rewrote all the tests and skipped them, then started passing them one at a time. But there was a problem. It was running <em>really</em> slow, because it was loading up all six CSV files before each test (in the setup method). I wanted a way to do &ldquo;before all&rdquo; like you can in Rspec, but was having trouble finding it. Finally I found a hack online using class variables. Katrina says there&rsquo;s a better way, that she&rsquo;ll show me soon. In the meantime, here&rsquo;s what I did:</p>
-
-<figure class='code'><figcaption><span>Integration Test - &#8220;Before All&#8221; Hack</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="s1">&#39;minitest&#39;</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/autorun&#39;</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/pride&#39;</span>
-</span><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;../../lib/sales_engine.rb&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">BusinessIntelligenceTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">before_suite</span>
-</span><span class='line'>    <span class="no">SalesEngine</span><span class="o">::</span><span class="no">Database</span><span class="o">.</span><span class="n">startup</span><span class="p">(</span><span class="s1">&#39;./data&#39;</span><span class="p">)</span>
-</span><span class='line'>    <span class="vc">@@database</span> <span class="o">=</span> <span class="no">SalesEngine</span><span class="o">::</span><span class="no">Database</span>
-</span><span class='line'>    <span class="vc">@@customer_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">customer_repository</span>
-</span><span class='line'>    <span class="vc">@@invoice_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">invoice_repository</span>
-</span><span class='line'>    <span class="vc">@@invoice_item_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">invoice_item_repository</span>
-</span><span class='line'>    <span class="vc">@@item_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">item_repository</span>
-</span><span class='line'>    <span class="vc">@@merchant_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">merchant_repository</span>
-</span><span class='line'>    <span class="vc">@@transaction_repository</span> <span class="o">||=</span> <span class="vc">@@database</span><span class="o">.</span><span class="n">transaction_repository</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">before_suite</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">test_the_customer_transactions_method_successfully_returns_transactions</span>
-</span><span class='line'>    <span class="n">customer</span> <span class="o">=</span> <span class="vc">@@customer_repository</span><span class="o">.</span><span class="n">find_by_id</span> <span class="mi">2</span>
-</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">1</span><span class="p">,</span> <span class="n">customer</span><span class="o">.</span><span class="n">transactions</span><span class="o">.</span><span class="n">length</span>
-</span><span class='line'>    <span class="n">assert_equal</span> <span class="no">SalesEngine</span><span class="o">::</span><span class="no">Transaction</span><span class="p">,</span> <span class="n">customer</span><span class="o">.</span><span class="n">transactions</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">class</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">test_the_customer_favorite_merchant_method_successfully_returns_a_merchant</span>
-</span><span class='line'>    <span class="n">skip</span>
-</span><span class='line'>    <span class="n">customer</span> <span class="o">=</span> <span class="vc">@@customer_repository</span><span class="o">.</span><span class="n">find_by_id</span> <span class="mi">2</span>
-</span><span class='line'>    <span class="n">assert_equal</span> <span class="s2">&quot;Shields, Hirthe and Smith&quot;</span><span class="p">,</span> <span class="n">customer</span><span class="o">.</span><span class="n">favorite_merchant</span><span class="o">.</span><span class="n">name</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1"># many tests omitted</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This approach really paid off. I passed all of the spec tests one at a time, before finally unleashing the spec on it. In the end, there were still two tests failing. One of them was a problem with the spec itself. The other I haven&rsquo;t solved yet, but will in the next couple of days.</p>
-
-<p>In the end, I rebuilt the whole project between 6PM and noon the following day. I think it was a really great exercise to start over. I understood everything I was doing the second time through, and did it without reaching through the classes. One thing I really appreciated was that if you&rsquo;re going to run a spec harness, you might as well write your app around it from the start.</p>
-
-<p>In all, the second time around went quickly because I knew what I was building. I also solidified a lot of the things I&rsquo;d learned by repeating them. I&rsquo;m glad that I did it.</p>
-
-<h2>gSchool Progress</h2>
-
-<p>We&rsquo;re now four weeks into the program at gSchool. I&rsquo;ve mastered more than I would have predicted. Well, maybe not quite &lsquo;mastered&rsquo;. I do feel like I have a firm grasp of some things in Ruby: control flow, collections, classes, methods, and where to find help. Other things I understand, and can use somewhat, but don&rsquo;t have full mastery of: enumerables, procs, lambdas, and throwing exceptions.</p>
-
-<h2>The Future</h2>
-
-<p>In five months, I believe I&rsquo;ll feel fully confident in Ruby skills. I&rsquo;m really looking forward to digging into Rack, Sinatra, Rails, APIs, and front end skills in the coming weeks. Using Ruby in the context of building web apps is going to awesome. Also, now that I understand how programming languages work, I&rsquo;ll probably sample some other languages. Ruby is my focus right now, but I can definitely see myself dipping my toes into Javascript, Go, Python, and maybe some C down the line.</p>
-
-<p>When gSchool is over, I&rsquo;m most interested in getting a job for a consultancy. At this point in my development, I have my eyes on companies like Thoughtbot and Pivotal Labs, where the pursuit of programming as a discipline is a central tenet of the company culture. I&rsquo;m curious to see if my ideas about where I would fit in the industry will change as I learn more about it between now and March.</p>
-
-<h2>My Learning Style</h2>
-
-<p>So far in this program, I&rsquo;ve spent a lot of time learning on my own. Twice in a row, I&rsquo;ve lost my pair halfway through a project (was it something I said?). But that doesn&rsquo;t bother me. After college, I made it a point to keep teaching myself, so I&rsquo;ve also become quite adept at self-directed learning. Some of the stragies I use that have been working well at gSchool include: sketching out the big picture before digging in on a project, using the Ruby documentation extensively, asking for help from teachers or advanced classmates when I need it, and watching my Twitter feed/trolling the web for interesting GitHub repos, screencasts, and tutorials that will improve my understanding and workflow.</p>
-
-<p>The community in gSchool is really awesome; I feel like I&rsquo;m really in my element here. I got a little taste of pairing with Rolen Le early on, but haven&rsquo;t had many other chances to screenshare since then. I&rsquo;d really like to do it more in the future. I&rsquo;ll bet that watching and hearing someone else think through problems will help me see approaches I wouldn&rsquo;t have come up with on my own. Eventually, I hope I have a chance to screenshare with all of my classmates, especially those that have more experience than me.</p>
-
-<p>One thing that has been sometimes difficult are full class sessions covering a fairly basics topic that I already feel comfortable with. In these cases, I&rsquo;ve found it hard to maintain focus. I feel that I would probably get more out of splitting off from the class and researching topics on my own during these sessions.</p>
-
-<h2>Wrap-up</h2>
-
-<p>Now that SalesEngine has been turned in, it will be tempting to move on to the next thing and not look back. However, after doing the rebuild, I still have a couple of tests failing, and I want them green. The spec is still taking me a really long time to run, so I want to finish implementing the faster hash lookups that Franklin Webber showed us in the code review (see the code example above). I&rsquo;ll also probably run Cane and Reek to double check that my code is well-formatted. As I was telling another student, a project is never really &lsquo;done&rsquo;. There are always more things that could be done to improve or extend it. After tying up these loose ends, I&rsquo;ll probably move on to the next project. Bootcamp is fast paced. But I&rsquo;ll also be interested to go back and read my code five months from now.</p>
-
-<p>In Katrina&rsquo;s blog post, she described the first few tutorials that we did as a &ldquo;guided tour of the universe&rdquo;. SalesEngine was our chance to find out how to pull all of the stars and planets together to create a galaxy. I felt like I was stretched in a <em>really</em> good way in this project, having to put all of the abstractions of pure Ruby together into something that made sense. If I look through the table of contents of Eloquent Ruby, I feel like I understand what all of the expressions, objects, and classes <em>are</em>. Many of them are tools I feel ready to use at any time, others I have at least touched. Now that I have seen each structure used in context, it has a much deeper meaning. Thanks to this project, the universe that is Ruby language makes a lot more sense to me.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="5">&larr; Older</a>
@@ -2396,6 +3067,14 @@ Here was my eventual solution to this problem, using #group_by:</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/03/01/serving-custom-json-from-your-rails-api-with-activemodel-serializers/">Serving Custom JSON From Your Rails API With ActiveModel::Serializers</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/02/26/getting-started-with-ruby-processing/">Getting Started With Ruby Processing</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/02/04/setting-up-a-client-side-javascript-project-with-gulp-and-browserify/">Setting Up A Client-Side JavaScript Project With Gulp and Browserify</a>
       </li>
     
@@ -2405,14 +3084,6 @@ Here was my eventual solution to this problem, using #group_by:</p>
     
       <li class="post">
         <a href="/blog/2015/01/22/measuring-client-side-javascript-test-coverage-with-istanbul/">Measuring Client-Side JavaScript Test Coverage With Istanbul</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/01/16/five-ruby-methods-you-should-be-using/">Five Ruby Methods You Should Be Using</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/12/18/seven-reasons-i-love-minitest/">Seven Reasons I Love Minitest</a>
       </li>
     
   </ul>

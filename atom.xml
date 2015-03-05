@@ -4,7 +4,7 @@
   <title><![CDATA[Fluxus Frequency]]></title>
   <link href="http://fluxusfrequency.github.io/atom.xml" rel="self"/>
   <link href="http://fluxusfrequency.github.io/"/>
-  <updated>2015-02-19T21:40:02-07:00</updated>
+  <updated>2015-03-05T06:29:55-07:00</updated>
   <id>http://fluxusfrequency.github.io/</id>
   <author>
     <name><![CDATA[Ben Lewis]]></name>
@@ -12,6 +12,761 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    
+    <title type="html"><![CDATA[Serving Custom JSON From Your Rails API With ActiveModel::Serializers]]></title>
+    <link href="http://fluxusfrequency.github.io/blog/2015/03/01/serving-custom-json-from-your-rails-api-with-activemodel-serializers/"/>
+    
+    <updated>2015-03-01T06:23:01-07:00</updated>
+    <id>http://fluxusfrequency.github.io/blog/2015/03/01/serving-custom-json-from-your-rails-api-with-activemodel-serializers</id>
+    
+    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2015/active-model-serializers">Engine Yard</a>.</p>
+
+<h1>Introduction</h1>
+
+<p>These days, there are so many different choices when it comes to serving data from an API. You can build it in Node with <a href="http://expressjs.com/">ExpressJS</a>, in Go with <a href="http://martini.codegangsta.io/">Martini</a>, Clojure with <a href="https://github.com/weavejester/compojure">Compojure</a>, and many more. But in many cases, you just want to bring something to market as fast as you can. For those times, I still reach for <a href="http://rubyonrails.org/">Ruby on Rails</a>.</p>
+
+<p>With Rails, you can spin up a function API server in a very short period of time. Rails is large. Perhaps you object that there&rsquo;s &ldquo;too much magic&rdquo;. Have you ever checked out the <a href="https://github.com/rails-api/rails-api">rails-api gem</a>? It lets you enjoy all the benefits of Rails without including unnecessary view-layer and asset-related code.</p>
+
+<p>Rails-api is maintained by <a href="https://github.com/carlosantoniodasilva">Carlos Antonio Da Silva</a>, <a href="https://github.com/spastorino">Santiago Pastorino</a>, Rails Core team members, and all-around great Rubyist <a href="http://www.steveklabnik.com/">Steve Klabnik</a>. While not busy working on Rails or the Rails API Gem, they found the time to put together the <a href="https://github.com/rails-api/active_model_serializers">active_model_serializers gem</a> to make it easier to format JSON responses when using Rails as an API server.</p>
+
+<p>ActiveModel::Serializers (AMS) is a powerful alternative to <a href="https://github.com/rails/jbuilder">jbuilder</a>, <a href="https://github.com/nesquena/rabl">rabl</a>, and other Ruby templating solutions. It&rsquo;s easy to get started with, but when you want to serve data that quite doesn&rsquo;t match up with the way ActiveRecord (AR) structures things, it can be hard to figure out how to get it to do what you want.</p>
+
+<p>In this post, we&rsquo;ll take a look at how to extend AMS to serve up custom data in the context of a Rails-based chat app.</p>
+
+<h2>Kicking It Off: Setting Up a Rails Server</h2>
+
+<p>Any two users in the system can have a continuous thread that goes back and forth. Let&rsquo;s imagine we are building a chat app, similar to Apple&rsquo;s Messages. People can sign up for the service, then chat with their friends.</p>
+
+<p>Most of the presentation logic will happen in a client-side JavaScript app. For now, we&rsquo;re only concerned with accepting and returning raw data, and we&rsquo;ve decided to use a Rails server to build it.</p>
+
+<p>To get started, we&rsquo;ll run a <code>rails new</code>, but since we&rsquo;re using the <code>rails-api</code> gem, we&rsquo;ll need to make sure we have it installed first, with:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gem install rails-api</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once that&rsquo;s done, we&rsquo;ll run the following (familiar) command to start the project:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rails-api new mensajes --database=postgresql</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>cd</code> into the directory and setup the database with:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rake db:create</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Creating the Models</h2>
+
+<p>We&rsquo;ll need a couple of models: <code>User</code>s and <code>Messages</code>. The workflow to create them should be fairly familiar:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rails g scaffold user username:string
+</span><span class='line'>rails g scaffold message sender_id:integer recipient_id:integer body:text</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Open up the migrations, and set everything to <code>null: false</code>, then run <code>rake db:migrate</code>.</p>
+
+<p>We&rsquo;ll also need to set up the relationships. Be sure to test these relationships (I would suggest using the <a href="https://github.com/thoughtbot/shoulda-matchers">shoulda gem</a> to make it easy on yourself.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class User &lt; ActiveRecord::Base
+</span><span class='line'>  has_many :sent_messages, class_name: "Message", foreign_key: "sender_id"
+</span><span class='line'>  has_many :received_messages, class_name: "Message", foreign_key: "recipient_id"
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class Message &lt; ActiveRecord::Base
+</span><span class='line'>  belongs_to :recipient, class_name: "User", inverse_of: :received_messages
+</span><span class='line'>  belongs_to :sender, class_name: "User", inverse_of: :sent_messages
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Serving the Messages</h2>
+
+<p>Let&rsquo;s send some messages! Imagine for a minute that you&rsquo;ve already set up some kind of token-based authentication system, and you have some way of getting ahold of the user that is making requests to your API.</p>
+
+<p>We can open up the <code>MessagesController</code>, and since we used a <code>scaffold</code>, we should already be able to view all the messages. Let&rsquo;s scope that to the current user. First we&rsquo;ll write a convenience method to get all the sent and received messages for a user, then we&rsquo;ll rework the <code>MessagesController</code> to work the way we want it to.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class User &lt; ActiveRecord::Base
+</span><span class='line'>  ...
+</span><span class='line'>  def messages
+</span><span class='line'>    Message.where("sender_id = ? OR recipient_id = ?", self.id, self.id)
+</span><span class='line'>  end
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class MessagesController &lt; ApplicationController
+</span><span class='line'>  def index
+</span><span class='line'>    @messages = current_user.messages
+</span><span class='line'>    render json: @messages
+</span><span class='line'>  end
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Assuming that we have created a couple of sent and received messages for the <code>current_user</code>, we should be able to take a look at <code>http://localhost:3000/messages</code> and see some raw JSON that looks like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[{"sender_id":1,"id":1,"recipient_id":2,"body":"YOLO","created_at":"2015-02-03T21:05:12.908Z","updated_at":"2015-02-03T21:05:12.908Z"},{"recipient_id":1,"id":2,"sender_id":2,"body":"Hello, world!","created_at":"2015-02-03T21:05:51.309Z","updated_at":"2015-02-03T21:05:51.309Z"}]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It&rsquo;s kind of ugly. It would be nice if we could remove the timestamps and ids. This is where AMS comes in.</p>
+
+<h2>Adding ActiveModel::Serializers</h2>
+
+<p>Once we add AMS to our project, it should be easy to get a much prettier JSON format back from our <code>MessagesController</code>.</p>
+
+<p>To get AMS, add it to the <code>Gemfile</code> with:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gem "active_model_serializers", github: "rails-api/active_model_serializers"
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then <code>bundle install</code>. Note that I&rsquo;m using a the edge version of AMS here because it supports <code>belongs_to</code> and other features. See the <a href="https://github.com/rails-api/active_model_serializers/blob/master/README.md">github project README</a> for some information about maintenance and why you might want to use an older version.</p>
+
+<p>Now we can easily set up a serializer with <code>rails g serializer message</code>. Let&rsquo;s take a look at what this generated for us. In <code>app/serializers/message_serializer.rb</code>, we find this code:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class MessageSerializer &lt; ActiveModel::Serializer
+</span><span class='line'>  attributes :id
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Whichever <code>attributes</code> we specify (as a list of symbols) will be returned in the JSON response. Let&rsquo;s skip <code>id</code>, and instead return the <code>sender_id</code>, <code>recipient_id</code>, and <code>body</code>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class MessageSerializer &lt; ActiveModel::Serializer
+</span><span class='line'>  attributes :sender_id, :recipient_id, :body
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now when we visit <code>/messages</code>, we get this slightly cleaner JSON:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{"messages":[{"sender_id":1,"recipient_id":2,"body":"YOLO"},{"sender_id":2,"recipient_id":1,"body":"Hello, world!"}]}</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Cleaning Up the Format</h2>
+
+<p>It sure would be nice if we could get more information about the other user, like their username, so that we could display it in the messaging UI on the client-side. That&rsquo;s easy enough, we just change the <code>MessageSerializer</code> to use AR objects as attributes for the <code>sender</code> and <code>recipient</code>, instead of <code>id</code>s.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class MessageSerializer &lt; ActiveModel::Serializer
+</span><span class='line'>  attributes :sender, :recipient, :body
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we can see more about the Sender and Recipient:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{"messages":[{"sender":{"id":1,"username":"Ben","created_at":"2015-02-03T21:04:09.220Z","updated_at":"2015-02-03T21:04:09.220Z"},"recipient":{"id":2,"username":"David","created_at":"2015-02-03T21:04:45.948Z","updated_at":"2015-02-03T21:04:45.948Z"},"body":"YOLO"},{"sender":{"id":2,"username":"David","created_at":"2015-02-03T21:04:45.948Z","updated_at":"2015-02-03T21:04:45.948Z"},"recipient":{"id":1,"username":"Ben","created_at":"2015-02-03T21:04:09.220Z","updated_at":"2015-02-03T21:04:09.220Z"},"body":"Hello, world!"}]}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Actually, that might be too much. Let&rsquo;s clean up how <code>User</code> objects are serialized by generating a User serializer with <code>rails g serializer user</code>. We&rsquo;ll set it up to just return the username.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class UserSerializer &lt; ActiveModel::Serializer
+</span><span class='line'>  attributes :username
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In the <code>MessageSerializer</code>, we&rsquo;ll use <code>belongs_to</code> to have AMS format our <code>sender</code> and <code>recipient</code> using the <code>UserSerializer</code>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class MessageSerializer &lt; ActiveModel::Serializer
+</span><span class='line'>  attributes :body
+</span><span class='line'>  belongs_to :sender
+</span><span class='line'>  belongs_to :recipient
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If we take a look at <code>/messages</code>, we now see:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[{"recipient":{"username":"David"},"body":"YOLO","sender":{"username":"Ben"}},{"recipient":{"username":"Ben"},"body":"Hello, world!","sender":{"username":"David"}}]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Things are really starting to come together!</p>
+
+<h2>Conversations</h2>
+
+<p>Although we can view all of a user&rsquo;s messages using the <code>index</code> controller action, or a specific message at the <code>show</code> action, there&rsquo;s something important to the business logic of our app that we can&rsquo;t do. We can&rsquo;t view all of the messages sent between two users. We need some concept of a <code>conversation</code>.</p>
+
+<p>When thinking about creating a conversation, we have to ask, does this model need to be stored in the database? I think the answer is no. We already have messages that know which users they belong to. All we really need is a way to get back all the messages between two users from one endpoint.</p>
+
+<p>We can use a Plain Old Ruby Object (PORO) to create this concept of a <code>conversation</code> model. We will <em>not</em> inherit from <code>ActiveRecord::Base</code> in this case.</p>
+
+<p>Since we already know about the <code>current_user</code>, we really only need it to keep track of the other user. We&rsquo;ll call her the <code>participant</code>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># app/models/conversation.rb
+</span><span class='line'>class Conversation
+</span><span class='line'>  attr_reader :participant, :messages
+</span><span class='line'>
+</span><span class='line'>  def initialize(attributes)
+</span><span class='line'>    @participant = attributes[:participant]
+</span><span class='line'>    @messages = attributes[:messages]
+</span><span class='line'>  end
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We&rsquo;ll want to be able to serve up these conversations, so we&rsquo;ll need a <code>ConversationsController</code>. We want to get all of the conversations for a given user, so we&rsquo;ll add a class-level method to the <code>Conversation</code> model to find them and return them in this format:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># TODO: Insert JSON blob here</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To make this work, we&rsquo;ll run a <code>group_by</code> on the user&rsquo;s messages, grouping by the <em>other</em> user&rsquo;s id. We&rsquo;ll then map the resulting hash into a collection of <code>Conversation</code> objects, passing in the other user and the list of messages.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class Conversation
+</span><span class='line'>  ...
+</span><span class='line'>  def self.for_user(user)
+</span><span class='line'>    user.messages.group_by { |message|
+</span><span class='line'>      if message.sender == user
+</span><span class='line'>        message.recipient_id
+</span><span class='line'>      else
+</span><span class='line'>        message.sender_id
+</span><span class='line'>      end
+</span><span class='line'>    }.map do |user_id, messages|
+</span><span class='line'>      Conversation.new({
+</span><span class='line'>        participant: User.find(user_id),
+</span><span class='line'>        messages: messages
+</span><span class='line'>      })
+</span><span class='line'>    end
+</span><span class='line'>  end
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If we run this in the Rails Console, it seems to be working.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&gt;Conversation.for_user(User.first)
+</span><span class='line'>...
+</span><span class='line'>=&gt; [#&lt;Conversation:0x007fbd6e5b9428 @participant=#&lt;User id: 2, username: "David", created_at: "2015-02-03 21:04:45", updated_at: "2015-02-03 21:04:45"&gt;, @messages=[#&lt;Message id: 1, sender_id: 1, recipient_id: 2, body: "YOLO", created_at: "2015-02-03 21:05:12", updated_at: "2015-02-03 21:05:12"&gt;, #&lt;Message id: 2, sender_id: 2, recipient_id: 1, body: "Hello, world!", created_at: "2015-02-03 21:05:51", updated_at: "2015-02-03 21:05:51"&gt;]&gt;]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Great! We&rsquo;ll just call this method in our <code>ConversationsController</code> and everything will be great!</p>
+
+<p>First, we&rsquo;ll define the route in <code>config/routes.rb</code>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Rails.application.routes.draw do
+</span><span class='line'>  ...
+</span><span class='line'>  resources :conversations, only: [:index]
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then, we&rsquo;ll write the controller action.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># app/controllers/conversations_controller.rb
+</span><span class='line'>
+</span><span class='line'>class ConversationsController &lt; ApplicationController
+</span><span class='line'>  def index
+</span><span class='line'>    conversations = Conversation.for_user(current_user)
+</span><span class='line'>    render json: conversations
+</span><span class='line'>  end
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Visiting <code>/conversations</code>, we should see a list of all the conversations for the current user.</p>
+
+<h2>Serializing Plain Old Ruby Objects</h2>
+
+<p>Whoops! When we visit that route, we get an error: <code>undefined method</code>new&#8217; for nil:NilClass`. It&rsquo;s coming from this line in the controller:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>render json: conversations</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It looks like the error is coming from the fact that we don&rsquo;t have a serializer. Let&rsquo;s make one with <code>rails g serializer conversation</code>. We&rsquo;ll edit it to return its attributes, <code>participant</code> and <code>message</code>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class ConversationSerializer &lt; ActiveModel::Serializer
+</span><span class='line'>  attributes :participant, :messages
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now when we try, we get another error, coming from the same line of the controller: <code>undefined method 'read_attribute_for_serialization' for #&lt;Conversation:0x007ffc9c1bed10&gt;</code></p>
+
+<p>Digging around in the source code for ActiveModel::Serializers, I couldn&rsquo;t find where that method was defined. So I took a look at ActiveModel itself, and found it <a href="https://github.com/rails/rails/blob/08754f12e65a9ec79633a605e986d0f1ffa4b251/activemodel/lib/active_model/serialization.rb#L141">here</a>. It turns out that it&rsquo;s just an alias for <code>send</code>!</p>
+
+<p>We can add that into our PORO easily enough:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class Conversation
+</span><span class='line'>  alias :read_attribute_for_serialization :send
+</span><span class='line'>  ...
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Or, we could <code>include ActiveModel::Serialization</code> which is where our AR-backed objects got it.</p>
+
+<p>Now when we take a look at <code>/conversations</code>, we get:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[{"participant":{"id":2,"username":"David","created_at":"2015-02-03T21:04:45.948Z","updated_at":"2015-02-03T21:04:45.948Z"},"messages":[{"sender_id":1,"recipient_id":2,"id":1,"body":"YOLO","created_at":"2015-02-03T21:05:12.908Z","updated_at":"2015-02-03T21:05:12.908Z"},{"sender_id":2,"id":2,"recipient_id":1,"body":"Hello, world!","created_at":"2015-02-03T21:05:51.309Z","updated_at":"2015-02-03T21:05:51.309Z"}]}]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Whoops. Not quite right. But the problem is similar to the one we had before in the <code>MessageSerializer</code>. Maybe the same approach will work. We&rsquo;ll change the <code>attributes</code> to AR relationships.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class ConversationSerializer &lt; ActiveModel::Serializer
+</span><span class='line'>  has_many :messages, class_name: "Message"
+</span><span class='line'>  belongs_to :participant, class_name: "User"
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Almost! Now <code>/conversations</code> returns:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[{"messages":[{"body":"YOLO"},{"body":"Hello, world!"}],"participant":{"username":"David"}}]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We can&rsquo;t see who the sender of each message was! AMS isn&rsquo;t using the <code>UserSerializer</code> for the message sender and recipient, because we&rsquo;re not using an AR object.</p>
+
+<p>A little <a href="https://github.com/rails-api/active_model_serializers/blob/master/lib/active_model/serializer.rb#136">source code</a> spelunking point the way to a fix.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class MessageSerializer &lt; ActiveModel::Serializer
+</span><span class='line'>  attributes :body, :recipient, :sender
+</span><span class='line'>
+</span><span class='line'>  def sender
+</span><span class='line'>    UserSerializer.new(object.sender).attributes
+</span><span class='line'>  end
+</span><span class='line'>
+</span><span class='line'>  def recipient
+</span><span class='line'>    UserSerializer.new(object.recipient).attributes
+</span><span class='line'>  end
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now <code>/conversations</code> gives us what we want:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[{"messages":[{"body":"YOLO","recipient":{"username":"David"},"sender":{"username":"Ben"}},{"body":"Hello, world!","recipient":{"username":"Ben"},"sender":{"username":"David"}}],"participant":{"username":"David"}}]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And <code>/messages</code> still works as well!</p>
+
+<h2>Wrapping Up</h2>
+
+<p>The ActiveModel::Serializers gem claims to bring &ldquo;convention over configuration to your JSON generation&rdquo;. It does a great job of it, but when you need to massage the data, things can get a little bit hairy.</p>
+
+<p>Hopefully some of the tricks we&rsquo;ve covered will help you present JSON from your Rails API the way you want. For this, and virtually any other problem caused by <em>the magic</em> getting in the way, I can&rsquo;t suggest digging through the source code enough.</p>
+
+<p>At the end of the day ARS is an excellent choice for getting your JSON API off the ground with a minimum of fuss. Good luck!</p>
+
+<p>P.S. Have a different approach? Prefer <code>rabl</code> or <code>jbuilder</code>? Did I leave something out? Leave us a comment below!</p>
+]]></content>
+    
+  </entry>
+  
+  <entry>
+    
+    <title type="html"><![CDATA[Getting Started With Ruby Processing]]></title>
+    <link href="http://fluxusfrequency.github.io/blog/2015/02/26/getting-started-with-ruby-processing/"/>
+    
+    <updated>2015-02-26T06:20:55-07:00</updated>
+    <id>http://fluxusfrequency.github.io/blog/2015/02/26/getting-started-with-ruby-processing</id>
+    
+    <content type="html"><![CDATA[<p>This post was a featured article in <a href="http://rubyweekly.com/issues/234">Ruby Weekly #234</a>.</p>
+
+<p>It was originally published on <a href="https://blog.engineyard.com/2015/getting-started-with-ruby-processing">Engine Yard</a>.</p>
+
+<h1>Intrudction</h1>
+
+<p>If you&rsquo;re like me, you love to code because it is a creative process. In another life, I am a musician.</p>
+
+<p>I&rsquo;ve always loved music because it represents a synthesis of the measurable concreteness of math and the ambiguity of language. Programming is the same way.</p>
+
+<p>But desipite the creative potential of programming, I often myself spending my days working out the kinks of HTTP requests or dealing with SSL certificates. Some part of my yearns for a purely <a href="http://en.wikipedia.org/wiki/Apollonian_and_Dionysian">Apollonion</a> environment in which to use code to make something new and unseen.</p>
+
+<p>When I feel a void for purely creative coding, I turn to the <a href="https://processing.org/">Processing language</a>. Processing is a simple language, based on Java, that you can use to create digital graphics. It&rsquo;s easy to learn, fun to use, and has an amazing online community comprised of programmers, visual artists, musicians, and interdiscplinary artists of all kinds.</p>
+
+<p>In 2009, <a href="https://twitter.com/jashkenas">Jeremy Ashkenas</a>, creator of Backbone.JS, Underscore.JS, and Coffeescript), published the <a href="https://rubygems.org/gems/ruby-processing">ruby-processing gem</a>. It wraps Processing in a &ldquo;thin little shim&rdquo; that makes it even easier to get started as a Ruby developer. In this post, we&rsquo;ll take a look at how you can create your first interactive digital art project in just a few minutes.</p>
+
+<h2>What Is Processing?</h2>
+
+<p>Processing is programming language and IDE built by <a href="http://reas.com/">Casey Reas</a> and <a href="http://benfry.com/">Benjamin Fry</a>, two protegés of indisciplinary digital art guru <a href="http://www.maedastudio.com/">John Maeda</a> at the MIT Media Lab.</p>
+
+<p>Since the project began in 2001, it&rsquo;s been helping teach people to program in a visual art context using a simplified version of Java. It comes packaged as an <a href="https://processing.org/download/">IDE</a> that can be downloaded and used to create and save sketches.</p>
+
+<h2>Why Ruby Processing?</h2>
+
+<p>Since Processing already comes wrapped in an easy-to-use package, you may ask: &ldquo;why should I bother with Ruby Processing?&rdquo;</p>
+
+<p>The answer: if you know how to write Ruby, you can use Processing as a visual interface to a much more complex program. Games, interactive art exhibits, innovative music projects, anything you can imagine; it&rsquo;s all at your fingertips.</p>
+
+<p>Additionally, you don&rsquo;t have to declare types, <code>void</code>s, or understand the differences between <code>float</code>s and <code>int</code>s to get started.</p>
+
+<p>Although there are some drawbacks to using Ruby Processing, most notably slower performance, having Ruby&rsquo;s API available to translate your ideas into sketches more than makes up for it.</p>
+
+<h2>Setup</h2>
+
+<p>When getting started with Ruby Processing for the first time, it can be a little bit overwhelming to get all of the dependencies set up correctly. The gem relies on JRuby, Processing, and a handful of other things. Here&rsquo;s how to get them all installed and working.</p>
+
+<p>I&rsquo;ll assume you already have the following installed: homebrew, wget, java, and a ruby manager such as rvm, rbenv or chruby.</p>
+
+<h3>Processing</h3>
+
+<p><a href="https://www.processing.org/download/">Download Processing</a> from the official website and install it.</p>
+
+<p>When you&rsquo;re done, make sure that the resulting app is located in your <code>/Applications</code> directory.</p>
+
+<h3>JRuby</h3>
+
+<p>Although it&rsquo;s possible to run Ruby Processing on the <a href="http://en.wikipedia.org/wiki/Ruby_MRI">MRI</a>, I highly suggest using JRuby. It works much better, since Processing itself is built on Java.</p>
+
+<p>Install the latest JRuby version (1.7.18 at the time of this writing). For example, if you&rsquo;re using <code>rbenv</code>, the command would be <code>rbenv install jruby-1.7.18</code>, followed by <code>rbenv global jruby-1.7.18</code> to set your current ruby to JRuby.</p>
+
+<h3>Ruby Processing</h3>
+
+<p>Install the <code>ruby-processing</code> gem globally with <code>gem install ruby-processing</code>.
+If you&rsquo;re using <code>rbenv</code>, don&rsquo;t forget to run <code>rbenv rehash</code>.</p>
+
+<h3>JRuby Complete</h3>
+
+<p>You&rsquo;ll need the <code>jruby-complete</code> Java jar. Fortunately, there are a couple of built-in Ruby Processing commands that make it easy to install. <code>rp5</code> is the Ruby Processing command. It can be used to do many things, one of which is to install <code>jruby-complete</code> using <code>wget</code>. To do so, run:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rp5 setup install</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once it&rsquo;s complete, you can use <code>rp5 setup check</code> to make sure everything worked.</p>
+
+<h3>Setup Processing Root</h3>
+
+<p>One final step. You&rsquo;ll need to set the root of your Processing app. This one-liner should take care of it for you:</p>
+
+<p><code>echo 'PROCESSING_ROOT: /Applications/Processing.app/Contents/Java' &gt;&gt; ~/.rp5rc</code></p>
+
+<h3>Ready To Go</h3>
+
+<p>Now that we have everything installed and ready to go, we can start creating our first piece of art!</p>
+
+<h2>Making Your First Sketch</h2>
+
+<p>There are two basic parts to a Processing program: <code>setup</code> and <code>draw</code>.</p>
+
+<p>The code in <code>setup</code> runs one time, to get everything ready to go.</p>
+
+<p>The code in <code>draw</code> runs repeatedly in a loop. How fast is the loop? By default, it&rsquo;s 60 frames per second, although it can be limited by your machine&rsquo;s processing power. You can also manipulate it with the <code>frame_rate</code> method.</p>
+
+<p>Here&rsquo;s an example sketch that sets the window size, background and stroke colors, and draws a circle with a square around it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">setup</span>
+</span><span class='line'>  <span class="n">size</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">600</span>
+</span><span class='line'>  <span class="n">background</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="n">stroke</span> <span class="mi">255</span>
+</span><span class='line'>  <span class="n">no_fill</span>
+</span><span class='line'>  <span class="n">rect_mode</span> <span class="no">CENTER</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'>  <span class="n">ellipse</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span>
+</span><span class='line'>  <span class="n">rect</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here&rsquo;s a quick run-through of what each of these methods is doing:</p>
+
+<p>-<code>size()</code>: Sets the window size. It takes two arguments: width and height (in pixels).
+-<code>background()</code>: Sets the background color. It takes four arguments: R, G, B, and an alpha (opacity) value.
+-<code>stroke()</code>: Sets the stroke color. Takes RGBA arguments, like <code>background()</code>.
+-<code>no_fill()</code>: Tells Processing not to fill in shapes with the fill color. You can turn it back on with <code>fill()</code>, which takes RGBA values.
+-<code>rect_mode</code>: Tells Processing to draw rectangles using the x and y coordinates as a center point, with the other two arguments specifying width and height. The other <a href="https://processing.org/reference/rectMode_.html">available modes</a> are: CORNER, CORNERS, and RADIUS.
+-<code>ellipse</code>: Draws an ellipse or circle. Takes four arguments: x-coordinate, y-coordinate, width, and height.
+-<code>rect</code>: Draws a rectangle or square. Takes four arguments: x-coordinate, y-coordinate, width, and height.</p>
+
+<p>Note that the coordinate system in Processing starts at the top-left corner, not in the middle as in the Cartesian Coordinate System.</p>
+
+<h2>Running the Program</h2>
+
+<p>If you&rsquo;re following along at home, let&rsquo;s see what we&rsquo;ve made! Save the code above into a file called <code>my_sketch.rb</code>.</p>
+
+<p>There are two ways to run your program: you can either have it run once with <code>rp5 run my_sketch.rb</code>, or you can watch the filesystem for changes with <code>rp5 watch my_sketch.rb</code>. Let&rsquo;s just use the <code>run</code> version for now.</p>
+
+<p><img src="http://i.imgur.com/VhQo15W.png"/></p>
+
+<p>Pretty basic, but it&rsquo;s a good start! Using just the seven methods above, you can create all kinds of sketches.</p>
+
+<h2>Other Commonly Used Methods</h2>
+
+<p>Here are a few other useful Processing methods to add to your toolbox:</p>
+
+<p>-<code>line()</code>: Draws a line. Takes four argments: x1, y1, x2, y2. The line is drawn from the point at the x, y coordinates of the first two arguments to the point at the coordinates of the last two arguments.
+-<code>stroke_weight()</code>: Sets the width of the stroke in pixels.
+-<code>no_stroke()</code>: Tells Processing to draw shapes without outlines.
+-<code>smooth()</code>: Tells Processing to draw shapws with anti-aliased edges. On by default, but can be disables with <code>noSmooth()</code>.
+-<code>fill()</code>: Sets the fill color of shapes. Takes RGBA arguments.</p>
+
+<p>For a list of all the methods available in vanilla Processing, check out <a href="https://www.processing.org/reference/">this list</a>. Note that the Java implementation of these methods is in <code>camelCase</code>, but in Ruby they are <em>probably</em> in <code>snake_case</code>.</p>
+
+<p><a href="https://github.com/jashkenas/ruby-processing/wiki/Deprecation-of-methods">Some methods have also been deprecated</a>, usually because you can use Ruby to do the same thing more easily.</p>
+
+<p>If you see anything in the Processing docs and can&rsquo;t get it to run in Ruby Processing, use <code>$app.find_method("foo")</code> to to search the method names available in Ruby Processing.</p>
+
+<h2>Responding to Input</h2>
+
+<p>Now that we know how to make a basic sketch, let&rsquo;s build something that can respond to user input. This is where we leave static visual art behind, and start to make interactive digital art.</p>
+
+<p>Although you can use all kinds of physical inputs to control Processing (e.g. Arduino, Kinect, LeapMotion), today we&rsquo;ll just use the mouse.</p>
+
+<p>Processing exposes a number of variables exposing its state at runtime, such as <code>frame_count</code>, <code>width</code>, <code>height</code>. We can use the <code>mouse_x</code> and <code>mouse_y</code> coordinates to control aspects of our program.</p>
+
+<p>Here&rsquo;s a sketch based on the <code>mouse_x</code> and <code>mouse_y</code> positions. It draws lines of random weight starting at the top of the screen at the mouse&rsquo;s x position (<code>mouse_x, 0</code>) to a y coordinate between 0 and 200 pixels to the right of the mouse&rsquo;s y position (<code>mouse_y + offset, height</code>).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">setup</span>
+</span><span class='line'>  <span class="n">size</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">600</span>
+</span><span class='line'>  <span class="n">background</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="n">stroke</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">60</span> <span class="c1"># first argument is grayscale value, second is opacity</span>
+</span><span class='line'>  <span class="n">frame_rate</span> <span class="mi">8</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'>  <span class="n">r</span> <span class="o">=</span> <span class="nb">rand</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">stroke_weight</span> <span class="n">r</span>
+</span><span class='line'>  <span class="n">offset</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="mi">10</span>
+</span><span class='line'>  <span class="n">line</span> <span class="n">mouse_x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">mouse_y</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="n">height</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Load that up and check it out!</p>
+
+<p><img src="http://i.imgur.com/HkS0XiH.png" /></p>
+
+<h2>Wrapping Your Sketch in a Class</h2>
+
+<p>One last not before we go: you can totally call other methods from within your <code>setup</code> and <code>draw</code> methods. In fact, you can even wrap everything in a class that inherits from <code>Processing::App</code>.</p>
+
+<p>You can do everything you normally do in Ruby, so you can build a whole project, with logic branches and state, that controls the visual effect through these two methods.</p>
+
+<p>Here&rsquo;s a snippet from a version of Tic Tac Toe I built with <a href="https://twitter.com/RolenTLe">Rolen Le</a> during gSchool.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;ruby-processing&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">TicTacToe</span> <span class="o">&lt;</span> <span class="no">Processing</span><span class="o">::</span><span class="no">App</span>
+</span><span class='line'>  <span class="kp">attr_accessor</span> <span class="ss">:current_player</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">setup</span>
+</span><span class='line'>    <span class="n">size</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">800</span>
+</span><span class='line'>    <span class="n">background</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@current_player</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'>    <span class="n">create_lines</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create_lines</span>
+</span><span class='line'>    <span class="n">stroke</span> <span class="mi">256</span><span class="p">,</span><span class="mi">256</span><span class="p">,</span><span class="mi">256</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">301</span><span class="p">,</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">301</span><span class="p">,</span> <span class="mi">666</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">488</span><span class="p">,</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">488</span><span class="p">,</span> <span class="mi">666</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">301</span><span class="p">,</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">301</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">488</span><span class="p">,</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">488</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">#borders</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">133</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">666</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">666</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">666</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To see the rest of the code, visit the <a href="https://github.com/fluxusfrequency/tic-tac-toe">GitHub repo</a>.</p>
+
+<p>Another example of a game I built early on in my programming career can be found <a href="https://github.com/fluxusfrequency/mancala">here</a>. I later did a <a href="http://fluxusfrequency.github.io/blog/2014/01/17/refactoring-2-replace-method-with-method-object/">series</a> of <a href="http://fluxusfrequency.github.io/blog/2014/01/18/refactoring-3-introduce-named-parameter-and-introduce-class-annotation/">refactorings</a> of this <a href="http://fluxusfrequency.github.io/blog/2014/01/27/refactoring-4-remove-middle-man/">code</a> on my <a href="http://fluxusfrequency.github.io/blog/archives/">personal blog</a>.</p>
+
+<p>I&rsquo;m still working on a pattern for game development with that I like. Keep an eye out for future posts about the best way to build a game with Ruby Processing.</p>
+
+<h2>Learning More</h2>
+
+<p>There&rsquo;s so much more you can do in Processing than what we&rsquo;ve covered here! Bézier curves, translations, rotations, images, fonts, audio, video, and 3D sketching are all available.</p>
+
+<p>The best way to figure out how to do a lot of sketching. Just tinkering with the methods covered in this post would be enough to keep you busy creating new things for years.</p>
+
+<p>If you&rsquo;ve really caught the bug and want to go even <em>deeper</em>, check out some of these resources to learn more.</p>
+
+<h3>Built-in Samples</h3>
+
+<p>If you run <code>rp5 setup unpack_samples</code>, you&rsquo;ll get a bunch of Processing sketch samples in a directory located at <code>~/rp_samples</code>. I encourage you to open them up and take a look. There&rsquo;s a lot you can glean by changing little bits of code in other projects.</p>
+
+<h3>Online Examples From Books</h3>
+
+<p>Learning Processing is an excellent book by Daniel Shiffman. In addition to being a valuable resource for Processing users, it has a number of <a href="http://www.learningprocessing.com/examples/">examples available online</a>.</p>
+
+<p>Daniel Shiffman also wrote a book called <a href="http://natureofcode.com/">The Nature of Code</a>. The examples from it have been <a href="https://github.com/ruby-processing/The-Nature-of-Code-Examples-in-Ruby">ported to Ruby</a> and are another great resource for learning more.</p>
+
+<h3>Process Artist</h3>
+
+<p>There&rsquo;s a great Jumpstart Lab tutorial called <a href="http://tutorials.jumpstartlab.com/projects/process_artist.html">Process Artist</a>, that walks you through building a drawing program à la MSPaint.</p>
+
+<h2>Conclusion</h2>
+
+<p>Processing is an awesome multi-disciplinary tool. It sits at the intersection of coding, visual art, photography, sound art, and interactive digital experiences. With the availability of Ruby Processing, it&rsquo;s super easy to get started.</p>
+
+<p>If you&rsquo;re a programmer looking for a way to express your creativity, you couldn&rsquo;t find a better way to do it than to try tinkering with Processing. I hope this post gets you off to a great start. Good luck and keep sketching!</p>
+]]></content>
+    
+  </entry>
   
   <entry>
     
@@ -7150,1693 +7905,6 @@ build passing.</p>
 <h2>Conclusion</h2>
 
 <p>As I got toward the end of the fifth chapter, Refactoring got pretty deep into some <code>method_missing</code> and <code>define_method</code> metaprogramming madness. While I can&rsquo;t say I&rsquo;m very excited to use these things in my day-to-day refactoring, it&rsquo;s nice to have them there as a reference in case I ever need them. If nothing else, tricks like the ones I tried out here help me think about the relationships between classes in new ways. Next week, I&rsquo;ll try some strategies from the next chapter: &ldquo;Moving Features Between Objects&rdquo;.</p>
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[Refactoring 2: Replace Method with Method Object]]></title>
-    <link href="http://fluxusfrequency.github.io/blog/2014/01/17/refactoring-2-replace-method-with-method-object/"/>
-    
-    <updated>2014-01-17T09:06:00-07:00</updated>
-    <id>http://fluxusfrequency.github.io/blog/2014/01/17/refactoring-2-replace-method-with-method-object</id>
-    
-    <content type="html"><![CDATA[<p>As I mentioned last week, I&rsquo;m doing a series of posts on refactoring. As gSchool wraps up, I&rsquo;m working on my refactoring skills, so that I&rsquo;ll be a better developer when I get my first job. I&rsquo;m trying some of the strategies outlined in the book <a href="http://martinfowler.com/books/refactoringRubyEd.html">Refactoring Ruby</a>.</p>
-
-<p>Today I&rsquo;ll be trying out a strategy called Replace Method with Method Object. This is a good approach to take when you have a long method with many variables in it, and using <a href="http://fluxusfrequency.github.io/blog/2014/01/10/refactoring-1-extract-method/">Extract Method</a> wouldn&rsquo;t be practical. Essentially, it consists of removing the method from its class and turning it into a class of its own. From there, you can more easily refactor using Extract Method and other simple strategies.</p>
-
-<p>Here are the steps as outlined in the book:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>1. Create a new class, name it after the method.
-</span><span class='line'>
-</span><span class='line'>2. Give the new class an attribute for the object that hosted the original method (the source object) and an attribute for each temporary vairable and each parameter in the method.
-</span><span class='line'>
-</span><span class='line'>3. Give the new class a constructor that takes the source object and each parameter.
-</span><span class='line'>
-</span><span class='line'>4. Give the new class a method named "compute".
-</span><span class='line'>
-</span><span class='line'>5. Copy the body of the original method into "compute". Use the source object instance variable for any invocations of methods on the original subject.
-</span><span class='line'>
-</span><span class='line'>6. Test.
-</span><span class='line'>
-</span><span class='line'>7. Replace the old method with one that creates the new method and call "compute".
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Mancala</h2>
-
-<p>I took a look around my Github repositories, and found this little wonder from a <a href="https://github.com/fluxusfrequency/mancala">Mancala</a> app I wrote in Ruby Processing during the first month of gSchool.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">MancalaKalahRules</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">distribute_beads_for_player</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">next_pit_id</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">first_pit_id</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="vi">@i</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class='line'>    <span class="k">while</span> <span class="vi">@i</span> <span class="o">&lt;=</span> <span class="n">count</span> <span class="k">do</span>
-</span><span class='line'>      <span class="n">execute_store_logic</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
-</span><span class='line'>      <span class="k">break</span> <span class="k">if</span> <span class="vi">@i</span> <span class="o">==</span> <span class="n">count</span>
-</span><span class='line'>      <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add_bead_to_pit</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">next_pit_id</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
-</span><span class='line'>      <span class="k">if</span> <span class="vi">@i</span> <span class="o">==</span> <span class="n">count</span> <span class="o">-</span> <span class="mi">1</span>
-</span><span class='line'>        <span class="n">landing_spot</span> <span class="o">=</span> <span class="n">next_pit_id</span> <span class="o">-</span> <span class="mi">1</span>
-</span><span class='line'>        <span class="n">landing_spot</span> <span class="o">=</span> <span class="mi">12</span> <span class="k">if</span> <span class="n">landing_spot</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span class='line'>        <span class="k">if</span> <span class="n">landed_on_empty?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_all_pit_ids_on_players_side</span><span class="p">(</span><span class="n">player</span><span class="p">)</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
-</span><span class='line'>          <span class="n">take_both_sides</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
-</span><span class='line'>          <span class="k">break</span>
-</span><span class='line'>        <span class="k">end</span>
-</span><span class='line'>      <span class="k">end</span>
-</span><span class='line'>      <span class="vi">@i</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>What a mess.</p>
-
-<h2>Setting Up Tests</h2>
-
-<p>To begin the refactoring process, I had to make sure the tests were in place first. This was fairly difficult, as this method is highly coupled to other methods throughout the app. For testing purposes, I added a couple of stubbed methods to <code>KalahRules</code>, and created dummy <code>App</code> and <code>Model</code> classes with stubbed methods of their own. Also, <code>distribute_beads_for_player</code> did not return anything meaningful, so I changed it to do return the value of <code>@i</code>.</p>
-
-<p>In the end, here&rsquo;s the code I used to make the test pass:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/autorun&#39;</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/pride&#39;</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;./kalah_rules&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">KalahRulesTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">test_distribute_beads_for_player_returns_the_correct_count</span>
-</span><span class='line'>    <span class="n">rules</span> <span class="o">=</span> <span class="no">MancalaKalahRules</span><span class="o">.</span><span class="n">new</span>
-</span><span class='line'>    <span class="n">app</span> <span class="o">=</span> <span class="no">App</span><span class="o">.</span><span class="n">new</span>
-</span><span class='line'>    <span class="nb">id</span> <span class="o">=</span> <span class="mi">2</span>
-</span><span class='line'>    <span class="n">player</span> <span class="o">=</span> <span class="kp">nil</span>
-</span><span class='line'>    <span class="n">count</span> <span class="o">=</span> <span class="mi">10</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">expected</span> <span class="o">=</span> <span class="mi">9</span>
-</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="n">rules</span><span class="o">.</span><span class="n">distribute_beads_for_player</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">assert_equal</span> <span class="n">expected</span><span class="p">,</span> <span class="n">result</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">MancalaKalahRules</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">distribute_beads_for_player</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">next_pit_id</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">first_pit_id</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="vi">@i</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class='line'>    <span class="k">while</span> <span class="vi">@i</span> <span class="o">&lt;=</span> <span class="n">count</span> <span class="k">do</span>
-</span><span class='line'>      <span class="n">execute_store_logic</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
-</span><span class='line'>      <span class="k">break</span> <span class="k">if</span> <span class="vi">@i</span> <span class="o">==</span> <span class="n">count</span>
-</span><span class='line'>      <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add_bead_to_pit</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">next_pit_id</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
-</span><span class='line'>      <span class="k">if</span> <span class="vi">@i</span> <span class="o">==</span> <span class="n">count</span> <span class="o">-</span> <span class="mi">1</span>
-</span><span class='line'>        <span class="n">landing_spot</span> <span class="o">=</span> <span class="n">next_pit_id</span> <span class="o">-</span> <span class="mi">1</span>
-</span><span class='line'>        <span class="n">landing_spot</span> <span class="o">=</span> <span class="mi">12</span> <span class="k">if</span> <span class="n">landing_spot</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span class='line'>        <span class="k">if</span> <span class="n">landed_on_empty?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_all_pit_ids_on_players_side</span><span class="p">(</span><span class="n">player</span><span class="p">)</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
-</span><span class='line'>          <span class="n">take_both_sides</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
-</span><span class='line'>          <span class="k">break</span>
-</span><span class='line'>        <span class="k">end</span>
-</span><span class='line'>      <span class="k">end</span>
-</span><span class='line'>      <span class="vi">@i</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>    <span class="vi">@i</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">execute_store_logic</span><span class="p">(</span><span class="n">pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">take_both_sides</span><span class="p">(</span><span class="n">spot</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">landed_on_empty?</span><span class="p">(</span><span class="n">spot</span><span class="p">)</span>
-</span><span class='line'>    <span class="kp">true</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">App</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">model</span>
-</span><span class='line'>    <span class="no">Model</span><span class="o">.</span><span class="n">new</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">Model</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">find_next_pit_by_id</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
-</span><span class='line'>    <span class="mi">3</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">add_bead_to_pit</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">find_all_pit_ids_on_players_side</span><span class="p">(</span><span class="n">player</span><span class="p">)</span>
-</span><span class='line'>    <span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="o">]</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>All green! Time to start refactoring!</p>
-
-<p><img src="http://s5.postimg.org/540zghpmv/All_green_before_refactor.png" title="All Green Before Refactor" alt="A set of passing Ruby tests"></p>
-
-<h2>Applying the Strategy</h2>
-
-<p>Step 1: Create a new class named after the method:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributor</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Step 2: Give the new class an attribute of the source object and its parameters.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributor</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Step 3: Give the new class a constructor that takes the new attributes. I chose to add attr_readers as well:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributor</span>
-</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:rules</span><span class="p">,</span>
-</span><span class='line'>              <span class="ss">:app</span><span class="p">,</span>
-</span><span class='line'>              <span class="ss">:first_pit_id</span><span class="p">,</span>
-</span><span class='line'>              <span class="ss">:player</span><span class="p">,</span>
-</span><span class='line'>              <span class="ss">:count</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
-</span><span class='line'>    <span class="vi">@rules</span> <span class="o">=</span> <span class="n">rules</span>
-</span><span class='line'>    <span class="vi">@app</span> <span class="o">=</span> <span class="n">app</span>
-</span><span class='line'>    <span class="vi">@first_pit_id</span> <span class="o">=</span> <span class="n">first_pit_id</span>
-</span><span class='line'>    <span class="vi">@player</span> <span class="o">=</span> <span class="n">player</span>
-</span><span class='line'>    <span class="vi">@count</span> <span class="o">=</span> <span class="n">count</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Step 4: Give the new class a <em>compute</em> method:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributor</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1"># Code omitted for brevity</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">compute</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Step 5: Copy the original method into <em>compute</em>. I also copied in the stubbed methods for testing purposes.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributor</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1"># Code omitted for brevity</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">compute</span>
-</span><span class='line'>    <span class="n">next_pit_id</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">first_pit_id</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="vi">@i</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class='line'>    <span class="k">while</span> <span class="vi">@i</span> <span class="o">&lt;=</span> <span class="n">count</span> <span class="k">do</span>
-</span><span class='line'>      <span class="n">execute_store_logic</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
-</span><span class='line'>      <span class="k">break</span> <span class="k">if</span> <span class="vi">@i</span> <span class="o">==</span> <span class="n">count</span>
-</span><span class='line'>      <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add_bead_to_pit</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">next_pit_id</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
-</span><span class='line'>      <span class="k">if</span> <span class="vi">@i</span> <span class="o">==</span> <span class="n">count</span> <span class="o">-</span> <span class="mi">1</span>
-</span><span class='line'>        <span class="n">landing_spot</span> <span class="o">=</span> <span class="n">next_pit_id</span> <span class="o">-</span> <span class="mi">1</span>
-</span><span class='line'>        <span class="n">landing_spot</span> <span class="o">=</span> <span class="mi">12</span> <span class="k">if</span> <span class="n">landing_spot</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span class='line'>        <span class="k">if</span> <span class="n">landed_on_empty?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">find_all_pit_ids_on_players_side</span><span class="p">(</span><span class="n">player</span><span class="p">)</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
-</span><span class='line'>          <span class="n">take_both_sides</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
-</span><span class='line'>          <span class="k">break</span>
-</span><span class='line'>        <span class="k">end</span>
-</span><span class='line'>      <span class="k">end</span>
-</span><span class='line'>      <span class="vi">@i</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>    <span class="vi">@i</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">execute_store_logic</span><span class="p">(</span><span class="n">pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">take_both_sides</span><span class="p">(</span><span class="n">spot</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">landed_on_empty?</span><span class="p">(</span><span class="n">spot</span><span class="p">)</span>
-</span><span class='line'>    <span class="kp">true</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Step 6: Test. I tested the newly created <code>BeadDistributor</code> class:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributorTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">test_compute_returns_the_correct_count</span>
-</span><span class='line'>    <span class="n">rules</span> <span class="o">=</span> <span class="no">MancalaKalahRules</span><span class="o">.</span><span class="n">new</span>
-</span><span class='line'>    <span class="n">app</span> <span class="o">=</span> <span class="no">App</span><span class="o">.</span><span class="n">new</span>
-</span><span class='line'>    <span class="nb">id</span> <span class="o">=</span> <span class="mi">2</span>
-</span><span class='line'>    <span class="n">player</span> <span class="o">=</span> <span class="kp">nil</span>
-</span><span class='line'>    <span class="n">count</span> <span class="o">=</span> <span class="mi">10</span>
-</span><span class='line'>    <span class="n">distributor</span> <span class="o">=</span> <span class="no">BeadDistributor</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">expected</span> <span class="o">=</span> <span class="mi">9</span>
-</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="n">distributor</span><span class="o">.</span><span class="n">compute</span>
-</span><span class='line'>    <span class="n">assert_equal</span> <span class="n">expected</span><span class="p">,</span> <span class="n">result</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>All green!</p>
-
-<p><img src="http://s5.postimg.org/s81g92sxz/All_green_after_refactor.png" title="All Green After Refactor" alt="A set of passing Ruby tests"></p>
-
-<p>Step 7: Replace the old method by instantiating the new object, passing the old object into it, and calling <em>compute</em>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">MancalaKalahRules</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">distribute_beads_for_player</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
-</span><span class='line'>    <span class="no">BeadDistributor</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>At this point, I ran the test2 again. The original one passed! Yay!</p>
-
-<p><img src="http://s5.postimg.org/f55tpt2pz/Still_green.png" title="Still Green" alt="Another set of passing Ruby tests"></p>
-
-<p>After completing the object extraction, I was free to refactor the new BeadDistributor using more common strategies. Here&rsquo;s what I ended up with:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-<span class='line-number'>94</span>
-<span class='line-number'>95</span>
-<span class='line-number'>96</span>
-<span class='line-number'>97</span>
-<span class='line-number'>98</span>
-<span class='line-number'>99</span>
-<span class='line-number'>100</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BeadDistributor</span>
-</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:rules</span><span class="p">,</span>
-</span><span class='line'>              <span class="ss">:app</span><span class="p">,</span>
-</span><span class='line'>              <span class="ss">:first_pit_id</span><span class="p">,</span>
-</span><span class='line'>              <span class="ss">:player</span><span class="p">,</span>
-</span><span class='line'>              <span class="ss">:count</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
-</span><span class='line'>    <span class="vi">@rules</span> <span class="o">=</span> <span class="n">rules</span>
-</span><span class='line'>    <span class="vi">@app</span> <span class="o">=</span> <span class="n">app</span>
-</span><span class='line'>    <span class="vi">@first_pit_id</span> <span class="o">=</span> <span class="n">first_pit_id</span>
-</span><span class='line'>    <span class="vi">@player</span> <span class="o">=</span> <span class="n">player</span>
-</span><span class='line'>    <span class="vi">@count</span> <span class="o">=</span> <span class="n">count</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">compute</span>
-</span><span class='line'>    <span class="n">fix_landing_on_spot_12</span>
-</span><span class='line'>    <span class="n">take_both_if_own_empty</span>
-</span><span class='line'>    <span class="n">distribute_beads</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">distribute_beads</span>
-</span><span class='line'>    <span class="p">(</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">times</span> <span class="k">do</span> <span class="o">|</span><span class="n">i</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">rules</span><span class="o">.</span><span class="n">execute_store_logic</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">app</span><span class="o">.</span><span class="n">add_bead_to_model</span><span class="p">(</span><span class="n">next_pit_id</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">next_pit_id</span>
-</span><span class='line'>    <span class="n">app</span><span class="o">.</span><span class="n">find_next_pit_in_model</span><span class="p">(</span><span class="n">first_pit_id</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">take_both_if_own_empty</span>
-</span><span class='line'>    <span class="n">rules</span><span class="o">.</span><span class="n">take_both_sides</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span> <span class="k">if</span> <span class="n">landed_on_players_own_empty_pit?</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">landed_on_players_own_empty_pit?</span>
-</span><span class='line'>    <span class="n">rules</span><span class="o">.</span><span class="n">landed_on_empty?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">app</span><span class="o">.</span><span class="n">check_if_pit_belongs_to_player</span><span class="p">(</span><span class="n">player</span><span class="p">,</span> <span class="n">landing_spot</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">landing_spot</span>
-</span><span class='line'>    <span class="vi">@landing_spot</span> <span class="o">||=</span> <span class="n">next_pit_id</span> <span class="o">-</span> <span class="mi">1</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">fix_landing_on_spot_12</span>
-</span><span class='line'>    <span class="vi">@landing_spot</span> <span class="o">=</span> <span class="mi">12</span> <span class="k">if</span> <span class="n">landing_spot</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">MancalaKalahRules</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">distribute_beads_for_player</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
-</span><span class='line'>    <span class="no">BeadDistributor</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">first_pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">execute_store_logic</span><span class="p">(</span><span class="n">pit_id</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">take_both_sides</span><span class="p">(</span><span class="n">spot</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">landed_on_empty?</span><span class="p">(</span><span class="n">spot</span><span class="p">)</span>
-</span><span class='line'>    <span class="kp">true</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">App</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">model</span>
-</span><span class='line'>    <span class="no">Model</span><span class="o">.</span><span class="n">new</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">add_bead_to_model</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">model</span><span class="o">.</span><span class="n">add_bead_to_pit</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">find_next_pit_in_model</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">model</span><span class="o">.</span><span class="n">find_next_pit_by_id</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">check_if_pit_belongs_to_player</span><span class="p">(</span><span class="n">player</span><span class="p">,</span> <span class="n">landing_spot</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">model</span><span class="o">.</span><span class="n">find_all_pit_ids_on_players_side</span><span class="p">(</span><span class="n">player</span><span class="p">)</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">landing_spot</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">Model</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">find_next_pit_by_id</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
-</span><span class='line'>    <span class="mi">3</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">add_bead_to_pit</span><span class="p">(</span><span class="n">pit_id</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">find_all_pit_ids_on_players_side</span><span class="p">(</span><span class="n">player</span><span class="p">)</span>
-</span><span class='line'>    <span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="o">]</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Running the tests one more time, I saw that everything was still green. Although I could have gone on to refactor some of the other methods in the original class that <code>distribute_beads_for_player</code> was coupled to, I decided to call it a day.</p>
-
-<p><img src="http://s5.postimg.org/8fza9shdz/Final_green.png" title="Final Green" alt="Another set of passing Ruby tests"></p>
-
-<h2>Conclusion</h2>
-
-<p>I enjoyed the Replace Method with Method Object strategy. It&rsquo;s a pretty cool way to think about the microcosm/macrocosm relationship between methods and objects. Although it&rsquo;s not probably useful for every refactoring case, I imagine it would come in really handy when cleaning up a hairy method like <code>distribute_beads_for_player</code>. I&rsquo;m learning a lot from Refactoring Ruby, and I&rsquo;m looking forward to seeing what other strategies it offers.</p>
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[Refactoring 1: Extract Method]]></title>
-    <link href="http://fluxusfrequency.github.io/blog/2014/01/10/refactoring-1-extract-method/"/>
-    
-    <updated>2014-01-10T09:07:00-07:00</updated>
-    <id>http://fluxusfrequency.github.io/blog/2014/01/10/refactoring-1-extract-method</id>
-    
-    <content type="html"><![CDATA[<p>I&rsquo;m reading <a href="http://martinfowler.com/books/refactoringRubyEd.html">Refactoring Ruby</a> by Jay Fields, Sean Harvie, Martin Fowler and Kent Beck. As I&rsquo;m heading into the last couple of months at gSchool, I want to clean up some of the code I wrote, and practice my refactoring skills. I&rsquo;ll be doing a series of articles detailing the strategies I learn. This is the first.</p>
-
-<p>Today I&rsquo;ll be talking about the &ldquo;Extract Method&rdquo; strategy. Here&rsquo;s how the book describes it:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>1. Create a new method, and name it after the intention of the method (name it by what it does, not by how it does it).
-</span><span class='line'>If the code you want to extract is very simple, such as a single message or function call, you should extract it if the name of the new method reveals the intention of the code in a better way. If you can’t come up with a more meaningful name, don’t extract the code.
-</span><span class='line'>
-</span><span class='line'>2. Copy the extracted code from the source method into the new target method.
-</span><span class='line'>
-</span><span class='line'>3. Scan the extracted code for references to any variables that are local in scope to the source method. These are local variables and parameters to the method.
-</span><span class='line'>
-</span><span class='line'>4. See whether any temporary variables are used only within this extracted code. If so, declare them in the target method as temporary variables.
-</span><span class='line'>
-</span><span class='line'>5. Look to see whether any of these local-scope variables are modified by the extracted code. If one variable is modified, see whether you can treat the extracted code as a query and assign the result to the variable con- cerned. If this is awkward, or if there is more than one such variable, you can’t extract the method as it stands. You may need to use Split Tempo- rary Variable and try again. You can eliminate temporary variables with Replace Temp with Query (see the discussion in the examples).
-</span><span class='line'>
-</span><span class='line'>6. Pass into the target method as parameters local-scope variables that are read from the extracted code.
-</span><span class='line'>
-</span><span class='line'>7. Replace the extracted code in the source method with a call to the target method.
-</span><span class='line'>If you moved any temporary variables over to the target method, look to see whether they were declared outside the extracted code. If so, you can now remove the declaration.
-</span><span class='line'>
-</span><span class='line'>8. Test.
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Here&rsquo;s some code from a Sinatra app I wrote early on in gSchool, called <a href="http://ideabox-flux.herokuapp.com">IdeaBox</a>. For this project, we couldn&rsquo;t use ActiveRecord or DataMapper, but had to hand build an ORM.</p>
-
-<p> I selected these methods from my Finders module. They work together to search through a YAML file for records that match a search string. The <code>find_raw</code> method looked really long and complex, so I thought this would be a good place to do some refactoring.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Finders</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">downcase</span>
-</span><span class='line'>    <span class="n">find_raw</span><span class="p">({</span><span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;tags&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">})</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">find_raw</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">begin</span>
-</span><span class='line'>      <span class="n">found</span> <span class="o">=</span> <span class="o">[]</span>
-</span><span class='line'>      <span class="n">query_hash</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">key</span><span class="o">|</span>
-</span><span class='line'>        <span class="n">query_string</span> <span class="o">=</span> <span class="n">query_hash</span><span class="o">[</span><span class="n">key</span><span class="o">]</span>
-</span><span class='line'>        <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
-</span><span class='line'>          <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
-</span><span class='line'>            <span class="n">idea</span><span class="o">[</span><span class="n">key</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query_string</span><span class="p">)</span>
-</span><span class='line'>          <span class="k">end</span>
-</span><span class='line'>          <span class="n">found</span> <span class="o">&lt;&lt;</span> <span class="n">result</span>
-</span><span class='line'>        <span class="k">end</span>
-</span><span class='line'>      <span class="k">end</span>
-</span><span class='line'>      <span class="n">found</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
-</span><span class='line'>        <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-</span><span class='line'>      <span class="k">end</span>
-</span><span class='line'>      <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">rescue</span>
-</span><span class='line'>      <span class="o">[]</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>My first step was to check the tests for the method.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SearchingTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">test_it_can_search_for_ideas_with_title_description_or_tags</span>
-</span><span class='line'>    <span class="no">IdeaStore</span><span class="o">.</span><span class="n">create</span><span class="p">({</span>
-</span><span class='line'>      <span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;Recreation&quot;</span><span class="p">,</span>
-</span><span class='line'>      <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;Bicycles In The Park&quot;</span><span class="p">,</span>
-</span><span class='line'>      <span class="s1">&#39;tags&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;bike&#39;</span><span class="p">,</span>
-</span><span class='line'>      <span class="p">})</span>
-</span><span class='line'>    <span class="no">IdeaStore</span><span class="o">.</span><span class="n">create</span><span class="p">({</span>
-</span><span class='line'>      <span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;Sundays&quot;</span><span class="p">,</span>
-</span><span class='line'>      <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;In the park with George&quot;</span><span class="p">,</span>
-</span><span class='line'>      <span class="s1">&#39;tags&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;gerschwin&#39;</span><span class="p">,</span>
-</span><span class='line'>      <span class="p">})</span>
-</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">2</span><span class="p">,</span> <span class="no">IdeaStore</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="s2">&quot;park&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">length</span>
-</span><span class='line'>    <span class="n">assert_kind_of</span> <span class="no">Idea</span><span class="p">,</span> <span class="no">IdeaStore</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="s2">&quot;Gerschwin&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>To be thorough, I added a a couple of assertions, one to test the title field search, one for cases where there&rsquo;s nothing in the database, and one for a nil search.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">test_search_for_can_find_ideas_by_title_description_or_tags</span>
-</span><span class='line'>    <span class="no">IdeaStore</span><span class="o">.</span><span class="n">create</span><span class="p">({</span>
-</span><span class='line'>      <span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;Recreation&quot;</span><span class="p">,</span>
-</span><span class='line'>      <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;Bicycles In The Park&quot;</span><span class="p">,</span>
-</span><span class='line'>      <span class="s1">&#39;tags&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;bike&#39;</span><span class="p">,</span>
-</span><span class='line'>      <span class="p">})</span>
-</span><span class='line'>    <span class="no">IdeaStore</span><span class="o">.</span><span class="n">create</span><span class="p">({</span>
-</span><span class='line'>      <span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;Sundays&quot;</span><span class="p">,</span>
-</span><span class='line'>      <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="s2">&quot;In the park with George&quot;</span><span class="p">,</span>
-</span><span class='line'>      <span class="s1">&#39;tags&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;gerschwin&#39;</span><span class="p">,</span>
-</span><span class='line'>      <span class="p">})</span>
-</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">1</span><span class="p">,</span> <span class="no">IdeaStore</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="s2">&quot;Recreation&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">length</span>
-</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">2</span><span class="p">,</span> <span class="no">IdeaStore</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="s2">&quot;park&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">length</span>
-</span><span class='line'>    <span class="n">assert_kind_of</span> <span class="no">Idea</span><span class="p">,</span> <span class="no">IdeaStore</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="s2">&quot;Gerschwin&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">test_search_for_doesnt_blow_up_on_nil</span>
-</span><span class='line'>    <span class="no">IdeaStore</span><span class="o">.</span><span class="n">create</span><span class="p">({})</span>
-</span><span class='line'>    <span class="n">assert_equal</span> <span class="o">[]</span><span class="p">,</span> <span class="no">IdeaStore</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="s2">&quot;anything&quot;</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">assert_equal</span> <span class="o">[]</span><span class="p">,</span> <span class="no">IdeaStore</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="kp">nil</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This last test broke on <code>undefined method</code>downcase&#8217; for nil`, so I updated the search_for method to protect against nil, and also return empty searched don&rsquo;t yield any results.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">return</span> <span class="o">[]</span> <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">to_s</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">downcase</span>
-</span><span class='line'>    <span class="n">find_raw</span><span class="p">({</span><span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;tags&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">})</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>With tests in place to make sure that I wouldn&rsquo;t break any of the existing functionality, I began to make changes. My first step was to rename the find_raw method to find_yaml_data, reflecting its real intention. I then had to change the method call in <code>search_for</code>.</p>
-
-<p>Beginning the extraction, I created a new method called find_in_database_for_mutliple_queries (step 1) and pulled the code from find_yaml_data into it (step 2).</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">return</span> <span class="o">[]</span> <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">to_s</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">downcase</span>
-</span><span class='line'>    <span class="n">find_yaml_data</span><span class="p">({</span><span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;tags&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">})</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">find_yaml_data</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">begin</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="n">found</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
-</span><span class='line'>        <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-</span><span class='line'>      <span class="k">end</span>
-</span><span class='line'>      <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">rescue</span>
-</span><span class='line'>      <span class="o">[]</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">find_multiple_queries_in_database</span>
-</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="o">[]</span>
-</span><span class='line'>    <span class="n">query_hash</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">key</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">query_string</span> <span class="o">=</span> <span class="n">query_hash</span><span class="o">[</span><span class="n">key</span><span class="o">]</span>
-</span><span class='line'>      <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
-</span><span class='line'>        <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
-</span><span class='line'>          <span class="n">idea</span><span class="o">[</span><span class="n">key</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query_string</span><span class="p">)</span>
-</span><span class='line'>        <span class="k">end</span>
-</span><span class='line'>        <span class="n">found</span> <span class="o">&lt;&lt;</span> <span class="n">result</span>
-</span><span class='line'>      <span class="k">end</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>    <span class="n">found</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>In step 3, I looked at the original method and found that the result of the code now living in <code>find_multiple_queries_in_database</code> was being used on the next line:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="n">found</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
-</span><span class='line'>    <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>However, I didn&rsquo;t see any variables used only in the new code that needed to be moved over (step 4), because I&rsquo;d already moved <code>found = []</code>. I could therefore safely skip step 5, which helps deal with any such variables.</p>
-
-<p>Turning my attention to the new method, I identified the <code>query_hash</code> variable as a problem, because the new method didn&rsquo;t know about it. Step 6 has you turn local variables like these into parameters to the new method. Here, I decided to rename it from <code>query_hash</code> to <code>queries</code>, because the fact that it&rsquo;s a hash is an implementation detail.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="o">[]</span>
-</span><span class='line'>    <span class="n">queries</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">key</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">query_string</span> <span class="o">=</span> <span class="n">query_hash</span><span class="o">[</span><span class="n">key</span><span class="o">]</span>
-</span><span class='line'>      <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
-</span><span class='line'>        <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
-</span><span class='line'>          <span class="n">idea</span><span class="o">[</span><span class="n">key</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query_string</span><span class="p">)</span>
-</span><span class='line'>        <span class="k">end</span>
-</span><span class='line'>        <span class="n">found</span> <span class="o">&lt;&lt;</span> <span class="n">result</span>
-</span><span class='line'>      <span class="k">end</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>    <span class="n">found</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Finally, in step 7, I made a call to the new method from the body of the old, and assigned it to the local variable needed to pass it to the next line.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">find_yaml_data</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">begin</span>
-</span><span class='line'>      <span class="n">found</span> <span class="o">=</span> <span class="n">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">found</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
-</span><span class='line'>        <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-</span><span class='line'>      <span class="k">end</span>
-</span><span class='line'>      <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">rescue</span>
-</span><span class='line'>      <span class="o">[]</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>At this point, I went ahead and ran the tests (step 8). They were failing, but I couldn&rsquo;t tell why because of the begin/end block. I decided to remove it. I wrote it when I was still pretty new to programming, and was afraid of nil.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">find_yaml_data</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="n">find_multiple_queries_in_database</span>
-</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
-</span><span class='line'>      <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>    <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Running the tests again, I could now see the error: <code>undefined local variable or method</code>query_hash&#8217;<code>. I saw that I had forgotten to rename the variable in the new method from</code>query_hash<code>to</code>queries`, so I fixed it.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="o">[]</span>
-</span><span class='line'>    <span class="n">queries</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">key</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">query_string</span> <span class="o">=</span> <span class="n">queries</span><span class="o">[</span><span class="n">key</span><span class="o">]</span>
-</span><span class='line'>      <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
-</span><span class='line'>        <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
-</span><span class='line'>          <span class="n">idea</span><span class="o">[</span><span class="n">key</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query_string</span><span class="p">)</span>
-</span><span class='line'>        <span class="k">end</span>
-</span><span class='line'>        <span class="n">found</span> <span class="o">&lt;&lt;</span> <span class="n">result</span>
-</span><span class='line'>      <span class="k">end</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>    <span class="n">found</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>All of the tests now passed. Looking at my code, I now had:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">return</span> <span class="o">[]</span> <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">to_s</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">downcase</span>
-</span><span class='line'>    <span class="n">find_yaml_data</span><span class="p">({</span><span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;tags&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">})</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">find_yaml_data</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="n">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
-</span><span class='line'>      <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>    <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="o">[]</span>
-</span><span class='line'>    <span class="n">queries</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">key</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">query_string</span> <span class="o">=</span> <span class="n">queries</span><span class="o">[</span><span class="n">key</span><span class="o">]</span>
-</span><span class='line'>      <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
-</span><span class='line'>        <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
-</span><span class='line'>          <span class="n">idea</span><span class="o">[</span><span class="n">key</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query_string</span><span class="p">)</span>
-</span><span class='line'>        <span class="k">end</span>
-</span><span class='line'>        <span class="n">found</span> <span class="o">&lt;&lt;</span> <span class="n">result</span>
-</span><span class='line'>      <span class="k">end</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>    <span class="n">found</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I still wasn&rsquo;t happy with the complexity, so I decided to extract some more methods. I went after this bit in <code>find_yaml_data</code>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="n">found</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
-</span><span class='line'>    <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I extracted it, following the same process:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="c1"># Step 1: Create a new method</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">build_ideas_from_raw_data</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1"># Step 2: Copy over the code</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">build_ideas_from_raw_data</span>
-</span><span class='line'>    <span class="n">found</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
-</span><span class='line'>      <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1"># Step 3: Look for local variables in the source method</span>
-</span><span class='line'>  <span class="c1"># Here, there&#39;s one called &#39;found&#39;</span>
-</span><span class='line'>  <span class="n">found</span> <span class="o">=</span> <span class="n">found</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
-</span><span class='line'>    <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1"># Step 4: Look for temporary variables in the extracted code.</span>
-</span><span class='line'>  <span class="c1"># There aren&#39;t any.</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1"># Step 5: If any temps are modified, replace them with queries.</span>
-</span><span class='line'>  <span class="c1"># Again, there aren&#39;t any.</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1"># Step 6: Pass locals into the new method as parameters.</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">data</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">build_idea_from_data</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1"># Step 7: Replace extracted code with a call to</span>
-</span><span class='line'>  <span class="c1"># the new method in the source method.</span>
-</span><span class='line'>  <span class="c1"># I also renamed the temp from &#39;found&#39; to &#39;ideas&#39; for clarity.</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">find_yaml_data</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="n">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">ideas</span> <span class="o">=</span> <span class="n">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">ideas</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Step 8 is to test. All green! Taking another look at the whole thing, I now had this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>   <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span class='line'>     <span class="k">return</span> <span class="o">[]</span> <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">to_s</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
-</span><span class='line'>
-</span><span class='line'>     <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">downcase</span>
-</span><span class='line'>     <span class="n">find_yaml_data</span><span class="p">({</span><span class="s1">&#39;title&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;tags&#39;</span> <span class="o">=&gt;</span> <span class="n">query</span><span class="p">})</span>
-</span><span class='line'>   <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>   <span class="k">def</span> <span class="nf">find_yaml_data</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
-</span><span class='line'>     <span class="n">found</span> <span class="o">=</span> <span class="n">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">query_hash</span><span class="p">)</span>
-</span><span class='line'>     <span class="n">ideas</span> <span class="o">=</span> <span class="n">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
-</span><span class='line'>     <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">ideas</span><span class="p">)</span>
-</span><span class='line'>   <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>   <span class="k">def</span> <span class="nf">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">data</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">build_idea_from_data</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>   <span class="k">def</span> <span class="nf">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
-</span><span class='line'>     <span class="n">found</span> <span class="o">=</span> <span class="o">[]</span>
-</span><span class='line'>     <span class="n">queries</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">key</span><span class="o">|</span>
-</span><span class='line'>       <span class="n">query_string</span> <span class="o">=</span> <span class="n">queries</span><span class="o">[</span><span class="n">key</span><span class="o">]</span>
-</span><span class='line'>       <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
-</span><span class='line'>         <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
-</span><span class='line'>           <span class="n">idea</span><span class="o">[</span><span class="n">key</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query_string</span><span class="p">)</span>
-</span><span class='line'>         <span class="k">end</span>
-</span><span class='line'>         <span class="n">found</span> <span class="o">&lt;&lt;</span> <span class="n">result</span>
-</span><span class='line'>       <span class="k">end</span>
-</span><span class='line'>     <span class="k">end</span>
-</span><span class='line'>     <span class="n">found</span>
-</span><span class='line'>   <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>My next thought was to clean up <code>find_multiple_queries_in_database</code>. I started by replacing the #each call with a #map instead. This let me remove all references to the <code>found</code> local variable, and cleaned the whole thing up considerably.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">queries</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">key</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">query_string</span> <span class="o">=</span> <span class="n">queries</span><span class="o">[</span><span class="n">key</span><span class="o">]</span>
-</span><span class='line'>      <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
-</span><span class='line'>        <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
-</span><span class='line'>          <span class="n">idea</span><span class="o">[</span><span class="n">key</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query_string</span><span class="p">)</span>
-</span><span class='line'>        <span class="k">end</span>
-</span><span class='line'>      <span class="k">end</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Reflecting further, I saw that the hash I was creating in the <code>search_for</code> method was unneccesary, as all of the values were the same. I moved the keys out into an array, and adjusted the <code>find_yaml_data</code> method to accept a string rather than a hash.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">return</span> <span class="o">[]</span> <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">to_s</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">downcase</span>
-</span><span class='line'>    <span class="n">find_yaml_data</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">fields_to_search</span>
-</span><span class='line'>    <span class="o">[</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;tags&quot;</span><span class="o">]</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">find_yaml_data</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="n">find_multiple_queries_in_database</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">ideas</span> <span class="o">=</span> <span class="n">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">ideas</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Running the tests, this wasn&rsquo;t working, as the <code>find_multiple_queries_in_database</code> method still expected a hash. I changed it as well:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">find_mutliple_queries_in_database</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">fields_to_search</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">field</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
-</span><span class='line'>        <span class="n">find_query_in_database</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
-</span><span class='line'>      <span class="k">end</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I didn&rsquo;t like the name anymore, so I changed it to search_fields_for_query. This last refactoring was a sweeping change, and removing the hash cleaned up a lot of things. All of the tests were still green. The code now looked like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">return</span> <span class="o">[]</span> <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">to_s</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">downcase</span>
-</span><span class='line'>    <span class="n">find_yaml_data</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">fields_to_search</span>
-</span><span class='line'>    <span class="o">[</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;tags&quot;</span><span class="o">]</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">find_yaml_data</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="n">search_fields_for_query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">ideas</span> <span class="o">=</span> <span class="n">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">ideas</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">data</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
-</span><span class='line'>      <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">search_fields_for_query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">fields_to_search</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">field</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
-</span><span class='line'>        <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
-</span><span class='line'>          <span class="n">idea</span><span class="o">[</span><span class="n">field</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">downcase</span><span class="p">)</span>
-</span><span class='line'>        <span class="k">end</span>
-</span><span class='line'>      <span class="k">end</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I could see that <code>search_fields_for_query</code> still had another candidate for extraction, so I went ahead with it, following the same steps:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">search_fields_for_query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">fields_to_search</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">field</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
-</span><span class='line'>        <span class="n">find_query_in_database</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
-</span><span class='line'>      <span class="k">end</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">find_query_in_database</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">idea</span><span class="o">[</span><span class="n">field</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I then realized that I could push the #downcase call from <code>search_for</code> fown into the database query. This cleaned up the former nicely:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">return</span> <span class="o">[]</span> <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">to_s</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
-</span><span class='line'>    <span class="n">find_yaml_data</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">find_query_in_database</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">idea</span><span class="o">[</span><span class="n">field</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">downcase</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Since search_for was now just delegating to <code>find_yaml_data</code>, I deleted the latter and pulled its code into <code>search_for</code>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">return</span> <span class="o">[]</span> <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">to_s</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="n">search_fields_for_query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">ideas</span> <span class="o">=</span> <span class="n">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">ideas</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>As a finishing touch, I pulled the transformation of raw data into an object out of <code>build_ideas_from_raw_data</code> and into a new method. This increased the lines of code, but I thought it was clearer, and the new method could potentially be reused elsewhere.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="c1"># Before</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>   <span class="n">data</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">compact</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
-</span><span class='line'>     <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-</span><span class='line'>   <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1"># After</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">data</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">build_idea_from_data</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">build_idea_from_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>    <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>All tests still green. Here&rsquo;s the final result:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">return</span> <span class="o">[]</span> <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">to_s</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">found</span> <span class="o">=</span> <span class="n">search_fields_for_query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">ideas</span> <span class="o">=</span> <span class="n">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">select_current_portfolio_only</span><span class="p">(</span><span class="n">ideas</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">search_fields_for_query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">fields_to_search</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">field</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">database</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
-</span><span class='line'>        <span class="n">find_query_in_database</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
-</span><span class='line'>      <span class="k">end</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">fields_to_search</span>
-</span><span class='line'>    <span class="o">[</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;tags&quot;</span><span class="o">]</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">find_query_in_database</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">database</span><span class="o">[</span><span class="s1">&#39;ideas&#39;</span><span class="o">].</span><span class="n">select</span> <span class="k">do</span> <span class="o">|</span><span class="n">idea</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">idea</span><span class="o">[</span><span class="n">field</span><span class="o">].</span><span class="n">downcase</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">downcase</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">build_ideas_from_raw_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">data</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">raw</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">build_idea_from_data</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">build_idea_from_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>    <span class="no">Idea</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Ahh, much better. Thanks, Extract Method strategy!</p>
 ]]></content>
     
   </entry>

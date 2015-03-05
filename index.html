@@ -9,7 +9,7 @@
   <meta name="author" content="Ben Lewis">
 
   
-  <meta name="description" content="This post originally appeared on Engine Yard. Introduction For JavaScript developers, it can be hard to keep up to date with the latest frameworks &hellip;">
+  <meta name="description" content="This post originally appeared on Engine Yard. Introduction These days, there are so many different choices when it comes to serving data from an API &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,811 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2015/03/01/serving-custom-json-from-your-rails-api-with-activemodel-serializers/">Serving Custom JSON From Your Rails API With ActiveModel::Serializers</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-03-01T06:23:01-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2015/active-model-serializers">Engine Yard</a>.</p>
+
+<h1>Introduction</h1>
+
+<p>These days, there are so many different choices when it comes to serving data from an API. You can build it in Node with <a href="http://expressjs.com/">ExpressJS</a>, in Go with <a href="http://martini.codegangsta.io/">Martini</a>, Clojure with <a href="https://github.com/weavejester/compojure">Compojure</a>, and many more. But in many cases, you just want to bring something to market as fast as you can. For those times, I still reach for <a href="http://rubyonrails.org/">Ruby on Rails</a>.</p>
+
+<p>With Rails, you can spin up a function API server in a very short period of time. Rails is large. Perhaps you object that there&rsquo;s &ldquo;too much magic&rdquo;. Have you ever checked out the <a href="https://github.com/rails-api/rails-api">rails-api gem</a>? It lets you enjoy all the benefits of Rails without including unnecessary view-layer and asset-related code.</p>
+
+<p>Rails-api is maintained by <a href="https://github.com/carlosantoniodasilva">Carlos Antonio Da Silva</a>, <a href="https://github.com/spastorino">Santiago Pastorino</a>, Rails Core team members, and all-around great Rubyist <a href="http://www.steveklabnik.com/">Steve Klabnik</a>. While not busy working on Rails or the Rails API Gem, they found the time to put together the <a href="https://github.com/rails-api/active_model_serializers">active_model_serializers gem</a> to make it easier to format JSON responses when using Rails as an API server.</p>
+
+<p>ActiveModel::Serializers (AMS) is a powerful alternative to <a href="https://github.com/rails/jbuilder">jbuilder</a>, <a href="https://github.com/nesquena/rabl">rabl</a>, and other Ruby templating solutions. It&rsquo;s easy to get started with, but when you want to serve data that quite doesn&rsquo;t match up with the way ActiveRecord (AR) structures things, it can be hard to figure out how to get it to do what you want.</p>
+
+<p>In this post, we&rsquo;ll take a look at how to extend AMS to serve up custom data in the context of a Rails-based chat app.</p>
+
+<h2>Kicking It Off: Setting Up a Rails Server</h2>
+
+<p>Any two users in the system can have a continuous thread that goes back and forth. Let&rsquo;s imagine we are building a chat app, similar to Apple&rsquo;s Messages. People can sign up for the service, then chat with their friends.</p>
+
+<p>Most of the presentation logic will happen in a client-side JavaScript app. For now, we&rsquo;re only concerned with accepting and returning raw data, and we&rsquo;ve decided to use a Rails server to build it.</p>
+
+<p>To get started, we&rsquo;ll run a <code>rails new</code>, but since we&rsquo;re using the <code>rails-api</code> gem, we&rsquo;ll need to make sure we have it installed first, with:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gem install rails-api</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once that&rsquo;s done, we&rsquo;ll run the following (familiar) command to start the project:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rails-api new mensajes --database=postgresql</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>cd</code> into the directory and setup the database with:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rake db:create</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Creating the Models</h2>
+
+<p>We&rsquo;ll need a couple of models: <code>User</code>s and <code>Messages</code>. The workflow to create them should be fairly familiar:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rails g scaffold user username:string
+</span><span class='line'>rails g scaffold message sender_id:integer recipient_id:integer body:text</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Open up the migrations, and set everything to <code>null: false</code>, then run <code>rake db:migrate</code>.</p>
+
+<p>We&rsquo;ll also need to set up the relationships. Be sure to test these relationships (I would suggest using the <a href="https://github.com/thoughtbot/shoulda-matchers">shoulda gem</a> to make it easy on yourself.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class User &lt; ActiveRecord::Base
+</span><span class='line'>  has_many :sent_messages, class_name: "Message", foreign_key: "sender_id"
+</span><span class='line'>  has_many :received_messages, class_name: "Message", foreign_key: "recipient_id"
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class Message &lt; ActiveRecord::Base
+</span><span class='line'>  belongs_to :recipient, class_name: "User", inverse_of: :received_messages
+</span><span class='line'>  belongs_to :sender, class_name: "User", inverse_of: :sent_messages
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Serving the Messages</h2>
+
+<p>Let&rsquo;s send some messages! Imagine for a minute that you&rsquo;ve already set up some kind of token-based authentication system, and you have some way of getting ahold of the user that is making requests to your API.</p>
+
+<p>We can open up the <code>MessagesController</code>, and since we used a <code>scaffold</code>, we should already be able to view all the messages. Let&rsquo;s scope that to the current user. First we&rsquo;ll write a convenience method to get all the sent and received messages for a user, then we&rsquo;ll rework the <code>MessagesController</code> to work the way we want it to.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class User &lt; ActiveRecord::Base
+</span><span class='line'>  ...
+</span><span class='line'>  def messages
+</span><span class='line'>    Message.where("sender_id = ? OR recipient_id = ?", self.id, self.id)
+</span><span class='line'>  end
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class MessagesController &lt; ApplicationController
+</span><span class='line'>  def index
+</span><span class='line'>    @messages = current_user.messages
+</span><span class='line'>    render json: @messages
+</span><span class='line'>  end
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Assuming that we have created a couple of sent and received messages for the <code>current_user</code>, we should be able to take a look at <code>http://localhost:3000/messages</code> and see some raw JSON that looks like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[{"sender_id":1,"id":1,"recipient_id":2,"body":"YOLO","created_at":"2015-02-03T21:05:12.908Z","updated_at":"2015-02-03T21:05:12.908Z"},{"recipient_id":1,"id":2,"sender_id":2,"body":"Hello, world!","created_at":"2015-02-03T21:05:51.309Z","updated_at":"2015-02-03T21:05:51.309Z"}]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It&rsquo;s kind of ugly. It would be nice if we could remove the timestamps and ids. This is where AMS comes in.</p>
+
+<h2>Adding ActiveModel::Serializers</h2>
+
+<p>Once we add AMS to our project, it should be easy to get a much prettier JSON format back from our <code>MessagesController</code>.</p>
+
+<p>To get AMS, add it to the <code>Gemfile</code> with:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gem "active_model_serializers", github: "rails-api/active_model_serializers"
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then <code>bundle install</code>. Note that I&rsquo;m using a the edge version of AMS here because it supports <code>belongs_to</code> and other features. See the <a href="https://github.com/rails-api/active_model_serializers/blob/master/README.md">github project README</a> for some information about maintenance and why you might want to use an older version.</p>
+
+<p>Now we can easily set up a serializer with <code>rails g serializer message</code>. Let&rsquo;s take a look at what this generated for us. In <code>app/serializers/message_serializer.rb</code>, we find this code:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class MessageSerializer &lt; ActiveModel::Serializer
+</span><span class='line'>  attributes :id
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Whichever <code>attributes</code> we specify (as a list of symbols) will be returned in the JSON response. Let&rsquo;s skip <code>id</code>, and instead return the <code>sender_id</code>, <code>recipient_id</code>, and <code>body</code>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class MessageSerializer &lt; ActiveModel::Serializer
+</span><span class='line'>  attributes :sender_id, :recipient_id, :body
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now when we visit <code>/messages</code>, we get this slightly cleaner JSON:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{"messages":[{"sender_id":1,"recipient_id":2,"body":"YOLO"},{"sender_id":2,"recipient_id":1,"body":"Hello, world!"}]}</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Cleaning Up the Format</h2>
+
+<p>It sure would be nice if we could get more information about the other user, like their username, so that we could display it in the messaging UI on the client-side. That&rsquo;s easy enough, we just change the <code>MessageSerializer</code> to use AR objects as attributes for the <code>sender</code> and <code>recipient</code>, instead of <code>id</code>s.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class MessageSerializer &lt; ActiveModel::Serializer
+</span><span class='line'>  attributes :sender, :recipient, :body
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we can see more about the Sender and Recipient:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{"messages":[{"sender":{"id":1,"username":"Ben","created_at":"2015-02-03T21:04:09.220Z","updated_at":"2015-02-03T21:04:09.220Z"},"recipient":{"id":2,"username":"David","created_at":"2015-02-03T21:04:45.948Z","updated_at":"2015-02-03T21:04:45.948Z"},"body":"YOLO"},{"sender":{"id":2,"username":"David","created_at":"2015-02-03T21:04:45.948Z","updated_at":"2015-02-03T21:04:45.948Z"},"recipient":{"id":1,"username":"Ben","created_at":"2015-02-03T21:04:09.220Z","updated_at":"2015-02-03T21:04:09.220Z"},"body":"Hello, world!"}]}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Actually, that might be too much. Let&rsquo;s clean up how <code>User</code> objects are serialized by generating a User serializer with <code>rails g serializer user</code>. We&rsquo;ll set it up to just return the username.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class UserSerializer &lt; ActiveModel::Serializer
+</span><span class='line'>  attributes :username
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In the <code>MessageSerializer</code>, we&rsquo;ll use <code>belongs_to</code> to have AMS format our <code>sender</code> and <code>recipient</code> using the <code>UserSerializer</code>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class MessageSerializer &lt; ActiveModel::Serializer
+</span><span class='line'>  attributes :body
+</span><span class='line'>  belongs_to :sender
+</span><span class='line'>  belongs_to :recipient
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If we take a look at <code>/messages</code>, we now see:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[{"recipient":{"username":"David"},"body":"YOLO","sender":{"username":"Ben"}},{"recipient":{"username":"Ben"},"body":"Hello, world!","sender":{"username":"David"}}]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Things are really starting to come together!</p>
+
+<h2>Conversations</h2>
+
+<p>Although we can view all of a user&rsquo;s messages using the <code>index</code> controller action, or a specific message at the <code>show</code> action, there&rsquo;s something important to the business logic of our app that we can&rsquo;t do. We can&rsquo;t view all of the messages sent between two users. We need some concept of a <code>conversation</code>.</p>
+
+<p>When thinking about creating a conversation, we have to ask, does this model need to be stored in the database? I think the answer is no. We already have messages that know which users they belong to. All we really need is a way to get back all the messages between two users from one endpoint.</p>
+
+<p>We can use a Plain Old Ruby Object (PORO) to create this concept of a <code>conversation</code> model. We will <em>not</em> inherit from <code>ActiveRecord::Base</code> in this case.</p>
+
+<p>Since we already know about the <code>current_user</code>, we really only need it to keep track of the other user. We&rsquo;ll call her the <code>participant</code>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># app/models/conversation.rb
+</span><span class='line'>class Conversation
+</span><span class='line'>  attr_reader :participant, :messages
+</span><span class='line'>
+</span><span class='line'>  def initialize(attributes)
+</span><span class='line'>    @participant = attributes[:participant]
+</span><span class='line'>    @messages = attributes[:messages]
+</span><span class='line'>  end
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We&rsquo;ll want to be able to serve up these conversations, so we&rsquo;ll need a <code>ConversationsController</code>. We want to get all of the conversations for a given user, so we&rsquo;ll add a class-level method to the <code>Conversation</code> model to find them and return them in this format:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># TODO: Insert JSON blob here</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To make this work, we&rsquo;ll run a <code>group_by</code> on the user&rsquo;s messages, grouping by the <em>other</em> user&rsquo;s id. We&rsquo;ll then map the resulting hash into a collection of <code>Conversation</code> objects, passing in the other user and the list of messages.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class Conversation
+</span><span class='line'>  ...
+</span><span class='line'>  def self.for_user(user)
+</span><span class='line'>    user.messages.group_by { |message|
+</span><span class='line'>      if message.sender == user
+</span><span class='line'>        message.recipient_id
+</span><span class='line'>      else
+</span><span class='line'>        message.sender_id
+</span><span class='line'>      end
+</span><span class='line'>    }.map do |user_id, messages|
+</span><span class='line'>      Conversation.new({
+</span><span class='line'>        participant: User.find(user_id),
+</span><span class='line'>        messages: messages
+</span><span class='line'>      })
+</span><span class='line'>    end
+</span><span class='line'>  end
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If we run this in the Rails Console, it seems to be working.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&gt;Conversation.for_user(User.first)
+</span><span class='line'>...
+</span><span class='line'>=&gt; [#&lt;Conversation:0x007fbd6e5b9428 @participant=#&lt;User id: 2, username: "David", created_at: "2015-02-03 21:04:45", updated_at: "2015-02-03 21:04:45"&gt;, @messages=[#&lt;Message id: 1, sender_id: 1, recipient_id: 2, body: "YOLO", created_at: "2015-02-03 21:05:12", updated_at: "2015-02-03 21:05:12"&gt;, #&lt;Message id: 2, sender_id: 2, recipient_id: 1, body: "Hello, world!", created_at: "2015-02-03 21:05:51", updated_at: "2015-02-03 21:05:51"&gt;]&gt;]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Great! We&rsquo;ll just call this method in our <code>ConversationsController</code> and everything will be great!</p>
+
+<p>First, we&rsquo;ll define the route in <code>config/routes.rb</code>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Rails.application.routes.draw do
+</span><span class='line'>  ...
+</span><span class='line'>  resources :conversations, only: [:index]
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then, we&rsquo;ll write the controller action.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># app/controllers/conversations_controller.rb
+</span><span class='line'>
+</span><span class='line'>class ConversationsController &lt; ApplicationController
+</span><span class='line'>  def index
+</span><span class='line'>    conversations = Conversation.for_user(current_user)
+</span><span class='line'>    render json: conversations
+</span><span class='line'>  end
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Visiting <code>/conversations</code>, we should see a list of all the conversations for the current user.</p>
+
+<h2>Serializing Plain Old Ruby Objects</h2>
+
+<p>Whoops! When we visit that route, we get an error: <code>undefined method</code>new&#8217; for nil:NilClass`. It&rsquo;s coming from this line in the controller:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>render json: conversations</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It looks like the error is coming from the fact that we don&rsquo;t have a serializer. Let&rsquo;s make one with <code>rails g serializer conversation</code>. We&rsquo;ll edit it to return its attributes, <code>participant</code> and <code>message</code>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class ConversationSerializer &lt; ActiveModel::Serializer
+</span><span class='line'>  attributes :participant, :messages
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now when we try, we get another error, coming from the same line of the controller: <code>undefined method 'read_attribute_for_serialization' for #&lt;Conversation:0x007ffc9c1bed10&gt;</code></p>
+
+<p>Digging around in the source code for ActiveModel::Serializers, I couldn&rsquo;t find where that method was defined. So I took a look at ActiveModel itself, and found it <a href="https://github.com/rails/rails/blob/08754f12e65a9ec79633a605e986d0f1ffa4b251/activemodel/lib/active_model/serialization.rb#L141">here</a>. It turns out that it&rsquo;s just an alias for <code>send</code>!</p>
+
+<p>We can add that into our PORO easily enough:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class Conversation
+</span><span class='line'>  alias :read_attribute_for_serialization :send
+</span><span class='line'>  ...
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Or, we could <code>include ActiveModel::Serialization</code> which is where our AR-backed objects got it.</p>
+
+<p>Now when we take a look at <code>/conversations</code>, we get:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[{"participant":{"id":2,"username":"David","created_at":"2015-02-03T21:04:45.948Z","updated_at":"2015-02-03T21:04:45.948Z"},"messages":[{"sender_id":1,"recipient_id":2,"id":1,"body":"YOLO","created_at":"2015-02-03T21:05:12.908Z","updated_at":"2015-02-03T21:05:12.908Z"},{"sender_id":2,"id":2,"recipient_id":1,"body":"Hello, world!","created_at":"2015-02-03T21:05:51.309Z","updated_at":"2015-02-03T21:05:51.309Z"}]}]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Whoops. Not quite right. But the problem is similar to the one we had before in the <code>MessageSerializer</code>. Maybe the same approach will work. We&rsquo;ll change the <code>attributes</code> to AR relationships.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class ConversationSerializer &lt; ActiveModel::Serializer
+</span><span class='line'>  has_many :messages, class_name: "Message"
+</span><span class='line'>  belongs_to :participant, class_name: "User"
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Almost! Now <code>/conversations</code> returns:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[{"messages":[{"body":"YOLO"},{"body":"Hello, world!"}],"participant":{"username":"David"}}]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We can&rsquo;t see who the sender of each message was! AMS isn&rsquo;t using the <code>UserSerializer</code> for the message sender and recipient, because we&rsquo;re not using an AR object.</p>
+
+<p>A little <a href="https://github.com/rails-api/active_model_serializers/blob/master/lib/active_model/serializer.rb#136">source code</a> spelunking point the way to a fix.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class MessageSerializer &lt; ActiveModel::Serializer
+</span><span class='line'>  attributes :body, :recipient, :sender
+</span><span class='line'>
+</span><span class='line'>  def sender
+</span><span class='line'>    UserSerializer.new(object.sender).attributes
+</span><span class='line'>  end
+</span><span class='line'>
+</span><span class='line'>  def recipient
+</span><span class='line'>    UserSerializer.new(object.recipient).attributes
+</span><span class='line'>  end
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now <code>/conversations</code> gives us what we want:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[{"messages":[{"body":"YOLO","recipient":{"username":"David"},"sender":{"username":"Ben"}},{"body":"Hello, world!","recipient":{"username":"Ben"},"sender":{"username":"David"}}],"participant":{"username":"David"}}]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And <code>/messages</code> still works as well!</p>
+
+<h2>Wrapping Up</h2>
+
+<p>The ActiveModel::Serializers gem claims to bring &ldquo;convention over configuration to your JSON generation&rdquo;. It does a great job of it, but when you need to massage the data, things can get a little bit hairy.</p>
+
+<p>Hopefully some of the tricks we&rsquo;ve covered will help you present JSON from your Rails API the way you want. For this, and virtually any other problem caused by <em>the magic</em> getting in the way, I can&rsquo;t suggest digging through the source code enough.</p>
+
+<p>At the end of the day ARS is an excellent choice for getting your JSON API off the ground with a minimum of fuss. Good luck!</p>
+
+<p>P.S. Have a different approach? Prefer <code>rabl</code> or <code>jbuilder</code>? Did I leave something out? Leave us a comment below!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2015/02/26/getting-started-with-ruby-processing/">Getting Started With Ruby Processing</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-26T06:20:55-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This post was a featured article in <a href="http://rubyweekly.com/issues/234">Ruby Weekly #234</a>.</p>
+
+<p>It was originally published on <a href="https://blog.engineyard.com/2015/getting-started-with-ruby-processing">Engine Yard</a>.</p>
+
+<h1>Intrudction</h1>
+
+<p>If you&rsquo;re like me, you love to code because it is a creative process. In another life, I am a musician.</p>
+
+<p>I&rsquo;ve always loved music because it represents a synthesis of the measurable concreteness of math and the ambiguity of language. Programming is the same way.</p>
+
+<p>But desipite the creative potential of programming, I often myself spending my days working out the kinks of HTTP requests or dealing with SSL certificates. Some part of my yearns for a purely <a href="http://en.wikipedia.org/wiki/Apollonian_and_Dionysian">Apollonion</a> environment in which to use code to make something new and unseen.</p>
+
+<p>When I feel a void for purely creative coding, I turn to the <a href="https://processing.org/">Processing language</a>. Processing is a simple language, based on Java, that you can use to create digital graphics. It&rsquo;s easy to learn, fun to use, and has an amazing online community comprised of programmers, visual artists, musicians, and interdiscplinary artists of all kinds.</p>
+
+<p>In 2009, <a href="https://twitter.com/jashkenas">Jeremy Ashkenas</a>, creator of Backbone.JS, Underscore.JS, and Coffeescript), published the <a href="https://rubygems.org/gems/ruby-processing">ruby-processing gem</a>. It wraps Processing in a &ldquo;thin little shim&rdquo; that makes it even easier to get started as a Ruby developer. In this post, we&rsquo;ll take a look at how you can create your first interactive digital art project in just a few minutes.</p>
+
+<h2>What Is Processing?</h2>
+
+<p>Processing is programming language and IDE built by <a href="http://reas.com/">Casey Reas</a> and <a href="http://benfry.com/">Benjamin Fry</a>, two protegés of indisciplinary digital art guru <a href="http://www.maedastudio.com/">John Maeda</a> at the MIT Media Lab.</p>
+
+<p>Since the project began in 2001, it&rsquo;s been helping teach people to program in a visual art context using a simplified version of Java. It comes packaged as an <a href="https://processing.org/download/">IDE</a> that can be downloaded and used to create and save sketches.</p>
+
+<h2>Why Ruby Processing?</h2>
+
+<p>Since Processing already comes wrapped in an easy-to-use package, you may ask: &ldquo;why should I bother with Ruby Processing?&rdquo;</p>
+
+<p>The answer: if you know how to write Ruby, you can use Processing as a visual interface to a much more complex program. Games, interactive art exhibits, innovative music projects, anything you can imagine; it&rsquo;s all at your fingertips.</p>
+
+<p>Additionally, you don&rsquo;t have to declare types, <code>void</code>s, or understand the differences between <code>float</code>s and <code>int</code>s to get started.</p>
+
+<p>Although there are some drawbacks to using Ruby Processing, most notably slower performance, having Ruby&rsquo;s API available to translate your ideas into sketches more than makes up for it.</p>
+
+<h2>Setup</h2>
+
+<p>When getting started with Ruby Processing for the first time, it can be a little bit overwhelming to get all of the dependencies set up correctly. The gem relies on JRuby, Processing, and a handful of other things. Here&rsquo;s how to get them all installed and working.</p>
+
+<p>I&rsquo;ll assume you already have the following installed: homebrew, wget, java, and a ruby manager such as rvm, rbenv or chruby.</p>
+
+<h3>Processing</h3>
+
+<p><a href="https://www.processing.org/download/">Download Processing</a> from the official website and install it.</p>
+
+<p>When you&rsquo;re done, make sure that the resulting app is located in your <code>/Applications</code> directory.</p>
+
+<h3>JRuby</h3>
+
+<p>Although it&rsquo;s possible to run Ruby Processing on the <a href="http://en.wikipedia.org/wiki/Ruby_MRI">MRI</a>, I highly suggest using JRuby. It works much better, since Processing itself is built on Java.</p>
+
+<p>Install the latest JRuby version (1.7.18 at the time of this writing). For example, if you&rsquo;re using <code>rbenv</code>, the command would be <code>rbenv install jruby-1.7.18</code>, followed by <code>rbenv global jruby-1.7.18</code> to set your current ruby to JRuby.</p>
+
+<h3>Ruby Processing</h3>
+
+<p>Install the <code>ruby-processing</code> gem globally with <code>gem install ruby-processing</code>.
+If you&rsquo;re using <code>rbenv</code>, don&rsquo;t forget to run <code>rbenv rehash</code>.</p>
+
+<h3>JRuby Complete</h3>
+
+<p>You&rsquo;ll need the <code>jruby-complete</code> Java jar. Fortunately, there are a couple of built-in Ruby Processing commands that make it easy to install. <code>rp5</code> is the Ruby Processing command. It can be used to do many things, one of which is to install <code>jruby-complete</code> using <code>wget</code>. To do so, run:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rp5 setup install</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once it&rsquo;s complete, you can use <code>rp5 setup check</code> to make sure everything worked.</p>
+
+<h3>Setup Processing Root</h3>
+
+<p>One final step. You&rsquo;ll need to set the root of your Processing app. This one-liner should take care of it for you:</p>
+
+<p><code>echo 'PROCESSING_ROOT: /Applications/Processing.app/Contents/Java' &gt;&gt; ~/.rp5rc</code></p>
+
+<h3>Ready To Go</h3>
+
+<p>Now that we have everything installed and ready to go, we can start creating our first piece of art!</p>
+
+<h2>Making Your First Sketch</h2>
+
+<p>There are two basic parts to a Processing program: <code>setup</code> and <code>draw</code>.</p>
+
+<p>The code in <code>setup</code> runs one time, to get everything ready to go.</p>
+
+<p>The code in <code>draw</code> runs repeatedly in a loop. How fast is the loop? By default, it&rsquo;s 60 frames per second, although it can be limited by your machine&rsquo;s processing power. You can also manipulate it with the <code>frame_rate</code> method.</p>
+
+<p>Here&rsquo;s an example sketch that sets the window size, background and stroke colors, and draws a circle with a square around it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">setup</span>
+</span><span class='line'>  <span class="n">size</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">600</span>
+</span><span class='line'>  <span class="n">background</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="n">stroke</span> <span class="mi">255</span>
+</span><span class='line'>  <span class="n">no_fill</span>
+</span><span class='line'>  <span class="n">rect_mode</span> <span class="no">CENTER</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'>  <span class="n">ellipse</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span>
+</span><span class='line'>  <span class="n">rect</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here&rsquo;s a quick run-through of what each of these methods is doing:</p>
+
+<p>-<code>size()</code>: Sets the window size. It takes two arguments: width and height (in pixels).
+-<code>background()</code>: Sets the background color. It takes four arguments: R, G, B, and an alpha (opacity) value.
+-<code>stroke()</code>: Sets the stroke color. Takes RGBA arguments, like <code>background()</code>.
+-<code>no_fill()</code>: Tells Processing not to fill in shapes with the fill color. You can turn it back on with <code>fill()</code>, which takes RGBA values.
+-<code>rect_mode</code>: Tells Processing to draw rectangles using the x and y coordinates as a center point, with the other two arguments specifying width and height. The other <a href="https://processing.org/reference/rectMode_.html">available modes</a> are: CORNER, CORNERS, and RADIUS.
+-<code>ellipse</code>: Draws an ellipse or circle. Takes four arguments: x-coordinate, y-coordinate, width, and height.
+-<code>rect</code>: Draws a rectangle or square. Takes four arguments: x-coordinate, y-coordinate, width, and height.</p>
+
+<p>Note that the coordinate system in Processing starts at the top-left corner, not in the middle as in the Cartesian Coordinate System.</p>
+
+<h2>Running the Program</h2>
+
+<p>If you&rsquo;re following along at home, let&rsquo;s see what we&rsquo;ve made! Save the code above into a file called <code>my_sketch.rb</code>.</p>
+
+<p>There are two ways to run your program: you can either have it run once with <code>rp5 run my_sketch.rb</code>, or you can watch the filesystem for changes with <code>rp5 watch my_sketch.rb</code>. Let&rsquo;s just use the <code>run</code> version for now.</p>
+
+<p><img src="http://i.imgur.com/VhQo15W.png"/></p>
+
+<p>Pretty basic, but it&rsquo;s a good start! Using just the seven methods above, you can create all kinds of sketches.</p>
+
+<h2>Other Commonly Used Methods</h2>
+
+<p>Here are a few other useful Processing methods to add to your toolbox:</p>
+
+<p>-<code>line()</code>: Draws a line. Takes four argments: x1, y1, x2, y2. The line is drawn from the point at the x, y coordinates of the first two arguments to the point at the coordinates of the last two arguments.
+-<code>stroke_weight()</code>: Sets the width of the stroke in pixels.
+-<code>no_stroke()</code>: Tells Processing to draw shapes without outlines.
+-<code>smooth()</code>: Tells Processing to draw shapws with anti-aliased edges. On by default, but can be disables with <code>noSmooth()</code>.
+-<code>fill()</code>: Sets the fill color of shapes. Takes RGBA arguments.</p>
+
+<p>For a list of all the methods available in vanilla Processing, check out <a href="https://www.processing.org/reference/">this list</a>. Note that the Java implementation of these methods is in <code>camelCase</code>, but in Ruby they are <em>probably</em> in <code>snake_case</code>.</p>
+
+<p><a href="https://github.com/jashkenas/ruby-processing/wiki/Deprecation-of-methods">Some methods have also been deprecated</a>, usually because you can use Ruby to do the same thing more easily.</p>
+
+<p>If you see anything in the Processing docs and can&rsquo;t get it to run in Ruby Processing, use <code>$app.find_method("foo")</code> to to search the method names available in Ruby Processing.</p>
+
+<h2>Responding to Input</h2>
+
+<p>Now that we know how to make a basic sketch, let&rsquo;s build something that can respond to user input. This is where we leave static visual art behind, and start to make interactive digital art.</p>
+
+<p>Although you can use all kinds of physical inputs to control Processing (e.g. Arduino, Kinect, LeapMotion), today we&rsquo;ll just use the mouse.</p>
+
+<p>Processing exposes a number of variables exposing its state at runtime, such as <code>frame_count</code>, <code>width</code>, <code>height</code>. We can use the <code>mouse_x</code> and <code>mouse_y</code> coordinates to control aspects of our program.</p>
+
+<p>Here&rsquo;s a sketch based on the <code>mouse_x</code> and <code>mouse_y</code> positions. It draws lines of random weight starting at the top of the screen at the mouse&rsquo;s x position (<code>mouse_x, 0</code>) to a y coordinate between 0 and 200 pixels to the right of the mouse&rsquo;s y position (<code>mouse_y + offset, height</code>).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">setup</span>
+</span><span class='line'>  <span class="n">size</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">600</span>
+</span><span class='line'>  <span class="n">background</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="n">stroke</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">60</span> <span class="c1"># first argument is grayscale value, second is opacity</span>
+</span><span class='line'>  <span class="n">frame_rate</span> <span class="mi">8</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'>  <span class="n">r</span> <span class="o">=</span> <span class="nb">rand</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">stroke_weight</span> <span class="n">r</span>
+</span><span class='line'>  <span class="n">offset</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="mi">10</span>
+</span><span class='line'>  <span class="n">line</span> <span class="n">mouse_x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">mouse_y</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="n">height</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Load that up and check it out!</p>
+
+<p><img src="http://i.imgur.com/HkS0XiH.png" /></p>
+
+<h2>Wrapping Your Sketch in a Class</h2>
+
+<p>One last not before we go: you can totally call other methods from within your <code>setup</code> and <code>draw</code> methods. In fact, you can even wrap everything in a class that inherits from <code>Processing::App</code>.</p>
+
+<p>You can do everything you normally do in Ruby, so you can build a whole project, with logic branches and state, that controls the visual effect through these two methods.</p>
+
+<p>Here&rsquo;s a snippet from a version of Tic Tac Toe I built with <a href="https://twitter.com/RolenTLe">Rolen Le</a> during gSchool.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;ruby-processing&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">TicTacToe</span> <span class="o">&lt;</span> <span class="no">Processing</span><span class="o">::</span><span class="no">App</span>
+</span><span class='line'>  <span class="kp">attr_accessor</span> <span class="ss">:current_player</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">setup</span>
+</span><span class='line'>    <span class="n">size</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">800</span>
+</span><span class='line'>    <span class="n">background</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@current_player</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">draw</span>
+</span><span class='line'>    <span class="n">create_lines</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create_lines</span>
+</span><span class='line'>    <span class="n">stroke</span> <span class="mi">256</span><span class="p">,</span><span class="mi">256</span><span class="p">,</span><span class="mi">256</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">301</span><span class="p">,</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">301</span><span class="p">,</span> <span class="mi">666</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">488</span><span class="p">,</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">488</span><span class="p">,</span> <span class="mi">666</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">301</span><span class="p">,</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">301</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">488</span><span class="p">,</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">488</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">#borders</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">133</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">666</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">666</span><span class="p">,</span> <span class="mi">666</span>
+</span><span class='line'>    <span class="n">line</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">133</span><span class="p">,</span> <span class="mi">666</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To see the rest of the code, visit the <a href="https://github.com/fluxusfrequency/tic-tac-toe">GitHub repo</a>.</p>
+
+<p>Another example of a game I built early on in my programming career can be found <a href="https://github.com/fluxusfrequency/mancala">here</a>. I later did a <a href="http://fluxusfrequency.github.io/blog/2014/01/17/refactoring-2-replace-method-with-method-object/">series</a> of <a href="http://fluxusfrequency.github.io/blog/2014/01/18/refactoring-3-introduce-named-parameter-and-introduce-class-annotation/">refactorings</a> of this <a href="http://fluxusfrequency.github.io/blog/2014/01/27/refactoring-4-remove-middle-man/">code</a> on my <a href="http://fluxusfrequency.github.io/blog/archives/">personal blog</a>.</p>
+
+<p>I&rsquo;m still working on a pattern for game development with that I like. Keep an eye out for future posts about the best way to build a game with Ruby Processing.</p>
+
+<h2>Learning More</h2>
+
+<p>There&rsquo;s so much more you can do in Processing than what we&rsquo;ve covered here! Bézier curves, translations, rotations, images, fonts, audio, video, and 3D sketching are all available.</p>
+
+<p>The best way to figure out how to do a lot of sketching. Just tinkering with the methods covered in this post would be enough to keep you busy creating new things for years.</p>
+
+<p>If you&rsquo;ve really caught the bug and want to go even <em>deeper</em>, check out some of these resources to learn more.</p>
+
+<h3>Built-in Samples</h3>
+
+<p>If you run <code>rp5 setup unpack_samples</code>, you&rsquo;ll get a bunch of Processing sketch samples in a directory located at <code>~/rp_samples</code>. I encourage you to open them up and take a look. There&rsquo;s a lot you can glean by changing little bits of code in other projects.</p>
+
+<h3>Online Examples From Books</h3>
+
+<p>Learning Processing is an excellent book by Daniel Shiffman. In addition to being a valuable resource for Processing users, it has a number of <a href="http://www.learningprocessing.com/examples/">examples available online</a>.</p>
+
+<p>Daniel Shiffman also wrote a book called <a href="http://natureofcode.com/">The Nature of Code</a>. The examples from it have been <a href="https://github.com/ruby-processing/The-Nature-of-Code-Examples-in-Ruby">ported to Ruby</a> and are another great resource for learning more.</p>
+
+<h3>Process Artist</h3>
+
+<p>There&rsquo;s a great Jumpstart Lab tutorial called <a href="http://tutorials.jumpstartlab.com/projects/process_artist.html">Process Artist</a>, that walks you through building a drawing program à la MSPaint.</p>
+
+<h2>Conclusion</h2>
+
+<p>Processing is an awesome multi-disciplinary tool. It sits at the intersection of coding, visual art, photography, sound art, and interactive digital experiences. With the availability of Ruby Processing, it&rsquo;s super easy to get started.</p>
+
+<p>If you&rsquo;re a programmer looking for a way to express your creativity, you couldn&rsquo;t find a better way to do it than to try tinkering with Processing. I hope this post gets you off to a great start. Good luck and keep sketching!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2858,766 +3663,6 @@ PandaClient: An AngularJS app sitting atop a Sinatra proxy server</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/10/15/getting-started-with-active-job/">Getting Started With Active Job</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-15T06:40:09-06:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This post was a featured article in <a href="http://rubyweekly.com/issues/215">Ruby Weekly</a>.</p>
-
-<p>It originally appeared on <a href="https://blog.engineyard.com/2014/getting-started-with-active-job">Engine Yard</a> and was also published on the <a href="https://quickleft.com/blog/getting-started-with-active-job/">Quick Left Blog</a>.</p>
-
-<h2>Introduction</h2>
-
-<p>With the <a href="http://edgeguides.rubyonrails.org/4_2_release_notes.html">announcement of Rails 4.2</a> came some exciting <a href="news:">news:</a> Rails now has built-in support for executing jobs in the background using <a href="https://github.com/rails/rails/tree/master/activejob">Active Job</a>. The ability to schedule newsletters, follow-up emails, and database housekeeping tasks is vital to almost any production application. In the past, developers had to hand-roll this functionality, and configuration varied between different queueing services. With the release of Rails 4.2, setting up jobs to be executed by workers at a later time is standardized. In this article, we&rsquo;ll take a look at how to set up Active Job and use it to send a follow-up email to a new user.</p>
-
-<h2>Updating Rails</h2>
-
-<p>You&rsquo;ll need Rails 4.2.0beta1 or greater if you want to Active Job available by default (in older versions of Rails, you can require it as a gem). This tutorial is based on Rails 4.2.0beta2 (edge Rails). If you want to use edge Rails, use <code>gem 'rails', github: 'rails/rails'</code> in your <code>Gemfile</code>, and run <code>bundle update</code>.</p>
-
-<h2>Setting Up Resque</h2>
-
-<p>In order to send emails outside of our main application process, we&rsquo;ll need to make use of a queueing system. There are many choices of technology for setting up background workers available, and Active Job abstracts the differences between them. Today we&rsquo;ll use Resque, as it&rsquo;s widely-used and stable.</p>
-
-<p>To use Resque, you&rsquo;ll need to make sure you have <a href="http://redis.io/">Redis</a> installed. If you don&rsquo;t, I recommend getting it with <a href="http://brew.sh/">Homebrew</a>. Otherwise, you can follow the <a href="http://redis.io/download">instructions for download</a> from the official site. Once it&rsquo;s set up, make sure <code>redis-server</code> is running.</p>
-
-<p>The next step is to install and configure the Resque gem. We&rsquo;ll also need <code>resque-scheduler</code> to use ActiveJob. Add them the <code>Gemfile</code> with <code>gem 'resque'</code> and <code>gem 'resque-scheduler'</code> and <code>bundle install</code>. We&rsquo;ll also need to create a Resque configuration file:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#config/initializers/resque.rb</span>
-</span><span class='line'>
-</span><span class='line'><span class="no">Resque</span><span class="o">.</span><span class="n">redis</span> <span class="o">=</span> <span class="no">Redis</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:url</span> <span class="o">=&gt;</span> <span class="s1">&#39;http://localhost:6379&#39;</span><span class="p">)</span>
-</span><span class='line'><span class="no">Resque</span><span class="o">.</span><span class="n">after_fork</span> <span class="o">=</span> <span class="no">Proc</span><span class="o">.</span><span class="n">new</span> <span class="p">{</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">establish_connection</span> <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>We&rsquo;ll also require the Resque and Resque Scheduler rake tasks, so we can start our workers and scheduler with rake:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#lib/tasks/resque.rake</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;resque/tasks&#39;</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;resque/scheduler/tasks&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">namespace</span> <span class="ss">:resque</span> <span class="k">do</span>
-</span><span class='line'>  <span class="n">task</span> <span class="ss">:setup</span> <span class="k">do</span>
-</span><span class='line'>    <span class="nb">require</span> <span class="s1">&#39;resque&#39;</span>
-</span><span class='line'>    <span class="nb">require</span> <span class="s1">&#39;resque-scheduler&#39;</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>We can now start a worker with <code>QUEUE=* rake environment resque:work</code>. If everything&rsquo;s working right, we should be able to see it in the Resque console. Run <code>resque-web</code> and visit <code>http://0.0.0.0:5678/overview</code>. If you see &ldquo;0 of 1 Workers Working&rdquo;, all&rsquo;s well. We&rsquo;ll also need to boot up the scheduler in a separate process with <code>rake environment resque:scheduler</code>.</p>
-
-<h2>Creating the Mailer</h2>
-
-<p>Now that we have a worker, we need it an email to send. Let&rsquo;s imagine that we want to send a follow up email to a user that recently registered for our site. We&rsquo;ll create a <code>UserMailer</code>, with a <code>follow_up_email</code> method that takes an email address.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#app/mailers/user_mailer.rb</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">UserMailer</span> <span class="o">&lt;</span> <span class="no">ActionMailer</span><span class="o">::</span><span class="no">Base</span>
-</span><span class='line'>  <span class="n">default</span> <span class="ss">from</span><span class="p">:</span> <span class="s1">&#39;noreturn@example.com&#39;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">follow_up_email</span><span class="p">(</span><span class="n">email</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">mail</span><span class="p">(</span>
-</span><span class='line'>      <span class="ss">to</span><span class="p">:</span> <span class="n">email</span><span class="p">,</span>
-</span><span class='line'>      <span class="ss">subject</span><span class="p">:</span> <span class="s1">&#39;We hope you are enjoying our app&#39;</span>
-</span><span class='line'>    <span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>We&rsquo;ll also need to write a follow-up email template.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#app/views/user_mailer/follow_up_email.text</span>
-</span><span class='line'>
-</span><span class='line'><span class="no">Hey</span><span class="p">,</span> <span class="n">we</span> <span class="n">saw</span> <span class="n">that</span> <span class="n">you</span> <span class="n">recently</span> <span class="n">signed</span> <span class="n">up</span> <span class="k">for</span> <span class="n">our</span> <span class="n">app</span><span class="o">.</span>
-</span><span class='line'><span class="no">We</span> <span class="n">hope</span> <span class="n">you</span><span class="err">&#39;</span><span class="n">re</span> <span class="n">enjoying</span> <span class="n">it!</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Creating the Job</h2>
-
-<p>Now that we have a working mailer, we can set up Active Job. All we really need to do is configure it to use the Resque adapter.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#config/initializers/active_job.rb</span>
-</span><span class='line'>
-</span><span class='line'><span class="no">ActiveJob</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">queue_adapter</span> <span class="o">=</span> <span class="ss">:resque</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Next, we&rsquo;ll create a job that tells the background worker to send the email. The conventions for a <code>job</code> include: giving it a <code>queue_as</code>, and defining a <code>perform</code> method.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#app/jobs/follow_up_email_job.rb</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">FollowUpEmailJob</span> <span class="o">&lt;</span> <span class="no">ActiveJob</span><span class="o">::</span><span class="no">Base</span>
-</span><span class='line'>  <span class="n">queue_as</span> <span class="ss">:email</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">perform</span><span class="p">(</span><span class="n">email</span><span class="p">)</span>
-</span><span class='line'>    <span class="no">UserMailer</span><span class="o">.</span><span class="n">follow_up_email</span><span class="p">(</span><span class="n">email</span><span class="p">)</span><span class="o">.</span><span class="n">deliver_now</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now when a user signs up, we can have the <code>UsersController</code> enqueue the job for execution at a later time. Although you would probably delay the job a few days in a real application, we&rsquo;ll just wait 10 seconds for easier testing.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#app/controllers/users_controller.rb</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">UsersController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">new</span>
-</span><span class='line'>    <span class="vi">@user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">new</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
-</span><span class='line'>    <span class="vi">@user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">user_params</span><span class="p">)</span>
-</span><span class='line'>    <span class="no">FollowUpEmailJob</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="vi">@user</span><span class="o">.</span><span class="n">email</span><span class="p">)</span><span class="o">.</span><span class="n">enqueue</span><span class="p">(</span><span class="ss">wait</span><span class="p">:</span> <span class="mi">10</span><span class="o">.</span><span class="n">seconds</span><span class="p">)</span>
-</span><span class='line'>    <span class="c1"># redirect somewhere</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>To make this work, we&rsquo;ll need some routes and a view template:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#config/routes.rb</span>
-</span><span class='line'>
-</span><span class='line'><span class="no">Rails</span><span class="o">.</span><span class="n">application</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">draw</span> <span class="k">do</span>
-</span><span class='line'>  <span class="n">resources</span> <span class="ss">:users</span><span class="p">,</span> <span class="ss">only</span><span class="p">:</span> <span class="o">[</span><span class="ss">:new</span><span class="p">,</span> <span class="ss">:create</span><span class="o">]</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='erb'><span class='line'><span class="x">#app/views/users/new.html.erb</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">&lt;%=</span> <span class="n">form_for</span> <span class="vi">@user</span> <span class="k">do</span> <span class="o">|</span><span class="n">f</span><span class="o">|</span> <span class="cp">%&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x">  </span><span class="cp">&lt;%=</span> <span class="n">f</span><span class="o">.</span><span class="n">email_field</span> <span class="ss">:email</span> <span class="cp">%&gt;</span><span class="x"></span>
-</span><span class='line'><span class="x">  </span><span class="cp">&lt;%=</span> <span class="n">f</span><span class="o">.</span><span class="n">submit</span> <span class="cp">%&gt;</span><span class="x"></span>
-</span><span class='line'><span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span><span class="x"></span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Setting Up Mailcatcher</h2>
-
-<p>Before we try our job, we&rsquo;ll want to make sure we can intercept the emails we&rsquo;re expecting the mailer to send. To achieve this, we&rsquo;ll use the <code>mailcatcher</code> gem. Do a global install with <code>gem install mailcatcher</code>, and run <code>mailcatcher</code>. Once we configure Action Mailer to send the emails to <code>localhost:1025</code> via smtp, we&rsquo;ll be able to view intercepted emails at <code>http://127.0.0.1:1080</code>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#config/environments/development.rb</span>
-</span><span class='line'>
-</span><span class='line'><span class="no">Rails</span><span class="o">.</span><span class="n">application</span><span class="o">.</span><span class="n">configure</span> <span class="k">do</span>
-</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'>  <span class="n">config</span><span class="o">.</span><span class="n">action_mailer</span><span class="o">.</span><span class="n">delivery_method</span> <span class="o">=</span> <span class="ss">:smtp</span>
-</span><span class='line'>  <span class="n">config</span><span class="o">.</span><span class="n">action_mailer</span><span class="o">.</span><span class="n">smtp_settings</span> <span class="o">=</span> <span class="p">{</span> <span class="ss">:address</span> <span class="o">=&gt;</span> <span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="ss">:port</span> <span class="o">=&gt;</span> <span class="mi">1025</span> <span class="p">}</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Trying It Out</h2>
-
-<p>Now everything is set up. To try it out, we&rsquo;ll sign up as a new user and watch the job get enqueued in the queue, then catch the mail in Mailcatcher. At this point, we have four processes running:</p>
-
-<ul>
-<li><code>mailcatcher</code></li>
-<li><code>QUEUE=* rake environment resque:work</code></li>
-<li><code>rake environment resque:scheduler</code></li>
-<li><code>rails server</code></li>
-</ul>
-
-
-<p>In your browser, view the Resque dashboard at <code>http:/http://0.0.0.0:5678</code>. In another tab, visit <code>http://127.0.0.1:1080</code> to see the Mailcatcher dashboard.</p>
-
-<p>Now, for the moment of truth. Visit <code>localhost:3000/users/new</code> and sign up as a new user. Ten seconds later, a new job will appear in the <code>emails</code> queue of the Resque dashboard. Just afterward, the email will appear in Mailcatcher.</p>
-
-<h2>Using Acive Job with Action Mailer</h2>
-
-<p>The pattern we&rsquo;ve written here woks for scheduling any job. But, since ActiveJob is now baked into ActionMailer, we can also schedule the job directly with the <code>UserMailer</code> in the <code>UsersController</code>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#app/controllers/users_controller.rb</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">UsersController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
-</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
-</span><span class='line'>    <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'>    <span class="no">UserMailer</span><span class="o">.</span><span class="n">follow_up_email</span><span class="p">(</span><span class="n">email</span><span class="p">)</span><span class="o">.</span><span class="n">deliver_later!</span><span class="p">(</span><span class="ss">wait</span><span class="p">:</span> <span class="mi">10</span><span class="o">.</span><span class="n">seconds</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Conclusion</h2>
-
-<p>Active Job makes scheduling background jobs easier. It&rsquo;s also a great way to set up your job infrastructure without knowing too much about what queueing system you&rsquo;re using. If you needed to switch to <a href="https://github.com/mperham/sidekiq">Sidekiq</a> or <a href="https://github.com/collectiveidea/delayed_job">Delayed Job</a> in the future, it would be as simple as setting ActiveJob to the appropriate adapter.</p>
-
-<p>It can be a little bit tricky to get Active Job set up correctly. Hopefully, this tutorial made the process a little more transparent for you.</p>
-
-<p>Until next time,</p>
-
-<p>Happy hacking!</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/10/02/wrapping-your-api-in-a-custom-ruby-gem/">Wrapping Your API in a Custom Ruby Gem</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-02T07:03:19-06:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2014/wrapping-your-api-in-a-ruby-gem">Engine Yard</a>.</p>
-
-<p>It also appeard on the <a href="https://quickleft.com/blog/wrapping-your-api-in-a-custom-ruby-gem/">Quick Left Blog</a>.</p>
-
-<h2>Introduction</h2>
-
-<p>In the modern web, API-based projects are becoming the norm. Why? For one thing, APIs are necessary to serve Single Page Applications, which are all the rage right now. From a business standpoint, APIs give companies a new way to charge others for access to their data. If you are part of a company that offers such a service, a great way to generate interest in your API is to offer a Ruby gem that makes fetching and consuming your data easy for Ruby developers.</p>
-
-<p>Today, we&rsquo;ll take a look at how to wrap an imaginary API in a new Ruby gem and share it with the world. If you want to follow along at home, you can <a href="https://github.com/fluxusfrequency/benzinator">clone the project from my GitHub account</a>.</p>
-
-<h2>Our API</h2>
-
-<p>Let&rsquo;s pretend we have an application called Ben&rsquo;s Benzes that serves data about cars for sale. We&rsquo;re exposing a RESTful API so that developers from other companies can serve our car data on their websites. For our first iteration, here are the routes we&rsquo;ve set up:</p>
-
-<p>Get info about a certain car currently for sale:
-<code>GET http://www.bensbenzes.com/api/v1/cars/active/:id</code></p>
-
-<p>Get all the cars that are currently for sale:
-<code>GET http://www.bensbenzes.com/api/v1/cars/active</code></p>
-
-<h2>Setting Up the Gem</h2>
-
-<p>We&rsquo;ll be using <a href="http://bundler.io/">bundler</a>, so begin by making sure you have that installed (you probably do). We&rsquo;ll create the gem by running <code>bundle gem &lt;gem-name&gt;</code> from the command line. I&rsquo;m going to use <code>benzinator</code> as the name of my gem. That name is now taken, so you&rsquo;ll have to come up with your own. Open up the project directory and you should see:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>├── Gemfile
-</span><span class='line'>├── LICENSE.txt
-</span><span class='line'>├── README.md
-</span><span class='line'>├── Rakefile
-</span><span class='line'>├── benzinator.gemspec
-</span><span class='line'>└── lib
-</span><span class='line'>    ├── benzinator
-</span><span class='line'>    │   └── version.rb
-</span><span class='line'>    └── benzinator.rb</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Let&rsquo;s open up <code>benzinator.gemspec</code> and do a little configuration. Update the following lines with your name, email and a summary and description of the gem.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'><span class="n">spec</span><span class="o">.</span><span class="n">authors</span>       <span class="o">=</span> <span class="o">[</span><span class="s2">&quot;Ben Lewis&quot;</span><span class="o">]</span>
-</span><span class='line'><span class="n">spec</span><span class="o">.</span><span class="n">email</span>         <span class="o">=</span> <span class="o">[</span><span class="s2">&quot;blewis@example.com&quot;</span><span class="o">]</span>
-</span><span class='line'><span class="n">spec</span><span class="o">.</span><span class="n">summary</span>       <span class="o">=</span> <span class="sx">%q{Gem to wrap BensBenzes.com API}</span>
-</span><span class='line'><span class="n">spec</span><span class="o">.</span><span class="n">description</span>   <span class="o">=</span> <span class="sx">%q{Gem to wrap BensBenzes.com API}</span>
-</span><span class='line'><span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>While we&rsquo;re in here, let&rsquo;s add the dependencies we&rsquo;ll be using, right after <code>bundler</code> and <code>rake</code>. We&rsquo;ll add testing tools as development dependencies, as well as hard dependencies on <a href="https://github.com/lostisland/faraday">Faraday</a> and <a href="http://www.ruby-doc.org/stdlib-2.1.2/libdoc/json/rdoc/JSON.html">json</a>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'><span class="n">spec</span><span class="o">.</span><span class="n">add_development_dependency</span> <span class="s2">&quot;minitest&quot;</span>
-</span><span class='line'><span class="n">spec</span><span class="o">.</span><span class="n">add_development_dependency</span> <span class="s2">&quot;vcr&quot;</span>
-</span><span class='line'><span class="n">spec</span><span class="o">.</span><span class="n">add_development_dependency</span> <span class="s2">&quot;webmock&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">spec</span><span class="o">.</span><span class="n">add_dependency</span> <span class="s2">&quot;faraday&quot;</span>
-</span><span class='line'><span class="n">spec</span><span class="o">.</span><span class="n">add_dependency</span> <span class="s2">&quot;json&quot;</span>
-</span><span class='line'><span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Writing a Test</h2>
-
-<p>We&rsquo;ll need to make a <code>test</code> folder, and put a <code>test_helper.rb</code> into it. We&rsquo;ll use the helper to pull in our gem and testing dependencies. We&rsquo;ll also configure <a href="https://github.com/vcr/vcr">VCR</a> and <a href="https://github.com/bblimke/webmock">Webmock</a>, which we&rsquo;re using to stub out our server responses so that our gem isn&rsquo;t dependent on access to the API for testing. See the VCR documentation for more about how this works.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#test/test_helper.rb</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;./lib/benzinator&#39;</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/autorun&#39;</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;webmock/minitest&#39;</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;vcr&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="no">VCR</span><span class="o">.</span><span class="n">configure</span> <span class="k">do</span> <span class="o">|</span><span class="n">c</span><span class="o">|</span>
-</span><span class='line'>  <span class="n">c</span><span class="o">.</span><span class="n">cassette_library_dir</span> <span class="o">=</span> <span class="s2">&quot;test/fixtures&quot;</span>
-</span><span class='line'>  <span class="n">c</span><span class="o">.</span><span class="n">hook_into</span> <span class="ss">:webmock</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Don&rsquo;t forget to create the <code>test/fixtures</code> folder so VCR has somewhere to put the fixtures. With that done, we&rsquo;ll write the first test for our gem. Our goal is to create an object called Benzinator::Car that exposes <code>#all</code> and <code>#find</code> methods to wrap calls to our API. Let&rsquo;s start by making sure that object exists:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#test/car/car_test.rb</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;./test/test_helper&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">BenzinatorCarTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">test_exists</span>
-</span><span class='line'>    <span class="n">assert</span> <span class="no">Benzinator</span><span class="o">::</span><span class="no">Car</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Creating The Wrapper Model</h2>
-
-<p>If we now run <code>ruby test/car/car_test.rb</code>, we get this error: <code>uninitialized constant Benzinator::Car</code>. Looks like it&rsquo;s time to write some code:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#lib/benzinator/car.rb</span>
-</span><span class='line'><span class="k">module</span> <span class="nn">Benzinator</span>
-</span><span class='line'>  <span class="k">class</span> <span class="nc">Car</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>We&rsquo;ll also need to require it in <code>lib/benzinator.rb</code>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">require_relative</span> <span class="s2">&quot;benzinator/version&quot;</span>
-</span><span class='line'><span class="n">require_relative</span> <span class="s2">&quot;benzinator/car&quot;</span>
-</span><span class='line'><span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now if we run the test, it passes. Let&rsquo;s write another one to make sure that our <code>Benzinator::Car</code> model can give back the data for a car. Let&rsquo;s imagine that an API call to <code>http://www.bensbenzes.com/api/v1/cars/active/68</code> returns this JSON object:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="s2">&quot;{</span>
-</span><span class='line'><span class="s2">  \&quot;id\&quot;: 68,</span>
-</span><span class='line'><span class="s2">  \&quot;make\&quot;: \&quot;Honda\&quot;,</span>
-</span><span class='line'><span class="s2">  \&quot;model\&quot;: \&quot;Civic\&quot;,</span>
-</span><span class='line'><span class="s2">  \&quot;year\&quot;: \&quot;1996\&quot;,</span>
-</span><span class='line'><span class="s2">  \&quot;color\&quot;: \&quot;Blue\&quot;,</span>
-</span><span class='line'><span class="s2">  \&quot;vin\&quot;: \&quot;XXXXXXXXXXXXXX\&quot;,</span>
-</span><span class='line'><span class="s2">  \&quot;dealer_id\&quot;: 34</span>
-</span><span class='line'><span class="s2">}&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>We&rsquo;ll want to make sure that our Benzinator::Car object has getter convenience methods all of the fields shown for each car.
-Given these API results, we could write a test like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#test/car/car_test.rb</span>
-</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">test_it_gives_back_a_single_car</span>
-</span><span class='line'>    <span class="no">VCR</span><span class="o">.</span><span class="n">use_cassette</span><span class="p">(</span><span class="s1">&#39;one_car&#39;</span><span class="p">)</span> <span class="k">do</span>
-</span><span class='line'>      <span class="n">car</span> <span class="o">=</span> <span class="no">Benzinator</span><span class="o">::</span><span class="no">Car</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="mi">68</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">assert_equal</span> <span class="no">Benzinator</span><span class="o">::</span><span class="no">Car</span><span class="p">,</span> <span class="n">car</span><span class="o">.</span><span class="n">class</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="c1"># Check that the fields are accessible by our model</span>
-</span><span class='line'>      <span class="n">assert_equal</span> <span class="mi">68</span><span class="p">,</span> <span class="n">car</span><span class="o">.</span><span class="n">id</span>
-</span><span class='line'>      <span class="n">assert_equal</span> <span class="s2">&quot;Honda&quot;</span><span class="p">,</span> <span class="n">car</span><span class="o">.</span><span class="n">make</span>
-</span><span class='line'>      <span class="n">assert_equal</span> <span class="s2">&quot;Civic&quot;</span><span class="p">,</span> <span class="n">car</span><span class="o">.</span><span class="n">model</span>
-</span><span class='line'>      <span class="n">assert_equal</span> <span class="s2">&quot;1996&quot;</span><span class="p">,</span> <span class="n">car</span><span class="o">.</span><span class="n">year</span>
-</span><span class='line'>      <span class="n">assert_equal</span> <span class="s2">&quot;Blue&quot;</span><span class="p">,</span> <span class="n">car</span><span class="o">.</span><span class="n">color</span>
-</span><span class='line'>      <span class="n">assert_equal</span> <span class="s2">&quot;XXXXXXXXXXXXXX&quot;</span><span class="p">,</span> <span class="n">car</span><span class="o">.</span><span class="n">vin</span>
-</span><span class='line'>      <span class="n">assert_equal</span> <span class="mi">34</span><span class="p">,</span> <span class="n">car</span><span class="o">.</span><span class="n">dealer_id</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Running this test, we get <code>undefined method 'find' for Benzinator::Car:Class</code>. Let&rsquo;s go define it.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#lib/benzinator/car.rb</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;faraday&#39;</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;json&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="no">API_URL</span> <span class="o">=</span> <span class="s2">&quot;http://www.bensbenzes.com/api/v1/cars/active&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">module</span> <span class="nn">Benzinator</span>
-</span><span class='line'>  <span class="k">class</span> <span class="nc">Car</span>
-</span><span class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">find</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">response</span> <span class="o">=</span> <span class="no">Faraday</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="no">API_URL</span><span class="si">}</span><span class="s2">/</span><span class="si">#{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">attributes</span> <span class="o">=</span> <span class="no">JSON</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now the test says we forgot to make it a Benzinator::Car model:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="ss">Expected</span><span class="p">:</span> <span class="no">Benzinator</span><span class="o">::</span><span class="no">Car</span>
-</span><span class='line'><span class="ss">Actual</span><span class="p">:</span> <span class="no">Hash</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>We can fix that, and make the attributes into getters at the same time.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#lib/benzinator/car.rb</span>
-</span><span class='line'><span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'><span class="k">module</span> <span class="nn">Benzinator</span>
-</span><span class='line'>  <span class="k">class</span> <span class="nc">Car</span>
-</span><span class='line'>    <span class="kp">attr_reader</span> <span class="ss">:id</span><span class="p">,</span> <span class="ss">:make</span><span class="p">,</span> <span class="ss">:model</span><span class="p">,</span> <span class="ss">:year</span><span class="p">,</span> <span class="ss">:color</span><span class="p">,</span> <span class="ss">:vin</span><span class="p">,</span> <span class="ss">:dealer_id</span>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">attributes</span><span class="p">)</span>
-</span><span class='line'>      <span class="vi">@id</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">[</span><span class="s2">&quot;id&quot;</span><span class="o">]</span>
-</span><span class='line'>      <span class="vi">@make</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">[</span><span class="s2">&quot;make&quot;</span><span class="o">]</span>
-</span><span class='line'>      <span class="vi">@model</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">[</span><span class="s2">&quot;model&quot;</span><span class="o">]</span>
-</span><span class='line'>      <span class="vi">@year</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">[</span><span class="s2">&quot;year&quot;</span><span class="o">]</span>
-</span><span class='line'>      <span class="vi">@color</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">[</span><span class="s2">&quot;color&quot;</span><span class="o">]</span>
-</span><span class='line'>      <span class="vi">@vin</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">[</span><span class="s2">&quot;vin&quot;</span><span class="o">]</span>
-</span><span class='line'>      <span class="vi">@dealer_id</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">[</span><span class="s2">&quot;dealer_id&quot;</span><span class="o">]</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">find</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
-</span><span class='line'>      <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'>      <span class="kp">new</span><span class="p">(</span><span class="n">attributes</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>    <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That should take care of it. Now to test the <code>#all</code> method.</p>
-
-<p>Let&rsquo;s imagine that a call to <code>http://www.bensbenzes.com/api/v1/cars/active</code> responds with an array of 64 cars, with this Honda being the first one. We can rely on the API call giving back 64 cars today, but we hope there will be 6000 listed tomorrow. This is why we&rsquo;re using VCR to save the result of the call as a fixture.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#test/car/car_test.rb</span>
-</span><span class='line'><span class="k">class</span> <span class="nc">BenzinatorCarTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
-</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">test_it_gives_back_all_the_cars</span>
-</span><span class='line'>    <span class="no">VCR</span><span class="o">.</span><span class="n">use_cassette</span><span class="p">(</span><span class="s1">&#39;all_cars&#39;</span><span class="p">)</span> <span class="k">do</span>
-</span><span class='line'>      <span class="n">result</span> <span class="o">=</span> <span class="no">Benzinator</span><span class="o">::</span><span class="no">Car</span><span class="o">.</span><span class="n">all</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="c1"># Make sure we got all the cars</span>
-</span><span class='line'>      <span class="n">assert_equal</span> <span class="mi">64</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">length</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="c1"># Make sure that the JSON was parsed</span>
-</span><span class='line'>      <span class="n">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">kind_of?</span><span class="p">(</span><span class="nb">Array</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">kind_of?</span><span class="p">(</span><span class="no">Benzinator</span><span class="o">::</span><span class="no">Car</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Running this, we get <code>undefined method 'all' for Benzinator::Car:Class</code>. Let&rsquo;s define it:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#lib/benzinator/car.rb</span>
-</span><span class='line'><span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'><span class="k">module</span> <span class="nn">Benzinator</span>
-</span><span class='line'>  <span class="k">class</span> <span class="nc">Car</span>
-</span><span class='line'>    <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">all</span>
-</span><span class='line'>      <span class="n">response</span> <span class="o">=</span> <span class="no">Faraday</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="no">API_URL</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">cars</span> <span class="o">=</span> <span class="no">JSON</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">cars</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">attributes</span><span class="o">|</span> <span class="kp">new</span><span class="p">(</span><span class="n">attributes</span><span class="p">)</span> <span class="p">}</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Sweet success! The tests pass!</p>
-
-<h2>Publishing and Using Our Gem</h2>
-
-<p>Now that our gem works, we can publish it to <a href="https://rubygems.org">RubyGems</a>. This is a pretty easy process. First, we&rsquo;ll bump the version to 1.0:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#lib/benzinator/version.rb</span>
-</span><span class='line'><span class="k">module</span> <span class="nn">Benzinator</span>
-</span><span class='line'>  <span class="no">VERSION</span> <span class="o">=</span> <span class="s2">&quot;0.1.0&quot;</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then we can bundle it up by running <code>gem build benzinator.gemspec</code>. This will create a <code>benzinator-0.1.0.gem</code> file in our project directory. To publish it , all we have to do is run <code>gem push benzinator-0.1.0.gem</code>. You&rsquo;ll be prompted for your RubyGems username and password, which you&rsquo;ll need to <a href="https://rubygems.org/sign_up">create</a> if you don&rsquo;t have an account yet. After you enter your credentials, your gem is live!</p>
-
-<p>Now anyone can use our gem in their Ruby projects. All they have to do is add it to their Gemfile with <code>gem 'benzinator'</code>, and run bundle.</p>
-
-<h2>Conclusion</h2>
-
-<p>Winning! Now the whole wide world can access the Ben&rsquo;s Benzes API from their Ruby project, with convenience methods to make things easier to work with.</p>
-
-<p>For our next iteration, we could get a lot more in depth. We might want to add the ability to create, edit or destroy cars. If we decided to that, we might first build sort of authentication process into the gem. Once users have gotten a taste of our data and rely on it, our API might get so popular that we need to limit the number of API calls a user can make per day. We could then write subscription service to allow users greater access to your data at a cost.</p>
-
-<p>One last note: you might want to use this technique to wrap someone else&rsquo;s API, too! If you&rsquo;re using a service that doesn&rsquo;t offer a gem for its API, you can always write one and release it as open source!</p>
-
-<p>Happy hacking!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="2">&larr; Older</a>
@@ -3633,6 +3678,14 @@ Given these API results, we could write a test like this:</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/03/01/serving-custom-json-from-your-rails-api-with-activemodel-serializers/">Serving Custom JSON From Your Rails API With ActiveModel::Serializers</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/02/26/getting-started-with-ruby-processing/">Getting Started With Ruby Processing</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/02/04/setting-up-a-client-side-javascript-project-with-gulp-and-browserify/">Setting Up A Client-Side JavaScript Project With Gulp and Browserify</a>
       </li>
     
@@ -3642,14 +3695,6 @@ Given these API results, we could write a test like this:</p>
     
       <li class="post">
         <a href="/blog/2015/01/22/measuring-client-side-javascript-test-coverage-with-istanbul/">Measuring Client-Side JavaScript Test Coverage With Istanbul</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/01/16/five-ruby-methods-you-should-be-using/">Five Ruby Methods You Should Be Using</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/12/18/seven-reasons-i-love-minitest/">Seven Reasons I Love Minitest</a>
       </li>
     
   </ul>
