@@ -327,7 +327,7 @@ We'll want to check that what we've built is actually going to work.  Let's add 
 
 We'll add some styling in `client/less/index.less`:
 
-```less
+```css
 body {
   background-color: DarkOliveGreen;
 }
