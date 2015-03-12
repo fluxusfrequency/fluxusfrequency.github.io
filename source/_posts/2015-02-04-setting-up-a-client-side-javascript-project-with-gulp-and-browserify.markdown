@@ -132,7 +132,7 @@ gulp.task('lint-test', function() {
     .pipe(jshint())
     .pipe(jshint.reporter('default'));
 });
-``
+```
 
 We'll also need to define a `.jshintrc` in the root of our project, so that JSHint will know which rules to apply. If you have a JSHint plugin turned on in your editor, it will show you any linting errors as well. I use [jshint.vim](https://github.com/wookiehangover/jshint.vim). Here's an example of a typical `.jshintrc` for one of my projects. You'll notice that it has some predefined globals that we'll be using in our testing environment.
 
