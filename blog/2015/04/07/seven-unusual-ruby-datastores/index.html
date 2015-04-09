@@ -1,0 +1,715 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Seven Unusual Ruby Datastores - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="This post appeared in Ruby Weekly #240. It was also included in issue #27.1 of the Pointer.io newsletter. It originally appeared on the Engine Yard &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2015/04/07/seven-unusual-ruby-datastores">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Seven Unusual Ruby Datastores</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-04-07T06:30:04-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This post appeared in <a href="http://rubyweekly.com/issues/240">Ruby Weekly #240</a>. It was also included in issue #27.1 of the <a href="http://www.pointer.io/">Pointer.io</a> newsletter. It originally appeared on the <a href="https://blog.engineyard.com/2015/seven-unusual-ruby-datastores">Engine Yard Blog</a></p>
+
+<h2>Introduction</h2>
+
+<p>Admit it: you like the unusual. We all do. Despite constant warnings against premature optimization, an emphasis on &ldquo;readable code&rdquo;, and the old aphorism, &ldquo;keep it simple, stupid&rdquo;, we just can&rsquo;t help ourselves. As programmers, we love exploring new things.</p>
+
+<p>In that spirit, let&rsquo;s go on an adventure. In this post, we&rsquo;ll take a look at seven lesser-known ways to store data in the Ruby language.</p>
+
+<h2>The Ones We Already Know</h2>
+
+<p>Before we get started, we&rsquo;ll set a baseline. What are the ways to store data in Ruby that we use every day? Well, these are the ones that come to mind for me: string, array, hash, CSV, JSON, and the filesystem.</p>
+
+<p>We can skip all of these.</p>
+
+<p>So what are some of the other ways to store data in Ruby? Let&rsquo;s find out.</p>
+
+<h2>Struct</h2>
+
+<h3>What Is It?</h3>
+
+<p>A struct is a way of bundling together a group of variables under a single name. If you&rsquo;ve done any C programming, you&rsquo;ve probably come across structs before.</p>
+
+<p>A struct is similar to a class. At its most basic, it&rsquo;s a group of bundled attributes with accessor methods. You can also define methods that instances of the struct will respond to.</p>
+
+<p>In Ruby, structs inherit from Enumerable, so they come with all kinds of great behavior, like <code>to_a</code>, <code>each</code>, <code>map</code>, and member access with <code>[]</code>.</p>
+
+<p>You can define a struct object by setting a constant equal to <code>Struct.new</code> and passing in some default attribute names. From there, you can create any number of instances of the struct, passing in attribute values for that instance.</p>
+
+<p>Let’s explore one:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Cat</span> <span class="o">=</span> <span class="no">Struct</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:name</span><span class="p">,</span> <span class="ss">:breed</span><span class="p">,</span> <span class="ss">:hair_length</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">meow</span>
+</span><span class='line'>    <span class="s2">&quot;m-e-o-w-w&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">tabby</span> <span class="o">=</span> <span class="no">Cat</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;Tabitha&quot;</span><span class="p">,</span> <span class="s2">&quot;Russian Blue&quot;</span><span class="p">,</span> <span class="s2">&quot;short&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">tabby</span><span class="o">.</span><span class="n">name</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;Tabitha&quot;</span>
+</span><span class='line'><span class="n">tabby</span><span class="o">.</span><span class="n">meow</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;m-e-o-w-w&quot;</span>
+</span><span class='line'><span class="n">tabby</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;Tabitha&quot;</span>
+</span><span class='line'><span class="n">tabby</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">attribute</span><span class="o">|</span>
+</span><span class='line'>  <span class="nb">puts</span> <span class="n">attribute</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="s2">&quot;Tabitha&quot;</span>
+</span><span class='line'><span class="s2">&quot;Russian Blue&quot;</span>
+</span><span class='line'><span class="s2">&quot;short&quot;</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;struct Cat name=&quot;Tabitha&quot;, breed=&quot;Russian Blue&quot;, hair_length=&quot;short&quot;&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>When Would You Use It?</h3>
+
+<p>If you want to quickly define a class that has easily accessible attributes and little other behavior, structs are a great choice. Since they also respond to enumerable methods, they are great for use as stubs in tests.</p>
+
+<p>If you want to stub a class and send it a message in a test, but you don&rsquo;t want to use <a href="https://relishapp.com/rspec/rspec-mocks/v/3-2/docs/verifying-doubles/using-an-instance-double">a double</a>, you can fake it with a struct in a single line of code.</p>
+
+<p>Look how simple that is:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">fake_stripe_charge</span> <span class="o">=</span> <span class="no">Struct</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:create</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next we&rsquo;ll take a look at <code>Struct</code>&rsquo;s close cousin, <code>OpenStruct</code>.</p>
+
+<h2>OpenStruct</h2>
+
+<h3>What Is It?</h3>
+
+<p>An OpenStruct is somewhat like a hash. It&rsquo;s a data structure that you can use to store and access key-value pairs. In fact, it really <em>is</em> a hash. Under the hood, each OpenStruct uses a hash for data storage. It also defines getters and setters automatically using <code>method_missing</code> and <code>define_method</code>.</p>
+
+<p>There are three main differences between a struct and an open struct.</p>
+
+<p>The first is that when you initialize a struct, you get back a class that inherits from <code>Struct</code>, which you must further instantiate, whereas calling <code>new</code> on an OpenStruct gives you back an <code>OpenStruct</code> object.</p>
+
+<p>Secondly, OpenStructs don&rsquo;t allow you to define behaviors by passing a block to the initializer as we did with the struct above.</p>
+
+<p>Finally, OpenStructs must be passed an argument that responds to <code>each_pair</code> (such as a hash), whereas stucts expect a list of strings or symbols (to define their attribute names).</p>
+
+<p>In the end, an OpenStruct is a much simpler than a struct.</p>
+
+<p>OpenStruct lives in the Ruby Standard Library, so to use it in your code, you&rsquo;ll have to <code>require 'ostruct'</code>.</p>
+
+<p>Let’s explore one:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">luke</span> <span class="o">=</span> <span class="no">OpenStruct</span><span class="o">.</span><span class="n">new</span><span class="p">({</span>
+</span><span class='line'>  <span class="ss">home</span><span class="p">:</span> <span class="s2">&quot;Tatooine&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="ss">side</span><span class="p">:</span> <span class="ss">:light</span><span class="p">,</span>
+</span><span class='line'>  <span class="ss">weapon</span><span class="p">:</span> <span class="ss">:light_saber</span>
+</span><span class='line'><span class="p">})</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">luke</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;OpenStruct home=&quot;Tatooine&quot;, side=:light, weapon=:light_saber&gt;</span>
+</span><span class='line'><span class="n">luke</span><span class="o">.</span><span class="n">home</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;Tatooine&quot;</span>
+</span><span class='line'><span class="n">luke</span><span class="o">.</span><span class="n">side</span> <span class="o">=</span> <span class="ss">:dark</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="ss">:dark</span>
+</span><span class='line'><span class="n">luke</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;OpenStruct home=&quot;Tatooine&quot;, side=:dark, weapon=:light_saber&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>When Would You Use It?</h3>
+
+<p>As with Structs, I like to use OpenStructs as test stubs. Unfortunately, the metaprogramming used behind the scenes makes OpenStructs <a href="http://ruby-doc.org/stdlib-1.9.3/libdoc/ostruct/rdoc/OpenStruct.html#class-OpenStruct-label-Implementation-3A">much slower than hashes</a>, and they also respond to far fewer methods, so they aren&rsquo;t as flexible for everyday use. However, their built-in getters make them really useful anywhere that you need to inject an object that responds to a certain method.</p>
+
+<h2>Marshalling</h2>
+
+<h3>What Is It?</h3>
+
+<p>Marshaling is way to serialize Ruby objects into a binary format. It converts them into a bytestream that can be saved and reconstituted later.</p>
+
+<p>You marshal objects by calling <code>Marshal.dump</code> and <code>Marshal.load</code>.</p>
+
+<p>Here’s an example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">SpaceCaptain</span> <span class="o">=</span> <span class="no">Struct</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:name</span><span class="p">,</span> <span class="ss">:rank</span><span class="p">,</span> <span class="ss">:affiliation</span><span class="p">)</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="no">SpaceCaptain</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">picard</span> <span class="o">=</span> <span class="no">SpaceCaptain</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;Jean-Luc Picard&quot;</span><span class="p">,</span> <span class="s2">&quot;Captain&quot;</span><span class="p">,</span> <span class="s2">&quot;United Federation of Planets&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;struct SpaceCaptain name=&quot;Jean-Luc Picard&quot;, rank=&quot;Captain&quot;, affiliation=&quot;United Federation of Planets&quot;&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">saved_picard</span> <span class="o">=</span> <span class="no">Marshal</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">picard</span><span class="p">)</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;</span><span class="se">\x04\b</span><span class="s2">S:</span><span class="se">\x11</span><span class="s2">SpaceCaptain</span><span class="se">\b</span><span class="s2">:</span><span class="se">\t</span><span class="s2">nameI</span><span class="se">\&quot;\x14</span><span class="s2">Jean-Luc Picard</span><span class="se">\x06</span><span class="s2">:</span><span class="se">\x06</span><span class="s2">ET:</span><span class="se">\t</span><span class="s2">rankI</span><span class="se">\&quot;\f</span><span class="s2">Captain</span><span class="se">\x06</span><span class="s2">;</span><span class="se">\a</span><span class="s2">T:</span><span class="se">\x10</span><span class="s2">affiliationI</span><span class="se">\&quot;</span><span class="s2">!United Federation of Planets</span><span class="se">\x06</span><span class="s2">;</span><span class="se">\a</span><span class="s2">T&quot;</span>
+</span><span class='line'><span class="c1"># Write to disk</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">loaded_picard</span> <span class="o">=</span> <span class="no">Marshal</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">saved_picard</span><span class="p">)</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;struct SpaceCaptain name=&quot;Jean-Luc Picard&quot;, rank=&quot;Captain&quot;, affiliation=&quot;United Federation of Planets&quot;&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>When Would You Use it?</h3>
+
+<p>There are plenty of use cases for serializing code running in memory and saving it for later reuse. For example, if you were writing a video game and you wanted to make it possible for a player to save their game for later, you could marshal the objects in memory (e.g. the player, her location in a map, and any enemies that are nearby) and persist them. You could then load them up again when the player is ready to continue.</p>
+
+<p>Although there are other data serialization formats available, such as JSON, XML, and YAML (which we&rsquo;ll look at next), marshalling is <a href="http://www.skorks.com/2010/04/serializing-and-deserializing-objects-with-ruby/">by far the fastest option</a> available in Ruby. That makes it particularly well-suited to situations where you dealing with large volumes of data or processing it at high speed.</p>
+
+<h2>YAML</h2>
+
+<h3>What is It?</h3>
+
+<p>YAML, which stands for YAML Ain&rsquo;t Markup Language, is a widely-used format for serializing data in a human-readable format. It&rsquo;s available in many languages, of which Ruby is only one. The most widely-used Ruby YAML parser, <a href="https://github.com/tenderlove/psych">psych</a>, is a wrapper around <code>libyaml</code>, the C language parser.</p>
+
+<p>YAML lives in the Ruby Standard Library, so to use it in your code, you&rsquo;ll have to <code>require 'yaml'</code>. You can use the <a href="http://ruby-doc.org/stdlib-2.2.1/libdoc/yaml/rdoc/YAML/Store.html">YAML::Store library</a> to easily save data to disk.</p>
+
+<p>Here’s an example of how to use that library:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;yaml/store&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Database</span>
+</span><span class='line'>  <span class="no">DATABASE</span> <span class="o">=</span> <span class="no">YAML</span><span class="o">::</span><span class="no">Store</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;my_database&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">save_person</span><span class="p">(</span><span class="n">user_data</span><span class="p">)</span>
+</span><span class='line'>    <span class="no">DATABASE</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
+</span><span class='line'>      <span class="no">DATABASE</span><span class="o">[</span><span class="s2">&quot;people&quot;</span><span class="o">]</span> <span class="o">||=</span> <span class="o">[]</span>
+</span><span class='line'>      <span class="no">DATABASE</span><span class="o">[</span><span class="s2">&quot;people&quot;</span><span class="o">]</span> <span class="o">&lt;&lt;</span> <span class="n">user_data</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">bilbo</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>  <span class="ss">race</span><span class="p">:</span> <span class="ss">:hobbit</span><span class="p">,</span>
+</span><span class='line'>  <span class="ss">aliases</span><span class="p">:</span> <span class="o">[</span><span class="s2">&quot;Bilba Labingi&quot;</span><span class="o">]</span><span class="p">,</span>
+</span><span class='line'>  <span class="ss">home</span><span class="p">:</span> <span class="s2">&quot;The Shire&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="ss">inventory</span><span class="p">:</span> <span class="o">[</span><span class="ss">:the_one_ring</span><span class="p">,</span> <span class="ss">:arkenstone</span><span class="o">]</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Database</span><span class="o">.</span><span class="n">save_person</span><span class="p">(</span><span class="n">bilbo</span><span class="p">)</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="o">[</span><span class="p">{</span><span class="ss">:race</span><span class="o">=&gt;</span><span class="ss">:hobbit</span><span class="p">,</span> <span class="ss">:aliases</span><span class="o">=&gt;[</span><span class="s2">&quot;Bilba Labingi&quot;</span><span class="o">]</span><span class="p">,</span> <span class="ss">:home</span><span class="o">=&gt;</span><span class="s2">&quot;The Shire&quot;</span><span class="p">,</span> <span class="ss">:inventory</span><span class="o">=&gt;[</span><span class="ss">:the_one_ring</span><span class="p">,</span> <span class="ss">:arkenstone</span><span class="o">]</span><span class="p">},</span> <span class="p">{</span><span class="ss">:race</span><span class="o">=&gt;</span><span class="ss">:hobbit</span><span class="p">,</span> <span class="ss">:aliases</span><span class="o">=&gt;[</span><span class="s2">&quot;Bilba Labingi&quot;</span><span class="o">]</span><span class="p">,</span> <span class="ss">:home</span><span class="o">=&gt;</span><span class="s2">&quot;The Shire&quot;</span><span class="p">,</span> <span class="ss">:inventory</span><span class="o">=&gt;[</span><span class="ss">:the_one_ring</span><span class="p">,</span> <span class="ss">:arkenstone</span><span class="o">]</span><span class="p">}</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here&rsquo;s what <code>my_database</code> would look like after running this code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="nn">---</span>
+</span><span class='line'><span class="l-Scalar-Plain">people</span><span class="p-Indicator">:</span>
+</span><span class='line'><span class="p-Indicator">-</span> <span class="l-Scalar-Plain">:race</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">:hobbit</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">:aliases</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bilba Labingi</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">:home</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">The Shire</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">:inventory</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">:the_one_ring</span>
+</span><span class='line'>  <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">:arkenstone</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>When Would You Use it?</h3>
+
+<p>YAML serves the same function as marshaling: it&rsquo;s a way to serialize Ruby objects for storage. It&rsquo;s quite a bit slower, but it&rsquo;s human-readable.</p>
+
+<p>YAML is working behind the scenes when ActiveRecord is used to <a href="http://apidock.com/rails/ActiveRecord/Base/serialize/class">serialize a record attribute</a> containing a hash or an array and save it to a text column in the database. When the attribute is retrieved, ActiveRecord deserializes it back from YAML into a Ruby object of its original data type.</p>
+
+<h2>Set</h2>
+
+<h3>What Is It?</h3>
+
+<p>If you&rsquo;re familiar with mathematical <a href="http://en.wikipedia.org/wiki/Set_theory">set theory</a>, the <code>Set</code> class should be pretty intuitive. Sets respond to <code>intersection</code>, <code>difference</code>, <code>merge</code>, and many other Set operations.</p>
+
+<p>It allows you to define a data structure that behaves like an unordered array that can only contain unique members. It exposes many of the same methods available when accessing arrays, but with a faster lookup. Like OpenStruct, Set uses hash under the hood.</p>
+
+<p>Sets can be saved in <a href="http://redis.io/">redis</a>, which makes it possible to look them up very quickly.</p>
+
+<p>Set lives in the Ruby Standard Library, so to use it in your code you&rsquo;ll have to <code>require 'set'</code>.</p>
+
+<p>Here’s an example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;set&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">basic_lands</span> <span class="o">=</span> <span class="no">Set</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'><span class="o">[</span><span class="ss">:swamp</span><span class="p">,</span> <span class="ss">:island</span><span class="p">,</span> <span class="ss">:forest</span><span class="p">,</span> <span class="ss">:mountain</span><span class="p">,</span> <span class="ss">:plains</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">land</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">basic_lands</span> <span class="o">&lt;&lt;</span> <span class="n">land</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">basic_lands</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;Set: {:swamp, :island, :forest, :mountain, :plains}&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">basic_lands</span> <span class="o">&lt;&lt;</span> <span class="ss">:swamp</span>
+</span><span class='line'><span class="c1"># does nothing</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;Set: {:swamp, :island, :forest, :mountain, :plains}&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">fires_lands</span> <span class="o">=</span> <span class="no">Set</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'><span class="o">[</span><span class="ss">:forest</span><span class="p">,</span> <span class="ss">:mountain</span><span class="p">,</span> <span class="ss">:city_of_brass</span><span class="p">,</span> <span class="ss">:karplusan_forest</span><span class="p">,</span> <span class="ss">:rishadan_port</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">land</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">fires_lands</span> <span class="o">&lt;&lt;</span> <span class="n">land</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="n">fires_lands</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;Set: {:forest, :mountain, :city_of_brass, :karplusan_forest, :rishadan_port}&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">basic_lands</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">fires_lands</span><span class="p">)</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;Set: {:forest, :mountain}&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">basic_lands</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">fires_lands</span><span class="p">)</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;Set: {:swamp, :island, :plains}&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">basic_lands</span><span class="o">.</span><span class="n">subset?</span><span class="p">(</span><span class="n">fires_lands</span><span class="p">)</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="kp">false</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">basic_lands</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">fires_lands</span><span class="p">)</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;Set: {:swamp, :island, :forest, :mountain, :plains, :city_of_brass, :karplusan_forest, :rishadan_port}&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>When Would You Use it?</h3>
+
+<p>Sets are great for situations where you need to make sure that a given element isn&rsquo;t contained in a collection more than once. For example, if you were using tags in an application that was not backed by a database.</p>
+
+<p>They&rsquo;re also great for comparing the equality of two lists without caring about their order (as an array would). You could use this feature to check whether the data stored in memory is in sync with another collection fetched from a remote server.</p>
+
+<h2>Queue</h2>
+
+<h3>What Is It?</h3>
+
+<p>A <a href="http://ruby-doc.org/core-2.2.1/Queue.html">Queue</a> is a place that can be used hold values that you want to share between threads. It&rsquo;s basically a stack that is visible to all of the concurrently running thread process in a given Ruby environment.</p>
+
+<p>If you want to limit the amount of data that can be shared, you can use a <a href="http://ruby-doc.org/core-2.2.1/SizedQueue.html">SizedQueue</a>.</p>
+
+<p>Here’s an example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;thread&#39;</span>
+</span><span class='line'><span class="n">chess_moves</span> <span class="o">=</span> <span class="no">Queue</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">player_moves</span> <span class="o">=</span> <span class="no">Thread</span><span class="o">.</span><span class="n">new</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">chess_moves</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;e4&quot;</span>
+</span><span class='line'>  <span class="nb">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">chess_moves</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;e5&quot;</span>
+</span><span class='line'>  <span class="nb">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">chess_moves</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;f4&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">game_board</span> <span class="o">=</span> <span class="no">Thread</span><span class="o">.</span><span class="n">new</span> <span class="k">do</span>
+</span><span class='line'>  <span class="k">while</span> <span class="n">chess_moves</span><span class="o">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="n">move</span> <span class="o">=</span> <span class="n">chess_moves</span><span class="o">.</span><span class="n">pop</span>
+</span><span class='line'>    <span class="c1"># update the ui with the move</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>When Would You Use it?</h3>
+
+<p>Queues are extremely helpful in any application that runs code concurrently. For example, background processing libraries like <a href="https://github.com/resque/resque">Redis</a> <a href="https://github.com/resque/resque/blob/master/lib/resque/queue.rb">make use of a queue</a> to check for the latest jobs and instruct workers to run them.</p>
+
+<h2>ObjectSpace</h2>
+
+<h3>What Is It?</h3>
+
+<p>The ObjectSpace module is a collection of methods that can be used to interact with all of the living objects in the current Ruby environment, as well as the garbage collector.</p>
+
+<p>You can use it to check out all of the objects currently living in memory, look up objects by the object ID reference, and trigger garbage collector runs. You can also define a hook to be triggered when any object of a given class is removed from the ObjectSpace using <code>ObjectSpace#define_finalizer</code>.</p>
+
+<p>How is ObjectSpace a data store? Well, it&rsquo;s the highest-level data store (that hasn&rsquo;t been interpreted or compiled yet) in any place that you can run Ruby code. Any time you define or remove an object from memory, you are changing what is visible in the ObjectSpace.</p>
+
+<p>Let&rsquo;s take a look at everything that&rsquo;s available in an IRB session.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">object_counts</span> <span class="o">=</span> <span class="no">Hash</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'><span class="no">ObjectSpace</span><span class="o">.</span><span class="n">each_object</span> <span class="k">do</span> <span class="o">|</span><span class="n">o</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">object_counts</span><span class="o">[</span><span class="n">o</span><span class="o">.</span><span class="n">class</span><span class="o">]</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">require</span> <span class="s2">&quot;pp&quot;</span>
+</span><span class='line'><span class="n">pp</span> <span class="n">object_counts</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="nb">String</span><span class="o">=&gt;</span><span class="mi">67073</span><span class="p">,</span>
+</span><span class='line'>  <span class="nb">Array</span><span class="o">=&gt;</span><span class="mi">14474</span><span class="p">,</span>
+</span><span class='line'>  <span class="no">Regexp</span><span class="o">=&gt;</span><span class="mi">164</span><span class="p">,</span>
+</span><span class='line'>  <span class="no">Gem</span><span class="o">::</span><span class="no">Specification</span><span class="o">=&gt;</span><span class="mi">299</span><span class="p">,</span>
+</span><span class='line'>  <span class="no">Hash</span><span class="o">=&gt;</span><span class="mi">1023</span><span class="p">,</span>
+</span><span class='line'>  <span class="c1"># and many more...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If we create a new object, it ends up in the ObjectSpace.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s2">&quot;ostruct&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">ObjectSpace</span><span class="o">.</span><span class="n">each_object</span><span class="p">(</span><span class="no">OpenStruct</span><span class="p">)</span><span class="o">.</span><span class="n">count</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="mi">0</span>
+</span><span class='line'><span class="n">spidey</span> <span class="o">=</span> <span class="no">OpenStruct</span><span class="o">.</span><span class="n">new</span><span class="p">({</span> <span class="nb">name</span><span class="p">:</span> <span class="s2">&quot;Peter Parker&quot;</span><span class="p">,</span> <span class="ss">species</span><span class="p">:</span> <span class="s2">&quot;Human Mutate&quot;</span> <span class="p">})</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">ObjectSpace</span><span class="o">.</span><span class="n">each_object</span><span class="p">(</span><span class="no">OpenStruct</span><span class="p">)</span><span class="o">.</span><span class="n">count</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="mi">1</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>When Would You Use it?</h3>
+
+<p>Although you already use the ObjectSpace all the time, whether you realize it or not, knowing about the methods it exposes opens up a lot of possibilities for investigating and improving the performance of your code.</p>
+
+<p>The best use I&rsquo;ve seen for ObjectSpace so far is using it to detect memory leaks. <a href="https://cirw.in/blog/find-references">This article</a> shows an interesting way to map the objects in your object space to create a graph that is useful in tracking down and fixing memory leaks.</p>
+
+<h2>Conclusion</h2>
+
+<p>Ruby is such a fun language to write because there are so many ways to say the same thing. It doesn&rsquo;t stop at writing statements and expressions, though. You can also store data in a huge number of ways.</p>
+
+<p>In this post, we looked at seven fairly unusual ways to handle data in Ruby. Hopefully, reading through them has given you some ideas for how to handle persistence or in-memory storage in your own applications.</p>
+
+<p>Until next time, happy coding!</p>
+
+<ol type="a">
+<li><ol type="a">
+<li>We know that there are other unusual datastores out there. What are some of your favorites and how do you use them? Leave us a comment!</li>
+</ol>
+</li>
+</ol>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-04-07T06:30:04-06:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2015/04/07/seven-unusual-ruby-datastores/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2015/04/07/seven-unusual-ruby-datastores/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/04/01/integrating-react-with-backbone/" title="Previous Post: Integrating React With Backbone">&laquo; Integrating React With Backbone</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/04/07/seven-unusual-ruby-datastores/">Seven Unusual Ruby Datastores</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/04/01/integrating-react-with-backbone/">Integrating React With Backbone</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/26/understanding-rack-apps-and-middleware/">Understanding Rack Apps and Middleware</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/12/deploying-and-customizing-applications-on-engine-yard/">Deploying and Customizing Applications on Engine Yard</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/01/serving-custom-json-from-your-rails-api-with-activemodel-serializers/">Serving Custom JSON From Your Rails API With ActiveModel::Serializers</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

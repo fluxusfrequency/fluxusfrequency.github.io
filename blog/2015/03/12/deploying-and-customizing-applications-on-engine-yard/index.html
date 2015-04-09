@@ -1,0 +1,452 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Deploying and Customizing Applications on Engine Yard - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="This post originally appeared on Engine Yard. Introduction I&rsquo;ve tried a lot of different Platform as a Service (PaaS) providers for hosting my &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2015/03/12/deploying-and-customizing-applications-on-engine-yard">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Deploying and Customizing Applications on Engine Yard</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-03-12T06:29:30-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2015/deploying-and-customizing-applications">Engine Yard</a>.</p>
+
+<h2>Introduction</h2>
+
+<p>I&rsquo;ve tried a lot of different Platform as a Service (PaaS) providers for hosting my applications. Some of them make it super-easy to get everything running on the server, but the magic gets in the way when you need to customize things.</p>
+
+<p>Some platforms give you full control, but it can be time-consuming to get all of your dependencies properly set up. It would be nice to have some of the boilerplate taken care of, while still retaining full control of my server environment.</p>
+
+<p>If you haven’t deployed an application to Engine Yard (EY), you should give it a try. You’ll be pleasantly surprised to find that this is exactly the kind of service offered. It’s a breeze to get Redis, cron, and any other tools you need installed. You also get root access to your server and can SSH in just as you would with a bare server.</p>
+
+<p>My favorite feature has always been the ability to push custom Chef recipes to my server, making it super-easy to tweak the server as needed without having to spend a lot of time downloading Ubuntu packages and managing user permissions.</p>
+
+<p>There is a little bit of a learning curve though, so I decided to deploy and customise a new app on Engine Yard so that I could document the process and help first-timers get up and running with a minimum of fuss.</p>
+
+<h2>Setting Up An Engine Yard Environment</h2>
+
+<p>I started out with a production application in a Git repository that was ready to go. It just needed a server to run on.</p>
+
+<p>I went to Engine Yard and signed up for <a href="https://www.engineyard.com/trial">a free trial account</a>.</p>
+
+<p>Once I was done filling out my contact and billing information, I created my first &ldquo;application&rdquo; resource on Engine Yard Cloud. Here are the steps I followed to get it running from there.</p>
+
+<p>First, I created a &ldquo;production&rdquo; environment for my application and configured it. I was given four choices of server beefiness: single instance, staging, production, or custom. I went with a production box, and added Phusion Passenger and PostgreSQL to the stack. Since I was deploying a Rails app, I also added Ruby 2.2.0 and set up my migration command. I was happy to see that EY would backup by my database and take a server snapshot on a recurring schedule. I opted in for that service.</p>
+
+<p>While the server was being provisioned, there were a few access-related tasks I had to take care of as well. First, I <a href="https://support.cloud.engineyard.com/entries/21016533-Connect-to-Your-Instance-Using-SSH">added the SSH keys</a> from my development machine to my production environment. To do so, I visited the EY Cloud dashboard, then clicked on <em>Tools</em>, then <em>SSH Keys</em> and pasted my key into the text area, then hit the big <em>Apply</em> button on my app&rsquo;s &ldquo;production&rdquo; environment page.</p>
+
+<p>I also had to add an SSH key EY provided to my GitHub account. This allowed EY to grab my code and push it to the server directly.</p>
+
+<p>A few minutes later, the server and my credentials were all set up, and I was ready to deploy. Next, I pressed <em>Deploy</em>.  Unfortunately, there was a problem with my deploy, so I decided to dig into it from the command line&hellip;</p>
+
+<h2>Using the <code>engineyard</code> Gem</h2>
+
+<h3>Configuring and Deploying</h3>
+
+<p>It turned out I’d forgotten to add a <code>config/ey.yml</code> file to my Rails project. This file is used to customize each of the Engine Yard environments the app is being deployed to. To add one, it’s easiest use the <a href="https://github.com/engineyard/engineyard">engineyard gem</a>.</p>
+
+<p>To install the gem globally, I ran <code>gem install engineyard</code> on my local machine. Then I initialized an EY configuration file using <code>ey init</code>. I checked out the <code>config/ey.yml</code> file it generated. Everything looked good, so I committed and pushed it up to GitHub.</p>
+
+<p>This time, I deployed using <code>ey deploy</code>, and it worked like a charm. Success!</p>
+
+<h3>Logging In and Out</h3>
+
+<ul>
+<li><code>ey login</code></li>
+<li><code>ey logout</code></li>
+<li><code>ey whoami</code></li>
+</ul>
+
+
+<h3>Custom Deploys</h3>
+
+<ul>
+<li><code>ey status</code> shows the status of your most recent deploy</li>
+<li><code>ey timeout-deploy</code> marks the current deploy as failed and begins a new deploy</li>
+<li><code>ey rollback</code> revert to a previous deployment</li>
+</ul>
+
+
+<h3>Environments</h3>
+
+<ul>
+<li><code>ey environments</code> shows the environments for this app (pass <code>--all</code> to see all environments for all apps)</li>
+<li><code>ey servers</code> shows all the servers for an environment (if you have multiple)</li>
+<li><code>ey rebuild</code> reruns the configuration bootstrap process, useful for security patches and upgrades</li>
+<li><code>ey restart</code> restarts the servers</li>
+</ul>
+
+
+<h3>Debugging</h3>
+
+<ul>
+<li><code>ey logs</code> shows the logs</li>
+<li><code>ey web disable</code>/<code>enable</code> toggles a maintenance page</li>
+<li><code>ey ssh</code> lets you SSH in</li>
+<li><code>ey launch</code> launches app in a browser window</li>
+</ul>
+
+
+<h3>Customizing The Server Environment</h3>
+
+<ul>
+<li><code>ey recipes upload</code> adds Chef recipes from your dev machine and the remote server</li>
+<li><code>ey recipes download</code> syncs Chef recipes from the remote server to your dev machine</li>
+<li><code>ey recipes apply</code> trigger a Chef run</li>
+</ul>
+
+
+<p>These last few commands come in really handy when you want to customize your server setup. Let&rsquo;s take a deeper look at how to upload custom Chef recipes to an application environment.</p>
+
+<h2>Chef Recipes</h2>
+
+<p>Engine Yard uses Chef under the hood to make your deploys quick and easy. There&rsquo;s a default set of recipes that get run every time you deploy.</p>
+
+<p>After the default recipes run, Engine Yard runs any custom recipes that you&rsquo;ve added to your environment. Since there are <a href="https://github.com/opscode-cookbooks">so many Chef recipes available</a>, getting dependencies set up is pretty straightforward.</p>
+
+<p>Your Chef recipes will run whenever you create a new instance, add an instance to a cluster, run <code>ey recipes apply</code>, or trigger a Chef run with from the Cloud Dashboard with the <em>Upgrade</em> or <em>Apply</em> buttons.</p>
+
+<h3>Getting Set Up</h3>
+
+<p>To add recipes to your application, you&rsquo;ll need to fork the <a href="https://github.com/engineyard/ey-cloud-recipes">Engine Yard Cloud Recipes repo</a>. Then, clone your fork down to your development machine, in a different directory than your application.</p>
+
+<h3>Default Recipes</h3>
+
+<p>The Engine Yard Cloud Recipes repo comes with comes with cookbooks for most of the things you would ever need: Sidekiq, Redis, Solr, Elasticsearch, cron, PostgreSQL Extensions, and much more.</p>
+
+<p>Here&rsquo;s what I did to add Redis to my project.</p>
+
+<p>1) Opened <code>/cookbooks</code> and found the subdirectory I wanted (<code>/redis</code>)
+2) Uncommented <code>include_recipe redis</code> in <code>cookbooks/main/recipes/default.rb</code>
+3) Saved the file, committed it, and push to my forked repo
+4) Uploaded the recipes to my app with <code>ey recipes upload -e production</code>
+5) Applied the recipes to my app with <code>ey recipes apply -e production</code></p>
+
+<p>I took a look at my Engine Yard dashboard, and a few short moments later, Redis was running on my server!</p>
+
+<h3>Custom Recipes</h3>
+
+<p>I wanted to add HTTP Basic Auth to my server, but it wasn&rsquo;t one of the recipes in the repo, so I wrote my own recipe for it.</p>
+
+<p>Here&rsquo;s how I did it.</p>
+
+<p>First, I opened up my <code>ey-cloud-recipes</code> fork repo and ran <code>rake new_cookbook COOKBOOK=httpauth</code>. This generated a bunch of files under <code>cookbooks/httpauth/</code>. Then I edited <code>cookbooks/httpauth/recipes/default.rb</code> like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sysadmins = search(:users, 'groups:sysadmin')
+</span><span class='line'>
+</span><span class='line'>template "/etc/nginx/htpasswd.users" do
+</span><span class='line'>  source "nginx/htpasswd.users.erb"
+</span><span class='line'>  owner node['staging']['nginx']['user']
+</span><span class='line'>  group node['staging']['nginx']['user']
+</span><span class='line'>  mode "0640"
+</span><span class='line'>  variables(
+</span><span class='line'>    :sysadmins =&gt; sysadmins
+</span><span class='line'>  )
+</span><span class='line'>  notifies :restart, "service[nginx]", :delayed
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With the <code>httpauth</code> recipe written, I next created a <code>htpasswd.users.erb</code> under the `cookbooks/httpauth/templates/default/nginx directory, and put this code in it:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;% @sysadmins.each do |sa| -%&gt;
+</span><span class='line'>  &lt;%= sa["id"] %&gt;:&lt;%= sa["htpasswd"] %&gt;
+</span><span class='line'>&lt;% end -%&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With the template in place, I added the recipe to <code>cookbooks/main/recipes/default.rb</code> (my main cookbook) by adding this line:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>include_recipe "httpauth"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, I checked my syntax with <code>rake test</code> (all good), committed my changes, and pushed to my fork. With the recipe ready, all that was left was to upload and apply it to my application with the following:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ey recipes upload -e production
+</span><span class='line'>ey recipes apply -e production</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The recipe was successfully added to my server in the <code>/etc/chef-custom</code> directory. I know this because I logged in and took a look around.</p>
+
+<p>How did I do that? I&rsquo;m glad you asked.</p>
+
+<h2>Remote Access with SSH</h2>
+
+<p>If you ever need to confirm that your Chef recipes are configuring the server the way you expected, or need to access your server directly with root access for any other reason, you can use SSH to get a remote terminal.</p>
+
+<p>There are three ways to do this:</p>
+
+<p>1) Run <code>ssh username@123.123.123.123</code>, the old-fashioned way (you can find your server&rsquo;s IP address in the Engine Yard dashboard).
+2) Click on the SSH link in your application dashboard on EY instead
+3) Run <code>ey ssh</code> from the application directory on your dev machine</p>
+
+<p>When you login to your server, some helpful information about your app&rsquo;s server environment is displayed:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Applications:
+</span><span class='line'>myapplication:
+</span><span class='line'>cd /data/myapplication/current # go to the application root folder
+</span><span class='line'>tail -f /data/myapplication/current/log/production.log # production logs
+</span><span class='line'>cat /data/nginx/servers/myapplication.conf # current nginx conf
+</span><span class='line'>
+</span><span class='line'>SQL database:
+</span><span class='line'>cd /db # your attached DB volume
+</span><span class='line'>
+</span><span class='line'>PostgreSQL:
+</span><span class='line'>tail -f /db/postgresql/$1.$2/data/pg_log/* # logs
+</span><span class='line'>pg_top -dmyapplication
+</span><span class='line'>
+</span><span class='line'>Inspect node data passed to chef cookbooks:
+</span><span class='line'>sudo gem install jazor
+</span><span class='line'>sudo jazor /etc/chef/dna.json
+</span><span class='line'>sudo jazor /etc/chef/dna.json 'applications.map {|app, data| [app, data.keys]}'</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pretty cool. It&rsquo;s nice to have access like this if you need it, without being responsible for configuring (and re-configuring) the entire machine by hand.</p>
+
+<h2>Conclusion</h2>
+
+<p>If you&rsquo;re anything like me, you drag your feet about trying new things when it comes to sysops. Perhaps you&rsquo;ve felt the pain of trying to take a server from vanilla Ubuntu to a custom build with cron, Redis, Elasticsearch and a bunch of other packages—carefully balancing everything so that it doesn&rsquo;t fall apart. Many of us have also experienced getting stuck when using a full-service PaaS that isn&rsquo;t working the way we expect, and not being able to customise things. Experiences like this make it hard for me to get excited about setting up servers, so I typically avoid it when I can.</p>
+
+<p>That said, Engine Yard makes this sort of work a breeze. Their balance between automation and control gives you the best of both worlds. Getting up and running takes a little bit of learning, but the <a href="https://support.cloud.engineyard.com/home">docs</a>  are super helpful and  the support team is very responsive if you ever have any questions or need a hand.</p>
+
+<p>If you haven&rsquo;t given Engine Yard a try, why not give it a go?</p>
+
+<p>P.S. What kind of custom Chef recipes are you using on your servers? I know that business requirements can lead to some pretty gnarly setups. Tell me about it via the comments.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-03-12T06:29:30-06:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2015/03/12/deploying-and-customizing-applications-on-engine-yard/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2015/03/12/deploying-and-customizing-applications-on-engine-yard/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/03/01/serving-custom-json-from-your-rails-api-with-activemodel-serializers/" title="Previous Post: Serving Custom JSON From Your Rails API With ActiveModel::Serializers">&laquo; Serving Custom JSON From Your Rails API With ActiveModel::Serializers</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/03/26/understanding-rack-apps-and-middleware/" title="Next Post: Understanding Rack Apps and Middleware">Understanding Rack Apps and Middleware &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/04/07/seven-unusual-ruby-datastores/">Seven Unusual Ruby Datastores</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/04/01/integrating-react-with-backbone/">Integrating React With Backbone</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/26/understanding-rack-apps-and-middleware/">Understanding Rack Apps and Middleware</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/12/deploying-and-customizing-applications-on-engine-yard/">Deploying and Customizing Applications on Engine Yard</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/01/serving-custom-json-from-your-rails-api-with-activemodel-serializers/">Serving Custom JSON From Your Rails API With ActiveModel::Serializers</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

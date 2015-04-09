@@ -9,7 +9,7 @@
   <meta name="author" content="Ben Lewis">
 
   
-  <meta name="description" content="I read JavaScript Enlightenment by Cory Lindley over the weekend. It was the perfect thing for me right now, as an advanced beginner. It really &hellip;">
+  <meta name="description" content="This week at gSchool, we started a new rails project called Fourth Meal. The assignment&rsquo;s basic premise is to build a multi-tenant platform for &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,643 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/12/06/multitenancy-and-legacy-code/">Multitenancy and Legacy Code</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-06T09:03:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This week at gSchool, we started a new rails project called <a href="http://tutorials.jumpstartlab.com/projects/fourth_meal.html">Fourth Meal</a>. The assignment&rsquo;s basic premise is to build a multi-tenant platform for restaurant ordering, along the lines of <a href="https://www.grubhub.com/">GrubHub</a>. This is our first time dealing with multi-tenancy. It&rsquo;s also the first time that we are building from a legacy code base - we&rsquo;re using our last projects. Mine was <a href="http://onoburrito.herokuapp.com">OnoBurrito</a>, and that&rsquo;s the project my group chose to build on for this assignment. Finally, this will also be the first time we optimize our apps for performance.</p>
+
+<h2>Project Management</h2>
+
+<p>We&rsquo;re using Pivotal Tracker very seriously in Fourth Meal, with our instructors pretending to be clients that have hired us to build this app. I&rsquo;ve found Tracker restrictive in the past. But I think I felt that way because I was using it as more of a to-do list than a project management tool. After having Jeff help us write about 13 clear stories yesterday, I feel a lot more positive about using it to drive my group&rsquo;s progress. At this point, Tracker is helping me feel more organized. I can translate stories into tests and use Capybara to drive development &ldquo;from the top down&rdquo;.</p>
+
+<h2>Legacy Code</h2>
+
+<p>Although we&rsquo;re working from code that I had a large part in writing, I feel like I&rsquo;m floundering to turn OnoBurrito into a platform. There are a lot of things I would do differently if I were to build the app over again. For example, the category views are stuck inside of the item views, making it really hard to separate them. We also used Active Admin before, so we&rsquo;ve had to rip it out and start the admin panel over again. My group decided to retrofit the admin part of Billy&rsquo;s restaurant onto Ono Burrito, and it&rsquo;s been kind of tricky to get everything working. Currently, I&rsquo;m having a lot of trouble getting carts and orders working. It&rsquo;s hard to decide which of the pieces to store in the session, application, and database.</p>
+
+<h2>Class Progress</h2>
+
+<p>We&rsquo;re now just past the halfway mark for gSchool. Although I can see how other programs would stop here and send their students out into the marketplace, I&rsquo;m very glad that we have some time left to practice proper Test Driven Development, learn about scaling and performance optimization, and hone our Rails chops.</p>
+
+<p>I do feel like I&rsquo;m starting to lose momentum a little bit. I was going full-bore every day (except weekends) up until now, but I could feel that burnout was around the corner. So I&rsquo;ve throttled back a little bit, taking time to cook, read, and exercise so I feel more balanced. I&rsquo;m still totally dedicated to being the best developer I can be by the end of the program, and I think that these changes will help me do that. Meanwhile, I feel like a lot of my classmates have been making amazing progress. No matter who I work with lately, I feel like I am collaborating with a confident, smart, and capable programmer.</p>
+
+<h2>Young Entrepreneurs</h2>
+
+<p>Last night we kicked off a project with Young Entrepreneurs. Several school-aged children came to Galvanize and met with us to get help building a website for their businesses. I&rsquo;m in a small group with Nathaniel and Meeka, two classmates that I really enjoy working with. We&rsquo;re helping a 15-year-old entrepreneur named Jonah, who runs a local snack company. It&rsquo;s a little disheartening that we won&rsquo;t be able to use Sinatra or Rails to help him him, because he&rsquo;ll need the ability to update his site, and we likely don&rsquo;t have time to build a content management system. We&rsquo;ll probably help him get going on <a href="http://www.wix.com">Wix</a>, or a similar platform.</p>
+
+<p>I feel a little conficted about this project. In a way, the kickoff was really bad timing, because I&rsquo;m feeling so overwhelmed by Fourth Meal. On the other hand, it&rsquo;s nice to get back to working with kids. That&rsquo;s the thing I miss most about my previous career as a teacher. More importantly to me, I&rsquo;ve been focusing on trying to find ways to be more generous, so this is a good opportunity to practice doing that.</p>
+
+<h2>New Mentor</h2>
+
+<p>I met my new mentor, Justin Smestad, this week. He&rsquo;s a maintainer of the <a href="https://github.com/hassox/warden">Warden</a> gem, a security specialist, and a musician. I think it&rsquo;s going to be a good fit. I&rsquo;ll miss my old mentor, Mike Pack, but I think that he&rsquo;s willing to keep working with me too. Now I&rsquo;ll have twice the support!</p>
+
+<h2>Overall</h2>
+
+<p>I&rsquo;m feeling really excited about web development. Thanksgiving break really helped me rest up and feel ready to tackle more. I am learning a lot of new things all the time, and I love it. On the other hand, I am feeling somewhat overwhelmed by Rails, and beginning to consider the job search makes me a little anxious. In the end, I&rsquo;m optimistic. I think that the coming weekend will help me get grounded, and I&rsquo;ll come back next week ready to get some good work done on Fourth Meal.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/12/01/practical-object-oriented-design-in-ruby-takeaways/">Practical Object-Oriented Design in Ruby - Takeaways</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-01T06:10:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><img class="right" src="http://s5.postimg.org/yh888oh3b/POODR.jpg" width="250" height="327" title="Practical Object-Oriented Design in Ruby" alt="The cover of a programming book"></p>
+
+<p>I just finished reading <a href="http://www.poodr.com/">Practical Object-Oriented Design in Ruby</a> by Sandi Metz.</p>
+
+<p>Here were my takeaways.</p>
+
+<h2>Object-Oriented Design</h2>
+
+<ul>
+<li>Plan your application structure around the messages, rather than the objects.</li>
+<li>Objects should be seen as black boxes that can receive and send specific messages.</li>
+<li>Use <a href="http://www.tracemodeler.com/articles/a_quick_introduction_to_uml_sequence_diagrams/">UML sequence diagrams</a> to help clarify architectural decisions before writing code.</li>
+<li>Defer design decisions as long as you can, waiting for more information. Having three concrete examples of an object before commiting to a solution is best.</li>
+</ul>
+
+
+<h3>Embracing Change</h3>
+
+<ul>
+<li>Write code that is: transparent, reasonable, usable, exemplary (TRUE).</li>
+<li>Write classes and methods that have only a single responsibility (Single Reponsibility Principle).</li>
+<li>Subtypes should be substitutable for their supertypes (Liskov Substitution Principle).</li>
+</ul>
+
+
+<h3>Dependencies</h3>
+
+<ul>
+<li>Dependencies are best managed through Injection, Isolation, and Reliance on Abstractions.</li>
+<li>Dependency Injection: when you have a dependency, inject it into your object as an attribute, without calling another class directly. Then your object can use any other (duck-typed) object that responds to the needed method call.</li>
+<li>Isolation: if you must keep a dependency, isolate it from other code to make it easy to spot and refactor.</li>
+<li>Reliance on Abstractions: objects should depend on things that change less than they do (abstractions).</li>
+</ul>
+
+
+<h3>Interfaces</h3>
+
+<ul>
+<li>Minimize an object&rsquo;s need for context to get its job done.</li>
+<li>Write public interfaces that are explicitly identified, are about <em>what</em> more than <em>how</em>, have names that will not change, and take initialization attributes in a hash (so that order and presence are not required).</li>
+<li>Law of Demeter: don’t reach through a class to get at another class’s data or methods.</li>
+</ul>
+
+
+<h3>Duck-Types</h3>
+
+<ul>
+<li>Sometimes an object expects many different subjects to all respond to the same method. Even if they are of different classes, they all respond. These are duck-types.</li>
+</ul>
+
+
+<h3>Three Approaches to OO Architecture</h3>
+
+<ol>
+<li><p>Use inheritance for <em>is-a</em> relationships. This means using classical inheritance and module mix-ins. With this approach, big changes can be made with little code, which is a double-edged sword. “Inheritance is specialization”. - Bertrand Meyer</p></li>
+<li><p>Use duck-types for <em>behaves-like-a</em> relationships. Use when there is a <em>role</em> that needs to be filled (e.g. <em>schedulable</em>).</p></li>
+<li><p>Use composition for <em>has-a</em> relationships. Composition is modular and flexible, but harder to comprehend all at once. “Use composition when the behavior is more than the sum of its parts”. - Grady Booch</p></li>
+</ol>
+
+
+<h3>Testing</h3>
+
+<ul>
+<li>Don’t write tightly coupled tests.</li>
+<li>Test the right thing only once, in the right place.</li>
+<li>Concentrate on incoming and outgoing messages that cross an object’s boundaries. That is, test its most stable part: its interface.</li>
+<li>Incoming messages should be tested for the state they return. Use <em>object doubles</em> for this, when appropriate.</li>
+<li>Outgoing command messages should be tested to ensure they are sent. Use <em>mocks</em> for this.</li>
+<li>Outgoing query essays should not be tested.</li>
+<li>Testing duck-types: write a module and mix it into the test for each of the duck-types.</li>
+</ul>
+
+
+<h2>Conclusion</h2>
+
+<p>I really liked this book. It clarified some of the little parts of writing code that had previously eluded me. I can&rsquo;t wait to put some of its principles into practice!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/22/full-stack-javascript/">Full Stack Javascript</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-22T11:12:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>UPDATE:</h2>
+
+<p>I now have a working version of JetFuel Express live on Heroku at <a href="http://jfx.herokuapp.com/">http://jfx.herokuapp.com</a>. Please check it out!</p>
+
+<p>This was JavaScript week at gSchool. For me, this was great. As I&rsquo;ve been learning Ruby, I&rsquo;ve been working on a lot of JavaScript on the side. From what I hear, knowing JS is going to be indispensible as I enter the professional development world. Having done a bit of browser scripting with vanilla JS and jQuery in the past, I&rsquo;ve recently been digging into <a href="http://fluxusfrequency.github.io/blog/2013/10/26/so-many-javascript-libraries/">libraries and frameworks</a>. In the last couple of weeks, I&rsquo;ve been focusing really hard on Backbone.js in particular, and this week gave me a chance to apply my skills with it to build a project. As I went along, I discovered quite a few other new tools written in JavaScript. After hacking away all week, my key takeaway was this:</p>
+
+<p>You can develop full stack with Javascript.</p>
+
+<p>I decided to try to build <a href="http://tutorials.jumpstartlab.com/projects/jet_fuel.html">JetFuel</a>, a Jumpstart Lab project in which you clone <a href="https://bitly.com/">Bitly</a>. But instead of building it with ActiveRecord and Sinatra, I decided to build it all in JS.</p>
+
+<p>At the moment, I have a basic link shortening service working. Here&rsquo;s a glimpse of what it looks like:</p>
+
+<p><img src="http://s5.postimg.org/ihxudv1xj/Jet_Fuel_Express_Production_Shot.png" title="JetFuel Express" alt="A Bitly clone website in production"></p>
+
+<p>And here are the technologies I&rsquo;m using:</p>
+
+<h2>The App</h2>
+
+<h3><a href="http://backbonejs.org/">Backbone.js</a></h3>
+
+<p>I&rsquo;ve been working really hard at learning Backbone, a client-side MVC (actually MV*) library, over the past few weeks. I had started to look into Ember.js, and was having a hard time. My mentor, Mike Pack (who works at <a href="http://modeset.com/">Mode Set</a>), suggested looking into Backbone first, because: &ldquo;you&rsquo;re going to burn a lot of mental cycles trying to learn Ember and Rails at the same time&rdquo;. This has turned out to be some really good advice. For me, Backbone fairly intuitive, yet still quite challenging to learn.</p>
+
+<p>I did a few tutorials. I found this <a href="http://railscasts.com/episodes/323-backbone-on-rails-part-1">RailsCasts</a> one to be the most approachable. This <a href="https://tutsplus.com/course/backbone-on-rails/">Nuttuts+ Premium Tutorial</a> was interesting. It was written with Coffeescript and Handlebars. There were <a href="http://coenraets.org/blog/2011/12/backbone-js-wine-cellar-tutorial-part-1-getting-started/">some</a> <a href="https://www.youtube.com/watch?v=FZSjvWtUxYk">others</a> that were less remarkable, but they still helped me get familiar with the library.</p>
+
+<p>I still felt like I needed to understand more, so I checked out the book <a href="http://addyosmani.github.io/backbone-fundamentals/">Developing Backbone.js Applications</a> by Addy Osmani, available free online. It covers many Backbone topics, and has quite a few tutorials. In the first one, it walks you through building a simple to-do app called <a href="http://todomvc.com/">TodoMVC</a> in Backbone.</p>
+
+<p>My favorite tutorial from the book was the <a href="http://addyosmani.github.io/backbone-fundamentals/#exercise-2-book-library---your-first-restful-backbone.js-app">Book Library</a> tutorial. It really makes it clear how to use Backbone to talk to an API. It also teaches you build that API in Express.js. It was essentially the inspiration for my app.</p>
+
+<p>Backbone can be really hard to debug. The value of the keyword &lsquo;this&rsquo; can get kind of tricky, in particular. For example, in my UrlsView class, the value of &lsquo;this&rsquo; shifts from the Backbone View object to the urlCollection, so I have to assign it to &lsquo;that&rsquo; before passing it into the callback function. This was a subtle problem that was breaking my view, until Mike helped me fix it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">jetfuelexpress</span> <span class="o">=</span> <span class="nx">jetfuelexpress</span> <span class="o">||</span> <span class="p">{};</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">jetfuelexpress</span><span class="p">.</span><span class="nx">UrlsView</span> <span class="o">=</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">el</span><span class="o">:</span> <span class="s1">&#39;.url-list&#39;</span><span class="p">,</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">initialize</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">initialUrls</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">urlCollection</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jetfuelexpress</span><span class="p">.</span><span class="nx">UrlCollection</span><span class="p">();</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">that</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">urlCollection</span><span class="p">.</span><span class="nx">fetch</span><span class="p">({</span><span class="nx">reset</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">success</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">that</span><span class="p">.</span><span class="nx">fetched</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">render</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">listenTo</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">urlCollection</span><span class="p">,</span> <span class="s1">&#39;add&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">renderUrl</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">listenTo</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">urlCollection</span><span class="p">,</span> <span class="s1">&#39;reset&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">render</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here&rsquo;s a look at how I built the rest of my stack:</p>
+
+<h2>The Database</h2>
+
+<h3><a href="http://www.mongodb.org/">MongoDB</a></h3>
+
+<p>I&rsquo;m using of MongoDB to store my data. It plays nicely with my other components, since it stores documents in a JSON-like format. It&rsquo;s also handy that it uses JavaScript internally on the server-side, and has a shell that&rsquo;s based on JS. As a database, it feels a little crazy, because it doesn&rsquo;t auto=increment an id attribute like Postgres. I like it though. It&rsquo;s fast and flexible. My server interfaces with the database via:</p>
+
+<h3><a href="http://mongoosejs.com/">Mongoose.js</a></h3>
+
+<p>It&rsquo;s summed up well on the Mongoose website. Mongoose is a &ldquo;MongoDB object modeling tool designed to work in an asynchronous environment&rdquo;. It&rsquo;s like DataMapper or ActiveRecord in Ruby. It has some really powerful validations baked in:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">UrlSchema</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">Schema</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">originalUrl</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">validate</span> <span class="o">:</span> <span class="p">[</span>
+</span><span class='line'>            <span class="kd">function</span><span class="p">(</span><span class="nx">u</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">u</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/^((http(?:s)?\:\/\/)?[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)*\.[a-zA-Z]{2,6}(?:\/?|(?:\/[\w\-]+)*)(?:\/?|\/\w+\.[a-zA-Z]{2,4}(?:\?[\w]+\=[\w\-]+)?)?(?:\&amp;[\w]+\=[\w\-]+)*)$/</span><span class="p">);</span> <span class="p">},</span>
+</span><span class='line'>            <span class="s1">&#39;Visits must be positive!&#39;</span><span class="p">]</span> <span class="p">},</span>
+</span><span class='line'>  <span class="nx">slug</span>        <span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+</span><span class='line'>  <span class="nx">active</span>      <span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">Boolean</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+</span><span class='line'>  <span class="nx">visits</span>      <span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">Number</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">validate</span> <span class="o">:</span> <span class="p">[</span>
+</span><span class='line'>            <span class="kd">function</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">v</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">},</span>
+</span><span class='line'>            <span class="s1">&#39;Visits must be positive!&#39;</span><span class="p">]</span> <span class="p">},</span>
+</span><span class='line'>  <span class="nx">userId</span>      <span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+</span><span class='line'>  <span class="nx">createdDate</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nb">Date</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span> <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>The Server</h2>
+
+<h3><a href="http://nodejs.org/">Node.js</a></h3>
+
+<p>Built on Google&rsquo;s V8 JavaScript engine, Node is a super fast platform that compiles JS directly to the hardware without having to be interpreted. It has &ldquo;a built-in HTTP server library, making it possible to run a web server without the use of external software&rdquo;.</p>
+
+<h3><a href="http://expressjs.com/%E2%80%8E">Express.JS</a></h3>
+
+<p>This lovely framework is the foundation of my backend. It is architecturally based on Sinatra, and is very similar to work with. It was really easy to get a project up and running quickly in Express using Node Package Manager (see below). Since it&rsquo;s built on Node, it is very fast. I used it to set up an API server to send and recieve JSON requests from my front end.</p>
+
+<h2>The Tests</h2>
+
+<h3><a href="http://pivotal.github.io/jasmine/">Jasmine-Node</a></h3>
+
+<p>We used this testing framework quite a bit in class for <a href="http://exercism.io/">Exercism</a> exercises. It felt like a natural choice. Although I am usually more comfortable with &lsquo;assert&rsquo; style test statements like you find in Minitest, I found Jasmine to be pretty intuitive. Here&rsquo;s an example of one of my tests:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">describe</span><span class="p">(</span><span class="s2">&quot;api route&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">Url</span><span class="p">.</span><span class="nx">remove</span><span class="p">({},</span> <span class="kd">function</span><span class="p">(){});</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">it</span><span class="p">(</span><span class="s2">&quot;should respond successfully with to an API request&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">request</span><span class="p">(</span><span class="s2">&quot;http://localhost:3000/api&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">error</span><span class="p">,</span> <span class="nx">response</span><span class="p">,</span> <span class="nx">body</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">statusCode</span><span class="p">).</span><span class="nx">toBe</span><span class="p">(</span><span class="mi">200</span><span class="p">);</span>
+</span><span class='line'>      <span class="nx">expect</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">body</span><span class="p">).</span><span class="nx">toContain</span><span class="p">(</span><span class="s2">&quot;JetFuelExpress API is running!&quot;</span><span class="p">)</span>
+</span><span class='line'>      <span class="nx">expect</span><span class="p">(</span><span class="nx">error</span><span class="p">).</span><span class="nx">toBe</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+</span><span class='line'>      <span class="nx">done</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3><a href="http://visionmedia.github.io/mocha/">Mocha</a></h3>
+
+<p>A couple days into this project, I was tweeting about what I was up to, and an Express.js dev tweeted back at me, suggesting I check out his <a href="http://webapplog.com/expressworks/">Express.js tutorials</a>. He also recommended the Mocha testing framework. I haven&rsquo;t had a chance to dig in yet, but it looks promising. The website says that you can use your favorite style of assertion (&lsquo;should&rsquo;, &lsquo;expect&rsquo;, or &lsquo;assert&rsquo;) by loading different libraries - Chai, Should.js, Expect.js, or Better Assert.</p>
+
+<h3><a href="http://zombie.labnotes.org/">Zombie.js</a></h3>
+
+<p>I was looking around for some kind of acceptance test solution along the lines of Capybara. I couldn&rsquo;t really find anything I liked, but I did stumble on this &ldquo;headless browser&rdquo; testing framework. Although it looks promising, I&rsquo;ve had a lot of trouble making it work the way I want. I wouldn&rsquo;t really recommend it, unless you have extra time to figure out how to make it do what you want.</p>
+
+<h2>The View</h2>
+
+<h3><a href="http://handlebarsjs.com/">Handlebars.js</a></h3>
+
+<p>After giving a lightning talk about <a href="http://mustache.github.io/">Mustache</a> a few weeks ago, I just had to try Handlebars for this project. It went pretty well, as long as I didn&rsquo;t try to inject anything that was null into my templates. When I did that, it killed the server.</p>
+
+<h3><a href="http://www.getbootstrap.com">Bootstrap</a></h3>
+
+<p>Because I was already in over my head with all of these JavaScript libraries, I decided to punt on the design for this one. I bought a template from <a href="http://wrapbootstrap.com/">Wrap Bootstrap</a>.</p>
+
+<h2>Bits and Pieces</h2>
+
+<h3><a href="http://gruntjs.com/">Grunt.js</a></h3>
+
+<p>Having a browser fetching 18 JavaScript files can be slow, so it&rsquo;s nice to uglify and concatenate them all into one big file. Grunt can automate this task for you. It&rsquo;s sort of like Rake in Ruby. Here&rsquo;s what that looked like. I copied the code from gSchool[0] student Raphael Weiner&rsquo;s <a href="https://github.com/raphweiner/elefeely-ui">Elefeely UI</a>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">grunt</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">grunt</span><span class="p">.</span><span class="nx">initConfig</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">connect</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">server</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">options</span><span class="o">:</span> <span class="p">{</span> <span class="nx">port</span><span class="o">:</span> <span class="s2">&quot;3000&quot;</span><span class="p">,</span>
+</span><span class='line'>                   <span class="nx">hostname</span><span class="o">:</span> <span class="s2">&quot;localhost&quot;</span><span class="p">,</span>
+</span><span class='line'>                   <span class="nx">keepalive</span><span class="o">:</span> <span class="kc">true</span> <span class="p">}</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="nx">uglify</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">build</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">files</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>          <span class="s1">&#39;main.js&#39;</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;main.js&#39;</span><span class="p">]</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="nx">concat</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">files</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>        <span class="s1">&#39;src&#39;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;public/javascripts/lib/jquery-1.10.1.min.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/lib/json3.min.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/lib/handlebars.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/lib/underscore-min.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/lib/backbone-min.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/app.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/routers/router.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/models/url_model.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/collections/url_collection.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/views/app_view.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/views/header_view.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/views/footer_view.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/views/shorten_view.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/views/home_view.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/views/url_view.js&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s2">&quot;public/javascripts/views/urls_view.js&quot;</span><span class="p">],</span>
+</span><span class='line'>        <span class="s1">&#39;dest&#39;</span><span class="o">:</span> <span class="s1">&#39;main.js&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>  <span class="nx">grunt</span><span class="p">.</span><span class="nx">loadNpmTasks</span><span class="p">(</span><span class="s1">&#39;grunt-contrib-connect&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="nx">grunt</span><span class="p">.</span><span class="nx">loadNpmTasks</span><span class="p">(</span><span class="s1">&#39;grunt-contrib-concat&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="nx">grunt</span><span class="p">.</span><span class="nx">loadNpmTasks</span><span class="p">(</span><span class="s1">&#39;grunt-contrib-uglify&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="nx">grunt</span><span class="p">.</span><span class="nx">registerTask</span><span class="p">(</span><span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;concat&#39;</span><span class="p">,</span> <span class="s1">&#39;uglify&#39;</span><span class="p">]);</span>
+</span><span class='line'>  <span class="nx">grunt</span><span class="p">.</span><span class="nx">registerTask</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;build&#39;</span><span class="p">]);</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Node Package Manager (NPM)</h3>
+
+<p>I really like how easy it is to install Node.js dependencies. I&rsquo;ve been spoiled with Bundle, so it felt comfortable to be able to add things I needed with ease. You just declare your dependencies in a package.json file in your application root, then run &lsquo;npm install&rsquo;. The package file is in JSON, so it&rsquo;s not as pretty as a Gemfile, but it will give you all the things you need. Here&rsquo;s what mine looks like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;JetFuelExpress&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;version&quot;</span><span class="o">:</span> <span class="s2">&quot;0.0.1&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;description&quot;</span><span class="o">:</span> <span class="s2">&quot;A url shortening service&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;private&quot;</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span><span class='line'>  <span class="s2">&quot;scripts&quot;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="s2">&quot;start&quot;</span><span class="o">:</span> <span class="s2">&quot;node app.js&quot;</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>  <span class="s2">&quot;dependencies&quot;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="s2">&quot;express&quot;</span><span class="o">:</span> <span class="s2">&quot;3.4.4&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;jade&quot;</span><span class="o">:</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;less-middleware&quot;</span><span class="o">:</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;path&quot;</span><span class="o">:</span> <span class="s2">&quot;~0.4.9&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;request&quot;</span><span class="o">:</span> <span class="s2">&quot;2.27.0&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;mongoose&quot;</span><span class="o">:</span> <span class="s2">&quot;~3.5.5&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;grunt&quot;</span><span class="o">:</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;grunt-contrib-connect&quot;</span><span class="o">:</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;grunt-contrib-concat&quot;</span><span class="o">:</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;grunt-contrib-uglify&quot;</span><span class="o">:</span> <span class="s2">&quot;*&quot;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Wrapping Up</h2>
+
+<p>Coming to JS app development from Ruby, I felt really uncomfortable at first. There are <strong><em>so</em></strong> many JavaScript libraries and frameworks. I was pretty sure I was in over my head. But somehow I held it together. I think it&rsquo;s because JS has components that serve the same functions as certain Ruby gems:</p>
+
+<p>Mongoose is kind of like ActiveRecord.</p>
+
+<p>Express  is kind of like Sinatra.</p>
+
+<p>Jasmine  is kind of like RSpec.</p>
+
+<p>Zombie   is kind of like Capybara.</p>
+
+<p>Grunt    is kind of like Rake.</p>
+
+<p>NPM      is kind of like Bundle.</p>
+
+<p>Backbone isn&rsquo;t really like anything, but at least its MV* pattern is close enough to Rails that I feel at home.</p>
+
+<p>I saw this <a href="http://coding.smashingmagazine.com/2013/11/21/introduction-to-full-stack-javascript/">cool article</a> in the JavaScript Weekly newsletter today. Reading it made me understand what I&rsquo;d been learning all week: full stack JavaScript development. Up until then, I hadn&rsquo;t quite seen it for what it was.</p>
+
+<p>JS is not as friendly an environment as Ruby, where you get to use intuitive syntax, the community is better established, and there are lots and lots of gems available. But it is very fast and scalable, and at least the components feel familiar when transferring from Sinatra and Rails.</p>
+
+<p>I&rsquo;m looking foward to continuing with JetFuel Express. It&rsquo;s been a good project for extending my understanding of JavaScript.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/18/dinner-dash-complete/">Dinner Dash Complete</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-18T08:12:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Last Thursday, my group and I wrapped up the <a href="http://tutorials.jumpstartlab.com/projects/dinner_dash.html">Dinner Dash</a> tutorial we were working on. It was essentially the website for a restaurant with an administrative back end.</p>
+
+<p>Here&rsquo;s a link to our <a href="http://onoburrito.herokuapp.com/">Dinner Dash Project</a>.</p>
+
+<p><img src="http://s5.postimg.org/5ddkt77uv/Ono_Burrito_Website_Screenshot.png" title="Ono Burrito" alt="A Ruby on Rails website"></p>
+
+<p>I learned a lot. Aside from this being my first full-blown Rails project, I discovered many other useful things about Rails projects along the way.</p>
+
+<h2>Rails Gems</h2>
+
+<p>Here are some of the technologies I tried out for the first time</p>
+
+<ul>
+<li><p><a href="http://sass-lang.com/">SASS/CSS</a>. I intentionally spent a lot of time on the front end in this project. Although I feel strong in HTML5/CSS3, I would really like to get better at design. Because of this, I worked hard on building up the view <strong><em>without Bootstrap</em></strong>, using partials and SCSS to make things cleaner. I was also reading <a href="http://www.therailsview.com/">The Rails View</a>, and tried to incorporate lessons learned from it into what I was doing.</p></li>
+<li><p><a href="http://guides.rubyonrails.org/">The Rails Guides</a>. After losing my mind trying to figure out how to work with form_for during the first week of the project, I discovered the Rails Guides. I read all of the ActiveRecord and ActionView documentation over the weekend, and felt a lot more confident afterwards. The Rails Guides rock!</p></li>
+<li><p><a href="http://www.activeadmin.info/">Active Admin</a>. This little number let us add an administrative backend to our app with next to no effort. It was kind of cheating to use it here, but it was also really cool to find out about. It may come it very handy in the future.</p></li>
+<li><p><a href="https://github.com/nixme/jazz_hands">Jazz Hands</a>, a gem that improves the Rails Console by making it Pry-based, and adding pretty print to make it easier to look through data.</p></li>
+<li><p><a href="https://github.com/colszowka/simplecov">Simplecov</a>. This is a great way to check your test coverage. I&rsquo;m somewhat ashamed to admit that our project was only about 69% covered.</p></li>
+<li><p><a href="https://github.com/stympy/faker">Faker</a>. Made it easy to generate seed data for our database.</p></li>
+<li><p><a href="https://github.com/evrone/quiet_assets">Quiet Assets</a>. I got pretty tired of looking at the assets in Guard every time I ran a test. Quiet Assets made the server logs a lot easier to look at.</p></li>
+</ul>
+
+
+<h2>Soft Skills</h2>
+
+<p>One of the most challenging aspects of the project for me was managing the social aspect of this project. Since I was percieved as the strongest member of our group programming-wise, the others looked to me for guidance. But I am not a natural leader. Although I was able to chart our best course for finishing the project, I didn&rsquo;t do a great job of checking in with everyone emotionally. At the end, I found out that one member of my group felt left out and behind. In the future, when I lead, I will work to make more space for people to express how things are going, not just in terms of code progress, but also how they&rsquo;re feeling about the project.</p>
+
+<p>We also used <a href="https://www.pivotaltracker.com/">Pivotal Tracker</a>. This was a first for me. Although I liked learning to use Gherkin, I wasn&rsquo;t wild about the application&rsquo;s UI. We ended up switching to Milestones and Issues on Github for the last part of the project.</p>
+
+<p>However, looking back now, I actually think that using Pivotal Tracker did improve my experience, compared with the previous project. I&rsquo;ll definitely give it another go for the next project. I would really like to try translating the Tracker stories into Capybara or Cucumber tests right out of the gate.</p>
+
+<h2>What&rsquo;s Next</h2>
+
+<p>This week, we&rsquo;ll be working on JavaScript. I&rsquo;m really excited about this, because I&rsquo;ve been working hard at it on the side. Right now I&rsquo;m working through Addy Osmani&rsquo;s <a href="http://addyosmani.github.io/backbone-fundamentals/">Developing Backbone.js Applications</a>, and I&rsquo;m loving it. I&rsquo;m also building a Backbone app with a Rails API with my mentor as a side project.</p>
+
+<p>After Thanksgiving, we&rsquo;ll be building a multi-tenant platform based on Dinner Dash: <a href="http://tutorials.jumpstartlab.com/projects/fourth_meal.html">Fourth Meal</a>. It looks intimidating, but I&rsquo;m stoked to be able to build a platform like this. It seems like you could build a great business around a platform like this. <a href="http://bandzoogle.com/">Bandzoogle</a> comes to mind.</p>
+
+<p>We&rsquo;re less than halfway through gSchool now, but we&rsquo;ve learned many of the skills we&rsquo;ll need as Ruby on Rails developers. I&rsquo;m glad that we&rsquo;ll have time to practice these skills for the rest of the program. I think I&rsquo;ll feel very confident about what I&rsquo;m doing when we graduate in February. I shudder to think that if I had gone to a different bootcamp, I might be heading out into the job market right now. Although I can certainly build web apps now, I still have so much to learn. I&rsquo;m really glad to be at gSchool; the curriculum is excellent, my peers are supportive, hardworking, and smart, and my teachers are always willing to go the extra mile to help me figure things out.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2599,457 +3236,6 @@ e.g.: formName.elements.name.value = “Eugene”; would set the name field to t
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/26/sequel-gem-methods/">Sequel Gem Methods</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-26T13:28:00-06:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Information is from the <a href="http://tutorials.jumpstartlab.com/topics/sequel.html">Jumpstart Lab Sequel Tutorial</a></p>
-
-<p>Here is the <a href="sequel.rubyforge.org/rdoc/classes/Sequel/Dataset.html">official Sequel documentation</a>.</p>
-
-<p><br /></p>
-
-<h2>Setting Up A Database</h2>
-
-<ol>
-<li>Create a Gemfile requiring ‘sequel’ and ‘sqlite3’.</li>
-<li>run: bundle exec rib; Bundler.require</li>
-<li>Assign a new database like this:
-database = Sequel.sqlite(‘dbname.sqlite3’) Sqlite creates the db automatically. Postgres will not do this.</li>
-</ol>
-
-
-<p><br /></p>
-
-<h2>Database Methods:</h2>
-
-<p>#run &ldquo;SQL query&rdquo; - runs an SQL query</p>
-
-<p>#fetch “SQL query” - runs an SQL query and returns the results (need to call to_a to see) as a dataset. Can be combined with a block.</p>
-
-<p>These two methods alone will allow you to interact with the db via SQL.</p>
-
-<p><br /></p>
-
-<h2>Dataset Methods:</h2>
-
-<p>#enumerable - can run enumerable methods on a dataset returned by database#fetch.</p>
-
-<p>#inspect - shows the database/dataset obj.</p>
-
-<h3>Table manipulation:</h3>
-
-<p>#create_table :table_name do
-     primary key :id
-     String :line_1, :size => 255
-     Integer :person_id
-end
-creates a table</p>
-
-<p>#schema(:table) - shows the existence and column definitions of a table. Returns a nested array.</p>
-
-<p>#add_column
-#rename_column
-#drop_column
-#set_column_default
-#set_column_type</p>
-
-<h3>Selection of records:</h3>
-
-<p>chaining - chain methods:
-e.g. dataset.where(:name => &lsquo;George&rsquo;).or([[:id, [2,3]]])</p>
-
-<p>#from(:column) - equivalent to SELECT * FROM column. Returns a dataset. Doesn’t run search until you call to_a on it.
-After assigning it like this:
-dataset = database.from(:people)
-Do things like this:</p>
-
-<p>#select(:column or [:column1, :column2, etc…]) - selects column(s) from table</p>
-
-<p>#where/#filter(:column => filter) - returns SELECT * FROM table WHERE column = filter. Selecting multiple items requires an extra set of brackets.
-eg.: dataset.where(:id => 1) or
-dataset.where([[:id, [2,3]]])</p>
-
-<p>#grep(:column, ‘search&#8217;) - finds all rows that match the grep string. “%&ldquo; is a 0+ wildcard, “_&rdquo; matches a single character.</p>
-
-<p>#limit(int) - limits the number of returned records to the integer passed as an argument.</p>
-
-<p>#order(:column) - returns SELECT * FROM :table ORDER BY :column. Can add descending sort as follows:
-dataset.order(Sequel.desc(:name))</p>
-
-<p>#exclude - works like Enumerable#reject.</p>
-
-<h3>Working With Rows</h3>
-
-<p>#insert ({:column => “value&#8221;, :column => “value&#8221;) - inserts a new row with the given hash values. Not a delayed method; runs immediately. Verify results using select.</p>
-
-<p>#join(:other_table, :other_column, :foreign_key) - Performs an INNER JOIN with another table. The column name order goes: other table’s column first, local table’s column second.</p>
-
-<p>#update(:column => “value”) - updates one or more existing rows. Combine it with where to select a record first. Runs immediately.
-e.g. addresses.where(:id => 1).update(:zipcode => &ldquo;20500&rdquo;)</p>
-
-<p>#delete(:column => “value) - similar to update, but deletes. Returns number of records deleted.</p>
-
-<p>#count - returns the number of records in the dataset. Useful in chaining.</p>
-
-<h3>Math Utilities:</h3>
-
-<p>#avg
-#sum
-#max
-#min</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/26/so-many-javascript-libraries/">So Many Javascript Libraries!</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-26T07:11:00-06:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I&rsquo;ve gotten pretty interested in client-side web applications recently. I&rsquo;ve been looking into <a href="http://www.emberjs.com">Ember.js</a>. I find it to be an exciting framework, because it allows a scalable, MVC model app to be run with data storage happening on the client side. That, and it&rsquo;s being developed by Yehuda Katz, who I greatly admire.</p>
-
-<p>After digging into the TodoMVC tutorial in Ember, I got to thinking more about Javascript. I then realized that there are many, many Javascript libraries out there, and I had no idea what was what. So I spent an evening scouring the web for information on them.</p>
-
-<p>Here&rsquo;s a list of popular libraries that I compiled, with descriptions from their official sites and/or wikipedia.
-<br /></p>
-
-<h1>Javascript Libraries</h1>
-
-<h2>Ember.js</h2>
-
-<p>An open-source client-side JavaScript web application framework based on the model-view-controller (MVC) software architectural pattern. It allows developers to create scalable single-page applications by incorporating common idioms and best practices into a framework that provides a rich object model, declarative two-way data binding, computed properties, automatically-updating templates powered by Handlebars.js, and a router for managing application state. Most Ember.js applications also use Ember Data, a database-independent data persistence library that provides object-relational mapping (ORM) facilities for the web.</p>
-
-<h2>Angular.js</h2>
-
-<p>An open-source JavaScript framework, maintained by Google, that assists with running single-page applications. Its goal is to augment browser-based applications with model–view–controller (MVC) capability, in an effort to make both development and testing easier.
-The library reads in HTML that contains additional custom tag attributes; it then obeys the directives in those custom attributes, and binds input or output parts of the page to a model represented by standard JavaScript variables. The values of those JavaScript variables can be manually set, or retrieved from static or dynamic JSON resources.</p>
-
-<h2>Backbone.js</h2>
-
-<p>Backbone.js gives structure to web applications by providing models with key-value binding and custom events, collections with a rich API of enumerable functions, views with declarative event handling, and connects it all to your existing API over a RESTful JSON interface.</p>
-
-<h2>Marionette</h2>
-
-<p>Backbone.Marionette is a composite application library for Backbone.js that aims to simplify the construction of large scale JavaScript applications. It is a collection of common design and implementation patterns found in the applications that I (Derick Bailey) have been building with Backbone, and includes various pieces inspired by composite application architectures, such as Microsoft&rsquo;s &ldquo;Prism&rdquo; framework.</p>
-
-<h2>Jasmine</h2>
-
-<p>An open source testing framework for JavaScript. It aims to run on any JavaScript-enabled platform, to not intrude on the application nor the IDE, and to have easy-to-read syntax. It is heavily influenced by other unit testing frameworks, such as ScrewUnit, JSSpec, JSpec, and RSpec.</p>
-
-<h2>Sinon.js</h2>
-
-<p>Standalone test spies, stubs and mocks for JavaScript.
-No dependencies, works with any unit testing framework.</p>
-
-<h2>Node.js</h2>
-
-<p>A software platform that is used to build scalable network (especially server-side) applications. Node.js utilizes JavaScript as its scripting language, and achieves high throughput via non-blocking I/O and a single-threaded event loop.
-Node.js contains a built-in HTTP server library, making it possible to run a web server without the use of external software, such as Apache or Lighttpd, and allowing more control of how the web server works.</p>
-
-<h2>Express.js</h2>
-
-<p>Express is a minimal and flexible node.js web application framework, providing a robust set of features for building single and multi-page, and hybrid web applications. (Think Sinatra)</p>
-
-<h2>Sails.js</h2>
-
-<p>Makes it easy to build custom, enterprise-grade Node.js apps. It is designed to mimic the MVC pattern of frameworks like Ruby on Rails, but with support for the requirements of modern apps: data-driven APIs with scalable, service-oriented architecture. It&rsquo;s especially good for building chat, realtime dashboards, or multiplayer games.</p>
-
-<h2>jQuery</h2>
-
-<p>jQuery is a fast, small, and feature-rich JavaScript library. It makes things like HTML document traversal and manipulation, event handling, animation, and Ajax much simpler with an easy-to-use API that works across a multitude of browsers. With a combination of versatility and extensibility, jQuery has changed the way that millions of people write JavaScript.</p>
-
-<h2>jQuery UI</h2>
-
-<p>jQuery UI is a curated set of user interface interactions, effects, widgets, and themes built on top of the jQuery JavaScript Library. Whether you&rsquo;re building highly interactive web applications or you just need to add a date picker to a form control, jQuery UI is the perfect choice.</p>
-
-<h2>Underscore</h2>
-
-<p>A utility-belt library for JavaScript that provides a lot of the functional programming support that you would expect in Prototype.js (or Ruby), but without extending any of the built-in JavaScript objects. It&rsquo;s the tie to go along with jQuery&rsquo;s tux, and Backbone.js&rsquo;s suspenders.</p>
-
-<h2>Two.js</h2>
-
-<p>A two-dimensional drawing api geared towards modern web browsers. It is renderer agnostic enabling the same api to draw in multiple contexts: svg, canvas, and webgl.</p>
-
-<h2>Prototype.js</h2>
-
-<p>A JavaScript framework created by Sam Stephenson in February 2005 as part of the foundation for Ajax support in Ruby on Rails. It is implemented as a single file of JavaScript code, usually named prototype.js. Prototype is distributed standalone, but also as part of larger projects, such as Ruby on Rails, script.aculo.us and Rico. Prototype is used by 2.9% of all websites, which makes it one of the most popular JavaScript libraries. Prototype provides various functions for developing JavaScript applications. The features range from programming shortcuts to major functions for dealing with XMLHttpRequest.Prototype also provides library functions to support classes and class-based objects, something the JavaScript language lacks. In JavaScript, object creation is prototype-based instead: an object creating function can have a prototype property, and any object assigned to that property will be used as a prototype for the objects created with that function. The Prototype framework is not to be confused with this language feature.</p>
-
-<h2>Rhino</h2>
-
-<p>An open-source implementation of JavaScript written entirely in Java. It is typically embedded into Java applications to provide scripting to end users. It is embedded in J2SE 6 as the default Java scripting engine.</p>
-
-<h2>PhantomJS</h2>
-
-<p>A headless WebKit scriptable with a JavaScript API. It has fast and native support for various web standards: DOM handling, CSS selector, JSON, Canvas, and SVG.</p>
-
-<h2>Moustache</h2>
-
-<p>Logic-less templates. AKA . Found in many languages. Not actually Javascript in itself.</p>
-
-<h2>Handlebars.js</h2>
-
-<p>Handlebars is a semantic web template system. It is a superset of Mustache, and can render Mustache templates in addition to Handlebars templates. Unlike Mustache, Handlebars add some logic to its templates. So it&rsquo;s not a logic-less template system. Used in Ember.js.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/26/ideabox-retrospective/">IdeaBox Retrospective</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-26T06:42:00-06:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This week was a long haul. We were focused on building <a href="http://tutorials.jumpstartlab.com/projects/idea_box.html">IdeaBox</a>, an idea catching app. It&rsquo;s kind of like <a href="http://www.evernote.com">Evernote</a>. Mine turned out pretty well. Using some strict time management, I was able to complete all of the extenstions listed on the assignment.</p>
-
-<p>Here&rsquo;s a link to mine: <a href="http://ideabox-flux.herokuapp.com/">My IdeaBox</a></p>
-
-<p>And a screenshot:</p>
-
-<p><img src="http://s10.postimg.org/40ywl3vvt/Screen_Shot_2013_10_26_at_6_54_54_AM.png," title="'IdeaBox', 'Screenshot of a web app'" ></p>
-
-<h2>Scheduling My Workflow</h2>
-
-<p>Here are three things I discovered along the way:</p>
-
-<ol>
-<li>Planning a project timeline is key.</li>
-<li>I have a hard time with design.</li>
-<li>It&rsquo;s difficult to write Capybara tests when you don&rsquo;t know the layout of your app.</li>
-</ol>
-
-
-<p>This is the timeline I used to finish building the full app in a week. We were simultaneously learning how to build linked lists, write SQL statments, and use the Seqeul gem.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Wed: Setup Models, Tagging
-</span><span class='line'>Thu: Statistics, Search, Fuel
-</span><span class='line'>Fri: Revisions and Groups
-</span><span class='line'>Sat-Sun: Rest, catch up if needed
-</span><span class='line'>Mon: Users and Groups
-</span><span class='line'>Tue: Sound and Image
-</span><span class='line'>Wed: Front End, Mobile, and SMS</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Trouble With Design</h2>
-
-<p>Following this plan, I was able to get the app up and running by Thursday. I spent Wednesday waffling between css layouts - Zurb <a href="http://foundation.zurb.com/">Foundation</a>, <a href="http://semantic-ui.com/">Semantic UI</a>, and <a href="http://www.99lime.com/">HTML Kickstart</a> - trying for the life of me to make it look decent. Despite being a creative person and having read half a dozen web design books in the last year, I was having a lot of trouble feeling satisfied with my look. You can see what I came up with by <a href="http://ideabox-flux.herokuapp.com/">visiting my IdeaBox</a>.</p>
-
-<h2>Testing</h2>
-
-<p>I was surprised to find that I had a hard time practicing TDD for the views. Using Capybara early on, my tests were constantly blowing up when I got around to changing the layout. I don&rsquo;t really think it matters, though. I was able to test my models with unit and integration tests easily enough. Then I added the important routes to my Capybara acceptance test after the web views were built, so if I want to tweak things later, I will have test coverage.</p>
-
-<h2>Takeaways</h2>
-
-<p>Here are some other parts of web development I learned from this project:</p>
-
-<ul>
-<li>Using Sintra to send files to users from a dynamic URL exposes your computer to the web.</li>
-</ul>
-
-
-<figure class='code'><figcaption><span>What Not To Do</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">get</span> <span class="s1">&#39;/download/:filename&#39;</span> <span class="k">do</span> <span class="o">|</span><span class="n">filename</span><span class="o">|</span>
-</span><span class='line'>  <span class="n">send_file</span> <span class="s2">&quot;./files/</span><span class="si">#{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="ss">:filename</span> <span class="o">=&gt;</span> <span class="n">filename</span><span class="p">,</span> <span class="ss">:type</span> <span class="o">=&gt;</span> <span class="s1">&#39;Application/octet-stream&#39;</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>How to salt a password before encrypting.</li>
-<li>How to use the RACK_ENV for testing vs. deployment.</li>
-<li>How to use <a href="https://www.twilio.com/">Twilio</a> to set up texting to my app.</li>
-<li>How to use <a href="https://ngrok.com/">ngrok</a> to expose your local server to the web for testing. I needed this for Twilio.</li>
-<li>Don&rsquo;t try to switch from Yaml Store to Postgres with ActiveRecord when you only have 24 hours left before launch.</li>
-<li>When trying to build a lot of features in a short time, code quality can suffer. I&rsquo;d like to refactor this at some point.</li>
-</ul>
-
-
-<h2>If I Were to Start Over</h2>
-
-<p>At this point, if I could go back and start over, there are two things I&rsquo;d do differently:</p>
-
-<ol>
-<li>Use an SQL database from the start.</li>
-<li>Design the view earlier on in the process, to facilitate a better testing process with Capybara.</li>
-</ol>
-
-
-<p>In the end, I was pretty proud of my IdeaBox. I learned that I can actually build and deploy an entire web app on my own! Full-stack!-ish&hellip;</p>
-
-<h2>Code Retreat</h2>
-
-<p>On Friday, we left Galvinize and went to work in a different space - The Source in Rino - for our first code retreat. We spent the day pairing with different people in the class on two exercises: programming &ldquo;99 Bottles of Beer on the Wall&rdquo;, and a robot instruction simulator. I had a great time getting to work with a wide variety of my classmates, including some I had not yet paired with. My favorite constraint is when we could only one line of code before switching off, and without talking. I was also trying to practice some vim skills, which my pairs were gracious enough to help me with. One thing I really disliked was the space at The Source itself. It was too loud and filled with echoes. For me, a space that was calmer and quieter would have been preferable. Aside from that, though, I hope the next code retreat will be similar - a chance to work with many peers on fun and challenging problems.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/18/web-applications/">Web Applications</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-18T09:01:00-06:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This week we dug in to building a web application for the first time in gSchool. After six weeks of nothing but pure Ruby (well, almost pure - there was some Command Line, Git, and Javascript in there), it was a nice change of pace to see the language of the web again. I haven&rsquo;t used HTTP requests, HTML tags, or CSS selectors in months, so this week felt like a breath of fresh air.</p>
-
-<p>We&rsquo;ve begun learning to use Sinatra to build light weight Rack applications. Knowing that Sinatra was on the menu, I spent last weekend working through <a href="http://www.sitepoint.com/store/jump-start-sinatra/">Jump Start Sinatra</a> by Darren Jones. The book walks you through building Songs By Sinatra, a light weight web app that catalogs the songs of Frank Sinatra. Along the way, it introduces the reader to Ruby Slim templating, flash messages, DataMapper, AJAX, a little bit of jQuery, and deploying to Heroku. I really enjoyed the project. It was small and quick to complete, but touched on many topics I&rsquo;ve been wanting to explore.</p>
-
-<p>Here is a link to my completed version of <a href="http://songs-by-sinatra-flux.herokuapp.com/">Songs By Sinatra</a>.</p>
-
-<p>Jeff started the week with a morning lecture on the structure of the internet. He covered HTTP requests, IP addresses, DNS lookup, the DNS root name servers, and the structure of the DNS system. From there, he explained Distributed Denial of Service (DDoS) attacks. These are a big topic in computer security right now. The most common type of DDoS is a &ldquo;hacking&rdquo; attack in which someone controls a &ldquo;botnet&rdquo;: hundreds or thousands of computers infected with backend malware. The botnet allows the attacker to use the zombie computers&#8217; processing power to carry out an attack on a certain target. At the designated time, the attacker directs all of the computers to repeatedly send requests to the target. The target is then drowned in requests, and becomes unreachable.</p>
-
-<p>After covering DDoSs, we talked about many other aspects of the internet&rsquo;s dark underbelly, including <a href="http://en.wikipedia.org/wiki/Silk_Road_%28marketplace%29">The Silk Road</a> and other hidden services accessible through the <a href="https://www.torproject.org/">Tor</a> network, as well as <a href="http://vimeo.com/63502573">Bitcoins</a>. It was all fascinating stuff, all very cloak and dagger!</p>
-
-<p>Once the week was underway, we dug into Sinatra with the Jumpstart Lab tutorial for <a href="http://tutorials.jumpstartlab.com/projects/web_guesser.html">WebGuesser</a>. It was a nice easy project that eased us in to using GET, PUT, POST, and DELETE requests via an app built in Sinatra.</p>
-
-<p><img class="center" src="http://s9.postimg.org/3mw3ucrrj/Screen_Shot_2013_10_18_at_9_21_56_PM.png" title="My IdeaBox In Production" alt="A website in the process of being built"></p>
-
-<p>Soon after that we were introduced to our current project: <a href="http://tutorials.jumpstartlab.com/projects/idea_box.html">IdeaBox</a>. I&rsquo;ve dug in hard this week. So far, I&rsquo;ve completed the basic project as well as the tagging, statistics, and search extensions. I&rsquo;ve been playing with some templating. After getting frustrated with ERB, I decided to try HAML for a while, but ended up going back to Slim, which I find much more intuitive. Having few design skills, I decided to use a CSS library for the front end. I&rsquo;d already worked with Bootstrap in the past, so I decided to give <a href="http://foundation.zurb.com/">Zurb Foundation</a> a go. So far, it&rsquo;s been easy to get it up and running, but it&rsquo;s sometimes hard to make the javascript elements display the way they look in the documentation. At any rate, I&rsquo;m having a great time with the project.</p>
-
-<p>Compared to building command line applications, I&rsquo;m enjoying web apps more. The main reason is that it gives me a chance to switch gears. When I get tired of just dealing with Ruby code, I can go work on the front end. When that gets tiring, I head back to the model and do some more logic work.</p>
-
-<h2>Work Habits</h2>
-
-<p>For the most part, I&rsquo;ve been able to keep up my good work habits this week.</p>
-
-<p>On the one hand, I&rsquo;ve found it a lot more difficult to write effective tests in this environment. Whenever run my application test, it starts up the server. That can&rsquo;t be right, I have to CTL+C it every time. Also, I&rsquo;m tempted not to write enough tests, especially route tests, when using Sinatra. But after last week&rsquo;s test-less mayhem with Tic Tac Toe, I&rsquo;m fully convinced I need them. I have yet to try Capybara; perhaps that will help.</p>
-
-<p>On the other hand, I&rsquo;ve actually been a lot better about staying true to my Pomodore timer. Although my classmate Luke gave a Lightning Talk blasting the Pomodore method, I&rsquo;ve found that I get really weird when I don&rsquo;t take regular breaks. With my old timer, <a href="http://www.makeuseof.com/tag/menubar-countdown-is-a-mac-timer-app-that-talks-to-you/">Menubar Countdown</a>, I would often ignore the end of my session and keep working. Now I&rsquo;m using <a href="http://www.tadamapp.com">Tadam</a>, which puts a big black box on the screen and forces you to take a break. So far, the switch has helped keep me honest. I&rsquo;ve also committed myself to taking walks outside. It really helps keep me from feeling like I&rsquo;m in a cave/tunnel/timewarp all the time.</p>
-
-<h2>Working Individually</h2>
-
-<p>For the IdeaBox project, we have small working groups. Although each person is completing the project individually, we have a cohort to turn to when we encounter problems or want to think through solutions. For me, this is a very comfortable apporoach. I tend to be a very independent, resourceful learner, but I&rsquo;m not independent to the point of being a recluse. I&rsquo;ve been enjoying helping team mates, and pairing with them a little bit. But most of all, I like talking through ideas and approaches to problems with them.</p>
-
-<h2>Assessments Next Week</h2>
-
-<p>Next week, we&rsquo;ll be going through an assessment with one of the instructors. I&rsquo;m not nervous about this, because there is nothing on the line. A failure on the assessment would mean little in terms of my coding eduction. On the contrary, I&rsquo;m excited to have someone looking over my shoulder as I write. When I&rsquo;m working on a project, I try to solve problems on my own before asking an instructor for help. Although this gives me confidence because I know I can work things out on my own, I also wonder if there are approaches and work flow improvements that I&rsquo;m not seeing, because I&rsquo;m the only one hearing my thought process with me. I hope that the assessment will be a chance for Jeff, Franklin or Katrina to watch how I solve problems, and make suggestions for efficiencies I may not be seeing as I go.</p>
-
-<h2>Moving Forward</h2>
-
-<p>Last Wednesday, I realized that I was spending a lot of time building extra features at the expense of basic functionality, and going off on learning tangents that weren&rsquo;t helping me make any progress on the project. I decided to imagine where I would like the project to be on Thursday morning, when the project is due. I split up the remaining work to a daily schedule. I hope that by sticking to it I will have all of the features done on schedule, with some time for refactoring and bug fixes built in. I&rsquo;m really excited to be building a web app on both the front and back end for the first time. Even though it is just a tutorial, I&rsquo;m proud of what I&rsquo;m building, and I can&rsquo;t wait to share it with the world!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="5">&larr; Older</a>
@@ -3067,23 +3253,23 @@ Node.js contains a built-in HTTP server library, making it possible to run a web
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/04/07/seven-unusual-ruby-datastores/">Seven Unusual Ruby Datastores</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/04/01/integrating-react-with-backbone/">Integrating React With Backbone</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/26/understanding-rack-apps-and-middleware/">Understanding Rack Apps and Middleware</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/12/deploying-and-customizing-applications-on-engine-yard/">Deploying and Customizing Applications on Engine Yard</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/03/01/serving-custom-json-from-your-rails-api-with-activemodel-serializers/">Serving Custom JSON From Your Rails API With ActiveModel::Serializers</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/02/26/getting-started-with-ruby-processing/">Getting Started With Ruby Processing</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/02/04/setting-up-a-client-side-javascript-project-with-gulp-and-browserify/">Setting Up A Client-Side JavaScript Project With Gulp and Browserify</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/01/29/instances/">Instances, Classes, and Modules, Oh My!</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/01/22/measuring-client-side-javascript-test-coverage-with-istanbul/">Measuring Client-Side JavaScript Test Coverage With Istanbul</a>
       </li>
     
   </ul>

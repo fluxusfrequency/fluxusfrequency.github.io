@@ -1,0 +1,923 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Integrating React With Backbone - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="This post originally appeared on Engine Yard. Introduction There are so many JS frameworks! It can get tiring to keep up to date with them all. But &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2015/04/01/integrating-react-with-backbone">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Integrating React With Backbone</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-04-01T06:29:54-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2015/integrating-react-with-backbone">Engine Yard</a>.</p>
+
+<h2>Introduction</h2>
+
+<p>There are so many JS frameworks! <a href="http://www.allenpike.com/2015/javascript-framework-fatigue/">It can get tiring</a> to keep up to date with them all.</p>
+
+<p>But like any developer who writes JavaScript, I try to keep abreast of the trends. I like to tinker with new things, and rebuild <a href="http://todomvc.com/">TodoMVC</a> as often as possible.</p>
+
+<p>Joking aside, when it comes to choosing frameworks for a project, emerging frameworks just haven&rsquo;t been battle-tested enough for me to recommend to clients in most cases.</p>
+
+<p>But like much of the community, I feel pretty confident in the future of <a href="http://facebook.github.io/react/index.html">React</a>. It&rsquo;s well documented, makes reasoning about data easy, and it&rsquo;s performant.</p>
+
+<p>Since React only provides the view layer of a client-side <a href="http://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller">MVC application</a>, I still have to find a way to wrap the rest of the application. When it comes to choosing a library that I&rsquo;m confident in, I still reach for <a href="http://backbonejs.org/">BackboneJS</a>. A company that bets on Backbone won&rsquo;t have trouble finding people who can work on their code base. It&rsquo;s been around for a long time, is unopionated enough to be adaptable to many different situations. And as an added bonus, it plays well with React.</p>
+
+<p>In this post, we&rsquo;ll explore the relationship between Backbone and React, by looking at one way to structure a project that uses them together.</p>
+
+<h2>A Note About Setting Up Dependencies</h2>
+
+<p>I won&rsquo;t go over setting up all of the package dependencies for the project here, since I&rsquo;ve covered this process in <a href="http://fluxusfrequency.github.io/blog/2015/02/04/setting-up-a-client-side-javascript-project-with-gulp-and-browserify/">a previous post</a>. For the purposes of this article, you can assume that we&rsquo;re using <a href="http://browserify.org/">Browserify</a>.</p>
+
+<p>One package that is worth noting, though, is <a href="https://github.com/clayallsopp/react.backbone">ReactBackbone</a>. It will allow us to trigger an automatic update of our React components whenever Backbone model or collection data changes. You can get it with <code>npm install --save react.backbone</code>.</p>
+
+<p>We&rsquo;ll also be making use of <a href="https://www.npmjs.com/package/backbone-route-control">backbone-route-control</a> to make it easier to split our URL routes into logically encapsulated controllers. See &ldquo;caching the controller call&rdquo; in <a href="http://fluxusfrequency.github.io/blog/2014/12/09/caching-asynchronous-queries-in-backbone/">this article</a> for more information about how to set this package up.</p>
+
+<h2>Project Structure</h2>
+
+<p>There are many ways to structure the directories for a client-side JS application, and every project lends itself to a slightly different setup. Today we&rsquo;ll be creating our directory structure in a fairly typical fashion for a Backbone project. But we&rsquo;ll also be introducing the concept of <em>screens</em> to our application, so we&rsquo;ll also be extending it slightly.</p>
+
+<p>Here&rsquo;s what we&rsquo;ll need:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>assets/
+</span><span class='line'>  |- js/
+</span><span class='line'>     |- collections/
+</span><span class='line'>     |- components/
+</span><span class='line'>     |- controllers/
+</span><span class='line'>     |- models/
+</span><span class='line'>     |- screens/
+</span><span class='line'>     |- vendor/
+</span><span class='line'>     |- app.js
+</span><span class='line'>     |- base-view.js
+</span><span class='line'>     |- index.js
+</span><span class='line'>     |- router.js</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Much of this is standard Backbone boilerplate. The <code>collections/</code>, <code>models/</code>, and <code>vendor/</code> directories are self-explanatory. We&rsquo;ll store reusable UI components, such as pagination, pills, and toggles, in <code>components/</code>.</p>
+
+<p>The heart of our app will live in the <code>screens/</code> directory. Here, we&rsquo;ll write React components that will handle the display logic, taking the place of traditional Backbone views and templates. However, we&rsquo;ll still include thin Backbone views to render these components.</p>
+
+<p>We&rsquo;ll talk more about screens in a moment. For now, let&rsquo;s take a look at the how a request will flow through the application, starting from the macro level.</p>
+
+<h2>The Application</h2>
+
+<p>We&rsquo;ll begin by writing a root-level <code>index.js file</code>, which will be the source of the <code>require</code> tree that Browserify will use.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nb">window</span><span class="p">.</span><span class="nx">$</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">jQuery</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;jquery&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">Application</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./app&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">window</span><span class="p">.</span><span class="nx">app</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Application</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What is this <code>Application</code>, you may ask? Simply put, it&rsquo;s the function we&rsquo;ll use to bootstrap the entire project. Its purpose is to get all of the dependencies set up, instantiate the controllers and router, kick off Backbone history, and render the main view.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Backbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">Router</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./router&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">MainView</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./screens/main/index&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">UsersController</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./controllers/users-controller&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">Backbone</span><span class="p">.</span><span class="nx">$</span> <span class="o">=</span> <span class="nx">$</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">Application</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">initialize</span><span class="p">();</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">Application</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">initialize</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">controllers</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">users</span><span class="o">:</span> <span class="k">new</span> <span class="nx">UsersController</span><span class="p">({</span> <span class="nx">app</span><span class="o">:</span> <span class="k">this</span> <span class="p">})</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">router</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Router</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">app</span><span class="o">:</span> <span class="k">this</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">controllers</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">controllers</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">mainView</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">MainView</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">el</span><span class="o">:</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#app&#39;</span><span class="p">),</span>
+</span><span class='line'>    <span class="nx">router</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">router</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">showApp</span><span class="p">();</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">Application</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">showApp</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">mainView</span><span class="p">.</span><span class="nx">render</span><span class="p">();</span>
+</span><span class='line'>  <span class="nx">Backbone</span><span class="p">.</span><span class="nx">history</span><span class="p">.</span><span class="nx">start</span><span class="p">({</span> <span class="nx">pushState</span><span class="o">:</span> <span class="kc">true</span> <span class="p">});</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">Application</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Router</h3>
+
+<p>Once the application has been booted up, we&rsquo;ll want to be able to accept requests. When one comes in, our app will need to be able to take a look at the URL path in the navigation bar and decide what to do. This is where the router comes in. It&rsquo;s a pretty standard part of any Backbone project, so it probably won&rsquo;t look too out of the ordinary, especially if you&rsquo;ve used <code>backbone-route-control</code> before.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Backbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">BackboneRouteControl</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone-route-control&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">Router</span> <span class="o">=</span> <span class="nx">BackboneRouteControl</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">routes</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="s1">&#39;&#39;</span><span class="o">:</span>          <span class="s1">&#39;users#index&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s1">&#39;users&#39;</span><span class="o">:</span>     <span class="s1">&#39;users#index&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s1">&#39;users/:id&#39;</span><span class="o">:</span> <span class="s1">&#39;users#show&#39;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">Router</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When one of these routes is hit, the router will take a look at the controllers we passed into it during app initialization, find the controller with the name to the left of the <code>#</code> and try to call the method name to the right of the <code>#</code> in the string defined for that route.</p>
+
+<h3>Controllers</h3>
+
+<p>Now that the request has been routed through one of the routes, the router will take a look in the matching controller for the method that is to be called. Note that these controllers are not a part of Backbone, but Plain Old JavaScript Objects.</p>
+
+<p>For the purposes of this post, we&rsquo;ll just have a <code>UsersController</code> with two actions.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">UsersCollection</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../collections/users-collection&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">UserModel</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../models/user&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">UsersIndexView</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../screens/users/index&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">UserShowView</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../screens/users/show&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">UsersController</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">app</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">index</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">usersCollection</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">UsersCollection</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nx">usersCollection</span><span class="p">.</span><span class="nx">fetch</span><span class="p">().</span><span class="nx">done</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">usersView</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">UsersIndexView</span><span class="p">({</span>
+</span><span class='line'>          <span class="nx">users</span><span class="o">:</span> <span class="nx">usersCollection</span>
+</span><span class='line'>        <span class="p">});</span>
+</span><span class='line'>        <span class="nx">app</span><span class="p">.</span><span class="nx">mainView</span><span class="p">.</span><span class="nx">pageRender</span><span class="p">(</span><span class="nx">usersView</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">show</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">user</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">UserModel</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">id</span><span class="o">:</span> <span class="nx">id</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nx">user</span><span class="p">.</span><span class="nx">fetch</span><span class="p">().</span><span class="nx">done</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">userView</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">UserShowView</span><span class="p">({</span>
+</span><span class='line'>          <span class="nx">user</span><span class="o">:</span> <span class="nx">user</span>
+</span><span class='line'>        <span class="p">});</span>
+</span><span class='line'>        <span class="nx">app</span><span class="p">.</span><span class="nx">mainView</span><span class="p">.</span><span class="nx">pageRender</span><span class="p">(</span><span class="nx">userView</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">UsersController</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This controller loads the <code>User</code> model and collection, and uses them to display the user index and show screens. It instantiates a Backbone collection or model, depending on the route, fetches its data from the server, loads it into the screen (which we&rsquo;ll get to momentarily), then shows that screen in the app&rsquo;s <code>mainView</code> container.</p>
+
+<h2>Screens</h2>
+
+<p>At this point, we&rsquo;ve accepted a request, routed it through a controller action, decided what kind of collection or model we are dealing with, and fetched the data from the server. We&rsquo;re ready to render a Backbone view. In this case, it will do little more than pass the data on to the React component.</p>
+
+<h3>The Base View</h3>
+
+<p>Since there&rsquo;s going to be a lot of repeated boilerplate in our Backbone views, it makes sense to abstract it out into a <code>BaseView</code>, which child views will extend from.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">React</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">Backbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">BaseView</span> <span class="o">=</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">initialize</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="p">{};</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">component</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="kc">null</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">React</span><span class="p">.</span><span class="nx">renderComponent</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">component</span><span class="p">(),</span> <span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">BaseView</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This base view sets any options passed in as properties on itself, and defines a <code>render()</code> method that renders whatever React component is defined in the <code>component()</code> method.</p>
+
+<h3>The Main View</h3>
+
+<p>In order to switch between screens without doing a page re-render, we&rsquo;ll wrap all of our screens in an outer screen called the <code>mainView</code>. This view acts as a sort of &ldquo;picture frame&rdquo; for the other screens in the app, displaying, hiding, and cleaning them up.</p>
+
+<p>As with all of our screens, it will consist of two parts: a Backbone view, defined in <code>screens/main/index.js</code>, and a React component, defined in <code>screens/main/component.js</code>.</p>
+
+<h4>Backbone View</h4>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Backbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">BaseView</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../base-view&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">MainComponent</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./component&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">MainView</span> <span class="o">=</span> <span class="nx">BaseView</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">component</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nx">MainComponent</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">router</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">router</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">pageRender</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">view</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#main-container&#39;</span><span class="p">).</span><span class="nx">html</span><span class="p">(</span><span class="nx">view</span><span class="p">.</span><span class="nx">render</span><span class="p">().</span><span class="nx">$el</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">MainView</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Since we passed <code>#app</code> as the element for this view to attach to back in <code>app.js</code>, it will render itself there. Thinking through what <code>render</code> actually means, we know that it will call the code defined in the <code>BaseView</code>, which means it will render the whatever&rsquo;s returned by the <code>component()</code> function. In this case, it&rsquo;s the React <code>MainComponent</code>. We&rsquo;ll take a look at that in a moment.</p>
+
+<p>The other special thing this view does is to render any subviews passed to <code>pageRender</code> in the <code>#main-container</code> element found within <code>#app</code>. As I said, it&rsquo;s basically just a frame for whatever else is going to happen.</p>
+
+<h4>React Component</h4>
+
+<p>Now let&rsquo;s take a look at that <code>MainComponent</code>. It&rsquo;s a very simple React component that does nothing more than render the &ldquo;container&rdquo; into the DOM.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="cm">/** @jsx React.DOM */</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">React</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">ReactBackbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react.backbone&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">MainComponent</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createBackboneClass</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="p">(</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="nx">div</span><span class="o">&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">id</span><span class="o">=</span><span class="s2">&quot;main-container&quot;</span><span class="o">&gt;&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>    <span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">MainComponent</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&rsquo;s it, the whole <code>MainView</code>. Since it&rsquo;s so simple, it makes a good introduction to how we can render components in this project.</p>
+
+<p>Now let&rsquo;s take a look at something a little more advanced.</p>
+
+<h3>User Show View</h3>
+
+<p>We&rsquo;ll start by taking a look at how we might write a React component for a user show page.</p>
+
+<h4>Backbone View</h4>
+
+<p>First, we&rsquo;ll define the <code>UserShowView</code> we referenced back in the <code>UsersController</code>. It should live at <code>screens/users/show/index.js</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">BaseView</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../../base-view&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">UserScreen</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./component&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">UserView</span> <span class="o">=</span> <span class="nx">BaseView</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">component</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nx">UserScreen</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">user</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">user</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">UsersView</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&rsquo;s it. Mostly just boilerplate. In fact, pretty much all of our Backbone views will look like this. A simple extension of <code>BaseView</code> that defines a <code>component()</code> method. That method instantiates a React component and returns it to the <code>render()</code> method in the <code>BaseView</code>, which in turn is called by the <code>mainView</code>&rsquo;s <code>pageRender()</code> method.</p>
+
+<h4>React Component</h4>
+
+<p>Now, let&rsquo;s dig into the meat of user show screen: the <code>UserScreen</code> component. It will live at <code>screens/users/show/component.js</code>.</p>
+
+<p>We&rsquo;ll imagine that we can &ldquo;like&rdquo; users. We want to be able to increment a user&rsquo;s <code>likes</code> attribute by clicking a button. Here&rsquo;s how we&rsquo;d write this component to handle that behavior.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="cm">/** @jsx React.DOM */</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">React</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">Backbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">ReactBackbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react.backbone&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">User</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../../models/user&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">UserShowScreen</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createBackboneClass</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">mixins</span><span class="o">:</span> <span class="p">[</span>
+</span><span class='line'>     <span class="nx">React</span><span class="p">.</span><span class="nx">BackboneMixin</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;change&#39;</span><span class="p">),</span>
+</span><span class='line'>  <span class="p">],</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">getInitialState</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">liked</span><span class="o">:</span> <span class="kc">false</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">handleLike</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">e</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">currentLikes</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;likesCount&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">save</span><span class="p">({</span> <span class="nx">likesCount</span><span class="o">:</span> <span class="nx">currentLikes</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">});</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">user</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">user</span><span class="p">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">username</span> <span class="o">=</span> <span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">avatar</span> <span class="o">=</span> <span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;avatar&#39;</span><span class="p">).</span><span class="nx">url</span><span class="p">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">likesCount</span> <span class="o">=</span> <span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;likesCount&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="p">(</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">className</span><span class="o">=</span><span class="s2">&quot;user-container&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="p">{</span><span class="nx">username</span><span class="p">}</span><span class="err">&#39;</span><span class="nx">s</span> <span class="nx">Profile</span><span class="o">&lt;</span><span class="err">/h1&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">img</span> <span class="nx">src</span><span class="o">=</span><span class="p">{</span><span class="nx">avatar</span><span class="p">}</span> <span class="nx">alt</span><span class="o">=</span><span class="p">{</span><span class="nx">username</span><span class="p">}</span> <span class="o">/&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="p">{</span><span class="nx">likesCount</span><span class="p">}</span> <span class="nx">likes</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">button</span> <span class="nx">className</span><span class="o">=</span><span class="s2">&quot;like-button&quot;</span> <span class="nx">onClick</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">handleLike</span><span class="p">}</span><span class="o">&gt;</span>
+</span><span class='line'>          <span class="nx">Like</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="err">/button&gt;</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>    <span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">UserShowScreeen</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You may have noticed that curious <code>mixins</code> property. What is that? <code>react.backbone</code> gives us some niceties here, since we&rsquo;re calling <code>React.createBackboneClass</code> instead of <code>React.createClass</code>. Whenever the <code>user</code> prop that was passed into this component fires a <code>change</code> event, the component&rsquo;s <code>render()</code> method will be called. For more information, take a look at <a href="https://github.com/clayallsopp/react.backbone">the package on GitHub</a>.</p>
+
+<p>When we click that like button, we&rsquo;re incrementing the <code>likesCount</code> attribute on the user, and saving it to the server with our <code>save()</code> call. When the result of that <code>sync</code> comes back, our view will automatically re-render, and the likes count indication will update! Pretty sweet!</p>
+
+<h3>Users Index Screen</h3>
+
+<p>Before we conclude this post, lets take a look at one more case: the index screen. Here, we&rsquo;ll see how using React can make it easier to render repetitive subcomponents.</p>
+
+<h4>Backbone View</h4>
+
+<p>The view for this screen will live at <code>/screens/users/index/index.js</code>, and look similar to the <code>UserShowView</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">BaseView</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../../base-view&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">UsersIndexScreen</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./component&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">UsersIndexScreen</span> <span class="o">=</span> <span class="nx">BaseView</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">component</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nx">UsersIndexScreen</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">users</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">users</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">UsersIndexView</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Backbone Component</h4>
+
+<p>The <code>UsersIndexScreen</code> component will also be fairly similar to the <code>UserShowScreen</code> one, but with one key difference: since we&rsquo;re going to be rendering the same DOM elements repeatedly, we can leverage subcomponents.</p>
+
+<p>Here&rsquo;s the main component, which lives at <code>screens/users/index/component.js</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="cm">/** @jsx React.DOM */</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">React</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">ReactBackbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react.backbone&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">UserBlock</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;.user-block&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">UsersIndexScreen</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createBackboneClass</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">mixins</span><span class="o">:</span> <span class="p">[</span>
+</span><span class='line'>     <span class="nx">React</span><span class="p">.</span><span class="nx">BackboneMixin</span><span class="p">(</span><span class="s1">&#39;users&#39;</span><span class="p">,</span> <span class="s1">&#39;change&#39;</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">],</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">userBlocks</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">users</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="o">&lt;</span><span class="nx">UserBlock</span> <span class="nx">user</span><span class="o">=</span><span class="p">{</span><span class="nx">user</span><span class="p">}</span> <span class="o">/&gt;</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="p">(</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">className</span><span class="o">=</span><span class="s2">&quot;users-container&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="nx">Users</span><span class="o">&lt;</span><span class="err">/h1&gt;</span>
+</span><span class='line'>        <span class="p">{</span><span class="nx">userBlocks</span><span class="p">}</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>    <span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">UsersIndexScreen</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We&rsquo;re just looping through the users that were passed into the component, and wrapping each one in a <code>UserBlock</code> React component. This component can be defined in a file that lives right alongside <code>index.js</code> and <code>component.js</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="cm">/** @jsx React.DOM */</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">React</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">Backbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">ReactBackbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react.backbone&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">MemberBlock</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createBackboneClass</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">user</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">user</span><span class="p">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">username</span> <span class="o">=</span> <span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">avatar</span> <span class="o">=</span> <span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;avatar&#39;</span><span class="p">).</span><span class="nx">url</span><span class="p">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">link</span> <span class="o">=</span> <span class="s1">&#39;/users/&#39;</span> <span class="o">+</span> <span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="p">(</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">className</span><span class="o">=</span><span class="s2">&quot;user-block&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">a</span> <span class="nx">href</span><span class="o">=</span><span class="p">{</span><span class="nx">link</span><span class="p">}</span><span class="o">&gt;</span>
+</span><span class='line'>          <span class="o">&lt;</span><span class="nx">h2</span><span class="o">&gt;</span><span class="p">{</span><span class="nx">username</span><span class="p">}</span><span class="o">&lt;</span><span class="err">/h2&gt;</span>
+</span><span class='line'>          <span class="o">&lt;</span><span class="nx">img</span> <span class="nx">src</span><span class="o">=</span><span class="p">{</span><span class="nx">avatar</span><span class="p">}</span> <span class="nx">alt</span><span class="o">=</span><span class="p">{</span><span class="nx">username</span><span class="p">}</span> <span class="o">/&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="err">/a&gt;</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>    <span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">UserBlock</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Voila! An index view at <code>/users</code> that shows all of our users&#8217; beautiful faces and links to their show pages. It was pretty painless, thanks to React!</p>
+
+<h2>Wrapping Up</h2>
+
+<p>We&rsquo;ve now traced the entire series of events that happens when someone loads up our application and requests a route. After going through the router and controller, the fetched data is injected through a Backbone view into a React component, which is then rendered by the app&rsquo;s <code>mainView</code>.</p>
+
+<p>We only barely scratched the surface of what React is capable of here. If you haven&rsquo;t checked out the <a href="http://facebook.github.io/react/docs/component-api.html">React component API docs</a>, I highly suggest doing so. Once I began to fully harness the power it gave me, I found my projects&#8217; view layers much cleaner. Plus, I get all of the React <a href="http://facebook.github.io/react/docs/advanced-performance.html">performance benefits</a> for free!</p>
+
+<p>I hope that this post has helped make it more obvious how to get started with integrating React into a Backbone app. To me, it always seemed like a good idea, but I didn’t know where to begin. Once I got a sense of the pattern, though, it became pretty easy to do.</p>
+
+<p>P.S. Do you have a different pattern for using React in your Backbone app? Want to talk about using React in Ember or Angular? Leave us a note in the comments!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-04-01T06:29:54-06:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2015/04/01/integrating-react-with-backbone/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2015/04/01/integrating-react-with-backbone/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/03/26/understanding-rack-apps-and-middleware/" title="Previous Post: Understanding Rack Apps and Middleware">&laquo; Understanding Rack Apps and Middleware</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/04/07/seven-unusual-ruby-datastores/" title="Next Post: Seven Unusual Ruby Datastores">Seven Unusual Ruby Datastores &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/04/07/seven-unusual-ruby-datastores/">Seven Unusual Ruby Datastores</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/04/01/integrating-react-with-backbone/">Integrating React With Backbone</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/26/understanding-rack-apps-and-middleware/">Understanding Rack Apps and Middleware</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/12/deploying-and-customizing-applications-on-engine-yard/">Deploying and Customizing Applications on Engine Yard</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/01/serving-custom-json-from-your-rails-api-with-activemodel-serializers/">Serving Custom JSON From Your Rails API With ActiveModel::Serializers</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
