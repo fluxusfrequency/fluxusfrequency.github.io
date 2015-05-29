@@ -9,7 +9,7 @@
   <meta name="author" content="Ben Lewis">
 
   
-  <meta name="description" content="This post appeared in Ruby Weekly #240. It was also included in issue #27.1 of the Pointer.io newsletter. It originally appeared on the Engine Yard &hellip;">
+  <meta name="description" content="This post originally appeared on Engine Yard. Introduction In part one of this miniseries, we introduced formal Use Case Analysis and a simplified &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,511 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/26/happy/">Happy, Sad, Evil, Weird: Putting Use Case Planning Into Practice</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-05-26T06:11:59-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2015/happy-sad-evil-weird-use-case-planning-practice">Engine Yard</a>.</p>
+
+<h2>Introduction</h2>
+
+<p>In <a href="https://blog.engineyard.com/2015/happy-sad-evil-weird-feature-planning">part one</a> of this miniseries, we introduced formal Use Case Analysis and a simplified version called Use Case Planning which fits a rapid, iterative development process. That post went over the high-level concepts, and explained how this planning method will help you catch problems with your design before you start to implement.</p>
+
+<p>In this post, the final post of this miniseries, we’ll step through a concrete example so you can see how to put Use Case Planning into practice.</p>
+
+<h2>An Example</h2>
+
+<p>We&rsquo;ll imagine that we work for a company that is building a multi-tenant Software as a Service (SaaS) platform where people can set up shops and sell products. Tenants will be able to charge their customers through the platform.</p>
+
+<p>We&rsquo;re part of a team that&rsquo;s getting ready to create a credit card payment acceptance feature. It will be a credit card form common to all of our tenants. We&rsquo;ll be writing the markup by hand and using of <a href="https://stripe.com/">Stripe</a> for processing cards. We&rsquo;re entering a sprint planning meeting to define the scope of the work to be done and decide how long it will take to build.</p>
+
+<p>During this meeting, we&rsquo;ll talk about many different aspects of the billing process. For the purposes of this post, let&rsquo;s hone in on one specific feature: once a user has clicked <em>Buy</em>, they are presented with a credit card form. We want to plan what will happen when they try to make use of this form.</p>
+
+<p>Let&rsquo;s walk through the Use Case Planning process for this scenario.</p>
+
+<h2>Step 1. Identifying the Actors and Their Roles</h2>
+
+<p>People:</p>
+
+<p><em>User</em>: exchanges money for goods
+<em>Merchant</em>: exchanges goods for money and money for tenancy
+<em>Platform Owner</em>: exchanges tenancy for money</p>
+
+<p>Services:</p>
+
+<p><em>SaaS Platform</em>: provides the space for tenancy and goods to be exchanged for money
+<em>Stripe</em>: verifies and charges credit cards, handles much of <a href="https://www.pcisecuritystandards.org/">PCI compliance</a>
+<em>Credit Card Company</em>: transfers funds between other actors</p>
+
+<h2>Step 2. Describe The Purpose of The Feature</h2>
+
+<p>Why do we want to build a credit card form? So that we can debit the user and credit the merchant and platform owner.</p>
+
+<h2>Step 3. Identify Use Case Packages</h2>
+
+<p>In this step, each of the stakeholders will contribute their point of view to the discovery of behaviors that we should consider.</p>
+
+<p>When considering a set of use cases, I often like to think through the alternative paths first. As I mentioned above, they can yield interesting decisions that affect the way the happy path will be built.</p>
+
+<h3>The Sad Path</h3>
+
+<p>This time, we&rsquo;ll start with the sad path. Considering the sad path means thinking through what should happen when one of the actors does something differently than we want them to.</p>
+
+<p>Let&rsquo;s identify some of the sad path use cases of filling out a credit card form.</p>
+
+<p>Here are a few examples:</p>
+
+<ol>
+<li>User fills out the credit card form with invalid credit card information</li>
+</ol>
+
+
+<p>When this use case is identified, the designer might chime in that when this happens, the invalid fields should be highlighted and an error message should be displayed explaining what went wrong.</p>
+
+<p>The QA technician might point out that these validations should be ironclad; no special characters should be allowed to pass through.</p>
+
+<ol>
+<li>Card is rejected by credit card company</li>
+</ol>
+
+
+<p>Here, the product owner might insist that it should take as few steps as possible to resubmit the form, so that the user doesn&rsquo;t become frustrated and decide not to buy the product.</p>
+
+<ol>
+<li>Stripe accepts card when submitted via JavaScript, but fails on subsequent server charge request</li>
+</ol>
+
+
+<p>The developer would want to make sure that passing error handling from the server back to the front end is captured in this use case.</p>
+
+<h3>The Evil Path</h3>
+
+<p>Coming up with evil paths requires to you to think like an attacker. How many ways can you come up with to exploit the feature you’re trying to build?</p>
+
+<p>For example:</p>
+
+<ol>
+<li>Price as set in a hidden form field and user figures out that they can change it to zero</li>
+</ol>
+
+
+<p>In this scenario, the developer would want to make sure that the form is built correctly.</p>
+
+<ol>
+<li>Hacker steals credit card info from the database, server logs, or an insecure network request sent over HTTP</li>
+</ol>
+
+
+<p>The product owner would want to mitigate against this as much as is possible so as the protect the customer’s data. From a legal perspective, the product owner would also want to ensure that the SaaS company could not be held liable for any losses, and crucially, that PCI compliance was met.</p>
+
+<ol>
+<li>If we were to save the credit card information to the user account, a hacker could launch a <a href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF attack</a>, leveraging a logged in user&rsquo;s account information to order products without authorization.</li>
+</ol>
+
+
+<p>The developer would suggest using a CSRF token, and the QA technician would want to make sure that form submission failed when the token was changed.</p>
+
+<ol>
+<li>Security holes in session or authentication opens users up to charges</li>
+</ol>
+
+
+<p>Here, the QA technician might ask what would happen when cookie or local storage data is changed. Does it fail as it should?</p>
+
+<h3>The Weird Path</h3>
+
+<p>Coming up with weird paths requires a little more creativity.</p>
+
+<p>Consider each component that your feature interacts with (both internally and externally, locally and remotely, and so on) and think through what would happen if that component failed or behaved in an unexpected way.</p>
+
+<p>For instance:</p>
+
+<ol>
+<li>JavaScript is disabled in the user’s browser, and  the event listener that would prevent the form from being submitted doesn’t fire. The <code>form</code> element falls back to its default behavior, which is to submit it to the SaaS server. The credit card number now appears in the server logs, making it vulnerable to information theft.</li>
+</ol>
+
+
+<p>The developer would want to ensure that the form is built such that it would never be submitted to the SaaS server by mistake.</p>
+
+<ol>
+<li>Stripe server is down</li>
+</ol>
+
+
+<p>In this case, the designer would ask for some kind of error page, perhaps with a link to a status page where users could check for the servers to come back online.</p>
+
+<ol>
+<li>Connection to Stripe is interrupted during transaction</li>
+</ol>
+
+
+<p>The product owner might ask if we can resend the submission if the connection was interrupted. The developer would probably push back on that request, for security reasons. As a compromise, the designer might offer to invent an error state to be shown in this case.</p>
+
+<h3>The Happy Path</h3>
+
+<p>This one is easy. How do you want the feature to work?</p>
+
+<ol>
+<li>User successfully fills out form and clicks submit</li>
+</ol>
+
+
+<p>Again, the designer would probably like to display some kind of success message here.</p>
+
+<ol>
+<li>Credit card charge is accepted by Stripe</li>
+</ol>
+
+
+<p>In this scenario, the product owner might ask to have the page views leading to the successful charge tracked in an analytics service, so we could track down and encourage the same behavior in the future.</p>
+
+<h2>Step 4. Name and Diagram Use Cases</h2>
+
+<p>We&rsquo;ve now identified twelve use cases for the credit card form feature.</p>
+
+<p>I tried my hand at documenting them all in a Use Case Diagram. Green arrows represent good requests or responses, and red arrows represent errors. Bombs represent a broken network connection.</p>
+
+<p><img src="" alt="" /></p>
+
+<p>As you can see, there are tons of arrows.</p>
+
+<p>There are a lot of possible scenarios, and a lot of possible communications between the actors in the system. If we hadn&rsquo;t taken the time to think them through and uncover them all, there&rsquo;s high probability that we would have left some of these out.</p>
+
+<h2>Converting To User Stories</h2>
+
+<p>Now that we&rsquo;ve gone through these four steps, we&rsquo;ve come out with something very valuable: bite-sized sentences that can be translated directly into stories and entered into our tracker software.</p>
+
+<p>Here&rsquo;s what the first sad path case might look like when worded as a story:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>As a user, when I complete the form with invalid information and click submit, I should see the invalid inputs become highlighted, and I should see validation errors telling me what went wrong so that I can correct my error and successfully buy products.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, we have an actor (user), action (fill out and submit form), a result (show validation errors), and a business purpose (the user can give us money).</p>
+
+<p>These twelve stories are small and clear, and lend themselves to being prioritized based on the priorities of our business. Once we enter them into our tracker, we can be assured that they will all be built, and we can estimate how long it will take to happen.</p>
+
+<h2>Conclusion</h2>
+
+<p>The Use Case Planning process is not super complicated. It consists of identifying who/what is involved, why we care, what should happen in the happy and alternative scenarios, and how do the scenarios relate?</p>
+
+<p>It&rsquo;s a relatively low level of effort to answer these four questions and break down the scenarios, but the result is worth its weight in gold. It enables us to identify architectural concerns and edge cases early on and change them at a low cost. We&rsquo;ve also ended up with a set of small stories with clear acceptance criteria that we can track, providing a huge value both in accountability and estimating timelines.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/21/happy/">Happy, Sad, Evil, Weird: Driving Feature Development With Feature Planning</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-05-21T06:11:29-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2015/happy-sad-evil-weird-feature-planning">Engine Yard</a>.</p>
+
+<h2>Introduction</h2>
+
+<p>When building software iteratively, feature planning has to  be done early and often. But it can be a complicated process due to all of the stakeholders involved, each with different viewpoints and goals.</p>
+
+<p>What&rsquo;s more, it&rsquo;s easy to overlook key behaviors of a feature, which can lead to expensive and rushed code later. It&rsquo;s usually intuitive to figure what should happen when everything goes according to plan, but what about edge cases? What should happen when a user supplies bad data? A hacker launches a malicious attack on our application? What about when <a href="https://github.com/Netflix/SimianArmy">chaos makes the whole system unstable</a>?</p>
+
+<p>In the first post of this miniseries, we&rsquo;ll take a look at one way to get everyone&rsquo;s voice heard in the planning process, including the product owner, developer, designer, and QA engineer. Using this approach, teams can draw on their diverse perspectives to tease out a detailed blueprint of a feature that costs less and performs better.</p>
+
+<h2>Introducing Use Case Planning</h2>
+
+<p>Use Case Planning is a term that I&rsquo;ve come up with to represent a simplified version of <a href="http://en.wikipedia.org/wiki/Use-case_analysis">Use Case Analysis</a>. I&rsquo;m aiming to simplify the software feature planning process into a simple, reusable procedure that will save teams money and build more robust systems.</p>
+
+<p>With Use Case Planning, teams can stay flexible early in the game, when it&rsquo;s still cheap to make big changes to the system.</p>
+
+<p>It also helps us look ahead and find edge cases. For many people, it&rsquo;s easy to press forward naïvely, writing stories about how a feature should behave entirely in terms of the best-case scenario (also known as the <a href="http://en.wikipedia.org/wiki/Happy_path">Happy or Golden Path</a>). But there are many other cases to consider. What about bad data (Sad Path), hacker attacks (Evil Path), or web services going down (Weird Path)?</p>
+
+<p>In the end, thinking through these scenarios in advance of development will save a company money and result in features that provide a better user experience.</p>
+
+<h2>What Is Use Case Planning?</h2>
+
+<h3>Background</h3>
+
+<p>If you&rsquo;re not familiar with Use Case Analysis, it&rsquo;s an academic approach based in <a href="http://en.wikipedia.org/wiki/Object-oriented_analysis_and_design">Object Oriented Analysis</a>—a way of describing any kind of system (not just software) in terms of conceptual objects.</p>
+
+<p>I first became aware of Use Case Analysis through the work of <a href="http://people.cs.uchicago.edu/~mark/">Mark Shacklette</a>, a professor of Computer Science at the University of Chicago. In <a href="http://people.cs.uchicago.edu/~mark/51023/Ucstyleg.html">this paper</a>, he lays out a very detailed process for building systems with Use Case Analysis. However, I found it to be over-complicated for regular use. I build a lot of software for clients, and need a &ldquo;boiled down&rdquo; version that I can reach for when planning sessions are  constrained by time. Use Case Planning is my attempt at creating that.</p>
+
+<h3>What&rsquo;s Required?</h3>
+
+<p>In the software industry, when we&rsquo;re getting ready to build a feature, we have to answer three basic questions:</p>
+
+<p>What&rsquo;s required to build it?
+How should it behave?
+What people and computer systems are involved?</p>
+
+<p>Through the Use Case Planning process, we&rsquo;ll answer these questions and come out with a  blueprint detailing what we need, the dependencies involved, and the ways our feature should work.</p>
+
+<h3>Who&rsquo;s Involved?</h3>
+
+<p>Feature planning is usually carried out by a team of stakeholders rather than an individual. Product owners, developers, designers, QA technicians, and so on all bring a unique perspective and set of concerns to the table. Drawing on these varied mindsets helps us make a more comprehensive plan than we could come up with on our own</p>
+
+<h3>Scenarios</h3>
+
+<p>Let&rsquo;s imagine we&rsquo;re on such a team, and we want to plan a feature with Use Case Planning. We&rsquo;ll need to break it down into as many use cases, or scenarios, as we can, weaving a story of interactions between people of various roles and the computer systems involved.</p>
+
+<h2>Why Think About Use Cases?</h2>
+
+<p>There are many benefits to breaking down a feature into use cases.</p>
+
+<p>First of all, talking through software&rsquo;s desired behavior in simple everyday language opens the conversation up to all stakeholders. The whole team can work together to determine how a feature should work without jargon getting in the way.</p>
+
+<p>The team involved in the planning process is essentially trying to define a <em>contract</em> of what will be built and what it will do. Use Case Planning makes this contract more resistant to change, as unforeseen circumstances are accounted for before the first line of code is ever written. Also, functional parts of the system are less likely to fall through the cracks when a variety of scenarios are considered up front.</p>
+
+<p>This approach can also help guide architectural decisions. Sometimes, a feature can be ruled out entirely, before any time is ever spent building it. For example, concern about having bots or script-generated users in a system could push a team toward including an email confirmation workflow, or choosing <a href="http://oauth.net/">oAuth</a> over traditional authentication.</p>
+
+<p>In my mind, perhaps the most valuable benefit of use case analysis is that it gives teams a way to describe a system that costs very little to modify. In talking through alternate paths early, it&rsquo;s easy to change requirements before anything&rsquo;s ever built. This is a huge win, because as time goes on, code is written, and the system begins to take shape, the cost of change increases significantly.</p>
+
+<p>Adding and removing features from a use case story or diagram is easy. Changing them in UX flow diagrams and wireframes is harder, in design comps harder still, in development code even harder, and in a production app it can be extremely hard. But when you&rsquo;re planning, making changes is as easy as throwing away a sticky note and writing a new one, so it pays to think through as many of the potential scenarios as possible at this early stage.</p>
+
+<h2>How To Do Use Case Planning</h2>
+
+<p>Now that we&rsquo;ve talked about the benefits and goals of use case planning, <em>what exactly is it</em>? As I mentioned above, this is my attempt at boiling Use Case Analysis down into a set of memorable, repeatable steps. They mirror the steps in Mark Shacklette&rsquo;s original paper pretty closely, but I&rsquo;ve tried to rework them to the minimum of what I think <em>I</em> would need when planning a feature before beginning work.</p>
+
+<h3>The Four Steps</h3>
+
+<p>To complete the four steps, answer these four questions:</p>
+
+<ol>
+<li>Who are the actors and what are their roles?</li>
+<li>What&rsquo;s the purpose of this feature?</li>
+<li>What are the use cases?</li>
+<li>How do the use cases relate to each other?</li>
+</ol>
+
+
+<p>In thinking about the first question, we&rsquo;ll expand our definition of &ldquo;actors&rdquo; from just people to include everything that interacts with the system: users, administrators, our client-side application, our API, external APIs, cloud services, and hardware interfaces. Each of these actors has a role and a responsibility in the system that we should identify.</p>
+
+<p>In identifying the purpose of the feature, we are just looking for a high-level summary of why we care about it. What&rsquo;s the business value?</p>
+
+<p>When we get to the third question, we&rsquo;re ready to dig into the meat of this process. We&rsquo;ll think through all of the use and misuse cases, considering the Happy, Sad, Evil and Weird paths. For each one, we&rsquo;ll choose a a noun (the actor), verb (actions taken), and a brief description of the desired result. We can also optionally add a more specific purpose (like we identified in step two) to each case as we go.</p>
+
+<p>After step three, we will have identified many use cases, each with a name, an actor, and a breakdown of all the required behavior. Using this information, we can answer the last question (how do they relate?) by diagramming their interactions. There&rsquo;s an example of a use case diagram for ordering at a restaurant <a href="http://en.wikipedia.org/wiki/Use_Case_Diagram#/media/File:Use_case_restaurant_model.svg">on Wikipedia</a>.</p>
+
+<p>The diagram is in a formal Use Case Analysis style. For the purposes of planning software, it might make sense to replace this style of diagramming with a UX flow diagram, using the screens in the app to delineate how the feature should behave.</p>
+
+<h3>Wrapping It Up</h3>
+
+<p>Once we&rsquo;ve identified the various use cases associated with our feature, we can translate these results directly into agile stories. Using a tracking tool like <a href="https://sprint.ly">Sprint.ly</a>, we can then prioritize the work that needs to be done and estimate the time it will take to complete the feature. Each user case can be sized, tagged, and tracked, providing a helpful look into the progress being made toward bringing our feature to fruition.</p>
+
+<h2>Conclusion</h2>
+
+<p>In this post, we introduced formal Use Case Analysis and a simplified version called Use Case Planning which fits a rapid, iterative development process. We went over the benefits, the steps involved, and explained how this planning method will help your team catch problems with your design before you start to implement it.</p>
+
+<p>That’s it for this post, but tune in next week for part two (the final part) of this miniseries, where we’ll be stepping through a concrete example so you can see how to put Use Case Planning into practice.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/13/actually-mvp/">Actually MVP</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-05-13T06:11:09-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2015/actually-mvp">Engine Yard</a>.</p>
+
+<h2>Introduction</h2>
+
+<p>In the startup world, there is a lot of talk about building <em><a href="http://en.wikipedia.org/wiki/Minimum_viable_product">Minimum Viable Products</a></em> (MVPs). At this point, the concept has become so well-accepted that it has almost become a kind of unquestioned dogma. Yet there is a lot of disagreement about what MVP is exactly, and how to carry it out. Many people in the software industry assume that they know what MVP means, and claim to be using the process, but their production workflow tells a different story.</p>
+
+<p>When it comes to building software, it is often tempting to take an approach akin to building a skyscraper: write the blueprints, obtain the necessary prerequisites, then build it to spec. But software is a quickly shifting market. A businessperson may think she knows what the market wants, and plan and begin a project to meet that desire. But by the time the product is built, the needs of consumers have often morphed in a direction that she could never have foreseen.</p>
+
+<p>In this post, we&rsquo;ll take explore some common misconceptions about MVP, some different ways to approach building one with software, and how to best use this tool if you&rsquo;re the CEO or CTO of a startup, a product manager for an established company, or a consultant.</p>
+
+<h2>Why MVP?</h2>
+
+<p>We hear a lot of talk about MVP and its value, but as a businessperson, why should you care? The reason is simple: it prevents you from spending money building a product that nobody wants.</p>
+
+<p>When you build your business around small, successive iterations, the time before you can reflect on lessons learned is as small as possible. It can even push you to decide <em>not</em> to build your big idea, saving you valuable time and resources.</p>
+
+<p>Another great benefit of an MVP approach is that it allows you to test a hypothesis with minimal resources. If you have no money in the bank, you can still <a href="http://venturebeat.com/2013/12/10/homeless-coder-prevails-over-skeptics-releases-mobile-app-to-get-off-the-streets/">get something off the ground</a>.</p>
+
+<h2>History</h2>
+
+<p>In the startup world, the idea of MVP was popularized by <a href="http://www.amazon.com/Four-Steps-Epiphany-Steve-Blank/dp/0989200507">Steve Blank</a> and <a href="http://www.startuplessonslearned.com/2008/10/about-author.html">Eric Ries</a>. Eric&rsquo;s 2008 blog post, <a href="http://www.startuplessonslearned.com/2008/09/lean-startup.html">The Lean Startup</a>, kicked off a movement in software development toward building companies around the idea of testing business hypotheses in an iterative way. The idea of MVP is central to this approach, and has become part of the <em>lingua franca</em> of startup culture.</p>
+
+<p>The origins of MVP (and lean software development) draw on the Toyota corporation&rsquo;s <a href="http://en.wikipedia.org/wiki/Lean_manufacturing">lean manufacturing approach</a>, called the <em>Toyota Production System</em> (TPS). Toyota bigwig <a href="http://en.wikipedia.org/wiki/Taiichi_Ohno">Taiichi Ohno</a> coined the idea of &ldquo;Just In Time&rdquo; production, in which return on investment is maximized by reducing inventory.</p>
+
+<p>Among other things, the TPS introduced the idea of <a href="http://en.wikipedia.org/wiki/Kanban">Kanban</a>. The key takeaway of TPS as it applies to software is this: <strong><em>production is determined according to the actual demand of the customer</em></strong>.</p>
+
+<h2>It&rsquo;s Not What You Think It Is</h2>
+
+<p>We&rsquo;ve all seen this picture right?</p>
+
+<p><img src="https://blog.engineyard.com/images/blog-images/actually-mvp.png" alt="" /></p>
+
+<p>Raise your hand if you think it&rsquo;s a good idea.</p>
+
+<p>Now raise your hand if you think you actually follow it. Really? Are you sure you didn&rsquo;t motorize your skateboard? Put a steering wheel on your bike? Let me ask you this: did you actually do a customer interview at any point to see if they even <em>wanted</em> a car?</p>
+
+<p>An MVP may not be what you think it is. Eric Ries <a href="http://www.startuplessonslearned.com/2009/08/minimum-viable-product-guide.html">defines it</a> as &ldquo;that version of a new product which allows a team to collect the maximum amount of validated learning about customers with the least effort&rdquo;. What does that actually mean?</p>
+
+<p>It means building just enough of a product to be deployed and used. It&rsquo;s the <em>minimum</em> feature set that you need to find out whether it makes sense to invest further in an idea. If you&rsquo;re building a dating site for dogs, what do you need? Profiles and messaging. You don&rsquo;t need favoriting, automated emails, or the ability to see who viewed your profile.</p>
+
+<p>If you&rsquo;re breaking ground with a new idea, you can ask yourself: would people use this?
+If you&rsquo;re spinning something that&rsquo;s already out there, ask: would people love this more than what they&rsquo;re using now?</p>
+
+<p>Then answer that question. Build profiles and messaging, put it in front of some users, and see if they love it. Track clicks, invite them in for an interview, get their email and reach out personally. Identify <em><a href="http://en.wikipedia.org/wiki/Performance_indicator">Key Performance Indicators</a></em> (KPIs) and use them to verify success.</p>
+
+<p>If they love it, keep going! Add a link to favoriting that doesn&rsquo;t work. Track clicks. If enough people are trying to favorite, build it. Invite users in for an interview. Get their email and reach out personally.</p>
+
+<p>If you try several different feature sets and find out that nobody wants a dating site for dogs, it&rsquo;s ok. In fact, that&rsquo;s great. That means you really did it. You tested the market cheaply <em>before</em> you sunk bags of money into building Doggie Dates. That&rsquo;s a win.</p>
+
+<p>An MVP is not just doing sprints to build your product over time. It’s an <em>experimental process</em>.</p>
+
+<p>It&rsquo;s a small vision, tested and validated thoroughly before moving forward.</p>
+
+<p>It&rsquo;s not twelve weeks of development and a release.</p>
+
+<p>It&rsquo;s continuous deployment.</p>
+
+<p>It&rsquo;s <a href="http://vincentjordan.com/2012/01/why-is-your-minimal-viable-product-mvp-really-just-a-pos/">not a buggy alpha site</a> with ten features that <em>kind of</em> work.</p>
+
+<p>It&rsquo;s the two most defining features needed for the product to be useful.</p>
+
+<p>It&rsquo;s bare, not broken.</p>
+
+<p>On the other hand, an MVP approach is <a href="http://www.startuplessonslearned.com/2009/03/minimum-viable-product.html">not just <em>release early, release often</em></a>, either. Yes, build a small thing. Yes, gather feedback and incorporate it. But don&rsquo;t let the feedback cause you to pivot so hard that you can&rsquo;t remember what you were trying to do in the first place. If you find yourself testing Amazon for dog toys instead of a dating site for dogs, you haven’t pivoted for product-market fit, you’ve pivoted to an entirely new idea.</p>
+
+<p>Start with a vision and stay true to it. Build the skeleton, and let feedback from early users help you flesh out the details.</p>
+
+<h2>Really MVP</h2>
+
+<p>So you want to build a thing, huh? You&rsquo;re going to change the world, like Steve Jobs? Slow down there, buckaroo! I hope you know what you&rsquo;re getting into.</p>
+
+<p>According to <a href="http://get2growth.com/how-many-startups/">this article</a>, there were 1.35 million tech startups as of February 2014. Before you start dreaming of all that VC cash and crack your wallet open to get things off the ground, why don&rsquo;t you do a little experiment to see if it&rsquo;s at all likely that you&rsquo;ll end up anywhere besides broke.</p>
+
+<p>The lean startup approach is all about the <a href="http://theleanstartup.com/principles">build-measure-learn</a> cycle. Before you have a company, you&rsquo;ll have to start by building something.</p>
+
+<h3>First Step: Build</h3>
+
+<p>What&rsquo;s the smallest first step you can take?</p>
+
+<p>The classic example of an MVP you can use to test an idea is a landing page with a sign up form. The idea is to build a pixel-perfect landing page touting all the benefits of joining Doggie Dates and deploy it on an easy-to-use platform like <a href="https://www.engineyard.com/">Engine Yard</a>. Then you drive users to the site by purchasing some Google AdWords, and entice them to sign up with their email for early access to the application.</p>
+
+<p>There has been some recent debate as to whether a landing page is even an MVP. Although some would say no, like <a href="http://ramlijohn.com/a-landing-page-is-not-a-minimum-viable-product/">Ramli John</a>, this strategy doesn&rsquo;t provide enough insight to complete the build-measure-learn cycle. <a href="http://www.startuplessonslearned.com/2009/03/minimum-viable-product.html">Eric Reis</a> and <a href="https://medium.com/@joelgascoigne/how-to-successfully-validate-your-idea-with-a-landing-page-mvp-ef3c2d02dc51">others</a> seem to disagree. A landing page <em>can</em> provide enough information to build a successive MVP and continue to gather feedback. If they sign up they&rsquo;re probably interested in what you&rsquo;re selling.</p>
+
+<p>Although Ramli John isn&rsquo;t a fan of landing pages, he does have some other great suggestions for ways to build a first MVP. Some startups, like AngelList, have begun as an email list. Blogs can be another great place to gather interested users. We&rsquo;ve talked about Eric Reis quite a bit already. His <a href="http://www.startuplessonslearned.com/2008_08_01_archive.html">blog</a> covered topics like refactoring, TDD, and fundraising before he was known for the Lean Startup. You can try getting off the ground with a video and a startup campaign. Finally, you can do it the old fashioned way: <em>the hustle</em>. Just sell your service. In person. <em>Before</em> you build an app.</p>
+
+<p>Landing pages are great for founders of small startups and developers with a great idea for a side project, but what does MVP mean if you have another sort of job?</p>
+
+<p>If you&rsquo;re a consultant like me, encourage your clients to prioritize their feature requests. We have so many awesome things in mind for Doggie Dating! Favoriting, profile walls, see who viewed me, a Dogs You Might Dig service, responsive layouts, native mobile versions&hellip; The list goes on and on. It&rsquo;s great to write them all down and put them in a tracking tool like <a href="https://sprint.ly/">Sprint.ly</a>, so that you don&rsquo;t lose all these creative ideas. Then it&rsquo;s time to prioritize.</p>
+
+<p>What do you need first? What is the smallest version of your idea that people (or dogs) could possibly use? Put those tickets at the top of your tracker, and mark the point when they&rsquo;ll be done with a release bar. Encourage your clients to ask themselves: &ldquo;is this necessary for people to use the site?&rdquo; before you put <em>anything</em> above that bar.</p>
+
+<p>Once you&rsquo;ve reached it, follow the steps below! Measure and learn before you go on. That way, you can collectively decide what should <em>actually</em> be built, instead of spending the client&rsquo;s money building things that are going end up being discarded.</p>
+
+<p>If you&rsquo;re a Product Owner, maybe you&rsquo;re charged with exploring new ways that your company can gain more users, or convince the existing ones to pay more. There are some cool tricks you can use to sneak a feature MVP into what&rsquo;s already there. You can make  links that claim to take the user to one or more features, but are actually inactive (preferably with a modal dialogue to explain what’s going on). Then you track the clicks and decide what to build from there. Or you can ask users to pay for a certain feature before you actually begin development on it. If you don&rsquo;t reach a certain threshold of sign-ups, you just cancel it, apologize, and refund the money.</p>
+
+<p>No matter your role, if people don&rsquo;t seem to want what you&rsquo;ve put out there, delete it and build another version of your dream. Be happy about all the time and money you just saved by not building something that nobody wants! Keep going until you find something that sticks. In this way, you&rsquo;ll set up a great foundation on which to build the rest of your business.</p>
+
+<h3>Second Step: Measure</h3>
+
+<p>Regardless of how you choose to build the first version of your idea, you&rsquo;ll want to measure user engagement once it&rsquo;s deployed. The easiest way to do this is to add Google Analytics into the page and track clicks and pageviews. Reflecting on this information, you&rsquo;ll begin to learn what people want. If anyone actually signs up on your landing page with their email, you can reach out personally (maybe even take them to lunch) and ask them questions to learn more about what people would want to use.</p>
+
+<p>Once you&rsquo;ve gotten past the first iteration of your MVP, you can also invite customers to user testing sessions. These sessions can offer great insight into how your application should behave, and which features are misunderstood or unwanted. Finally, <a href="http://www.startuplessonslearned.com/2008/09/one-line-split-test-or-how-to-ab-all.html">A/B testing</a> can be a great way to research which direction to go next once you&rsquo;ve passed the early stages.</p>
+
+<h3>Third Step: Learn</h3>
+
+<p>After you&rsquo;ve measured clicks, user responses, user testing, and A/B testing results, you can begin to draw conclusions. Maybe dating dogs don&rsquo;t care about favoriting. Delete that feature. Maybe you heard over and over again that having a profile &ldquo;wall&rdquo; would make a huge difference to users. Perhaps that should be the next thing you build?</p>
+
+<p>You need to sift through all of the information that you get and decide how to act.</p>
+
+<h2>Conclusion</h2>
+
+<p>In the software industry, a lot of people pay lip service to the idea of a Minimum Viable Product. But for many of us, it&rsquo;s not what you think it is.</p>
+
+<p>If you&rsquo;re thinking: I know what people want, and I&rsquo;m going to build it, you&rsquo;ve already misunderstood the process. MVPs are experiments, research. How you use them differs a little bit depending on your situation, but the basic premise is the same. Build a small thing, measure the way it&rsquo;s used, learn from it, repeat.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -3333,1063 +3838,6 @@ If you&rsquo;re using <code>rbenv</code>, don&rsquo;t forget to run <code>rbenv 
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2015/01/29/instances/">Instances, Classes, and Modules, Oh My!</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2015-01-29T21:05:58-07:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2015/instances-classes-and-modules">Engine Yard</a> and was later published on the <a href="https://quickleft.com/blog/instances-classes-and-modules-oh-my/">Quick Left Blog</a>.</p>
-
-<h2>Introduction</h2>
-
-<p>One of the biggest challenges of object oriented programming in Ruby is defining the interface of your objects. In other languages, such as Java, there is an explicit way to define an interface that you must conform to. But in Ruby, it&rsquo;s up to you.</p>
-
-<p>Compounding with this difficulty is the problem of deciding which object should own a method that you want to write. Trying to choose between modules, class methods, instance methods, structs, and lambdas can be overwhelming.</p>
-
-<p>In this post, we&rsquo;ll look at several ways to solve the Exercism <a href="http://exercism.io/nitpick/ruby/leap">Leap Year</a> problem, exploring different levels of method visiblitiy and scope level along the way.</p>
-
-<h2>Leap Year</h2>
-
-<p>If you sign up for <a href="http://exercism.io/">Exercism.io</a> and start solving Ruby problems, one of the first problems you will look at is called Leap Year. The tests guide you to write a solution that has an interface that works like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Year</span><span class="o">.</span><span class="n">leap?</span><span class="p">(</span><span class="mi">1984</span><span class="p">)</span>
-</span><span class='line'><span class="c1">#=&gt; true</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>A leap year is defined as a year that is divisible by four, unless it&rsquo;s also divisible by 100. Apparently, centuries aren&rsquo;t leap years. That is, unless they are centuries that are divisible by 400. So there are three rules for leap years:</p>
-
-<p>1) If it&rsquo;s divisible by 400, it&rsquo;s an exceptional century and is a leap year.
-2) If it&rsquo;s divisible by 100, it&rsquo;s a mundane century and in not a leap year.
-3) Otherwise, if it&rsquo;s divisible by 4, it&rsquo;s a leap year, otherwise it&rsquo;s not.</p>
-
-<h2>The First Approach: Using Class Methods</h2>
-
-<p>Here&rsquo;s one simple solution to this problem. You can rearrange the booleans in a couple of different ways and it will still work. This is the version I came up with:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Year</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="n">year</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">||</span> <span class="n">year</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This is nice and compact, but not entirely easy to understand. I&rsquo;m a pretty big fan of self-documenting code, so I used the <a href="http://fluxusfrequency.github.io/blog/2014/01/10/refactoring-1-extract-method/">extract method</a> refactoring pattern to name these three rules.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Year</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span> <span class="o">||</span> <span class="n">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">century?</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Class Methods and Privacy</h2>
-
-<p>This is a lot more understandable, in my mind. But there&rsquo;s a problem with this. <code>mundane_leap?</code>, <code>century?</code>, and <code>exceptional_century?</code> are all publicly exposed methods. They really only exist in support of <code>leap?</code>, and I&rsquo;m not sure how reusable they are, with the possible exception of <code>century?</code>. If I write this test, it will pass:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">test_exceptional_century</span>
-</span><span class='line'>    <span class="n">assert</span> <span class="no">Year</span><span class="o">.</span><span class="n">exceptional_century?</span><span class="p">(</span><span class="mi">2400</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I would like to make <code>exceptional_century?</code> private, so that it can&rsquo;t be accessed outside of the <code>Year</code> class. I can try something like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Year</span>
-</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kp">private</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">century?</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>But, unfortunately, this won&rsquo;t work. The test still passes, becuase the <code>private</code> keyword doesn&rsquo;t work on class methods. Instead, I would have to use <code>private_class_method</code> after my method definition.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="nb">private_class_method</span> <span class="ss">:mundane_leap?</span><span class="p">,</span> <span class="ss">:century?</span><span class="p">,</span> <span class="ss">:exceptional_century?</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now if I run that last test, it will raise an error.</p>
-
-<h2>All About the Eigenclass</h2>
-
-<p>In my mind, what we&rsquo;ve now done is somewhat better, but there&rsquo;s still a smell here. I&rsquo;ll get to exactly what that is in just a moment, but for now I&rsquo;ll say that it&rsquo;s due to the fact that we&rsquo;ve defined all of these methods on the singleton class, or eigenclass, of <code>Year</code>. If you don&rsquo;t know about eigenclasses, you can read about them <a href="http://madebydna.com/all/code/2011/06/24/eigenclasses-demystified.html">here</a>.</p>
-
-<p>We can define methods on an eigenclass by prepending each method definition with <code>self.</code>, or we can use <code>class &lt;&lt; self</code> or <code>class &lt;&lt; Year</code> and nesting our method definitions inside of that block. Doing it this way makes it possible to use the <code>private</code> keyword, because we&rsquo;re now working at the instance level of scope. If we were to introduce <code>class &lt;&lt; self</code>, then, we could do away with our <code>private_class_method</code> call.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Year</span>
-</span><span class='line'>  <span class="k">class</span> <span class="o">&lt;&lt;</span> <span class="nb">self</span>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span> <span class="o">||</span> <span class="n">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kp">private</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">year</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">year</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">year</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>But we haven&rsquo;t really changed much here. In my mind, there&rsquo;s still a big smell, which is this. <a href="http://en.wikipedia.org/wiki/Class_%28computer_programming%29">According to Wikipedia</a>, a class is (emphasis mine) &ldquo; an extensible program-code-template for <em>creating objects</em> &rdquo;. Our <code>Year</code> class never creates a single instance. It&rsquo;s just an eigenclass that happens to be able to create (mostly) useless <code>Year</code> instances.</p>
-
-<p>So where <em>should</em> we be putting class-level methods that are not associated with any instance object?</p>
-
-<h2>Second Approach: Module Functions</h2>
-
-<p>In Ruby, the <code>Class</code> object inherits from <code>Module</code>. A module is basically a collection of methods, constants, and classes. Their primary feature is that they can be mixed into other modules and classes to extend their functionality. They&rsquo;re also frequently used for namespacing (for example, the <code>ActiveRecord</code> constant is a module).</p>
-
-<p>We can put our <code>Year</code> implementation into a module without changing much: just swap the word <code>class</code> for <code>module</code>. Instead of using <code>class &lt;&lt; self</code> as we did for the class version, we can use <code>extend self</code> in our module, and get the same effect, allowing us to use the <code>private</code> keyword. <code>extend</code> takes the methods defined in a module and makes them into class-level methods on the target module (or class). This is in contrast with <code>include</code>, which mixes them in as instance-level methods. Thus, if we extend the module into itself, it gets all of it&rsquo;s own methods at the class level.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Year</span>
-</span><span class='line'>  <span class="kp">extend</span> <span class="nb">self</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span> <span class="o">||</span> <span class="n">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kp">private</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If we wanted to define some other methods in a <code>Year</code> class that had nothing to do with leap years, we could change the name of our module to <code>Leap</code> and mix it into a <em>class</em> called <code>Year</code>.</p>
-
-<p>If we want to make the three leap year rule methods private, we now have another choice of how to do it. We can use <code>module_function</code>.  <code>module_function</code> will make these methods available to the module, but when they get mixed into the class, they will be private. Module functions allow you to be selective with what can be called by the module itself, while still defining methods that can be mixed into other modules and classes.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Leap</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span> <span class="o">||</span> <span class="n">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kp">module_function</span> <span class="ss">:mundane_leap?</span><span class="p">,</span> <span class="ss">:century?</span><span class="p">,</span> <span class="ss">:exceptional_century?</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">Year</span><span class="p">;</span> <span class="kp">extend</span> <span class="no">Leap</span><span class="p">;</span> <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now, if we run the tests, they will all still pass, with the exception of the one we wrote that tries to call <code>exceptional_century?</code></p>
-
-<h2>Third Approach: Instance Methods</h2>
-
-<p>I want to stay with the idea that we might want a <code>Year</code> class that can do other things unrelated to determining whether we are talking about leap year or not. Really, there are a bunch of different years, but they all have certain things in common (which era they fall in, whether they are leap, etc.). In my mind, this would be a good use case for instances instead of class level methods.</p>
-
-<p>What it look like if we brought the responsibility for knowing whether a year is leap back into a <code>Year</code> class, but passing that behavior onto <em>instances</em> of year, instead of putting it on the eigenclass?</p>
-
-<p>It&rsquo;s a little weird to be able to do something like <code>Year.new(2015).year</code>, so I&rsquo;ll name the state we&rsquo;re going to store <code>reckoning</code> instead.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Year</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">leap?</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:reckoning</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">reckoning</span><span class="p">)</span>
-</span><span class='line'>    <span class="vi">@reckoning</span> <span class="o">=</span> <span class="n">reckoning</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">leap?</span>
-</span><span class='line'>    <span class="n">mundane_leap?</span> <span class="o">||</span> <span class="n">exceptional_century?</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kp">private</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">mundane_leap?</span>
-</span><span class='line'>    <span class="n">reckoning</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">century?</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">century?</span>
-</span><span class='line'>    <span class="n">reckoning</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">exceptional_century?</span>
-</span><span class='line'>    <span class="n">reckoning</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The instance-based approach has certain advantages. We don&rsquo;t have to use anything exotic like <code>private_class_method</code>, <code>class &lt;&lt; self</code>, or <code>module_function</code>, to make our methods private. This might make things easier to understand for future maintainers of our code.</p>
-
-<p>We also gained access to the <code>reckoning</code>, that could be used to calculate other properites in the future. For example, if we wanted to write <code>to_julian</code> or <code>to_hebrew</code> methods, we&rsquo;d already have the number we&rsquo;d need to use to calculate that available to us.</p>
-
-<p>Finally, we can now use a <code>protected</code> section as well. Methods in this section will only be visible to other instances of <code>Year</code>. We might use it to do something like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Year</span>
-</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kp">protected</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">==</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">recoking</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">reckoning</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Conclusion</h2>
-
-<p>We&rsquo;ve looked at several different ways to write a program that can tell us whether a given year is a leap year. Each has its advantages and disadvantages.</p>
-
-<p>We started with a class method that was a single-liner. There&rsquo;s a lot of value in the compactness of <code>year % 4 == 0 &amp;&amp; !(year % 100 == 0) || year % 400 == 0</code>. But it&rsquo;s also fairly hard to understand. If we decide to split some of that logic into separate methods, now we&rsquo;re faced with the problem of how to keep these new methods out of the interface of <code>Year</code>.</p>
-
-<p>We used an eigenclass-based approach, simply hiding the implementation methods with <code>private_class_method</code>. We solved it using a module, treating the <code>leap?</code> method both as a mix-in and as a <code>module_function</code>. Finally, we pushed the functionality down to the instance level, which could help us in dealing with multiple <code>Year</code> objects down the road.</p>
-
-<p>Which of these approaches is best?</p>
-
-<p>It depends on lots of things: how you feel about privacy, how you expect the program to change in the future, how comfortable you are with scope and the more arcane methods in Ruby.  At the very least, it&rsquo;s nice to know what&rsquo;s available to you when thinking about what methods you want to expose, and what level of scope you should use it on.  I hope this post will factor into your thoughts when making these kind of decisions in the future.</p>
-
-<p>P.S. What do you think? Did this make sense? Should I have used Structs or Lambdas? Throw us a comment below!</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2015/01/22/measuring-client-side-javascript-test-coverage-with-istanbul/">Measuring Client-Side JavaScript Test Coverage With Istanbul</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2015-01-22T21:16:59-07:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2015/measuring-clientside-javascript-test-coverage-with-istanbul">Engine Yard</a>.</p>
-
-<p>It was also published on the <a href="https://quickleft.com/blog/measuring-clientside-javascript-test-coverage-istanbul/">Quick Left Blog</a>.</p>
-
-<h2>Introduction</h2>
-
-<p>Testing is a vital part of any development process. Whether a project&rsquo;s authors are hoping for scalability, fewer bugs, or just code that stands the test of time, a solid test suite is essential.</p>
-
-<p>It&rsquo;s all well and good writing tests, but how do you know that you&rsquo;ve tested the code that matters? Did you cover the most important components? Did you test <a href="http://engineering.imvu.com/2012/05/08/writing-resilient-unit-tests-3/">the sad path</a>? The edge cases? What about the <a href="http://emptystat.es/">zero states</a>?</p>
-
-<p>Using <a href="http://gotwarlost.github.io/istanbul/">Istanbul</a>, you can generate a nice coverage report to answer these questions. In this article, we&rsquo;ll look at how to get it set up in a typical clientside JS project.</p>
-
-<h2>A Note About Metrics</h2>
-
-<p>Before we get into the process of setting up Istanbul, I&rsquo;d like to talk about code coverage as a metric. Metrics in programming can be very two-sided. On the one hand, they can be very useful in measuring velocity and predicting completion of new features. But, they can also become self-fulfilling prophecies leading to bad code.</p>
-
-<p>For example, if a project manager or tech lead measures her programmers&#8217; effectiveness by counting the lines of code they write, she will not find that those who wrote the most lines are the ones that wrote the best code. In fact, there&rsquo;s a danger that some of the programmers will adopt a verbose style, using far more lines than necessary to get the same thing done, in order to bump their ranking.</p>
-
-<p>Placing a strong emphasis on test coverage as a metric can lead to a similar problem. Imagine that a company adopts a policy that any pull request must increase or maintain the percentage of lines tested. What will be the result?</p>
-
-<p>I imagine that in many cases, developers will write good tests to accompany their features and bugfixes. But what happens if there’s a rush and they just want to get the code in?</p>
-
-<p>Test coverage tools only count the lines that were hit when the test suite was run, so the developer can just run the line in question during the test, while making a trivial assertion. The result? The line is marked covered, but nothing meaningful is being tested.</p>
-
-<p>Rather than using test coverage as a measure of developer thoroughness, it makes a lot more sense to use coverage as a way of seeing which code <em>isn&rsquo;t</em> covered (hint: it&rsquo;s often <code>else</code> branches). That information can then be used to prioritize testing goals.</p>
-
-<p>In summary: don&rsquo;t use code coverage to measure what&rsquo;s tested, use it to find out what isn&rsquo;t.</p>
-
-<h2>Time to Test</h2>
-
-<p>Let&rsquo;s imagine that we have a clientside JavaScript application written in Angular, Ember, or Backbone and templated with Handlebars. It&rsquo;s compiled with Browserify and built with NPM scripts.</p>
-
-<p>This application has been around for a couple of years, and due to business pressures, its authors have only managed to write a handful of tests. At this point, the app is well-established, and there <em>is</em> a testing setup in place, but there&rsquo;s also a lot of code that&rsquo;s untested.</p>
-
-<p>Recently, the company behind the application closed a funding round, and they&rsquo;re feeling flush. We&rsquo;ve been brought in to write some tests.</p>
-
-<p>Because we&rsquo;re hotshots and we want to show off, we decide to begin by taking a snapshot of the current code coverage, so that we can brag about how many percentage points we added to the coverage when we&rsquo;re done.</p>
-
-<h2>Setting up Istanbul</h2>
-
-<p>This is where <a href="http://gotwarlost.github.io/istanbul/">Istanbul</a> comes in. Istanbul is a code coverage tool written in JavaScript by <a href="https://github.com/gotwarlost">Krishnan Anantheswaran</a> of Yahoo!.</p>
-
-<p>It can be a little tricky to set up, so let&rsquo;s take a look at one way to do it.</p>
-
-<p>There are four steps in our approach:</p>
-
-<ol>
-<li>Instrument the source code with Istanbul</li>
-<li>Run <code>mocha-phantomjs</code>, passing in a <code>hooks</code> argument</li>
-<li>Use a <code>phantomjs</code> hook file to write out the results when testing is complete</li>
-<li>Run the <code>Istanbul</code> cli to generate the full report as an HTML file</li>
-</ol>
-
-
-<p>Let&rsquo;s get started.</p>
-
-<h3>1. Instrument the Source</h3>
-
-<p>We&rsquo;ll need to find a way to run our code through Istanbul after it&rsquo;s been compiled, so the first step is to set up an NPM task that will pipe compiled code into a tool like <a href="https://github.com/devongovett/browserify-istanbul">browserify-istanbul</a>.</p>
-
-<p>Just in case you&rsquo;re not using <code>browserify</code>, a variety of other Istanbul NPM packages exist for instrumenting code, including <a href="https://github.com/SBoudrias/gulp-istanbul">browserify-gulp</a>, <a href="https://github.com/justspamjustin/grunt-istanbul-reporter">grunt-istanbul-reporter</a>, and <a href="https://github.com/bem/borschik-tech-istanbul">borschik-tech-istanbul</a>.</p>
-
-<p>For the moment, let&rsquo;s imagine that we <em>are</em> using Browserify. We already have NPM tasks in place to compile our code for development/production and for testing. Here&rsquo;s what they look like. Note that the <code>-o</code> option to <code>browserify</code> specifies the output file for the build and the <code>-d</code> option turns on debugging.</p>
-
-<p>In <code>package.json</code>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span>
-</span><span class='line'>  <span class="p">...</span>
-</span><span class='line'>  <span class="s2">&quot;scripts&quot;</span><span class="o">:</span> <span class="p">{</span>
-</span><span class='line'>    <span class="p">...</span>
-</span><span class='line'>    <span class="s2">&quot;build&quot;</span><span class="o">:</span> <span class="s2">&quot;browserify ./js/main.js -o html/static/build/js/myapp.js&quot;</span><span class="p">,</span>
-</span><span class='line'>    <span class="s2">&quot;build-test&quot;</span><span class="o">:</span> <span class="s2">&quot;browserify -r handlebars:hbsfy/runtime ./js/test/index.js -o html/static/build/js/test.js -d --verbose&quot;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>  <span class="p">...</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>We can use the <code>build-test</code> task as a template for a new <code>build-test-coverage</code> task.</p>
-
-<p>Before we do that, we&rsquo;ll want to make sure we pull in <code>browserify-istanbul</code> with <code>npm install --save-dev browserify-istanbul</code>.</p>
-
-<p>Next, we&rsquo;ll write the task in <code>package.json</code>. We&rsquo;ll ignore the Handlebars templates and Node modules when we load everything into Istanbul. We&rsquo;ll also use the <code>-t</code> option to Browserify to use a <a href="https://github.com/substack/module-deps#transforms">transform module</a>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span>
-</span><span class='line'>  <span class="p">...</span>
-</span><span class='line'>  <span class="s2">&quot;scripts&quot;</span><span class="o">:</span> <span class="p">{</span>
-</span><span class='line'>    <span class="p">...</span>
-</span><span class='line'>    <span class="s2">&quot;build-test-coverage&quot;</span><span class="o">:</span> <span class="s2">&quot;mkdir -p html/static/build/js/ &amp;&amp; browserify -r handlebars:hbsfy/runtime -t [ browserify-istanbul --ignore **/*.hbs **/bower_components/** ] ./js/test/index.js -o html/static/build/js/test.js -d&quot;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>  <span class="p">...</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>With the <code>browserify-istanbul</code> package and the <code>build-test-coverage</code> script in place, we&rsquo;ve got our code instrumented, and we&rsquo;re ready to move on to step two.</p>
-
-<h3>2. Run <code>mocha-phantomjs</code>, Passing in a Hooks Argument</h3>
-
-<p>Now that the code is all built and ready to go, we need to pass it into a test framework. We&rsquo;ll use write a cli script that spawns <a href="https://github.com/metaskills/mocha-phantomjs">mocha-phantomjs</a> in a child process. We&rsquo;ll pass in a hooks argument that specifies a <code>phantom_hooks.js</code> file we&rsquo;ve yet to write.</p>
-
-<p>(Note: if you&rsquo;re using <code>gulp</code> or <code>grunt</code>, you may want to check out <a href="https://github.com/mrhooray/gulp-mocha-phantomjs">gulp-mocha-phantomjs</a> or <a href="https://github.com/jdcataldo/grunt-mocha-phantomjs">grunt-mocha-phantomjs</a> for this step.)</p>
-
-<p>In <code>js/test/cli.js</code>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="err">#</span><span class="o">!</span><span class="err">/usr/bin/env node</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">spawn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;child_process&#39;</span><span class="p">).</span><span class="nx">spawn</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">child</span> <span class="o">=</span> <span class="nx">spawn</span><span class="p">(</span><span class="s1">&#39;mocha-phantomjs&#39;</span><span class="p">,</span> <span class="p">[</span>
-</span><span class='line'>  <span class="s1">&#39;http://localhost:9000/static/js/test/index.html&#39;</span><span class="p">,</span>
-</span><span class='line'>  <span class="s1">&#39;--timeout&#39;</span><span class="p">,</span> <span class="s1">&#39;25000&#39;</span><span class="p">,</span>
-</span><span class='line'>  <span class="s1">&#39;--hooks&#39;</span><span class="p">,</span> <span class="s1">&#39;./js/test/phantom_hooks.js&#39;</span>
-</span><span class='line'><span class="p">]);</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">child</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;close&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">code</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Mocha process exited with code &#39;</span> <span class="o">+</span> <span class="nx">code</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nx">code</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">});</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>With our cli script in place, we&rsquo;ve now got a way to put our Istanbulified code into PhantomJS, so we&rsquo;ll move to step three.</p>
-
-<h3>3. Use a PhantomJS Hook File to Write the Results</h3>
-
-<p>In the script we wrote in the last section, we passed a hooks file to <code>mocha-phantomjs</code>, but we hadn&rsquo;t created it yet. Let&rsquo;s do that now.</p>
-
-<p>After all the tests have run, our hook will grab the <code>__coverage__</code> property of the window, which contains the result of our coverage run, and write it to a <code>coverage/coverage.json</code> file.</p>
-
-<p>We&rsquo;ll load this data into the Istanbul CLI to generate a more readable report in the next step.</p>
-
-<p>In <code>js/test/phantom_hooks.js</code>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nx">afterEnd</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">runner</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">);</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">coverage</span> <span class="o">=</span> <span class="nx">runner</span><span class="p">.</span><span class="nx">page</span><span class="p">.</span><span class="nx">evaluate</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="nb">window</span><span class="p">.</span><span class="nx">__coverage__</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nx">coverage</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Writing coverage to coverage/coverage.json&#39;</span><span class="p">);</span>
-</span><span class='line'>      <span class="nx">fs</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s1">&#39;coverage/coverage.json&#39;</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">coverage</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;No coverage data generated&#39;</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">};</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>With our coverage data saved, we&rsquo;re ready to move on to the last step.</p>
-
-<h3>4. Run the Istanbul CLI to Generate the Full Report</h3>
-
-<p>The final step in our process is to take the coverage data generated in step three and plug it into the Istanbul CLI to generate a coverage report HTML file.</p>
-
-<p>We&rsquo;ll write an NPM script that executes the <code>instanbul report</code> command, passing it the folder where we saved our results (<code>coverage</code>), and specifying <code>lcov</code> as our output format. This option will save both <code>lcov</code> and <code>html</code> files.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span>
-</span><span class='line'>  <span class="p">...</span>
-</span><span class='line'>  <span class="s2">&quot;scripts&quot;</span><span class="o">:</span> <span class="p">{</span>
-</span><span class='line'>    <span class="p">...</span>
-</span><span class='line'>    <span class="s2">&quot;coverage-report&quot;</span><span class="o">:</span> <span class="s2">&quot;istanbul report --root coverage lcov&quot;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>  <span class="p">...</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now we have all the scripts we need to generate and view our coverage report.</p>
-
-<h2>Generating the Report</h2>
-
-<p>We&rsquo;ll need to run each of the commands that we&rsquo;ve defined before we&rsquo;ll be able to view our results (you may want to wrap these in a single NPM task for convenience).</p>
-
-<ul>
-<li><code>npm run build-test-coverage</code> to compile our test code and load it into Istanbul</li>
-<li><code>./js/test/cli.js</code> to run the tests with <code>mocha-phantomjs</code> and write the <code>coverage.json</code> file</li>
-<li><code>npm run coverage-report</code> to format the coverage results as an HTML file</li>
-</ul>
-
-
-<p>Once we&rsquo;ve completed these steps, we should see a new <code>coverage/lcov-report</code> folder containing an <code>index.html</code> file and a few assets to make it look pretty.</p>
-
-<h2>Viewing the Report</h2>
-
-<p>If we open the generated file in our browser, we&rsquo;ll see an easy-to-read breakdown of our coverage.</p>
-
-<p>There are four category columns at the top of the page, each telling us about a different aspect of our coverage.</p>
-
-<ul>
-<li><em>Statements</em> tells up how many of the statements in our code were touched during the test run.</li>
-<li><em>Branches</em> tells us how many of our logical <code>if</code>/<code>else</code> branches were touched</li>
-<li><em>Functions</em> tells us how many of our functions were touched</li>
-<li><em>Lines</em> tells us the total lines of code that were touched</li>
-</ul>
-
-
-<p>There&rsquo;s also a list of the folders in our project, each with a categorical coverage breakdown. You can also click on each of the folders to further break down the coverage file by file. If you then click on a file, you&rsquo;ll see its contents highlighted in green and red to indicate covered and uncovered lines.</p>
-
-<p>The ability to zoom in and out on our project and see the categorical breakdown at each level makes Istanbul particularly nice to work with.  It also makes it easy to dig in and explore places in your code base that might benefit from some additional testing.</p>
-
-<h2>Wrapping Up</h2>
-
-<p>If you haven&rsquo;t added code coverage to your JS projects yet, I highly recommend it. Getting everything up and running is a minimal time investment, and it can really pay off.</p>
-
-<p>Although I would discourage you from measuring the success of your test suite based on percentage points only, getting an in-depth look at what you currently are and aren&rsquo;t touching can really pave the way to uncovering bugs you didn&rsquo;t even know you had.</p>
-
-<p>I hope that this post has helped you get Istanbul up and running with a minimum of heartache. Until next time, keep testing!</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2015/01/16/five-ruby-methods-you-should-be-using/">Five Ruby Methods You Should Be Using</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2015-01-16T06:55:21-07:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This post was the top featured article in <a href="http://rubyweekly.com/issues/229">Ruby Weekly #229</a>.
-It was also the top featured article in issue #15.1 of the <a href="http://www.pointer.io/">Pointer.io</a> newsletter.</p>
-
-<p>It was originally published on <a href="https://blog.engineyard.com/2015/five-ruby-methods-you-should-be-using">Engine Yard</a> and also appeared on the <a href="https://quickleft.com/blog/five-ruby-methods-you-should-be-using/">Quick Left Blog</a>.</p>
-
-<h2>Introduction</h2>
-
-<p>There&rsquo;s something magical about the way that Ruby just flows from your fingertips. why once <a href="http://mislav.uniqpath.com/poignant-guide/book/chapter-2.html">said</a> &ldquo;Ruby will teach you to express your ideas through a computer.&rdquo; Maybe that&rsquo;s why Ruby has become such a <a href="http://blog.codeeval.com/codeevalblog/2014">popular choice</a> for modern web development.</p>
-
-<p>Just as in English, there are lots of ways to say the same thing in Ruby. I spend a lot of time reading and nitpicking people&rsquo;s code on <a href="http://exercism.io">Exercism</a>, and I often see exercises solved in a way that could be greatly simplified if the author had only known about a certain Ruby method.</p>
-
-<p>Here&rsquo;s a look at some lesser-used methods solve a specific problem very well.</p>
-
-<h2>Object#tap</h2>
-
-<p>Did you ever find yourself calling a method on some object, and the return value not being what you wanted it to? You were hoping to get back the object, but instead you got back some other value. Maybe you wanted to add an arbitrary value to a set of parameters stored in a hash. You update it with <code>Hash.[]</code>, but you get back <code>'bar</code> instead of the params hash, so you have to return it explicitly.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</span><span class='line'>  <span class="n">params</span><span class="o">[</span><span class="ss">:foo</span><span class="o">]</span> <span class="o">=</span> <span class="s1">&#39;bar&#39;</span>
-</span><span class='line'>  <span class="n">params</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The <code>params</code> line at the end of that method seems extraneous.</p>
-
-<p>We can clean it up with <a href="http://www.ruby-doc.org/core-2.1.5/Object.html#method-i-tap">Object#tap</a>.</p>
-
-<p>It&rsquo;s easy to use. Just call it on the object, then pass <code>tap</code> a block with the code that you wanted to run. The object will be yielded to the block, then be returned. Here&rsquo;s how we could use it to improve <code>update_params</code>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</span><span class='line'>  <span class="n">params</span><span class="o">.</span><span class="n">tap</span> <span class="p">{</span><span class="o">|</span><span class="nb">p</span><span class="o">|</span> <span class="nb">p</span><span class="o">[</span><span class="ss">:foo</span><span class="o">]</span> <span class="o">=</span> <span class="s1">&#39;bar&#39;</span> <span class="p">}</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>There are dozens of great places to use <code>Object#tap</code>. Just keep your eyes open for methods called on an object that don&rsquo;t return the object, when you wish that they would.</p>
-
-<h2>Array#bsearch</h2>
-
-<p>I don&rsquo;t know about you, but I do a lot of looking through arrays for data. Ruby enumerables make it easy to find what I need: <code>select</code>, <code>reject</code>, and <code>find</code> are valuable tools that I use daily. But when the dataset is big, I start to worry about the length of time it will take to go through all of those records.</p>
-
-<p>If you&rsquo;re using <code>ActiveRecord</code> and dealing with a <code>SQL</code> database, there&rsquo;s a lot of magic that happens behind the scenes to make sure that your searches are conducted with the least algorithmic complexity. But sometimes you have to pull all of the data out of the database before you can work with it. For example, if the records are encrypted in the database, you can&rsquo;t query them very well with <code>SQL</code>.</p>
-
-<p>At times like these, I think hard about how to sift through the data with an algorithm that has the least complex <em>Big O</em> classification that I can. If you don&rsquo;t know about Big O notation, check out Justin Abrahms&rsquo;s <a href="https://justin.abrah.ms/computer-science/big-o-notation-explained.html">Big-O Notation Explained By A Self-Taught Programmer</a> or the <a href="http://bigocheatsheet.com/">Big-O Complexity Cheat Sheet</a>.</p>
-
-<p>The basic gist is that algorithms can take more or less time, depending on their complexity, which is ranked in this order: O(1), O(log n), O(n), O(n log(n)), O(n<sup>2</sup>), O(2<sup>n</sup>), O(n!). So we prefer searches to be in one of the classifications at the beginning of this list.</p>
-
-<p>When it comes to searching through arrays in Ruby, the first method that comes to mind is <code>Enumerable#find</code>, also known as <code>detect</code>. However, this method will search through the entire list until the match is found. While that&rsquo;s great if the record is at the beginning, it&rsquo;s a problem if the record is at the end of a really long list. It takes O(n) complexity to run a <code>find</code> search.</p>
-
-<p>There is a faster way. Using <a href="http://www.ruby-doc.org/core-2.1.5/Array.html#method-i-bsearch">Array#bsearch</a>, you can find a match with only O(log n) complexity. To find out more about how a Binary Search works, check out my post <a href="http://fluxusfrequency.github.io/blog/2014/01/31/building-a-binary-search/">Building A Binary Search</a>.</p>
-
-<p>Here&rsquo;s a look at the difference in search times between the two approaches when searching a range of 50,000,000 numbers:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;benchmark&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="mi">50_000_000</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="no">Benchmark</span><span class="o">.</span><span class="n">bm</span> <span class="k">do</span> <span class="o">|</span><span class="n">x</span><span class="o">|</span>
-</span><span class='line'>  <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="ss">:find</span><span class="p">)</span> <span class="p">{</span> <span class="n">data</span><span class="o">.</span><span class="n">find</span> <span class="p">{</span><span class="o">|</span><span class="n">number</span><span class="o">|</span> <span class="n">number</span> <span class="o">&gt;</span> <span class="mi">40_000_000</span> <span class="p">}</span> <span class="p">}</span>
-</span><span class='line'>  <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="ss">:bsearch</span><span class="p">)</span> <span class="p">{</span> <span class="n">data</span><span class="o">.</span><span class="n">bsearch</span> <span class="p">{</span><span class="o">|</span><span class="n">number</span><span class="o">|</span> <span class="n">number</span> <span class="o">&gt;</span> <span class="mi">40_000_000</span> <span class="p">}</span> <span class="p">}</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>         <span class="n">user</span>       <span class="nb">system</span>     <span class="n">total</span>       <span class="n">real</span>
-</span><span class='line'><span class="n">find</span>     <span class="mi">3</span><span class="o">.</span><span class="mo">020000</span>   <span class="mi">0</span><span class="o">.</span><span class="mo">010000</span>   <span class="mi">3</span><span class="o">.</span><span class="mo">030000</span>   <span class="p">(</span><span class="mi">3</span><span class="o">.</span><span class="mo">02</span><span class="mi">8417</span><span class="p">)</span>
-</span><span class='line'><span class="n">bsearch</span>  <span class="mi">0</span><span class="o">.</span><span class="mo">000000</span>   <span class="mi">0</span><span class="o">.</span><span class="mo">000000</span>   <span class="mi">0</span><span class="o">.</span><span class="mo">000000</span>   <span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="mo">000006</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>As you can see, <code>bsearch</code> is much faster. However, there is a pretty big catch involved with using <code>bsearch</code>: the array must be sorted. This somewhat limits its usefulness, but it&rsquo;s still worth keeping in mind for occasions where it might come in handy, such finding a record in by a <code>created_at</code> timestamp that has already been loaded from the database.</p>
-
-<h2>Enumerable#flat_map</h2>
-
-<p>When dealing with relational data, sometimes we need to collect a bunch of unrelated attributes and return them in an array that is not nested. Let&rsquo;s imagine you had a blog application, and you wanted to find the authors of comments left on posts written in the last month by a given set of users.</p>
-
-<p>You might do something like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">CommentFinder</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">find_for_users</span><span class="p">(</span><span class="n">user_ids</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">users</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="n">user_ids</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">posts</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">post</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">post</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">map</span> <span class="o">|</span><span class="n">comment</span><span class="o">|</span>
-</span><span class='line'>        <span class="n">comment</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">username</span>
-</span><span class='line'>      <span class="k">end</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You would then end up with a result such as:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[[[</span><span class="s1">&#39;Ben&#39;</span><span class="p">,</span> <span class="s1">&#39;Sam&#39;</span><span class="p">,</span> <span class="s1">&#39;David&#39;</span><span class="o">]</span><span class="p">,</span> <span class="o">[</span><span class="s1">&#39;Keith&#39;</span><span class="o">]]</span><span class="p">,</span> <span class="o">[[]</span><span class="p">,</span> <span class="o">[</span><span class="kp">nil</span><span class="o">]]</span><span class="p">,</span> <span class="o">[[</span><span class="s1">&#39;Chris&#39;</span><span class="o">]</span><span class="p">,</span> <span class="o">[]]]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>But you just wanted the authors! I guess we can call <code>flatten</code>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">CommentFinder</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">find_for_users</span><span class="p">(</span><span class="n">user_ids</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">users</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="n">user_ids</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">posts</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">post</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">post</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">comment</span><span class="o">|</span>
-</span><span class='line'>        <span class="n">comment</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">username</span>
-</span><span class='line'>      <span class="p">}</span><span class="o">.</span><span class="n">flatten</span>
-</span><span class='line'>    <span class="p">}</span><span class="o">.</span><span class="n">flatten</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Another option would have been to use <code>flat_map</code>.</p>
-
-<p>This just does the flattening as you go:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">CommentFinder</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">find_for_users</span><span class="p">(</span><span class="n">user_ids</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">users</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="n">user_ids</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">posts</span><span class="o">.</span><span class="n">flat_map</span> <span class="p">{</span> <span class="o">|</span><span class="n">post</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">post</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">flat_map</span> <span class="p">{</span> <span class="o">|</span><span class="n">comment</span><span class="o">|</span>
-</span><span class='line'>        <span class="n">comment</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">username</span>
-</span><span class='line'>      <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>It&rsquo;s not too much different, but better than having to call <code>flatten</code> a bunch of times.</p>
-
-<h2>Array.new with a Block</h2>
-
-<p>One time, when I was in bootcamp, our teacher Jeff Casimir (founder of <a href="http://turing.io/">Turing School</a>) asked us to build the game Battleship in an hour. It was a great exercise in object-oriented programming. We needed <code>Rule</code>s, <code>Player</code>s, <code>Game</code>s, and <code>Board</code>s.</p>
-
-<p>Creating a represention of a <code>Board</code> is a fun exercise. After several iterations, I found the easiest way to set up an 8x8 grid was to do this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Board</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">board</span>
-</span><span class='line'>    <span class="vi">@board</span> <span class="o">||=</span> <span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">{</span> <span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">{</span> <span class="s1">&#39;0&#39;</span> <span class="p">}</span> <span class="p">}</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>What&rsquo;s going on here? When you call <a href="http://www.ruby-doc.org/core-2.1.5/Array.html#method-c-new">Array.new</a> with an argument, it creates an array of that length:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
-</span><span class='line'><span class="c1">#=&gt; [nil, nil, nil, nil, nil, nil, nil, nil]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>When you pass it a block, it populates each of its members with the result of evaluating that block:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">{</span> <span class="s1">&#39;O&#39;</span> <span class="p">}</span>
-</span><span class='line'><span class="c1">#=&gt; [&#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>So if you pass an array with eight elements a block that produces an array with eight elements that are all <code>'O'</code>, you end up with an 8x8 array populated with <code>'O'</code> strings.</p>
-
-<p>Using the <code>Array#new</code> with a block pattern, you can create all kinds of bizarre arrays with default data and any amount of nesting.</p>
-
-<h2>&lt;=></h2>
-
-<p>The <a href="http://www.ruby-doc.org/core-2.1.5/Object.html#method-i-3C-3D-3E">spaceship</a>, or sort, operator is one of my favorite Ruby constructs. It appears in most of the built-in Ruby classes, and is useful when working with enumerables.</p>
-
-<p>To illustrate how it works, let&rsquo;s look at how it behaves for <code>Fixnums</code>.  If you call <code>5&lt;=&gt;5</code>, it returns <code>0</code>. If you call <code>4&lt;=&gt;5</code>, it returns <code>-1</code>. If you call <code>5&lt;=&gt;4</code>, it returns <code>1</code>. Basically, if the two numbers are the same, it returns <code>0</code>, otherwise it returns <code>-1</code> for least to greatest sorting, and <code>1</code> for reverse sorting.</p>
-
-<p>You can use the spaceship in your own classes by including the <code>comparable</code> module and redefining <code>&lt;=&gt;</code> with logic branching to make it return <code>-1</code>, <code>0</code>, and <code>1</code> for the cases you want.</p>
-
-<p>Why would you ever want to do that?</p>
-
-<p>Here&rsquo;s a cool use of it I came across on Exercism one day. There&rsquo;s an exercise called Clock, where you have to adjust the hours an minutes on a clock using custom <code>+</code> and <code>-</code> methods. It gets complicated when you try to add more than 60 minutes, because that will make your minute value invalid. So you have to adjust by incrementing another hour and subtracting 60 from the minutes.</p>
-
-<p>One user, <code>dalexj</code>, had a brilliant way to solve this, using the spaceship operator:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">fix_minutes</span>
-</span><span class='line'>    <span class="k">until</span> <span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">member?</span> <span class="n">minutes</span>
-</span><span class='line'>      <span class="vi">@hours</span> <span class="o">-=</span> <span class="mi">60</span> <span class="o">&lt;=&gt;</span> <span class="n">minutes</span>
-</span><span class='line'>      <span class="vi">@minutes</span> <span class="o">+=</span> <span class="mi">60</span> <span class="o">*</span> <span class="p">(</span><span class="mi">60</span> <span class="o">&lt;=&gt;</span> <span class="n">minutes</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>    <span class="vi">@hours</span> <span class="o">%=</span> <span class="mi">24</span>
-</span><span class='line'>    <span class="nb">self</span>
-</span><span class='line'>  <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>It works like this: until the minutes passed in are between 0 and 60, he subtracts either <code>1</code> or <code>-1</code> from the hours, depending on whether the minute amount is greater than 60. He then adjusts the minutes, adding either <code>-60</code> or <code>60</code> depending on the sort order.</p>
-
-<p>The spaceship is great for defining custom sort orders for your objects, and can also come in handy for arithmetic operations if you remember that it returns one of three <code>Fixnum</code> values.</p>
-
-<h2>Wrapping Up</h2>
-
-<p>Getting better at writing code is a process of learning. Since Ruby is a language, a lot of the time I spend trying to improve is spent of reading &ldquo;literature&rdquo; (i.e. code on Exercism andGitHub), and reading (what is essentially) the dictionary for my language: (<a href="http://ruby-doc.org/">Rubydocs</a>.</p>
-
-<p>It&rsquo;s so much easier to write expressive code when you know more methods. I hope that this collection of curiosities helped expand your Ruby vocabulary.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="2">&larr; Older</a>
@@ -4405,23 +3853,23 @@ It was also the top featured article in issue #15.1 of the <a href="http://www.p
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/05/26/happy/">Happy, Sad, Evil, Weird: Putting Use Case Planning Into Practice</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/05/21/happy/">Happy, Sad, Evil, Weird: Driving Feature Development With Feature Planning</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/05/13/actually-mvp/">Actually MVP</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/04/07/seven-unusual-ruby-datastores/">Seven Unusual Ruby Datastores</a>
       </li>
     
       <li class="post">
         <a href="/blog/2015/04/01/integrating-react-with-backbone/">Integrating React With Backbone</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/03/26/understanding-rack-apps-and-middleware/">Understanding Rack Apps and Middleware</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/03/12/deploying-and-customizing-applications-on-engine-yard/">Deploying and Customizing Applications on Engine Yard</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/03/01/serving-custom-json-from-your-rails-api-with-activemodel-serializers/">Serving Custom JSON From Your Rails API With ActiveModel::Serializers</a>
       </li>
     
   </ul>

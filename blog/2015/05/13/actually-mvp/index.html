@@ -1,0 +1,330 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Actually MVP - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="This post originally appeared on Engine Yard. Introduction In the startup world, there is a lot of talk about building Minimum Viable Products (MVPs &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2015/05/13/actually-mvp">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Actually MVP</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-05-13T06:11:09-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2015/actually-mvp">Engine Yard</a>.</p>
+
+<h2>Introduction</h2>
+
+<p>In the startup world, there is a lot of talk about building <em><a href="http://en.wikipedia.org/wiki/Minimum_viable_product">Minimum Viable Products</a></em> (MVPs). At this point, the concept has become so well-accepted that it has almost become a kind of unquestioned dogma. Yet there is a lot of disagreement about what MVP is exactly, and how to carry it out. Many people in the software industry assume that they know what MVP means, and claim to be using the process, but their production workflow tells a different story.</p>
+
+<p>When it comes to building software, it is often tempting to take an approach akin to building a skyscraper: write the blueprints, obtain the necessary prerequisites, then build it to spec. But software is a quickly shifting market. A businessperson may think she knows what the market wants, and plan and begin a project to meet that desire. But by the time the product is built, the needs of consumers have often morphed in a direction that she could never have foreseen.</p>
+
+<p>In this post, we&rsquo;ll take explore some common misconceptions about MVP, some different ways to approach building one with software, and how to best use this tool if you&rsquo;re the CEO or CTO of a startup, a product manager for an established company, or a consultant.</p>
+
+<h2>Why MVP?</h2>
+
+<p>We hear a lot of talk about MVP and its value, but as a businessperson, why should you care? The reason is simple: it prevents you from spending money building a product that nobody wants.</p>
+
+<p>When you build your business around small, successive iterations, the time before you can reflect on lessons learned is as small as possible. It can even push you to decide <em>not</em> to build your big idea, saving you valuable time and resources.</p>
+
+<p>Another great benefit of an MVP approach is that it allows you to test a hypothesis with minimal resources. If you have no money in the bank, you can still <a href="http://venturebeat.com/2013/12/10/homeless-coder-prevails-over-skeptics-releases-mobile-app-to-get-off-the-streets/">get something off the ground</a>.</p>
+
+<h2>History</h2>
+
+<p>In the startup world, the idea of MVP was popularized by <a href="http://www.amazon.com/Four-Steps-Epiphany-Steve-Blank/dp/0989200507">Steve Blank</a> and <a href="http://www.startuplessonslearned.com/2008/10/about-author.html">Eric Ries</a>. Eric&rsquo;s 2008 blog post, <a href="http://www.startuplessonslearned.com/2008/09/lean-startup.html">The Lean Startup</a>, kicked off a movement in software development toward building companies around the idea of testing business hypotheses in an iterative way. The idea of MVP is central to this approach, and has become part of the <em>lingua franca</em> of startup culture.</p>
+
+<p>The origins of MVP (and lean software development) draw on the Toyota corporation&rsquo;s <a href="http://en.wikipedia.org/wiki/Lean_manufacturing">lean manufacturing approach</a>, called the <em>Toyota Production System</em> (TPS). Toyota bigwig <a href="http://en.wikipedia.org/wiki/Taiichi_Ohno">Taiichi Ohno</a> coined the idea of &ldquo;Just In Time&rdquo; production, in which return on investment is maximized by reducing inventory.</p>
+
+<p>Among other things, the TPS introduced the idea of <a href="http://en.wikipedia.org/wiki/Kanban">Kanban</a>. The key takeaway of TPS as it applies to software is this: <strong><em>production is determined according to the actual demand of the customer</em></strong>.</p>
+
+<h2>It&rsquo;s Not What You Think It Is</h2>
+
+<p>We&rsquo;ve all seen this picture right?</p>
+
+<p><img src="https://blog.engineyard.com/images/blog-images/actually-mvp.png" alt="" /></p>
+
+<p>Raise your hand if you think it&rsquo;s a good idea.</p>
+
+<p>Now raise your hand if you think you actually follow it. Really? Are you sure you didn&rsquo;t motorize your skateboard? Put a steering wheel on your bike? Let me ask you this: did you actually do a customer interview at any point to see if they even <em>wanted</em> a car?</p>
+
+<p>An MVP may not be what you think it is. Eric Ries <a href="http://www.startuplessonslearned.com/2009/08/minimum-viable-product-guide.html">defines it</a> as &ldquo;that version of a new product which allows a team to collect the maximum amount of validated learning about customers with the least effort&rdquo;. What does that actually mean?</p>
+
+<p>It means building just enough of a product to be deployed and used. It&rsquo;s the <em>minimum</em> feature set that you need to find out whether it makes sense to invest further in an idea. If you&rsquo;re building a dating site for dogs, what do you need? Profiles and messaging. You don&rsquo;t need favoriting, automated emails, or the ability to see who viewed your profile.</p>
+
+<p>If you&rsquo;re breaking ground with a new idea, you can ask yourself: would people use this?
+If you&rsquo;re spinning something that&rsquo;s already out there, ask: would people love this more than what they&rsquo;re using now?</p>
+
+<p>Then answer that question. Build profiles and messaging, put it in front of some users, and see if they love it. Track clicks, invite them in for an interview, get their email and reach out personally. Identify <em><a href="http://en.wikipedia.org/wiki/Performance_indicator">Key Performance Indicators</a></em> (KPIs) and use them to verify success.</p>
+
+<p>If they love it, keep going! Add a link to favoriting that doesn&rsquo;t work. Track clicks. If enough people are trying to favorite, build it. Invite users in for an interview. Get their email and reach out personally.</p>
+
+<p>If you try several different feature sets and find out that nobody wants a dating site for dogs, it&rsquo;s ok. In fact, that&rsquo;s great. That means you really did it. You tested the market cheaply <em>before</em> you sunk bags of money into building Doggie Dates. That&rsquo;s a win.</p>
+
+<p>An MVP is not just doing sprints to build your product over time. It’s an <em>experimental process</em>.</p>
+
+<p>It&rsquo;s a small vision, tested and validated thoroughly before moving forward.</p>
+
+<p>It&rsquo;s not twelve weeks of development and a release.</p>
+
+<p>It&rsquo;s continuous deployment.</p>
+
+<p>It&rsquo;s <a href="http://vincentjordan.com/2012/01/why-is-your-minimal-viable-product-mvp-really-just-a-pos/">not a buggy alpha site</a> with ten features that <em>kind of</em> work.</p>
+
+<p>It&rsquo;s the two most defining features needed for the product to be useful.</p>
+
+<p>It&rsquo;s bare, not broken.</p>
+
+<p>On the other hand, an MVP approach is <a href="http://www.startuplessonslearned.com/2009/03/minimum-viable-product.html">not just <em>release early, release often</em></a>, either. Yes, build a small thing. Yes, gather feedback and incorporate it. But don&rsquo;t let the feedback cause you to pivot so hard that you can&rsquo;t remember what you were trying to do in the first place. If you find yourself testing Amazon for dog toys instead of a dating site for dogs, you haven’t pivoted for product-market fit, you’ve pivoted to an entirely new idea.</p>
+
+<p>Start with a vision and stay true to it. Build the skeleton, and let feedback from early users help you flesh out the details.</p>
+
+<h2>Really MVP</h2>
+
+<p>So you want to build a thing, huh? You&rsquo;re going to change the world, like Steve Jobs? Slow down there, buckaroo! I hope you know what you&rsquo;re getting into.</p>
+
+<p>According to <a href="http://get2growth.com/how-many-startups/">this article</a>, there were 1.35 million tech startups as of February 2014. Before you start dreaming of all that VC cash and crack your wallet open to get things off the ground, why don&rsquo;t you do a little experiment to see if it&rsquo;s at all likely that you&rsquo;ll end up anywhere besides broke.</p>
+
+<p>The lean startup approach is all about the <a href="http://theleanstartup.com/principles">build-measure-learn</a> cycle. Before you have a company, you&rsquo;ll have to start by building something.</p>
+
+<h3>First Step: Build</h3>
+
+<p>What&rsquo;s the smallest first step you can take?</p>
+
+<p>The classic example of an MVP you can use to test an idea is a landing page with a sign up form. The idea is to build a pixel-perfect landing page touting all the benefits of joining Doggie Dates and deploy it on an easy-to-use platform like <a href="https://www.engineyard.com/">Engine Yard</a>. Then you drive users to the site by purchasing some Google AdWords, and entice them to sign up with their email for early access to the application.</p>
+
+<p>There has been some recent debate as to whether a landing page is even an MVP. Although some would say no, like <a href="http://ramlijohn.com/a-landing-page-is-not-a-minimum-viable-product/">Ramli John</a>, this strategy doesn&rsquo;t provide enough insight to complete the build-measure-learn cycle. <a href="http://www.startuplessonslearned.com/2009/03/minimum-viable-product.html">Eric Reis</a> and <a href="https://medium.com/@joelgascoigne/how-to-successfully-validate-your-idea-with-a-landing-page-mvp-ef3c2d02dc51">others</a> seem to disagree. A landing page <em>can</em> provide enough information to build a successive MVP and continue to gather feedback. If they sign up they&rsquo;re probably interested in what you&rsquo;re selling.</p>
+
+<p>Although Ramli John isn&rsquo;t a fan of landing pages, he does have some other great suggestions for ways to build a first MVP. Some startups, like AngelList, have begun as an email list. Blogs can be another great place to gather interested users. We&rsquo;ve talked about Eric Reis quite a bit already. His <a href="http://www.startuplessonslearned.com/2008_08_01_archive.html">blog</a> covered topics like refactoring, TDD, and fundraising before he was known for the Lean Startup. You can try getting off the ground with a video and a startup campaign. Finally, you can do it the old fashioned way: <em>the hustle</em>. Just sell your service. In person. <em>Before</em> you build an app.</p>
+
+<p>Landing pages are great for founders of small startups and developers with a great idea for a side project, but what does MVP mean if you have another sort of job?</p>
+
+<p>If you&rsquo;re a consultant like me, encourage your clients to prioritize their feature requests. We have so many awesome things in mind for Doggie Dating! Favoriting, profile walls, see who viewed me, a Dogs You Might Dig service, responsive layouts, native mobile versions&hellip; The list goes on and on. It&rsquo;s great to write them all down and put them in a tracking tool like <a href="https://sprint.ly/">Sprint.ly</a>, so that you don&rsquo;t lose all these creative ideas. Then it&rsquo;s time to prioritize.</p>
+
+<p>What do you need first? What is the smallest version of your idea that people (or dogs) could possibly use? Put those tickets at the top of your tracker, and mark the point when they&rsquo;ll be done with a release bar. Encourage your clients to ask themselves: &ldquo;is this necessary for people to use the site?&rdquo; before you put <em>anything</em> above that bar.</p>
+
+<p>Once you&rsquo;ve reached it, follow the steps below! Measure and learn before you go on. That way, you can collectively decide what should <em>actually</em> be built, instead of spending the client&rsquo;s money building things that are going end up being discarded.</p>
+
+<p>If you&rsquo;re a Product Owner, maybe you&rsquo;re charged with exploring new ways that your company can gain more users, or convince the existing ones to pay more. There are some cool tricks you can use to sneak a feature MVP into what&rsquo;s already there. You can make  links that claim to take the user to one or more features, but are actually inactive (preferably with a modal dialogue to explain what’s going on). Then you track the clicks and decide what to build from there. Or you can ask users to pay for a certain feature before you actually begin development on it. If you don&rsquo;t reach a certain threshold of sign-ups, you just cancel it, apologize, and refund the money.</p>
+
+<p>No matter your role, if people don&rsquo;t seem to want what you&rsquo;ve put out there, delete it and build another version of your dream. Be happy about all the time and money you just saved by not building something that nobody wants! Keep going until you find something that sticks. In this way, you&rsquo;ll set up a great foundation on which to build the rest of your business.</p>
+
+<h3>Second Step: Measure</h3>
+
+<p>Regardless of how you choose to build the first version of your idea, you&rsquo;ll want to measure user engagement once it&rsquo;s deployed. The easiest way to do this is to add Google Analytics into the page and track clicks and pageviews. Reflecting on this information, you&rsquo;ll begin to learn what people want. If anyone actually signs up on your landing page with their email, you can reach out personally (maybe even take them to lunch) and ask them questions to learn more about what people would want to use.</p>
+
+<p>Once you&rsquo;ve gotten past the first iteration of your MVP, you can also invite customers to user testing sessions. These sessions can offer great insight into how your application should behave, and which features are misunderstood or unwanted. Finally, <a href="http://www.startuplessonslearned.com/2008/09/one-line-split-test-or-how-to-ab-all.html">A/B testing</a> can be a great way to research which direction to go next once you&rsquo;ve passed the early stages.</p>
+
+<h3>Third Step: Learn</h3>
+
+<p>After you&rsquo;ve measured clicks, user responses, user testing, and A/B testing results, you can begin to draw conclusions. Maybe dating dogs don&rsquo;t care about favoriting. Delete that feature. Maybe you heard over and over again that having a profile &ldquo;wall&rdquo; would make a huge difference to users. Perhaps that should be the next thing you build?</p>
+
+<p>You need to sift through all of the information that you get and decide how to act.</p>
+
+<h2>Conclusion</h2>
+
+<p>In the software industry, a lot of people pay lip service to the idea of a Minimum Viable Product. But for many of us, it&rsquo;s not what you think it is.</p>
+
+<p>If you&rsquo;re thinking: I know what people want, and I&rsquo;m going to build it, you&rsquo;ve already misunderstood the process. MVPs are experiments, research. How you use them differs a little bit depending on your situation, but the basic premise is the same. Build a small thing, measure the way it&rsquo;s used, learn from it, repeat.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-05-13T06:11:09-06:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2015/05/13/actually-mvp/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2015/05/13/actually-mvp/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/04/07/seven-unusual-ruby-datastores/" title="Previous Post: Seven Unusual Ruby Datastores">&laquo; Seven Unusual Ruby Datastores</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/05/21/happy/" title="Next Post: Happy, Sad, Evil, Weird: Driving Feature Development With Feature Planning">Happy, Sad, Evil, Weird: Driving Feature Development With Feature Planning &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/05/26/happy/">Happy, Sad, Evil, Weird: Putting Use Case Planning Into Practice</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/05/21/happy/">Happy, Sad, Evil, Weird: Driving Feature Development With Feature Planning</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/05/13/actually-mvp/">Actually MVP</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/04/07/seven-unusual-ruby-datastores/">Seven Unusual Ruby Datastores</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/04/01/integrating-react-with-backbone/">Integrating React With Backbone</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

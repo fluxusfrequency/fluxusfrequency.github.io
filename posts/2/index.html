@@ -9,7 +9,7 @@
   <meta name="author" content="Ben Lewis">
 
   
-  <meta name="description" content="This post was a featured article in Ruby Weekly. It originally appeared on Engine Yard, and was also published on the Quick Left Blog. Introduction &hellip;">
+  <meta name="description" content="This post originally appeared on Engine Yard and was later published on the Quick Left Blog. Introduction One of the biggest challenges of object &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,1063 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2015/01/29/instances/">Instances, Classes, and Modules, Oh My!</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-29T21:05:58-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2015/instances-classes-and-modules">Engine Yard</a> and was later published on the <a href="https://quickleft.com/blog/instances-classes-and-modules-oh-my/">Quick Left Blog</a>.</p>
+
+<h2>Introduction</h2>
+
+<p>One of the biggest challenges of object oriented programming in Ruby is defining the interface of your objects. In other languages, such as Java, there is an explicit way to define an interface that you must conform to. But in Ruby, it&rsquo;s up to you.</p>
+
+<p>Compounding with this difficulty is the problem of deciding which object should own a method that you want to write. Trying to choose between modules, class methods, instance methods, structs, and lambdas can be overwhelming.</p>
+
+<p>In this post, we&rsquo;ll look at several ways to solve the Exercism <a href="http://exercism.io/nitpick/ruby/leap">Leap Year</a> problem, exploring different levels of method visiblitiy and scope level along the way.</p>
+
+<h2>Leap Year</h2>
+
+<p>If you sign up for <a href="http://exercism.io/">Exercism.io</a> and start solving Ruby problems, one of the first problems you will look at is called Leap Year. The tests guide you to write a solution that has an interface that works like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Year</span><span class="o">.</span><span class="n">leap?</span><span class="p">(</span><span class="mi">1984</span><span class="p">)</span>
+</span><span class='line'><span class="c1">#=&gt; true</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>A leap year is defined as a year that is divisible by four, unless it&rsquo;s also divisible by 100. Apparently, centuries aren&rsquo;t leap years. That is, unless they are centuries that are divisible by 400. So there are three rules for leap years:</p>
+
+<p>1) If it&rsquo;s divisible by 400, it&rsquo;s an exceptional century and is a leap year.
+2) If it&rsquo;s divisible by 100, it&rsquo;s a mundane century and in not a leap year.
+3) Otherwise, if it&rsquo;s divisible by 4, it&rsquo;s a leap year, otherwise it&rsquo;s not.</p>
+
+<h2>The First Approach: Using Class Methods</h2>
+
+<p>Here&rsquo;s one simple solution to this problem. You can rearrange the booleans in a couple of different ways and it will still work. This is the version I came up with:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Year</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="n">year</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">||</span> <span class="n">year</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is nice and compact, but not entirely easy to understand. I&rsquo;m a pretty big fan of self-documenting code, so I used the <a href="http://fluxusfrequency.github.io/blog/2014/01/10/refactoring-1-extract-method/">extract method</a> refactoring pattern to name these three rules.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Year</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span> <span class="o">||</span> <span class="n">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">century?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Class Methods and Privacy</h2>
+
+<p>This is a lot more understandable, in my mind. But there&rsquo;s a problem with this. <code>mundane_leap?</code>, <code>century?</code>, and <code>exceptional_century?</code> are all publicly exposed methods. They really only exist in support of <code>leap?</code>, and I&rsquo;m not sure how reusable they are, with the possible exception of <code>century?</code>. If I write this test, it will pass:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">test_exceptional_century</span>
+</span><span class='line'>    <span class="n">assert</span> <span class="no">Year</span><span class="o">.</span><span class="n">exceptional_century?</span><span class="p">(</span><span class="mi">2400</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I would like to make <code>exceptional_century?</code> private, so that it can&rsquo;t be accessed outside of the <code>Year</code> class. I can try something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Year</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">century?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But, unfortunately, this won&rsquo;t work. The test still passes, becuase the <code>private</code> keyword doesn&rsquo;t work on class methods. Instead, I would have to use <code>private_class_method</code> after my method definition.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="nb">private_class_method</span> <span class="ss">:mundane_leap?</span><span class="p">,</span> <span class="ss">:century?</span><span class="p">,</span> <span class="ss">:exceptional_century?</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now if I run that last test, it will raise an error.</p>
+
+<h2>All About the Eigenclass</h2>
+
+<p>In my mind, what we&rsquo;ve now done is somewhat better, but there&rsquo;s still a smell here. I&rsquo;ll get to exactly what that is in just a moment, but for now I&rsquo;ll say that it&rsquo;s due to the fact that we&rsquo;ve defined all of these methods on the singleton class, or eigenclass, of <code>Year</code>. If you don&rsquo;t know about eigenclasses, you can read about them <a href="http://madebydna.com/all/code/2011/06/24/eigenclasses-demystified.html">here</a>.</p>
+
+<p>We can define methods on an eigenclass by prepending each method definition with <code>self.</code>, or we can use <code>class &lt;&lt; self</code> or <code>class &lt;&lt; Year</code> and nesting our method definitions inside of that block. Doing it this way makes it possible to use the <code>private</code> keyword, because we&rsquo;re now working at the instance level of scope. If we were to introduce <code>class &lt;&lt; self</code>, then, we could do away with our <code>private_class_method</code> call.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Year</span>
+</span><span class='line'>  <span class="k">class</span> <span class="o">&lt;&lt;</span> <span class="nb">self</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span> <span class="o">||</span> <span class="n">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">year</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">year</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">year</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But we haven&rsquo;t really changed much here. In my mind, there&rsquo;s still a big smell, which is this. <a href="http://en.wikipedia.org/wiki/Class_%28computer_programming%29">According to Wikipedia</a>, a class is (emphasis mine) &ldquo; an extensible program-code-template for <em>creating objects</em> &rdquo;. Our <code>Year</code> class never creates a single instance. It&rsquo;s just an eigenclass that happens to be able to create (mostly) useless <code>Year</code> instances.</p>
+
+<p>So where <em>should</em> we be putting class-level methods that are not associated with any instance object?</p>
+
+<h2>Second Approach: Module Functions</h2>
+
+<p>In Ruby, the <code>Class</code> object inherits from <code>Module</code>. A module is basically a collection of methods, constants, and classes. Their primary feature is that they can be mixed into other modules and classes to extend their functionality. They&rsquo;re also frequently used for namespacing (for example, the <code>ActiveRecord</code> constant is a module).</p>
+
+<p>We can put our <code>Year</code> implementation into a module without changing much: just swap the word <code>class</code> for <code>module</code>. Instead of using <code>class &lt;&lt; self</code> as we did for the class version, we can use <code>extend self</code> in our module, and get the same effect, allowing us to use the <code>private</code> keyword. <code>extend</code> takes the methods defined in a module and makes them into class-level methods on the target module (or class). This is in contrast with <code>include</code>, which mixes them in as instance-level methods. Thus, if we extend the module into itself, it gets all of it&rsquo;s own methods at the class level.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Year</span>
+</span><span class='line'>  <span class="kp">extend</span> <span class="nb">self</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span> <span class="o">||</span> <span class="n">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If we wanted to define some other methods in a <code>Year</code> class that had nothing to do with leap years, we could change the name of our module to <code>Leap</code> and mix it into a <em>class</em> called <code>Year</code>.</p>
+
+<p>If we want to make the three leap year rule methods private, we now have another choice of how to do it. We can use <code>module_function</code>.  <code>module_function</code> will make these methods available to the module, but when they get mixed into the class, they will be private. Module functions allow you to be selective with what can be called by the module itself, while still defining methods that can be mixed into other modules and classes.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Leap</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span> <span class="o">||</span> <span class="n">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">mundane_leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">exceptional_century?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">year</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">module_function</span> <span class="ss">:mundane_leap?</span><span class="p">,</span> <span class="ss">:century?</span><span class="p">,</span> <span class="ss">:exceptional_century?</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Year</span><span class="p">;</span> <span class="kp">extend</span> <span class="no">Leap</span><span class="p">;</span> <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, if we run the tests, they will all still pass, with the exception of the one we wrote that tries to call <code>exceptional_century?</code></p>
+
+<h2>Third Approach: Instance Methods</h2>
+
+<p>I want to stay with the idea that we might want a <code>Year</code> class that can do other things unrelated to determining whether we are talking about leap year or not. Really, there are a bunch of different years, but they all have certain things in common (which era they fall in, whether they are leap, etc.). In my mind, this would be a good use case for instances instead of class level methods.</p>
+
+<p>What it look like if we brought the responsibility for knowing whether a year is leap back into a <code>Year</code> class, but passing that behavior onto <em>instances</em> of year, instead of putting it on the eigenclass?</p>
+
+<p>It&rsquo;s a little weird to be able to do something like <code>Year.new(2015).year</code>, so I&rsquo;ll name the state we&rsquo;re going to store <code>reckoning</code> instead.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Year</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">leap?</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">leap?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:reckoning</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">reckoning</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@reckoning</span> <span class="o">=</span> <span class="n">reckoning</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">leap?</span>
+</span><span class='line'>    <span class="n">mundane_leap?</span> <span class="o">||</span> <span class="n">exceptional_century?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">mundane_leap?</span>
+</span><span class='line'>    <span class="n">reckoning</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">century?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">century?</span>
+</span><span class='line'>    <span class="n">reckoning</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">exceptional_century?</span>
+</span><span class='line'>    <span class="n">reckoning</span> <span class="o">%</span> <span class="mi">400</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The instance-based approach has certain advantages. We don&rsquo;t have to use anything exotic like <code>private_class_method</code>, <code>class &lt;&lt; self</code>, or <code>module_function</code>, to make our methods private. This might make things easier to understand for future maintainers of our code.</p>
+
+<p>We also gained access to the <code>reckoning</code>, that could be used to calculate other properites in the future. For example, if we wanted to write <code>to_julian</code> or <code>to_hebrew</code> methods, we&rsquo;d already have the number we&rsquo;d need to use to calculate that available to us.</p>
+
+<p>Finally, we can now use a <code>protected</code> section as well. Methods in this section will only be visible to other instances of <code>Year</code>. We might use it to do something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Year</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">protected</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">==</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">recoking</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">reckoning</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Conclusion</h2>
+
+<p>We&rsquo;ve looked at several different ways to write a program that can tell us whether a given year is a leap year. Each has its advantages and disadvantages.</p>
+
+<p>We started with a class method that was a single-liner. There&rsquo;s a lot of value in the compactness of <code>year % 4 == 0 &amp;&amp; !(year % 100 == 0) || year % 400 == 0</code>. But it&rsquo;s also fairly hard to understand. If we decide to split some of that logic into separate methods, now we&rsquo;re faced with the problem of how to keep these new methods out of the interface of <code>Year</code>.</p>
+
+<p>We used an eigenclass-based approach, simply hiding the implementation methods with <code>private_class_method</code>. We solved it using a module, treating the <code>leap?</code> method both as a mix-in and as a <code>module_function</code>. Finally, we pushed the functionality down to the instance level, which could help us in dealing with multiple <code>Year</code> objects down the road.</p>
+
+<p>Which of these approaches is best?</p>
+
+<p>It depends on lots of things: how you feel about privacy, how you expect the program to change in the future, how comfortable you are with scope and the more arcane methods in Ruby.  At the very least, it&rsquo;s nice to know what&rsquo;s available to you when thinking about what methods you want to expose, and what level of scope you should use it on.  I hope this post will factor into your thoughts when making these kind of decisions in the future.</p>
+
+<p>P.S. What do you think? Did this make sense? Should I have used Structs or Lambdas? Throw us a comment below!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2015/01/22/measuring-client-side-javascript-test-coverage-with-istanbul/">Measuring Client-Side JavaScript Test Coverage With Istanbul</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-22T21:16:59-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2015/measuring-clientside-javascript-test-coverage-with-istanbul">Engine Yard</a>.</p>
+
+<p>It was also published on the <a href="https://quickleft.com/blog/measuring-clientside-javascript-test-coverage-istanbul/">Quick Left Blog</a>.</p>
+
+<h2>Introduction</h2>
+
+<p>Testing is a vital part of any development process. Whether a project&rsquo;s authors are hoping for scalability, fewer bugs, or just code that stands the test of time, a solid test suite is essential.</p>
+
+<p>It&rsquo;s all well and good writing tests, but how do you know that you&rsquo;ve tested the code that matters? Did you cover the most important components? Did you test <a href="http://engineering.imvu.com/2012/05/08/writing-resilient-unit-tests-3/">the sad path</a>? The edge cases? What about the <a href="http://emptystat.es/">zero states</a>?</p>
+
+<p>Using <a href="http://gotwarlost.github.io/istanbul/">Istanbul</a>, you can generate a nice coverage report to answer these questions. In this article, we&rsquo;ll look at how to get it set up in a typical clientside JS project.</p>
+
+<h2>A Note About Metrics</h2>
+
+<p>Before we get into the process of setting up Istanbul, I&rsquo;d like to talk about code coverage as a metric. Metrics in programming can be very two-sided. On the one hand, they can be very useful in measuring velocity and predicting completion of new features. But, they can also become self-fulfilling prophecies leading to bad code.</p>
+
+<p>For example, if a project manager or tech lead measures her programmers&#8217; effectiveness by counting the lines of code they write, she will not find that those who wrote the most lines are the ones that wrote the best code. In fact, there&rsquo;s a danger that some of the programmers will adopt a verbose style, using far more lines than necessary to get the same thing done, in order to bump their ranking.</p>
+
+<p>Placing a strong emphasis on test coverage as a metric can lead to a similar problem. Imagine that a company adopts a policy that any pull request must increase or maintain the percentage of lines tested. What will be the result?</p>
+
+<p>I imagine that in many cases, developers will write good tests to accompany their features and bugfixes. But what happens if there’s a rush and they just want to get the code in?</p>
+
+<p>Test coverage tools only count the lines that were hit when the test suite was run, so the developer can just run the line in question during the test, while making a trivial assertion. The result? The line is marked covered, but nothing meaningful is being tested.</p>
+
+<p>Rather than using test coverage as a measure of developer thoroughness, it makes a lot more sense to use coverage as a way of seeing which code <em>isn&rsquo;t</em> covered (hint: it&rsquo;s often <code>else</code> branches). That information can then be used to prioritize testing goals.</p>
+
+<p>In summary: don&rsquo;t use code coverage to measure what&rsquo;s tested, use it to find out what isn&rsquo;t.</p>
+
+<h2>Time to Test</h2>
+
+<p>Let&rsquo;s imagine that we have a clientside JavaScript application written in Angular, Ember, or Backbone and templated with Handlebars. It&rsquo;s compiled with Browserify and built with NPM scripts.</p>
+
+<p>This application has been around for a couple of years, and due to business pressures, its authors have only managed to write a handful of tests. At this point, the app is well-established, and there <em>is</em> a testing setup in place, but there&rsquo;s also a lot of code that&rsquo;s untested.</p>
+
+<p>Recently, the company behind the application closed a funding round, and they&rsquo;re feeling flush. We&rsquo;ve been brought in to write some tests.</p>
+
+<p>Because we&rsquo;re hotshots and we want to show off, we decide to begin by taking a snapshot of the current code coverage, so that we can brag about how many percentage points we added to the coverage when we&rsquo;re done.</p>
+
+<h2>Setting up Istanbul</h2>
+
+<p>This is where <a href="http://gotwarlost.github.io/istanbul/">Istanbul</a> comes in. Istanbul is a code coverage tool written in JavaScript by <a href="https://github.com/gotwarlost">Krishnan Anantheswaran</a> of Yahoo!.</p>
+
+<p>It can be a little tricky to set up, so let&rsquo;s take a look at one way to do it.</p>
+
+<p>There are four steps in our approach:</p>
+
+<ol>
+<li>Instrument the source code with Istanbul</li>
+<li>Run <code>mocha-phantomjs</code>, passing in a <code>hooks</code> argument</li>
+<li>Use a <code>phantomjs</code> hook file to write out the results when testing is complete</li>
+<li>Run the <code>Istanbul</code> cli to generate the full report as an HTML file</li>
+</ol>
+
+
+<p>Let&rsquo;s get started.</p>
+
+<h3>1. Instrument the Source</h3>
+
+<p>We&rsquo;ll need to find a way to run our code through Istanbul after it&rsquo;s been compiled, so the first step is to set up an NPM task that will pipe compiled code into a tool like <a href="https://github.com/devongovett/browserify-istanbul">browserify-istanbul</a>.</p>
+
+<p>Just in case you&rsquo;re not using <code>browserify</code>, a variety of other Istanbul NPM packages exist for instrumenting code, including <a href="https://github.com/SBoudrias/gulp-istanbul">browserify-gulp</a>, <a href="https://github.com/justspamjustin/grunt-istanbul-reporter">grunt-istanbul-reporter</a>, and <a href="https://github.com/bem/borschik-tech-istanbul">borschik-tech-istanbul</a>.</p>
+
+<p>For the moment, let&rsquo;s imagine that we <em>are</em> using Browserify. We already have NPM tasks in place to compile our code for development/production and for testing. Here&rsquo;s what they look like. Note that the <code>-o</code> option to <code>browserify</code> specifies the output file for the build and the <code>-d</code> option turns on debugging.</p>
+
+<p>In <code>package.json</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="s2">&quot;scripts&quot;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="s2">&quot;build&quot;</span><span class="o">:</span> <span class="s2">&quot;browserify ./js/main.js -o html/static/build/js/myapp.js&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;build-test&quot;</span><span class="o">:</span> <span class="s2">&quot;browserify -r handlebars:hbsfy/runtime ./js/test/index.js -o html/static/build/js/test.js -d --verbose&quot;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We can use the <code>build-test</code> task as a template for a new <code>build-test-coverage</code> task.</p>
+
+<p>Before we do that, we&rsquo;ll want to make sure we pull in <code>browserify-istanbul</code> with <code>npm install --save-dev browserify-istanbul</code>.</p>
+
+<p>Next, we&rsquo;ll write the task in <code>package.json</code>. We&rsquo;ll ignore the Handlebars templates and Node modules when we load everything into Istanbul. We&rsquo;ll also use the <code>-t</code> option to Browserify to use a <a href="https://github.com/substack/module-deps#transforms">transform module</a>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="s2">&quot;scripts&quot;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="s2">&quot;build-test-coverage&quot;</span><span class="o">:</span> <span class="s2">&quot;mkdir -p html/static/build/js/ &amp;&amp; browserify -r handlebars:hbsfy/runtime -t [ browserify-istanbul --ignore **/*.hbs **/bower_components/** ] ./js/test/index.js -o html/static/build/js/test.js -d&quot;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With the <code>browserify-istanbul</code> package and the <code>build-test-coverage</code> script in place, we&rsquo;ve got our code instrumented, and we&rsquo;re ready to move on to step two.</p>
+
+<h3>2. Run <code>mocha-phantomjs</code>, Passing in a Hooks Argument</h3>
+
+<p>Now that the code is all built and ready to go, we need to pass it into a test framework. We&rsquo;ll use write a cli script that spawns <a href="https://github.com/metaskills/mocha-phantomjs">mocha-phantomjs</a> in a child process. We&rsquo;ll pass in a hooks argument that specifies a <code>phantom_hooks.js</code> file we&rsquo;ve yet to write.</p>
+
+<p>(Note: if you&rsquo;re using <code>gulp</code> or <code>grunt</code>, you may want to check out <a href="https://github.com/mrhooray/gulp-mocha-phantomjs">gulp-mocha-phantomjs</a> or <a href="https://github.com/jdcataldo/grunt-mocha-phantomjs">grunt-mocha-phantomjs</a> for this step.)</p>
+
+<p>In <code>js/test/cli.js</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="err">#</span><span class="o">!</span><span class="err">/usr/bin/env node</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">spawn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;child_process&#39;</span><span class="p">).</span><span class="nx">spawn</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">child</span> <span class="o">=</span> <span class="nx">spawn</span><span class="p">(</span><span class="s1">&#39;mocha-phantomjs&#39;</span><span class="p">,</span> <span class="p">[</span>
+</span><span class='line'>  <span class="s1">&#39;http://localhost:9000/static/js/test/index.html&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s1">&#39;--timeout&#39;</span><span class="p">,</span> <span class="s1">&#39;25000&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s1">&#39;--hooks&#39;</span><span class="p">,</span> <span class="s1">&#39;./js/test/phantom_hooks.js&#39;</span>
+</span><span class='line'><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">child</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;close&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">code</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Mocha process exited with code &#39;</span> <span class="o">+</span> <span class="nx">code</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nx">code</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With our cli script in place, we&rsquo;ve now got a way to put our Istanbulified code into PhantomJS, so we&rsquo;ll move to step three.</p>
+
+<h3>3. Use a PhantomJS Hook File to Write the Results</h3>
+
+<p>In the script we wrote in the last section, we passed a hooks file to <code>mocha-phantomjs</code>, but we hadn&rsquo;t created it yet. Let&rsquo;s do that now.</p>
+
+<p>After all the tests have run, our hook will grab the <code>__coverage__</code> property of the window, which contains the result of our coverage run, and write it to a <code>coverage/coverage.json</code> file.</p>
+
+<p>We&rsquo;ll load this data into the Istanbul CLI to generate a more readable report in the next step.</p>
+
+<p>In <code>js/test/phantom_hooks.js</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">afterEnd</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">runner</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">coverage</span> <span class="o">=</span> <span class="nx">runner</span><span class="p">.</span><span class="nx">page</span><span class="p">.</span><span class="nx">evaluate</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nb">window</span><span class="p">.</span><span class="nx">__coverage__</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nx">coverage</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Writing coverage to coverage/coverage.json&#39;</span><span class="p">);</span>
+</span><span class='line'>      <span class="nx">fs</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s1">&#39;coverage/coverage.json&#39;</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">coverage</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;No coverage data generated&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With our coverage data saved, we&rsquo;re ready to move on to the last step.</p>
+
+<h3>4. Run the Istanbul CLI to Generate the Full Report</h3>
+
+<p>The final step in our process is to take the coverage data generated in step three and plug it into the Istanbul CLI to generate a coverage report HTML file.</p>
+
+<p>We&rsquo;ll write an NPM script that executes the <code>instanbul report</code> command, passing it the folder where we saved our results (<code>coverage</code>), and specifying <code>lcov</code> as our output format. This option will save both <code>lcov</code> and <code>html</code> files.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="s2">&quot;scripts&quot;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="s2">&quot;coverage-report&quot;</span><span class="o">:</span> <span class="s2">&quot;istanbul report --root coverage lcov&quot;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we have all the scripts we need to generate and view our coverage report.</p>
+
+<h2>Generating the Report</h2>
+
+<p>We&rsquo;ll need to run each of the commands that we&rsquo;ve defined before we&rsquo;ll be able to view our results (you may want to wrap these in a single NPM task for convenience).</p>
+
+<ul>
+<li><code>npm run build-test-coverage</code> to compile our test code and load it into Istanbul</li>
+<li><code>./js/test/cli.js</code> to run the tests with <code>mocha-phantomjs</code> and write the <code>coverage.json</code> file</li>
+<li><code>npm run coverage-report</code> to format the coverage results as an HTML file</li>
+</ul>
+
+
+<p>Once we&rsquo;ve completed these steps, we should see a new <code>coverage/lcov-report</code> folder containing an <code>index.html</code> file and a few assets to make it look pretty.</p>
+
+<h2>Viewing the Report</h2>
+
+<p>If we open the generated file in our browser, we&rsquo;ll see an easy-to-read breakdown of our coverage.</p>
+
+<p>There are four category columns at the top of the page, each telling us about a different aspect of our coverage.</p>
+
+<ul>
+<li><em>Statements</em> tells up how many of the statements in our code were touched during the test run.</li>
+<li><em>Branches</em> tells us how many of our logical <code>if</code>/<code>else</code> branches were touched</li>
+<li><em>Functions</em> tells us how many of our functions were touched</li>
+<li><em>Lines</em> tells us the total lines of code that were touched</li>
+</ul>
+
+
+<p>There&rsquo;s also a list of the folders in our project, each with a categorical coverage breakdown. You can also click on each of the folders to further break down the coverage file by file. If you then click on a file, you&rsquo;ll see its contents highlighted in green and red to indicate covered and uncovered lines.</p>
+
+<p>The ability to zoom in and out on our project and see the categorical breakdown at each level makes Istanbul particularly nice to work with.  It also makes it easy to dig in and explore places in your code base that might benefit from some additional testing.</p>
+
+<h2>Wrapping Up</h2>
+
+<p>If you haven&rsquo;t added code coverage to your JS projects yet, I highly recommend it. Getting everything up and running is a minimal time investment, and it can really pay off.</p>
+
+<p>Although I would discourage you from measuring the success of your test suite based on percentage points only, getting an in-depth look at what you currently are and aren&rsquo;t touching can really pave the way to uncovering bugs you didn&rsquo;t even know you had.</p>
+
+<p>I hope that this post has helped you get Istanbul up and running with a minimum of heartache. Until next time, keep testing!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2015/01/16/five-ruby-methods-you-should-be-using/">Five Ruby Methods You Should Be Using</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-16T06:55:21-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This post was the top featured article in <a href="http://rubyweekly.com/issues/229">Ruby Weekly #229</a>.
+It was also the top featured article in issue #15.1 of the <a href="http://www.pointer.io/">Pointer.io</a> newsletter.</p>
+
+<p>It was originally published on <a href="https://blog.engineyard.com/2015/five-ruby-methods-you-should-be-using">Engine Yard</a> and also appeared on the <a href="https://quickleft.com/blog/five-ruby-methods-you-should-be-using/">Quick Left Blog</a>.</p>
+
+<h2>Introduction</h2>
+
+<p>There&rsquo;s something magical about the way that Ruby just flows from your fingertips. why once <a href="http://mislav.uniqpath.com/poignant-guide/book/chapter-2.html">said</a> &ldquo;Ruby will teach you to express your ideas through a computer.&rdquo; Maybe that&rsquo;s why Ruby has become such a <a href="http://blog.codeeval.com/codeevalblog/2014">popular choice</a> for modern web development.</p>
+
+<p>Just as in English, there are lots of ways to say the same thing in Ruby. I spend a lot of time reading and nitpicking people&rsquo;s code on <a href="http://exercism.io">Exercism</a>, and I often see exercises solved in a way that could be greatly simplified if the author had only known about a certain Ruby method.</p>
+
+<p>Here&rsquo;s a look at some lesser-used methods solve a specific problem very well.</p>
+
+<h2>Object#tap</h2>
+
+<p>Did you ever find yourself calling a method on some object, and the return value not being what you wanted it to? You were hoping to get back the object, but instead you got back some other value. Maybe you wanted to add an arbitrary value to a set of parameters stored in a hash. You update it with <code>Hash.[]</code>, but you get back <code>'bar</code> instead of the params hash, so you have to return it explicitly.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">params</span><span class="o">[</span><span class="ss">:foo</span><span class="o">]</span> <span class="o">=</span> <span class="s1">&#39;bar&#39;</span>
+</span><span class='line'>  <span class="n">params</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>params</code> line at the end of that method seems extraneous.</p>
+
+<p>We can clean it up with <a href="http://www.ruby-doc.org/core-2.1.5/Object.html#method-i-tap">Object#tap</a>.</p>
+
+<p>It&rsquo;s easy to use. Just call it on the object, then pass <code>tap</code> a block with the code that you wanted to run. The object will be yielded to the block, then be returned. Here&rsquo;s how we could use it to improve <code>update_params</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">params</span><span class="o">.</span><span class="n">tap</span> <span class="p">{</span><span class="o">|</span><span class="nb">p</span><span class="o">|</span> <span class="nb">p</span><span class="o">[</span><span class="ss">:foo</span><span class="o">]</span> <span class="o">=</span> <span class="s1">&#39;bar&#39;</span> <span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are dozens of great places to use <code>Object#tap</code>. Just keep your eyes open for methods called on an object that don&rsquo;t return the object, when you wish that they would.</p>
+
+<h2>Array#bsearch</h2>
+
+<p>I don&rsquo;t know about you, but I do a lot of looking through arrays for data. Ruby enumerables make it easy to find what I need: <code>select</code>, <code>reject</code>, and <code>find</code> are valuable tools that I use daily. But when the dataset is big, I start to worry about the length of time it will take to go through all of those records.</p>
+
+<p>If you&rsquo;re using <code>ActiveRecord</code> and dealing with a <code>SQL</code> database, there&rsquo;s a lot of magic that happens behind the scenes to make sure that your searches are conducted with the least algorithmic complexity. But sometimes you have to pull all of the data out of the database before you can work with it. For example, if the records are encrypted in the database, you can&rsquo;t query them very well with <code>SQL</code>.</p>
+
+<p>At times like these, I think hard about how to sift through the data with an algorithm that has the least complex <em>Big O</em> classification that I can. If you don&rsquo;t know about Big O notation, check out Justin Abrahms&rsquo;s <a href="https://justin.abrah.ms/computer-science/big-o-notation-explained.html">Big-O Notation Explained By A Self-Taught Programmer</a> or the <a href="http://bigocheatsheet.com/">Big-O Complexity Cheat Sheet</a>.</p>
+
+<p>The basic gist is that algorithms can take more or less time, depending on their complexity, which is ranked in this order: O(1), O(log n), O(n), O(n log(n)), O(n<sup>2</sup>), O(2<sup>n</sup>), O(n!). So we prefer searches to be in one of the classifications at the beginning of this list.</p>
+
+<p>When it comes to searching through arrays in Ruby, the first method that comes to mind is <code>Enumerable#find</code>, also known as <code>detect</code>. However, this method will search through the entire list until the match is found. While that&rsquo;s great if the record is at the beginning, it&rsquo;s a problem if the record is at the end of a really long list. It takes O(n) complexity to run a <code>find</code> search.</p>
+
+<p>There is a faster way. Using <a href="http://www.ruby-doc.org/core-2.1.5/Array.html#method-i-bsearch">Array#bsearch</a>, you can find a match with only O(log n) complexity. To find out more about how a Binary Search works, check out my post <a href="http://fluxusfrequency.github.io/blog/2014/01/31/building-a-binary-search/">Building A Binary Search</a>.</p>
+
+<p>Here&rsquo;s a look at the difference in search times between the two approaches when searching a range of 50,000,000 numbers:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;benchmark&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="mi">50_000_000</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Benchmark</span><span class="o">.</span><span class="n">bm</span> <span class="k">do</span> <span class="o">|</span><span class="n">x</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="ss">:find</span><span class="p">)</span> <span class="p">{</span> <span class="n">data</span><span class="o">.</span><span class="n">find</span> <span class="p">{</span><span class="o">|</span><span class="n">number</span><span class="o">|</span> <span class="n">number</span> <span class="o">&gt;</span> <span class="mi">40_000_000</span> <span class="p">}</span> <span class="p">}</span>
+</span><span class='line'>  <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="ss">:bsearch</span><span class="p">)</span> <span class="p">{</span> <span class="n">data</span><span class="o">.</span><span class="n">bsearch</span> <span class="p">{</span><span class="o">|</span><span class="n">number</span><span class="o">|</span> <span class="n">number</span> <span class="o">&gt;</span> <span class="mi">40_000_000</span> <span class="p">}</span> <span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>         <span class="n">user</span>       <span class="nb">system</span>     <span class="n">total</span>       <span class="n">real</span>
+</span><span class='line'><span class="n">find</span>     <span class="mi">3</span><span class="o">.</span><span class="mo">020000</span>   <span class="mi">0</span><span class="o">.</span><span class="mo">010000</span>   <span class="mi">3</span><span class="o">.</span><span class="mo">030000</span>   <span class="p">(</span><span class="mi">3</span><span class="o">.</span><span class="mo">02</span><span class="mi">8417</span><span class="p">)</span>
+</span><span class='line'><span class="n">bsearch</span>  <span class="mi">0</span><span class="o">.</span><span class="mo">000000</span>   <span class="mi">0</span><span class="o">.</span><span class="mo">000000</span>   <span class="mi">0</span><span class="o">.</span><span class="mo">000000</span>   <span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="mo">000006</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, <code>bsearch</code> is much faster. However, there is a pretty big catch involved with using <code>bsearch</code>: the array must be sorted. This somewhat limits its usefulness, but it&rsquo;s still worth keeping in mind for occasions where it might come in handy, such finding a record in by a <code>created_at</code> timestamp that has already been loaded from the database.</p>
+
+<h2>Enumerable#flat_map</h2>
+
+<p>When dealing with relational data, sometimes we need to collect a bunch of unrelated attributes and return them in an array that is not nested. Let&rsquo;s imagine you had a blog application, and you wanted to find the authors of comments left on posts written in the last month by a given set of users.</p>
+
+<p>You might do something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">CommentFinder</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">find_for_users</span><span class="p">(</span><span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">users</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">posts</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">post</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">post</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">map</span> <span class="o">|</span><span class="n">comment</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">comment</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">username</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You would then end up with a result such as:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[[[</span><span class="s1">&#39;Ben&#39;</span><span class="p">,</span> <span class="s1">&#39;Sam&#39;</span><span class="p">,</span> <span class="s1">&#39;David&#39;</span><span class="o">]</span><span class="p">,</span> <span class="o">[</span><span class="s1">&#39;Keith&#39;</span><span class="o">]]</span><span class="p">,</span> <span class="o">[[]</span><span class="p">,</span> <span class="o">[</span><span class="kp">nil</span><span class="o">]]</span><span class="p">,</span> <span class="o">[[</span><span class="s1">&#39;Chris&#39;</span><span class="o">]</span><span class="p">,</span> <span class="o">[]]]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But you just wanted the authors! I guess we can call <code>flatten</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">CommentFinder</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">find_for_users</span><span class="p">(</span><span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">users</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">posts</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">post</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">post</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">comment</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">comment</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">username</span>
+</span><span class='line'>      <span class="p">}</span><span class="o">.</span><span class="n">flatten</span>
+</span><span class='line'>    <span class="p">}</span><span class="o">.</span><span class="n">flatten</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Another option would have been to use <code>flat_map</code>.</p>
+
+<p>This just does the flattening as you go:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">CommentFinder</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">find_for_users</span><span class="p">(</span><span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">users</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="n">user_ids</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">posts</span><span class="o">.</span><span class="n">flat_map</span> <span class="p">{</span> <span class="o">|</span><span class="n">post</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">post</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">flat_map</span> <span class="p">{</span> <span class="o">|</span><span class="n">comment</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">comment</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">username</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It&rsquo;s not too much different, but better than having to call <code>flatten</code> a bunch of times.</p>
+
+<h2>Array.new with a Block</h2>
+
+<p>One time, when I was in bootcamp, our teacher Jeff Casimir (founder of <a href="http://turing.io/">Turing School</a>) asked us to build the game Battleship in an hour. It was a great exercise in object-oriented programming. We needed <code>Rule</code>s, <code>Player</code>s, <code>Game</code>s, and <code>Board</code>s.</p>
+
+<p>Creating a represention of a <code>Board</code> is a fun exercise. After several iterations, I found the easiest way to set up an 8x8 grid was to do this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Board</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">board</span>
+</span><span class='line'>    <span class="vi">@board</span> <span class="o">||=</span> <span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">{</span> <span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">{</span> <span class="s1">&#39;0&#39;</span> <span class="p">}</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What&rsquo;s going on here? When you call <a href="http://www.ruby-doc.org/core-2.1.5/Array.html#method-c-new">Array.new</a> with an argument, it creates an array of that length:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+</span><span class='line'><span class="c1">#=&gt; [nil, nil, nil, nil, nil, nil, nil, nil]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When you pass it a block, it populates each of its members with the result of evaluating that block:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="p">{</span> <span class="s1">&#39;O&#39;</span> <span class="p">}</span>
+</span><span class='line'><span class="c1">#=&gt; [&#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;, &#39;O&#39;]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So if you pass an array with eight elements a block that produces an array with eight elements that are all <code>'O'</code>, you end up with an 8x8 array populated with <code>'O'</code> strings.</p>
+
+<p>Using the <code>Array#new</code> with a block pattern, you can create all kinds of bizarre arrays with default data and any amount of nesting.</p>
+
+<h2>&lt;=></h2>
+
+<p>The <a href="http://www.ruby-doc.org/core-2.1.5/Object.html#method-i-3C-3D-3E">spaceship</a>, or sort, operator is one of my favorite Ruby constructs. It appears in most of the built-in Ruby classes, and is useful when working with enumerables.</p>
+
+<p>To illustrate how it works, let&rsquo;s look at how it behaves for <code>Fixnums</code>.  If you call <code>5&lt;=&gt;5</code>, it returns <code>0</code>. If you call <code>4&lt;=&gt;5</code>, it returns <code>-1</code>. If you call <code>5&lt;=&gt;4</code>, it returns <code>1</code>. Basically, if the two numbers are the same, it returns <code>0</code>, otherwise it returns <code>-1</code> for least to greatest sorting, and <code>1</code> for reverse sorting.</p>
+
+<p>You can use the spaceship in your own classes by including the <code>comparable</code> module and redefining <code>&lt;=&gt;</code> with logic branching to make it return <code>-1</code>, <code>0</code>, and <code>1</code> for the cases you want.</p>
+
+<p>Why would you ever want to do that?</p>
+
+<p>Here&rsquo;s a cool use of it I came across on Exercism one day. There&rsquo;s an exercise called Clock, where you have to adjust the hours an minutes on a clock using custom <code>+</code> and <code>-</code> methods. It gets complicated when you try to add more than 60 minutes, because that will make your minute value invalid. So you have to adjust by incrementing another hour and subtracting 60 from the minutes.</p>
+
+<p>One user, <code>dalexj</code>, had a brilliant way to solve this, using the spaceship operator:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">fix_minutes</span>
+</span><span class='line'>    <span class="k">until</span> <span class="p">(</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">member?</span> <span class="n">minutes</span>
+</span><span class='line'>      <span class="vi">@hours</span> <span class="o">-=</span> <span class="mi">60</span> <span class="o">&lt;=&gt;</span> <span class="n">minutes</span>
+</span><span class='line'>      <span class="vi">@minutes</span> <span class="o">+=</span> <span class="mi">60</span> <span class="o">*</span> <span class="p">(</span><span class="mi">60</span> <span class="o">&lt;=&gt;</span> <span class="n">minutes</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="vi">@hours</span> <span class="o">%=</span> <span class="mi">24</span>
+</span><span class='line'>    <span class="nb">self</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It works like this: until the minutes passed in are between 0 and 60, he subtracts either <code>1</code> or <code>-1</code> from the hours, depending on whether the minute amount is greater than 60. He then adjusts the minutes, adding either <code>-60</code> or <code>60</code> depending on the sort order.</p>
+
+<p>The spaceship is great for defining custom sort orders for your objects, and can also come in handy for arithmetic operations if you remember that it returns one of three <code>Fixnum</code> values.</p>
+
+<h2>Wrapping Up</h2>
+
+<p>Getting better at writing code is a process of learning. Since Ruby is a language, a lot of the time I spend trying to improve is spent of reading &ldquo;literature&rdquo; (i.e. code on Exercism andGitHub), and reading (what is essentially) the dictionary for my language: (<a href="http://ruby-doc.org/">Rubydocs</a>.</p>
+
+<p>It&rsquo;s so much easier to write expressive code when you know more methods. I hope that this collection of curiosities helped expand your Ruby vocabulary.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2406,1437 +3463,6 @@ Given these API results, we could write a test like this:</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/09/04/looking-for-a-needle-in-a-haystack-with-ack/">Looking for a Needle in a Haystack! (or Using Ack to Improve Your Development Workflow)</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-09-04T06:19:42-06:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This post originally appeared on the <a href="http://quickleft.com/blog/looking-for-a-needle-in-a-haystack-or-using-ack-to-improve-your-development-workflow">Quick Left Blog</a>.</p>
-
-<h2>or Using Ack to Improve Your Development Workflow</h2>
-
-<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/120/asset.jpg" style="margin:0 auto;display:block;"></p>
-
-<h2>Introduction</h2>
-
-<p>Every day when I&rsquo;m programming, I invariably come to a point where I&rsquo;m looking for a certain line of code in
-my project. Usually, there&rsquo;s a pattern that I saw and want to reuse, and I can&rsquo;t
-find it. I could just use my editor&rsquo;s &ldquo;find in files&rdquo; feature and look for it, but sometimes I need more fine
-grained control. What if I want to find all the lines of code that <em>don&rsquo;t</em>
-contain a certain phrase? What if I want to search on a Regular
-Expression? What if I want to easily save the search results to a file?</p>
-
-<p>When I need more control in finding something, I turn my favorite command line search tool:
-<a href="http://beyondgrep.com/">ack</a>.</p>
-
-<h2>Why Ack?</h2>
-
-<p>Why should you use <code>ack</code>, when your unix distribution comes with <code>find</code>, <code>mdfind</code>, and
-<code>grep</code>? Well, because it has these advantages:</p>
-
-<ul>
-<li>It only searches the stuff you care about. It excludes Git,
-Subversion, binary files, and other irrelevant file types.</li>
-<li>It can search all the files in a certain language, regardless of file
-extension.</li>
-<li>It is a lot easier to remember the command flags to scope your search
-than with other tools.</li>
-</ul>
-
-
-<h2>Installing Ack</h2>
-
-<p>To install Ack, I would suggest using <a href="http://brew.sh/">homebrew</a>. If you
-have it installed, just type <code>brew install ack</code>.</p>
-
-<p>You can also use <code>package</code> on many other Unix distributions, as well as
-Macports, OpenBSD and FreeBSD, or just download it with this command:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl http://beyondgrep.com/ack-2.12-single-file &gt; ~/bin/ack && chmod 0755 !#:3</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Basic Seach</h2>
-
-<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/118/asset.gif" style="margin:0 auto;display:block;"></p>
-
-<p>To do a basic search for a string in a file with ack, the syntax
-is as simple as:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ack &lt;search-pattern&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This will recursively search for the pattern in specified directory.
-I usually just use a simple text search. For example, if you were to do
-this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>mkdir tmp && cd tmp
-</span><span class='line'>echo "Hello, world" &gt; hello.txt
-</span><span class='line'>echo "Goodbye, world" &gt; goodbye.txt
-</span><span class='line'>echo "Hello, squirrel" &gt; hi.txt
-</span><span class='line'>echo "Goodbye, squirrel" &gt; bye.txt</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then you could search for the files containing <code>hello</code> with:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ack hello .</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The <code>.</code> here means search the current directory. This is a recursive
-search by default. To turn off recursion, pass the <code>-n</code> flag, like this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>mkdir child-directory
-</span><span class='line'>mv hello.txt child-directory
-</span><span class='line'>ack -n hello .</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now you&rsquo;ll only see one result, <code>hi.txt</code>, because it&rsquo;s the only file
-with &lsquo;hello&rsquo; in it that lives in the current directory.</p>
-
-<h2>Sorting</h2>
-
-<p>Sometimes it would be nice to sort your search results. Easy enough!</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ack --sort-files -l</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Inverse Search</h2>
-
-<p>One of my flags is <code>-v</code>, which lets you do a search for all the files
-that <em>don&rsquo;t</em> match a given pattern. It comes in pretty handy.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ack -v &lt;search-pattern&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Careful, though, because that could be a lot of output. You might want to shovel
-it into a file like we did before, or at least pipe it to <code>less</code>.</p>
-
-<h2>Searching By File Type</h2>
-
-<p>One of my favoritate uses for <code>ack</code> is to searching for all the files in a certain language. Ack supports
-Ruby, Python, JavaScript, Shell, Clojure, HTML, and a bunch of other
-file types. To see a full listing, do:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ack --help-types</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you want to, you can add new types, change the ones that are already
-there, or delete them, with <code>--type-add</code>, <code>--type-set</code>, and <code>--type-del</code>,
-respectively.</p>
-
-<p>Assuming you&rsquo;re good with the default types, let&rsquo;s take it for a spin. Want a list of
-&ldquo;all the things&rdquo; Ruby? Open a Rails project and run this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ack -f --ruby &gt; all-ruby-files.txt</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Want to find all the Ruby files that call <code>puts</code>?</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ack --ruby puts .</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Want to find all the files that say <code>hello</code>, but <em>aren&rsquo;t</em> Ruby files?</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ack --type=noruby hello .</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Using an <code>.ackrc</code> file</h2>
-
-<p>If you do a lot of <code>ack</code>ing, and you want to set up some ack options
-systemwide, or for your specific project, you can define an <code>.ackrc</code>
-file. To have ack generate one for you, run:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ack --create-ackrc &gt; .ackrc</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then, if you run a search in the current directory, the settings in the
-<code>.ackrc</code> will be used.</p>
-
-<p>You can also put your ack options into an <code>ACK_OPTIONS</code> environment
-variable like so:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>export ACK_OPTIONS="--nocolor"</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you defined some ack options in an <code>.ackrc</code> or an environment variable and want to run a search without those options, you can also turn them off with:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ack --noenv &lt;search&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Advanced Searches</h2>
-
-<p>If you&rsquo;re diggin&#8217; it, here are some other fun things you can do with Ack.</p>
-
-<h3>Case Insenstivite Search</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ack -i &lt;search-pattern&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Match Whole Words Only</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ack -w &lt;search-pattern&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Only Output the Filenames, Without Highlighted Text</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ack -l &lt;search-pattern&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ack -L &lt;search-pattern&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Just One Result (AKA &ldquo;I&rsquo;m Feeling Lucky&rdquo;)</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ack -1 &lt;search-pattern&gt; &lt;directory&gt;
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Vim Integration (AckVim)</h2>
-
-<p>If you&rsquo;re a vim user, you might want to check out the <a href="https://github.com/mileszs/ack.vim">AckVim Plugin</a>.
-It lets you run ack inside of vim and see the results in a split window.</p>
-
-<p>Once you&rsquo;ve added it with Git or Vundle, it&rsquo;s as easy as typing:</p>
-
-<p><code>:Ack [options] {pattern} [{directories}]</code></p>
-
-<p>It&rsquo;s pretty nice to have around!</p>
-
-<h2>Ack the Cat, Cathy and Bar</h2>
-
-<p>Well, you&rsquo;ve made it this far, so here&rsquo;s some candy for you. Run these:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ack --thpppt
-</span><span class='line'>ack --cathy
-</span><span class='line'>ack --bar</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Goodbye!</h2>
-
-<p>Sometimes it can be like looking for a needle in
-a haystack trying to find what you need in your project.</p>
-
-<p><img src="//quickleft-production.s3.amazonaws.com/uploads/asset/attachment/119/asset.gif" style="margin:0 auto;display:block;"></p>
-
-<p>Seriously, though, I hope this little tour of the small command line
-tool <code>ack</code> improves your programming experience. Cheers!</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/07/24/angular-js-unit-testing-for-real-though/">AngularJS Unit Testing, for Real Though</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-07-24T06:20:37-06:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This post was a featured article in <a href="http://javascriptweekly.com/issues/192">JavaScript Weekly</a>.</p>
-
-<p>It originally appeared on the <a href="http://quickleft.com/blog/angularjs-unit-testing-for-real-though">Quick Left Blog</a>.</p>
-
-<h2>Introduction</h2>
-
-<p>When it comes to contemporary web development, AngularJS is the new hotness. Its unique approach to HTML compilation and two-way data binding make it
-an effective tool for efficiently building client-side web apps. When
-I found out that Quick Left would be using it to build a production application for one of our clients, I was excited to learn as much about it as
-I could. I scoured the interwebs for every tutorial and walkthrough
-to be found on the Google Machine. They were really helpful in understanding directives, template compilation, and the event loop, but when it came to testing, I found that the topic was often hand-waved.</p>
-
-<p>I was trained to practice Test-Driven Development, and I feel like
-something&rsquo;s out of place whenever I&rsquo;m out of the &ldquo;Red-Green-Refactor&rdquo; flow.
-Since we were still learning the ropes for effective testing in Angular, the team sometimes had to rely on &lsquo;test-after&rsquo; development. This started to make me feel itchy, so I decided to focus on figuring out testing. I sprinted on it for a week, and we soon went from about 40% test coverage
-to 86% (By the way, if you haven&rsquo;t tried it yet, check out <a href="http://gotwarlost.github.io/istanbul/">Istabul</a>
-for checking out your test coverage in JS apps).</p>
-
-<p>Today I&rsquo;d like to share some things I learned along the way.
-As good as the <a href="https://docs.angularjs.org/api">Angular docs</a> are, testing a production app is rarely as
-simple as the examples you&rsquo;ll find there. There are a lot of gotchas that pop
-up along the way, and I had to struggle my way through figuring out how
-to make things work. I found several workarounds that came in handy time
-and time again. In this article, we&rsquo;re going to look at some of them:</p>
-
-<ol>
-<li>Reusable End-to-End (e2e) pages</li>
-<li>Dealing with functions that return a promise</li>
-<li>Mocking controller and directive dependencies</li>
-<li>Accessing child and isolate scopes</li>
-</ol>
-
-
-<p>This article is written for intermediate to advanced developers using
-AngularJS to build production applications, who would like to reduce some
-of the pain of testing. It is my hope that feeling secure in testing workflow
-will enable the reader to practice a TDD workflow and build a more solid app.</p>
-
-<h2>Test Tools</h2>
-
-<p>There are many test frameworks and tools available to the Angular
-developer, and you may already have preferences around tooling. Here&rsquo;s
-the setup that we chose, and we&rsquo;ll be using for the rest of this article:</p>
-
-<ul>
-<li><p><a href="http://karma-runner.github.io/0.12/index.html"><em>Karma</em></a>: The official AngularJS team test runner. We&rsquo;ll use it to launch
-Chrome, Firefox, and PhantomJS.</p></li>
-<li><p><a href="https://docs.angularjs.org/api/ngMock/object/angular.mock"><em>AngularMocks</em></a>: Provides support for injecting and mocking Angular services in
-unit tests.</p></li>
-<li><p><a href="https://github.com/angular/protractor"><em>Protractor</em></a>: The feature testing tool for AngularJS, which launches
-your app in a browser and interacts with it via Selenium.</p></li>
-<li><p><a href="http://visionmedia.github.io/mocha/"><em>Mocha</em></a>: A node.js based test framework. Gives us the ability to write <code>describe</code> blocks and make assertions.</p></li>
-<li><p><a href="http://chaijs.com/"><em>Chai</em></a>: Assertion library that hooks into Mocha, and gives us access to Behavior-Driven Development assertions like <code>expect</code>, <code>should</code>, and <code>assert</code>. In this example, we&rsquo;ll be using <code>expect</code>.</p></li>
-<li><p><a href="http://chaijs.com/plugins/chai-as-promised"><em>Chai-as-promised</em></a>: This Chai plugin is really helpful for dealing with function calls that return a promise. It gives us the ability to say things like: <code>expect(foo).to.be.fulfilled</code>, or <code>expect(foo).to.eventually.equal(bar)</code>.</p></li>
-<li><p><a href="http://sinonjs.org/"><em>Sinon</em></a>: Stubbing and mocking library. We&rsquo;ll use it to mock out directive and controller dependencies in unit tests, and to check that functions are being called with the correct arguments.</p></li>
-<li><p><a href="http://browserify.org/"><em>Browserify</em></a>: Allows us to easily require modules of code between files in the project.</p></li>
-<li><p><a href="https://www.npmjs.org/package/partialify"><em>Partialify</em></a>: Allows us to require HTML templates inline in our AngularJS directives.</p></li>
-<li><p><a href="http://lodash.com/"><em>Lodash</em></a>: Utilities used to extend JavaScript and make it easier to work with.</p></li>
-</ul>
-
-
-<h2>Setting Up A Test Helper</h2>
-
-<p>We&rsquo;ll start by creating a test helper that will load in the necessary
-dependencies. Here, I&rsquo;m pulling in Angular Mocks, Chai,
-Chai-as-promised, and Sinon.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// test/test-helper.js</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// Load in our actual project</span>
-</span><span class='line'><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;widgetProject&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// Dependencies</span>
-</span><span class='line'><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;angular-mocks&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">chai</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;chai&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="nx">chai</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;sinon-chai&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="nx">chai</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;chai-as-promised&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">sinon</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;sinon&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>  <span class="c1">// Create a new sandbox before each test</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">sinon</span> <span class="o">=</span> <span class="nx">sinon</span><span class="p">.</span><span class="nx">sandbox</span><span class="p">.</span><span class="nx">create</span><span class="p">();</span>
-</span><span class='line'><span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">afterEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>  <span class="c1">// Cleanup the sandbox to remove all the stubs</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">sinon</span><span class="p">.</span><span class="nx">restore</span><span class="p">();</span>
-</span><span class='line'><span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nx">rootUrl</span><span class="o">:</span> <span class="s1">&#39;http://localhost:9000&#39;</span><span class="p">,</span>
-</span><span class='line'>  <span class="nx">expect</span><span class="o">:</span> <span class="nx">chai</span><span class="p">.</span><span class="nx">expect</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Getting Started: Top-Down Testing</h2>
-
-<p>I&rsquo;m a big proponent of a top-down testing style. Starting with a feature
-that I know I want to build, I like to write a pseudo-gherkin scenario
-describing the desired behavior and translate it into a feature test. I run
-that test and let it fail. Then I can begin building all the parts of the system
-that I need to make the feature work, using unit tests to guide me along the way.</p>
-
-<p>For these demos, I&rsquo;ll building an imaginary application called &ldquo;Widgets&rdquo;, that can display a list of widgets, create new widgets, and edit existing widgets. The code you&rsquo;ll see here is not enough to build the complete application, just enough to help the test examples make sense. We&rsquo;ll start by writing an e2e test describing the workflow for creating a new widget.</p>
-
-<p>To start things off, I&rsquo;ll describe a pattern we found useful in e2e testing: creating a reusable &ldquo;page&rdquo; file. For this example, we&rsquo;ll imagine that we&rsquo;re working on a form to create a new widget.</p>
-
-<h2>Reusable e2e Test Pages</h2>
-
-<p>When working on a one-page app, it makes sense to DRY up the feature tests by
-writing a reusable &ldquo;page&rdquo; that you can reference from within multiple e2e tests.</p>
-
-<p>There are many ways to structure the tests in an Angular project. Today,
-we&rsquo;ll go with this setup:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">widgets</span><span class="o">-</span><span class="nx">project</span>
-</span><span class='line'><span class="o">|-</span><span class="nx">test</span>
-</span><span class='line'><span class="o">|</span>  <span class="o">|</span>
-</span><span class='line'><span class="o">|</span>  <span class="o">|-</span><span class="nx">e2e</span>
-</span><span class='line'><span class="o">|</span>  <span class="o">|</span>  <span class="o">|-</span><span class="nx">pages</span>
-</span><span class='line'><span class="o">|</span>  <span class="o">|</span>
-</span><span class='line'><span class="o">|</span>  <span class="o">|-</span><span class="nx">unit</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Inside of the <code>pages</code> folder, we&rsquo;ll create a <code>WidgetsPage</code> function that
-we can require into our e2e tests. It has five references:</p>
-
-<ul>
-<li><code>widgetRepeater</code>: a list of widgets contained in an <code>ng-repeat</code></li>
-<li><code>firstWidget</code>: the first widget in the repeater</li>
-<li><code>widgetCreateForm</code>: the form used to create a widget</li>
-<li><code>widgetCreateNameField</code>: form field to enter the widget&rsquo;s name</li>
-<li><code>widgetCreateSubmit</code>: form submit button</li>
-</ul>
-
-
-<p>In the end, it looks like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// test/e2e/pages/widgets-page.js</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">helpers</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../test-helper&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">function</span> <span class="nx">WidgetsPage</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">get</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">browser</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">helpers</span><span class="p">.</span><span class="nx">rootUrl</span> <span class="o">+</span> <span class="s1">&#39;/widgets&#39;</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">widgetRepeater</span> <span class="o">=</span> <span class="nx">by</span><span class="p">.</span><span class="nx">repeater</span><span class="p">(</span><span class="s1">&#39;widget in widgets&#39;</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">firstWidget</span> <span class="o">=</span> <span class="nx">element</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">widgetRepeater</span><span class="p">.</span><span class="nx">row</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">widgetCreateForm</span> <span class="o">=</span> <span class="nx">element</span><span class="p">(</span><span class="nx">by</span><span class="p">.</span><span class="nx">css</span><span class="p">(</span><span class="s1">&#39;.widget-create-form&#39;</span><span class="p">));</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">widgetCreateNameField</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">widgetCreateForm</span><span class="p">.</span><span class="nx">element</span><span class="p">(</span><span class="nx">by</span><span class="p">.</span><span class="nx">model</span><span class="p">(</span><span class="s1">&#39;widget.name&#39;</span><span class="p">);</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">widgetCreateSubmit</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">widgetCreateForm</span><span class="p">.</span><span class="nx">element</span><span class="p">(</span><span class="nx">by</span><span class="p">.</span><span class="nx">buttonText</span><span class="p">(</span><span class="s1">&#39;Create&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">WidgetsPage</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>From within my e2e tests, I can now load up this page and interact with
-the elements on it. Here&rsquo;s how I would use the test page in a test for the widget
-create form:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// e2e/widgets_test.js</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">helpers</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../test-helper&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">expect</span> <span class="o">=</span> <span class="nx">helpers</span><span class="p">.</span><span class="nx">expect</span><span class="p">;</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">WidgetsPage</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./pages/widgets-page&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;creating widgets&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">page</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">WidgetsPage</span><span class="p">();</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">page</span><span class="p">.</span><span class="nx">get</span><span class="p">();</span>
-</span><span class='line'>  <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should create a new widget&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">expect</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">page</span><span class="p">.</span><span class="nx">firstWidget</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">.</span><span class="kc">undefined</span><span class="p">;</span>
-</span><span class='line'>    <span class="nx">expect</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">page</span><span class="p">.</span><span class="nx">widgetCreateForm</span><span class="p">.</span><span class="nx">isDisplayed</span><span class="p">()).</span><span class="nx">to</span><span class="p">.</span><span class="nx">eventually</span><span class="p">.</span><span class="nx">be</span><span class="p">.</span><span class="kc">true</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">page</span><span class="p">.</span><span class="nx">widgetCreateNameField</span><span class="p">.</span><span class="nx">sendKeys</span><span class="p">(</span><span class="s1">&#39;New Widget&#39;</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">page</span><span class="p">.</span><span class="nx">widgetCreateSubmit</span><span class="p">.</span><span class="nx">click</span><span class="p">();</span>
-</span><span class='line'>    <span class="nx">expect</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">page</span><span class="p">.</span><span class="nx">firstWidget</span><span class="p">.</span><span class="nx">getText</span><span class="p">()).</span><span class="nx">to</span><span class="p">.</span><span class="nx">eventually</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="s1">&#39;Name: New Widget&#39;</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">});</span>
-</span><span class='line'><span class="p">});</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Let&rsquo;s step through what&rsquo;s happening here. First, we load up the test
-helpers and get <code>expect</code> and the reusable <code>WidgetsPage</code> from them.
-In the <code>beforeEach</code>, we load up the page in the browser.
-Then, in the example, we use the page elements we defined in the
-<code>WidgetsPage</code> to interact with the page. We check that there
-are no widgets, then fill out the form to create one named &ldquo;New Widget&rdquo;,
-and check that it is displayed on the page.</p>
-
-<p>By splitting the logic for the form out into a reusable &ldquo;page&rdquo;, we can
-now reuse it to test form validations or custom form directives later on.</p>
-
-<h2>Dealing With Functions That Return a Promise</h2>
-
-<p>The assertions we get from Protractor in the test above return promises, so we use
-Chai-as-promised to check that functions like <code>isDisplayed</code> and <code>getText</code> return what we expect <em>after</em> they&rsquo;re resolved.</p>
-
-<p>We can also deal with promises inside of unit tests. Take a look at this
-example, in which we test a modal that can be used to edit an existing widget.
-It makes use of the UI Bootstrap <code>$modal</code> service. When a user opens the
-modal, this service returns a promise. When she saves or cancels the modal,
-the promise is resolved or rejected. Here, we&rsquo;ll test that the <code>save</code> and <code>cancel</code> methods are properly hooked up, again using Chai-as-promised.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// widget-editor-service.js</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">angular</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;angular&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;lodash&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;widgetProject.widgetEditor&#39;</span><span class="p">).</span><span class="nx">service</span><span class="p">(</span><span class="s1">&#39;widgetEditor&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;$modal&#39;</span><span class="p">,</span> <span class="s1">&#39;$q&#39;</span><span class="p">,</span> <span class="s1">&#39;$templateCache&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span>
-</span><span class='line'>  <span class="nx">$modal</span><span class="p">,</span>
-</span><span class='line'>  <span class="nx">$q</span><span class="p">,</span>
-</span><span class='line'>  <span class="nx">$templateCache</span>
-</span><span class='line'><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">return</span> <span class="kd">function</span><span class="p">(</span><span class="nx">widgetObject</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">deferred</span> <span class="o">=</span> <span class="nx">$q</span><span class="p">.</span><span class="nx">defer</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">templateId</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">uniqueId</span><span class="p">(</span><span class="s1">&#39;widgetEditorTemplate&#39;</span><span class="p">);</span>
-</span><span class='line'>    <span class="nx">$templateCache</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="nx">templateId</span><span class="p">,</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./widget-editor-template.html&#39;</span><span class="p">));</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">dialog</span> <span class="o">=</span> <span class="nx">$modal</span><span class="p">({</span>
-</span><span class='line'>      <span class="nx">template</span><span class="o">:</span> <span class="nx">templateId</span>
-</span><span class='line'>    <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nx">dialog</span><span class="p">.</span><span class="nx">$scope</span><span class="p">.</span><span class="nx">widget</span> <span class="o">=</span> <span class="nx">widgetObject</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nx">dialog</span><span class="p">.</span><span class="nx">$scope</span><span class="p">.</span><span class="nx">save</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>      <span class="c1">// Do some saving things</span>
-</span><span class='line'>      <span class="nx">deferred</span><span class="p">.</span><span class="nx">resolve</span><span class="p">();</span>
-</span><span class='line'>      <span class="nx">dialog</span><span class="p">.</span><span class="nx">destroy</span><span class="p">();</span>
-</span><span class='line'>    <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nx">dialog</span><span class="p">.</span><span class="nx">$scope</span><span class="p">.</span><span class="nx">cancel</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nx">deferred</span><span class="p">.</span><span class="nx">reject</span><span class="p">();</span>
-</span><span class='line'>      <span class="nx">dialog</span><span class="p">.</span><span class="nx">destroy</span><span class="p">();</span>
-</span><span class='line'>    <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">return</span> <span class="nx">deferred</span><span class="p">.</span><span class="nx">promise</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">};</span>
-</span><span class='line'><span class="p">}]);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This service loads the widget editor template into the template cache,
-loads a widget into it, and and sets up a deferred object that will be
-resolved or rejected depending on whether the user saves or cancels from
-the editor. It returns a promise from the deferred.</p>
-
-<p>Here&rsquo;s how you might test something like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// test/unit/widget-editor-directive_test.js</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">angular</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;angular&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">helpers</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../test_helper&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">expect</span> <span class="o">=</span> <span class="nx">helpers</span><span class="p">.</span><span class="nx">expect</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;widget storage service&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nx">self</span><span class="p">.</span><span class="nx">modal</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nx">$scope</span><span class="o">:</span> <span class="p">{},</span>
-</span><span class='line'>        <span class="nx">destroy</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">sinon</span><span class="p">.</span><span class="nx">stub</span><span class="p">()</span>
-</span><span class='line'>      <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nx">angular</span><span class="p">.</span><span class="nx">mock</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;widgetProject.widgetEditor&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">$modal</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">modal</span> <span class="p">});</span>
-</span><span class='line'>  <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should persist changes when the user saves&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nx">angular</span><span class="p">.</span><span class="nx">mock</span><span class="p">.</span><span class="nx">inject</span><span class="p">([</span><span class="s1">&#39;widgetModal&#39;</span><span class="p">,</span> <span class="s1">&#39;$rootScope&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">widgetModal</span><span class="p">,</span> <span class="nx">$rootScope</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="kd">var</span> <span class="nx">widget</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Widget&#39;</span> <span class="p">};</span>
-</span><span class='line'>      <span class="kd">var</span> <span class="nx">promise</span> <span class="o">=</span> <span class="nx">widgetModal</span><span class="p">(</span><span class="nx">widget</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="nx">self</span><span class="p">.</span><span class="nx">modal</span><span class="p">.</span><span class="nx">$scope</span><span class="p">.</span><span class="nx">save</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="c1">// Somehow test that the widget was saved</span>
-</span><span class='line'>      <span class="nx">expect</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">modal</span><span class="p">.</span><span class="nx">destroy</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">have</span><span class="p">.</span><span class="nx">been</span><span class="p">.</span><span class="nx">called</span><span class="p">;</span>
-</span><span class='line'>      <span class="nx">expect</span><span class="p">(</span><span class="nx">promise</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">.</span><span class="nx">fulfilled</span><span class="p">.</span><span class="nx">and</span><span class="p">.</span><span class="nx">notify</span><span class="p">(</span><span class="nx">done</span><span class="p">);</span>
-</span><span class='line'><span class="nx">st</span>
-</span><span class='line'>      <span class="nx">$rootScope</span><span class="p">.</span><span class="nx">$digest</span><span class="p">();</span>
-</span><span class='line'>    <span class="p">}]);</span>
-</span><span class='line'>  <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should not save when the user cancels&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nx">angular</span><span class="p">.</span><span class="nx">mock</span><span class="p">.</span><span class="nx">inject</span><span class="p">([</span><span class="s1">&#39;widgetModal&#39;</span><span class="p">,</span> <span class="s1">&#39;$rootScope&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">widgetModal</span><span class="p">,</span> <span class="nx">$rootScope</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="kd">var</span> <span class="nx">widget</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Widget&#39;</span> <span class="p">};</span>
-</span><span class='line'>      <span class="kd">var</span> <span class="nx">promise</span> <span class="o">=</span> <span class="nx">widgetModal</span><span class="p">(</span><span class="nx">widget</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="nx">self</span><span class="p">.</span><span class="nx">modal</span><span class="p">.</span><span class="nx">$scope</span><span class="p">.</span><span class="nx">cancel</span><span class="p">();</span>
-</span><span class='line'>      <span class="nx">expect</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">modal</span><span class="p">.</span><span class="nx">destroy</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">have</span><span class="p">.</span><span class="nx">been</span><span class="p">.</span><span class="nx">called</span><span class="p">;</span>
-</span><span class='line'>      <span class="nx">expect</span><span class="p">(</span><span class="nx">promise</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">.</span><span class="nx">rejected</span><span class="p">.</span><span class="nx">and</span><span class="p">.</span><span class="nx">notify</span><span class="p">(</span><span class="nx">done</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="nx">$rootScope</span><span class="p">.</span><span class="nx">$digest</span><span class="p">();</span>
-</span><span class='line'>    <span class="p">}]);</span>
-</span><span class='line'>  <span class="p">});</span>
-</span><span class='line'><span class="p">});</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>To deal with the complexity of the promise that the modal returns in the widget editor test, we have to do a few things. First, we build a mock <code>$modal</code> service in the <code>beforeEach</code> function, replacing it with a function that returns <code>$scope</code> as an empty object, and stubs <code>destroy</code>. In <code>angular.mock.module</code>, we pass this modal double
-into the options to get Angular Mocks to use it instead of the real
-<code>$modal</code> service. This pattern is extremely useful in stubbing out
-dependencies, as we&rsquo;ll discover shortly.</p>
-
-<p>There are two examples here, and each has to wait for the promise
-returned by the widget editor to be resolved before it can be completed.
-Because of this, we have to pass <code>done</code> as parameter to the example
-itself, and <code>notify(done)</code> when the test is complete.</p>
-
-<p>Within the tests, we use Angular Mocks again to inject the widget modal
-and the AngularJS <code>$rootScope</code> service into the test. Having <code>$rootScope</code> gives
-us the ability to trigger a <code>$digest</code> loop. In each of the tests, we load up
-the modal, cancel or reject it, and use Chai-as-expected to test whether the
-promise returned was <code>rejected</code> or <code>resolved</code>. To trigger the actual promise
-resolution and call <code>destroy</code>, we have to have a <code>$digest</code> loop, so we
-do that at the end of each assertion as well.</p>
-
-<p>We&rsquo;ve now looked at how to deal with promises in both e2e and unit
-tests, using these assertions:</p>
-
-<ul>
-<li><code>expect(foo).to.eventually.equal(bar)</code></li>
-<li><code>expect(foo).to.be.fulfilled</code></li>
-<li><code>expect(foo).to.be.rejected</code></li>
-</ul>
-
-
-<h2>Mocking Controller and Directive Dependencies</h2>
-
-<p>In the previous example, we had a service that relied on the <code>$modal</code>
-service, which we mocked out so that we could ensure that <code>destroy</code> was
-being called. The pattern we used to get that hooked up is very useful in
-getting unit tests to work properly in Angular.</p>
-
-<p>The pattern is as follows:</p>
-
-<ul>
-<li>Set <code>var self = this</code> in the beforeEach block.</li>
-<li>Build a double and stub its methods, then make it a property of the <code>self</code> object:</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">self</span><span class="p">.</span><span class="nx">dependency</span> <span class="o">=</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nx">dependencyMethod</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">sinon</span><span class="p">.</span><span class="nx">stub</span><span class="p">()</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>`
-- Pass your doubles into the module under test:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">angular</span><span class="p">.</span><span class="nx">mock</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;mymodule&#39;</span><span class="p">,</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nx">dependency</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">dependecy</span><span class="p">,</span>
-</span><span class='line'>  <span class="nx">otherDependency</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">otherDependency</span>
-</span><span class='line'><span class="p">});</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Check that the mocked methods within your test examples. You can use
- <code>expect(foo).to.have.been.called.withArgs</code>, passing in the arguments
- you expect, for more precise coverage.</li>
-</ul>
-
-
-<p>Sometimes directives or controllers depend on many external and internal
-dependencies, and you need to mock them out. Here&rsquo;s a more complicated example,
-in which directive watches a <code>widgetStorage</code> service and updates the
-widgets in its scope whenever the collection changes. There&rsquo;s also
-an <code>edit</code> method that opens the <code>widgetEditor</code> we created above.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// widget-viewer-directive.js</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">angular</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;angular&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;widgetProject.widgetViewer&#39;</span><span class="p">).</span><span class="nx">directive</span><span class="p">(</span><span class="s1">&#39;widgetViewer&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;widgetStorage&#39;</span><span class="p">,</span> <span class="s1">&#39;widgetEditor&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span>
-</span><span class='line'>  <span class="nx">widgetStorage</span><span class="p">,</span>
-</span><span class='line'>  <span class="nx">widgetEditor</span>
-</span><span class='line'><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">return</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">restrict</span><span class="o">:</span> <span class="s1">&#39;E&#39;</span><span class="p">,</span>
-</span><span class='line'>    <span class="nx">template</span><span class="o">:</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./widget-viewer-template.html&#39;</span><span class="p">),</span>
-</span><span class='line'>    <span class="nx">link</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$scope</span><span class="p">,</span> <span class="nx">$element</span><span class="p">,</span> <span class="nx">$attributes</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nx">$scope</span><span class="p">.</span><span class="nx">$watch</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">return</span> <span class="nx">widgetStorage</span><span class="p">.</span><span class="nx">notify</span><span class="p">;</span>
-</span><span class='line'>      <span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">widgets</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nx">$scope</span><span class="p">.</span><span class="nx">widgets</span> <span class="o">=</span> <span class="nx">widgets</span><span class="p">;</span>
-</span><span class='line'>      <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="nx">$scope</span><span class="p">.</span><span class="nx">edit</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">widget</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nx">widgetEditor</span><span class="p">(</span><span class="nx">widget</span><span class="p">);</span>
-</span><span class='line'>      <span class="p">});</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>  <span class="p">};</span>
-</span><span class='line'><span class="p">}]);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Here&rsquo;s how we might test something like this, mocking out the
-dependencies on <code>widgetStorage</code> and the <code>widgetEditor</code>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// test/unit/widget-viewer-directive_test.js</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">angular</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;angular&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">helpers</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../test_helper&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">expect</span> <span class="o">=</span> <span class="nx">helpers</span><span class="p">.</span><span class="nx">expect</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;widget viewer directive&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nx">self</span><span class="p">.</span><span class="nx">widgetStorage</span> <span class="o">=</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nx">notify</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">sinon</span><span class="p">.</span><span class="nx">stub</span><span class="p">()</span>
-</span><span class='line'>    <span class="p">};</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nx">self</span><span class="p">.</span><span class="nx">widgetEditor</span> <span class="o">=</span> <span class="nx">self</span><span class="p">.</span><span class="nx">sinon</span><span class="p">.</span><span class="nx">stub</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nx">angular</span><span class="p">.</span><span class="nx">mock</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;widgetProject.widgetViewer&#39;</span><span class="p">,</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nx">widgetStorage</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">widgetStorage</span><span class="p">,</span>
-</span><span class='line'>      <span class="nx">widgetEditor</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">widgetEditor</span>
-</span><span class='line'>    <span class="p">});</span>
-</span><span class='line'>  <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">// The rest of the test...</span>
-</span><span class='line'><span class="p">});</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Accessing Child and Isolate Scopes</h2>
-
-<p>Sometimes you need to write a directive that has an isolate or child
-scope inside of it. For example, when using the <a href="http://mgcrea.github.io/angular-strap/">Angular Strap</a> <code>$dropdown</code>
-service, an isolate scope is created. It can be a pain to try to access these from within your tests. Knowing about <code>self.element.isolateScope()</code> is the key to solving this problem. Here&rsquo;s an example using <code>$dropdown</code>, which creates an isolate scope:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// nested-widget-directive.js</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">angular</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;angular&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;widgetSidebar.nestedWidget&#39;</span><span class="p">).</span><span class="nx">directive</span><span class="p">(</span><span class="s1">&#39;nestedSidebar&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;$dropdown&#39;</span><span class="p">,</span> <span class="s1">&#39;widgetStorage&#39;</span><span class="p">,</span> <span class="s1">&#39;widgetEditor&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span>
-</span><span class='line'>  <span class="nx">$dropdown</span><span class="p">,</span>
-</span><span class='line'>  <span class="nx">widgetStorage</span><span class="p">,</span>
-</span><span class='line'>  <span class="nx">widgetEditor</span>
-</span><span class='line'><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">return</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">restrict</span><span class="o">:</span> <span class="s1">&#39;E&#39;</span><span class="p">,</span>
-</span><span class='line'>    <span class="nx">template</span><span class="o">:</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./widget-sidebar-template.html&#39;</span><span class="p">),</span>
-</span><span class='line'>    <span class="nx">scope</span><span class="o">:</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nx">widget</span><span class="o">:</span> <span class="s1">&#39;=&#39;</span>
-</span><span class='line'>    <span class="p">},</span>
-</span><span class='line'>    <span class="nx">link</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$scope</span><span class="p">,</span> <span class="nx">$element</span><span class="p">,</span> <span class="nx">$attributes</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nx">$scope</span><span class="p">.</span><span class="nx">actions</span> <span class="o">=</span> <span class="p">[{</span>
-</span><span class='line'>        <span class="nx">text</span><span class="o">:</span> <span class="s1">&#39;Edit&#39;</span><span class="p">,</span>
-</span><span class='line'>        <span class="nx">click</span><span class="o">:</span> <span class="s1">&#39;edit()&#39;</span>
-</span><span class='line'>      <span class="p">},</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nx">text</span><span class="o">:</span> <span class="s1">&#39;Delete&#39;</span><span class="p">,</span>
-</span><span class='line'>        <span class="nx">click</span><span class="o">:</span> <span class="s1">&#39;delete()&#39;</span>
-</span><span class='line'>      <span class="p">}]</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="nx">$scope</span><span class="p">.</span><span class="nx">edit</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nx">widgetEditor</span><span class="p">(</span><span class="nx">$scope</span><span class="p">.</span><span class="nx">widget</span><span class="p">);</span>
-</span><span class='line'>      <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="nx">$scope</span><span class="p">.</span><span class="k">delete</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nx">widgetStorage</span><span class="p">.</span><span class="nx">destroy</span><span class="p">(</span><span class="nx">$scope</span><span class="p">.</span><span class="nx">widget</span><span class="p">);</span>
-</span><span class='line'>      <span class="p">});</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>  <span class="p">};</span>
-</span><span class='line'><span class="p">}]);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Assuming this directive inherits the widget from a parent directive that
-has a collection of widgets, it can be tough to get ahold of the child scope
-to test its properties are being updated as expected. But it can be done. Here&rsquo;s how:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// test/unit/nested-widget-directive_test.js</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">angular</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;angular&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">helpers</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../test_helper&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">expect</span> <span class="o">=</span> <span class="nx">helpers</span><span class="p">.</span><span class="nx">expect</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;nested widget directive&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nx">self</span><span class="p">.</span><span class="nx">widgetStorage</span> <span class="o">=</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nx">destroy</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">sinon</span><span class="p">.</span><span class="nx">stub</span><span class="p">()</span>
-</span><span class='line'>    <span class="p">};</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nx">self</span><span class="p">.</span><span class="nx">widgetEditor</span> <span class="o">=</span> <span class="nx">self</span><span class="p">.</span><span class="nx">sinon</span><span class="p">.</span><span class="nx">stub</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nx">angular</span><span class="p">.</span><span class="nx">mock</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;widgetProject.widgetViewer&#39;</span><span class="p">,</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nx">widgetStorage</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">widgetStorage</span><span class="p">,</span>
-</span><span class='line'>      <span class="nx">widgetEditor</span><span class="o">:</span> <span class="nx">self</span><span class="p">.</span><span class="nx">widgetEditor</span>
-</span><span class='line'>    <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nx">angular</span><span class="p">.</span><span class="nx">mock</span><span class="p">.</span><span class="nx">inject</span><span class="p">([</span><span class="s1">&#39;$rootScope&#39;</span><span class="p">,</span> <span class="s1">&#39;$compile&#39;</span><span class="p">,</span> <span class="s1">&#39;$controller&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$rootScope</span><span class="p">,</span> <span class="nx">$compile</span><span class="p">,</span> <span class="nx">$controller</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nx">self</span><span class="p">.</span><span class="nx">parentScope</span> <span class="o">=</span> <span class="nx">$rootScope</span><span class="p">.</span><span class="k">new</span><span class="p">();</span>
-</span><span class='line'>      <span class="nx">self</span><span class="p">.</span><span class="nx">childScope</span> <span class="o">=</span> <span class="nx">$rootScope</span><span class="p">.</span><span class="k">new</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="nx">self</span><span class="p">.</span><span class="nx">compile</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>        <span class="nx">self</span><span class="p">.</span><span class="nx">childScope</span><span class="p">.</span><span class="nx">widget</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">id</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;widget1&#39;</span> <span class="p">};</span>
-</span><span class='line'>        <span class="nx">self</span><span class="p">.</span><span class="nx">parentElement</span>
-</span><span class='line'>        <span class="o">=</span> <span class="nx">$compile</span><span class="p">(</span><span class="s1">&#39;&lt;widget-organizer&gt;&lt;/widget-organizer&gt;&#39;</span><span class="p">)(</span><span class="nx">self</span><span class="p">.</span><span class="nx">parentScope</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="nx">self</span><span class="p">.</span><span class="nx">parentScope</span><span class="p">.</span><span class="nx">$digest</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="nx">self</span><span class="p">.</span><span class="nx">childElement</span> <span class="o">=</span> <span class="nx">angular</span><span class="p">.</span><span class="nx">element</span><span class="p">(</span><span class="s1">&#39;&lt;nested-widget</span>
-</span><span class='line'><span class="s1">        widget=&quot;widget&quot;&gt;&lt;/nested-widget&gt;&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="nx">self</span><span class="p">.</span><span class="nx">parentElement</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">childElement</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="nx">self</span><span class="p">.</span><span class="nx">element</span> <span class="o">=</span> <span class="nx">$compile</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">childElement</span><span class="p">)(</span><span class="nx">self</span><span class="p">.</span><span class="nx">childScope</span><span class="p">);</span>
-</span><span class='line'>        <span class="nx">self</span><span class="p">.</span><span class="nx">childScope</span><span class="p">.</span><span class="nx">$digest</span><span class="p">();</span>
-</span><span class='line'>      <span class="p">}]);</span>
-</span><span class='line'>    <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nx">self</span><span class="p">.</span><span class="nx">compile</span><span class="p">();</span>
-</span><span class='line'>    <span class="nx">self</span><span class="p">.</span><span class="nx">isolateScope</span> <span class="o">=</span> <span class="nx">self</span><span class="p">.</span><span class="nx">element</span><span class="p">.</span><span class="nx">isolateScope</span><span class="p">();</span>
-</span><span class='line'>  <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;edits the widget&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
-</span><span class='line'>    <span class="nx">self</span><span class="p">.</span><span class="nx">isolateScope</span><span class="p">.</span><span class="nx">edit</span><span class="p">();</span>
-</span><span class='line'>    <span class="nx">self</span><span class="p">.</span><span class="nx">rootScope</span><span class="p">.</span><span class="nx">$digest</span><span class="p">();</span>
-</span><span class='line'>    <span class="nx">expect</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">widgetEditor</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">have</span><span class="p">.</span><span class="nx">been</span><span class="p">.</span><span class="nx">calledWith</span><span class="p">(</span><span class="nx">self</span><span class="p">.</span><span class="nx">childScope</span><span class="p">.</span><span class="nx">widget</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">});</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Craziness, right? First we mock out the <code>widgetStorage</code> and <code>widgetEditor</code> again, then we proceed to create a <code>compile</code> function. This function will instantiate two scopes, a <code>parentScope</code> and a <code>childScope</code>, stub out a widget, and put it on the child scope. Then <code>compile</code> goes on to do some complicated template and scope setup: first, compiling a parent element called <code>widget-organizer</code>, which gets the parent scope passed into it.  Once that&rsquo;s all set up, we add a <code>nested-widget</code> child element to it, pass it the child scope, and trigger the <code>$digest</code> loop.</p>
-
-<p>Finally, we get to the magic: we call the <code>compile</code> function, then hook
-into the compiled template&rsquo;s isolate scope (which is the <code>$dropdown</code>
-scope), with <code>self.element.isolateScope()</code>. When we actually get to the
-assertion at the end, we can hook into the isolate scope to call <code>edit</code>,
-and finally check that the stubbed out <code>widgetEditor</code> was called with
-the stubbed widget.</p>
-
-<h2>Conclusion</h2>
-
-<p>Testing can get painful. I know that there were several times in our
-project where the pain of figuring out what to do was so great that it
-was tempting to just move on, writing code and falling back to the &ldquo;click test&rdquo; to
-make sure everything was working. Unfortunately, once you get out of that flow, the feeling of uncertainty begins to grow and grow.</p>
-
-<p>After we took the time to figure out how to deal with these difficult
-cases, it became a lot easier to know what to do when similar
-complicated cases presented themselves. Armed with the patterns
-described in this article, we were able to get into a TDD workflow
-and move forward with confidence.</p>
-
-<p>I hope that the testing patterns we&rsquo;ve looked at today prove useful in
-your own development practice. AngularJS is still a young, growing framework.
-What other patterns have you found to make it easier to test? Please
-tweet at me @fluxusfrequency!</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/05/20/five-capybara-hacks-to-make-your-testing-experience-less-painful/">Five Capybara Hacks to Make Your Testing Experience Less Painful</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-05-20T06:20:08-06:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This post originally appeared on the <a href="http://quickleft.com/blog/five-capybara-hacks-to-make-your-testing-experience-less-painful">Quick Left Blog</a>.</p>
-
-<h2>Testing, Testing&hellip;</h2>
-
-<p>Everyone knows it&rsquo;s important to test your code. But sometimes, the experience
-can be a little bit painful. Ok, sometimes it&rsquo;s very painful.</p>
-
-<p><img src="http://quickleft-production.s3.amazonaws.com/uploads/asset/attachment/58/asset.jpg" alt="Painful Testing" /></p>
-
-<p>What to do? Abandon the tests? Never! Smokey, this is not &lsquo;Nam. This is coding. There are rules.</p>
-
-<p>Today I want to share a few of the things I&rsquo;ve learned that help mitigate that
-pain when testing Rails with Capybara. Ladies and gentlemen, I give you&hellip;</p>
-
-<h2>The Hacks</h2>
-
-<h3>1) Execute Script</h3>
-
-<p>In one project I was working on, I wanted to use a fake password input field so
-I could display a text field instead of a password field. I wanted to do
-that so I could give it placeholder text that wouldn&rsquo;t appear as dots.
-When the fake field received focus, it was replaced with the real password
-field using jQuery.</p>
-
-<p>This solution passed the click test, but it was a headache when testing.
-My Capybara spec couldn&rsquo;t find the password field, because it was hidden.
-Since pretty much every integration test I had needed to log in before it could
-do anything, I was stuck.</p>
-
-<p>In order to overcome the difficulty, I had the test execute a script to show the
-field I was looking for.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="n">page</span><span class="o">.</span><span class="n">execute_script</span><span class="p">(</span><span class="s2">&quot;$(&#39;#new_password&#39;).show()&quot;</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I could then fill out the form normally and access the rest of the app.</p>
-
-<p>This trick also comes in useful when using Bootstrap for responsive design.
-Sometimes, the mobile menu dropdown can cause conflicts with other elements on
-the page, and Capybara can&rsquo;t click on them.</p>
-
-<h3>2) Tail the Test Log File</h3>
-
-<p>I&rsquo;ve gotten so used to being able to read the Rails server stack trace when
-troubleshooting in development, that I sometimes I don&rsquo;t know what to do to when
-I want to find my errors in while testing. The test stack trace and pry will only
-take you so far. When things get really hairy, you can get a similar output
-as you would see in development by running <code>tail -f log/test.log</code> in a separate
-terminal tab before running the specs.</p>
-
-<h3>3) Find the Port Address and Pause the Test</h3>
-
-<p>Sometimes I just want to see what&rsquo;s going on in the browser. Although
-<code>save_and_open_page</code> gives you some idea of what&rsquo;s going on, you can&rsquo;t
-really click around, because the page it gives you is static and lacking assets.
-To dig into what&rsquo;s going on, I like to use a trick I learned from my mentor,
-Mike Pack.</p>
-
-<p>Just above the broken line in your test, add these two lines of code.
-Note that you have to have pry installed in your current gemset or
-specified in the Gemfile for this to work.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">puts</span> <span class="n">current_url</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;pry&#39;</span><span class="p">;</span> <span class="nb">binding</span><span class="o">.</span><span class="n">pry</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Run the specs, and when they pause, copy the url and port number from the test
-output. Open your browser and paste the address into the window. Voila!
-You&rsquo;re now browsing your site in test mode!</p>
-
-<h3>4) Make Sure DatabaseCleaner Plays Nice with PhantomJS</h3>
-
-<p>It can get really tricky to test JavaScript in Rails.
-Arguably, using some Jasmine tests may be the best thing if you have
-a lot of JS code. That may work for unit tests, but if you want to test
-a feature from end to end, it usually makes sense to use Capybara. To drive the
-JavaScript, you need an engine like <a href="https://github.com/teampoltergeist/poltergeist">Poltergeist</a>, which relies on <a href="http://phantomjs.org/">PhantomJS</a>.</p>
-
-<p>Meanwhile, you also need to take care of cleaning the database between specs to
-make sure that they are independent. In my apps, I usually take care of this
-with the <a href="https://github.com/bmabey/database_cleaner">DatabaseCleaner</a> gem.</p>
-
-<p>Unfortunately, PhantomJS runs the JavaScript code in a separate thread from the
-application code, which means that JS transactions don&rsquo;t always get
-committed to the database before DatabaseCleaner attempts to clean them.</p>
-
-<p>The answer is to make sure that you set it to use the <code>:truncation</code>
-strategy for JavaScript tests. See Avdi Grimm&rsquo;s
-<a href="http://devblog.avdi.org/2012/08/31/configuring-database_cleaner-with-rails-rspec-capybara-and-selenium/">blog post</a> on the subject for more details.</p>
-
-<p>Here&rsquo;s how to set it up in your <code>spec_helper</code>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">RSpec</span><span class="o">.</span><span class="n">configure</span> <span class="k">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">config</span><span class="o">.</span><span class="n">before</span> <span class="ss">:suite</span> <span class="k">do</span>
-</span><span class='line'>    <span class="no">DatabaseCleaner</span><span class="o">.</span><span class="n">strategy</span> <span class="o">=</span> <span class="ss">:truncation</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">config</span><span class="o">.</span><span class="n">before</span><span class="p">(</span><span class="ss">:each</span><span class="p">)</span> <span class="k">do</span>
-</span><span class='line'>    <span class="no">DatabaseCleaner</span><span class="o">.</span><span class="n">strategy</span> <span class="o">=</span> <span class="ss">:transaction</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">config</span><span class="o">.</span><span class="n">before</span><span class="p">(</span><span class="ss">:each</span><span class="p">,</span> <span class="ss">:js</span> <span class="o">=&gt;</span> <span class="kp">true</span><span class="p">)</span> <span class="k">do</span>
-</span><span class='line'>    <span class="no">DatabaseCleaner</span><span class="o">.</span><span class="n">strategy</span> <span class="o">=</span> <span class="ss">:truncation</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>5) Split VCR/Webmock Specs Into a Separate Rake Task From Your JavaScript Tests</h3>
-
-<p>Sometimes I have service objects that interact with an external API. The easiest
-way to test them without relying on actual HTTP requests is to use the
-<a href="https://github.com/vcr/vcr">VCR</a> gem. With VCR, you can also hook into
-<a href="https://github.com/bblimke/webmock">Webmock</a>, which keeps your computer from
-making any external HTTP requests during the test cycle. This is all well and good
-until you are making requests against a local API with JavaScript as well.
-In that case, Webmock will block the requests. Over the line!</p>
-
-<p>I&rsquo;ve played around with various ways of setting a condition in my test
-helper and before blocks to only run Webmock for a certain test, but I&rsquo;ve come
-up with another solution that I prefer. Instead of running <code>rspec</code>, I split the
-tests into a <code>:services</code> group, and a <code>:local</code> group. Then, I write a rake task
-in lib/tasks called <code>spec.rake</code> that looks like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">namespace</span> <span class="ss">:spec</span> <span class="k">do</span>
-</span><span class='line'>  <span class="n">desc</span> <span class="s2">&quot;run all local specs&quot;</span>
-</span><span class='line'>  <span class="n">task</span> <span class="ss">:local</span>  <span class="k">do</span>
-</span><span class='line'>    <span class="nb">system</span> <span class="s1">&#39;rspec spec/models&#39;</span>
-</span><span class='line'>    <span class="nb">system</span> <span class="s1">&#39;rspec spec/features&#39;</span>
-</span><span class='line'>    <span class="nb">system</span> <span class="s1">&#39;rspec spec/controllers&#39;</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">desc</span> <span class="s2">&quot;run all service specs&quot;</span>
-</span><span class='line'>  <span class="n">task</span> <span class="ss">:services</span> <span class="k">do</span>
-</span><span class='line'>    <span class="nb">system</span> <span class="s1">&#39;rspec spec/services&#39;</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">task</span> <span class="ss">:all</span> <span class="k">do</span>
-</span><span class='line'>    <span class="nb">system</span> <span class="s1">&#39;rspec spec/models&#39;</span>
-</span><span class='line'>    <span class="nb">system</span> <span class="s1">&#39;rspec spec/features&#39;</span>
-</span><span class='line'>    <span class="nb">system</span> <span class="s1">&#39;rspec spec/controllers&#39;</span>
-</span><span class='line'>    <span class="nb">system</span> <span class="s1">&#39;rspec spec/services&#39;</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This way, you only have to type one command to run all of your specs, just as
-you would if you had typed <code>rspec</code>. It&rsquo;s also easy to hook it into your Travis CI
-configuration like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="ss">language</span><span class="p">:</span> <span class="n">ruby</span>
-</span><span class='line'><span class="ss">rvm</span><span class="p">:</span>
-</span><span class='line'>  <span class="o">-</span> <span class="s2">&quot;2.0.0-p353&quot;</span>
-</span><span class='line'><span class="ss">script</span><span class="p">:</span>
-</span><span class='line'>  <span class="o">-</span> <span class="n">bundle</span> <span class="nb">exec</span> <span class="n">rake</span> <span class="ss">db</span><span class="p">:</span><span class="n">create</span>
-</span><span class='line'>  <span class="o">-</span> <span class="n">bundle</span> <span class="nb">exec</span> <span class="n">rake</span> <span class="ss">db</span><span class="p">:</span><span class="n">migrate</span> <span class="no">RAILS_ENV</span><span class="o">=</span><span class="nb">test</span>
-</span><span class='line'>  <span class="o">-</span> <span class="n">bundle</span> <span class="nb">exec</span> <span class="n">rake</span> <span class="ss">spec</span><span class="p">:</span><span class="n">local</span>
-</span><span class='line'>  <span class="o">-</span> <span class="n">bundle</span> <span class="nb">exec</span> <span class="n">rake</span> <span class="ss">spec</span><span class="p">:</span><span class="n">services</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Boom! Local and external APIs all tested, JavaScript tested, and Travis
-build passing.</p>
-
-<h2>Conclusion</h2>
-
-<p>If you&rsquo;re using a lot of JavaScript (and who isn&rsquo;t these days?) in your Rails app, it can sometimes hurt to write your feature tests. I hope these five hacks will make your life a little easier when you are testing, so you can get back to writing the code that makes your app go. Until then, &lsquo;the Dude abides&rsquo;.</p>
-
-<p><img src="http://quickleft-production.s3.amazonaws.com/uploads/asset/attachment/59/asset.gif" alt="The Dude Abides" /></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="3">&larr; Older</a>
@@ -3854,23 +3480,23 @@ build passing.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/05/26/happy/">Happy, Sad, Evil, Weird: Putting Use Case Planning Into Practice</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/05/21/happy/">Happy, Sad, Evil, Weird: Driving Feature Development With Feature Planning</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/05/13/actually-mvp/">Actually MVP</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/04/07/seven-unusual-ruby-datastores/">Seven Unusual Ruby Datastores</a>
       </li>
     
       <li class="post">
         <a href="/blog/2015/04/01/integrating-react-with-backbone/">Integrating React With Backbone</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/03/26/understanding-rack-apps-and-middleware/">Understanding Rack Apps and Middleware</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/03/12/deploying-and-customizing-applications-on-engine-yard/">Deploying and Customizing Applications on Engine Yard</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/03/01/serving-custom-json-from-your-rails-api-with-activemodel-serializers/">Serving Custom JSON From Your Rails API With ActiveModel::Serializers</a>
       </li>
     
   </ul>

@@ -1,0 +1,399 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Happy, Sad, Evil, Weird: Putting Use Case Planning Into Practice - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="This post originally appeared on Engine Yard. Introduction In part one of this miniseries, we introduced formal Use Case Analysis and a simplified &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2015/05/26/happy">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Happy, Sad, Evil, Weird: Putting Use Case Planning Into Practice</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-05-26T06:11:59-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2015/happy-sad-evil-weird-use-case-planning-practice">Engine Yard</a>.</p>
+
+<h2>Introduction</h2>
+
+<p>In <a href="https://blog.engineyard.com/2015/happy-sad-evil-weird-feature-planning">part one</a> of this miniseries, we introduced formal Use Case Analysis and a simplified version called Use Case Planning which fits a rapid, iterative development process. That post went over the high-level concepts, and explained how this planning method will help you catch problems with your design before you start to implement.</p>
+
+<p>In this post, the final post of this miniseries, we’ll step through a concrete example so you can see how to put Use Case Planning into practice.</p>
+
+<h2>An Example</h2>
+
+<p>We&rsquo;ll imagine that we work for a company that is building a multi-tenant Software as a Service (SaaS) platform where people can set up shops and sell products. Tenants will be able to charge their customers through the platform.</p>
+
+<p>We&rsquo;re part of a team that&rsquo;s getting ready to create a credit card payment acceptance feature. It will be a credit card form common to all of our tenants. We&rsquo;ll be writing the markup by hand and using of <a href="https://stripe.com/">Stripe</a> for processing cards. We&rsquo;re entering a sprint planning meeting to define the scope of the work to be done and decide how long it will take to build.</p>
+
+<p>During this meeting, we&rsquo;ll talk about many different aspects of the billing process. For the purposes of this post, let&rsquo;s hone in on one specific feature: once a user has clicked <em>Buy</em>, they are presented with a credit card form. We want to plan what will happen when they try to make use of this form.</p>
+
+<p>Let&rsquo;s walk through the Use Case Planning process for this scenario.</p>
+
+<h2>Step 1. Identifying the Actors and Their Roles</h2>
+
+<p>People:</p>
+
+<p><em>User</em>: exchanges money for goods
+<em>Merchant</em>: exchanges goods for money and money for tenancy
+<em>Platform Owner</em>: exchanges tenancy for money</p>
+
+<p>Services:</p>
+
+<p><em>SaaS Platform</em>: provides the space for tenancy and goods to be exchanged for money
+<em>Stripe</em>: verifies and charges credit cards, handles much of <a href="https://www.pcisecuritystandards.org/">PCI compliance</a>
+<em>Credit Card Company</em>: transfers funds between other actors</p>
+
+<h2>Step 2. Describe The Purpose of The Feature</h2>
+
+<p>Why do we want to build a credit card form? So that we can debit the user and credit the merchant and platform owner.</p>
+
+<h2>Step 3. Identify Use Case Packages</h2>
+
+<p>In this step, each of the stakeholders will contribute their point of view to the discovery of behaviors that we should consider.</p>
+
+<p>When considering a set of use cases, I often like to think through the alternative paths first. As I mentioned above, they can yield interesting decisions that affect the way the happy path will be built.</p>
+
+<h3>The Sad Path</h3>
+
+<p>This time, we&rsquo;ll start with the sad path. Considering the sad path means thinking through what should happen when one of the actors does something differently than we want them to.</p>
+
+<p>Let&rsquo;s identify some of the sad path use cases of filling out a credit card form.</p>
+
+<p>Here are a few examples:</p>
+
+<ol>
+<li>User fills out the credit card form with invalid credit card information</li>
+</ol>
+
+
+<p>When this use case is identified, the designer might chime in that when this happens, the invalid fields should be highlighted and an error message should be displayed explaining what went wrong.</p>
+
+<p>The QA technician might point out that these validations should be ironclad; no special characters should be allowed to pass through.</p>
+
+<ol>
+<li>Card is rejected by credit card company</li>
+</ol>
+
+
+<p>Here, the product owner might insist that it should take as few steps as possible to resubmit the form, so that the user doesn&rsquo;t become frustrated and decide not to buy the product.</p>
+
+<ol>
+<li>Stripe accepts card when submitted via JavaScript, but fails on subsequent server charge request</li>
+</ol>
+
+
+<p>The developer would want to make sure that passing error handling from the server back to the front end is captured in this use case.</p>
+
+<h3>The Evil Path</h3>
+
+<p>Coming up with evil paths requires to you to think like an attacker. How many ways can you come up with to exploit the feature you’re trying to build?</p>
+
+<p>For example:</p>
+
+<ol>
+<li>Price as set in a hidden form field and user figures out that they can change it to zero</li>
+</ol>
+
+
+<p>In this scenario, the developer would want to make sure that the form is built correctly.</p>
+
+<ol>
+<li>Hacker steals credit card info from the database, server logs, or an insecure network request sent over HTTP</li>
+</ol>
+
+
+<p>The product owner would want to mitigate against this as much as is possible so as the protect the customer’s data. From a legal perspective, the product owner would also want to ensure that the SaaS company could not be held liable for any losses, and crucially, that PCI compliance was met.</p>
+
+<ol>
+<li>If we were to save the credit card information to the user account, a hacker could launch a <a href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF attack</a>, leveraging a logged in user&rsquo;s account information to order products without authorization.</li>
+</ol>
+
+
+<p>The developer would suggest using a CSRF token, and the QA technician would want to make sure that form submission failed when the token was changed.</p>
+
+<ol>
+<li>Security holes in session or authentication opens users up to charges</li>
+</ol>
+
+
+<p>Here, the QA technician might ask what would happen when cookie or local storage data is changed. Does it fail as it should?</p>
+
+<h3>The Weird Path</h3>
+
+<p>Coming up with weird paths requires a little more creativity.</p>
+
+<p>Consider each component that your feature interacts with (both internally and externally, locally and remotely, and so on) and think through what would happen if that component failed or behaved in an unexpected way.</p>
+
+<p>For instance:</p>
+
+<ol>
+<li>JavaScript is disabled in the user’s browser, and  the event listener that would prevent the form from being submitted doesn’t fire. The <code>form</code> element falls back to its default behavior, which is to submit it to the SaaS server. The credit card number now appears in the server logs, making it vulnerable to information theft.</li>
+</ol>
+
+
+<p>The developer would want to ensure that the form is built such that it would never be submitted to the SaaS server by mistake.</p>
+
+<ol>
+<li>Stripe server is down</li>
+</ol>
+
+
+<p>In this case, the designer would ask for some kind of error page, perhaps with a link to a status page where users could check for the servers to come back online.</p>
+
+<ol>
+<li>Connection to Stripe is interrupted during transaction</li>
+</ol>
+
+
+<p>The product owner might ask if we can resend the submission if the connection was interrupted. The developer would probably push back on that request, for security reasons. As a compromise, the designer might offer to invent an error state to be shown in this case.</p>
+
+<h3>The Happy Path</h3>
+
+<p>This one is easy. How do you want the feature to work?</p>
+
+<ol>
+<li>User successfully fills out form and clicks submit</li>
+</ol>
+
+
+<p>Again, the designer would probably like to display some kind of success message here.</p>
+
+<ol>
+<li>Credit card charge is accepted by Stripe</li>
+</ol>
+
+
+<p>In this scenario, the product owner might ask to have the page views leading to the successful charge tracked in an analytics service, so we could track down and encourage the same behavior in the future.</p>
+
+<h2>Step 4. Name and Diagram Use Cases</h2>
+
+<p>We&rsquo;ve now identified twelve use cases for the credit card form feature.</p>
+
+<p>I tried my hand at documenting them all in a Use Case Diagram. Green arrows represent good requests or responses, and red arrows represent errors. Bombs represent a broken network connection.</p>
+
+<p><img src="" alt="" /></p>
+
+<p>As you can see, there are tons of arrows.</p>
+
+<p>There are a lot of possible scenarios, and a lot of possible communications between the actors in the system. If we hadn&rsquo;t taken the time to think them through and uncover them all, there&rsquo;s high probability that we would have left some of these out.</p>
+
+<h2>Converting To User Stories</h2>
+
+<p>Now that we&rsquo;ve gone through these four steps, we&rsquo;ve come out with something very valuable: bite-sized sentences that can be translated directly into stories and entered into our tracker software.</p>
+
+<p>Here&rsquo;s what the first sad path case might look like when worded as a story:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>As a user, when I complete the form with invalid information and click submit, I should see the invalid inputs become highlighted, and I should see validation errors telling me what went wrong so that I can correct my error and successfully buy products.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, we have an actor (user), action (fill out and submit form), a result (show validation errors), and a business purpose (the user can give us money).</p>
+
+<p>These twelve stories are small and clear, and lend themselves to being prioritized based on the priorities of our business. Once we enter them into our tracker, we can be assured that they will all be built, and we can estimate how long it will take to happen.</p>
+
+<h2>Conclusion</h2>
+
+<p>The Use Case Planning process is not super complicated. It consists of identifying who/what is involved, why we care, what should happen in the happy and alternative scenarios, and how do the scenarios relate?</p>
+
+<p>It&rsquo;s a relatively low level of effort to answer these four questions and break down the scenarios, but the result is worth its weight in gold. It enables us to identify architectural concerns and edge cases early on and change them at a low cost. We&rsquo;ve also ended up with a set of small stories with clear acceptance criteria that we can track, providing a huge value both in accountability and estimating timelines.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-05-26T06:11:59-06:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2015/05/26/happy/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2015/05/26/happy/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/05/21/happy/" title="Previous Post: Happy, Sad, Evil, Weird: Driving Feature Development With Feature Planning">&laquo; Happy, Sad, Evil, Weird: Driving Feature Development With Feature Planning</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/05/26/happy/">Happy, Sad, Evil, Weird: Putting Use Case Planning Into Practice</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/05/21/happy/">Happy, Sad, Evil, Weird: Driving Feature Development With Feature Planning</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/05/13/actually-mvp/">Actually MVP</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/04/07/seven-unusual-ruby-datastores/">Seven Unusual Ruby Datastores</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/04/01/integrating-react-with-backbone/">Integrating React With Backbone</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
