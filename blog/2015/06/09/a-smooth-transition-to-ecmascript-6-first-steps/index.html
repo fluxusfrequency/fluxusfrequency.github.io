@@ -1,0 +1,298 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>A Smooth Transition to ECMAScript 6: First Steps - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="This post originally appeared on Engine Yard. Introduction I&rsquo;m really excited about the newest version of JavaScript, ECMAScript 6 (ES6). But I &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2015/06/09/a-smooth-transition-to-ecmascript-6-first-steps">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">A Smooth Transition to ECMAScript 6: First Steps</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-06-09T06:28:25-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2015/smooth-transition-ecmascript-6-integration">Engine Yard</a>.</p>
+
+<h2>Introduction</h2>
+
+<p>I&rsquo;m really excited about the newest version of JavaScript, <em>ECMAScript 6</em> (ES6). But I&rsquo;m also terrified. There&rsquo;s already so much to do between mentoring, contributing to open source, and working on the projects that pay the bills. When will I ever find the time to learn a whole new version of JavaScript?</p>
+
+<p>As developers, it&rsquo;s our blessing and curse to always be learning. When I think about getting ready to adopt ES6, I feel some anxiety about the thought of having to figure out all of the new patterns and APIs it exposes.</p>
+
+<p>In this miniseries, we&rsquo;ll look at some quick and easy ways to integrate ES6 into what you&rsquo;re working on today. Hopefully, by adding ES6 patterns into our coding practice a little at a time, we&rsquo;ll be able to avoid spending a weekend learning the new API when we could be playing outside.</p>
+
+<h2>Looking Ahead to ES6</h2>
+
+<p>ES6 will be the first update to JavaScript since ES5 was finalized in 2009. ES6 was originally slated to come out in 2013, but was then pushed back a couple more times, and is expected to be finalized this month, June 2015.</p>
+
+<p>There&rsquo;s a lot of JavaScript in programming these days.</p>
+
+<p>It&rsquo;s found on the server as <a href="https://nodejs.org/">Node</a>, in <a href="https://developer.apple.com/library/mac/releasenotes/InterapplicationCommunication/RN-JavaScriptForAutomation/">OS X Automation</a>, and of course, in all of the web browsers—where many of us spend most of our time writing JS apps. And we&rsquo;ll be writing ES6 in all of these locations before you know it. It&rsquo;s already standard in <a href="http://www.ember-cli.com/">Ember CLI</a>, <a href="https://www.airpair.com/angularjs/posts/preparing-for-the-future-of-angularjs">Angular 2.0 will be based on it</a>, and is <a href="https://github.com/joyent/node/wiki/ES6-%28a.k.a.-Harmony%29-Features-Implemented-in-V8-and-Available-in-Node">making its way into Node</a> bit by bit.</p>
+
+<p>Thinking ahead, it&rsquo;s clear that JavaScript developers will need to start learning ES6 sooner or later. The good news is, it&rsquo;s a superset of ES5, which means all the ways we currently write code will still work. So we can just write code the way we always have done, until we see places where we can use something from ES6.</p>
+
+<h2>Compatibility</h2>
+
+<p>Before we get into the nitty-gritty of how to start using ES6, a quick note about compatibility. As of this writing, most JavaScript engines are in the process of implementing the features called for by the ES6 spec. To see a list of the features that are slated for release in ES6 (and how they compare with ES5), check out <a href="http://es6-features.org/">this reference</a>. If you want to read about specifically what&rsquo;s available right now, check out this <a href="http://kangax.github.io/compat-table/es6/">compatibility table</a>. In <em>this</em> miniseries, we&rsquo;re going to be focusing on the features that are currently available in the major ES6 engines.</p>
+
+<p>There are many features that haven&rsquo;t been rolled out yet, but can be easily <em>transpiled</em> (transformed and compiled) to ES5 for immediate use. There are several compilers and polyfills available to help with transpiling. My favorite is <a href="https://babeljs.io/">Babel</a>, formerly called 6to5. Babel 5.0 was released on March 31, 2015, and is currently leading other options, with 76% of the spec in place.</p>
+
+<p>Regardless of which transpiler you use, there are several features that are still mostly unsupported across all JS engines. These include: tail calls, WeakMap, WeakSet, Proxy, Reflect, Symbol, new.target, and subclassing built-ins, among others.</p>
+
+<p>Some of these features are available in Babel, but only with experimental mode turned on. For the purposes of this miniseries, we&rsquo;ll be looking at some of the most widely supported, easy-to-use features—so we won&rsquo;t be covering experimental features like these.</p>
+
+<p>We&rsquo;re also going to skip over some of the features that are a little more difficult to get started with, such as iterators, generators, and proxies.</p>
+
+<h2>Getting ES6 Into Your Build Process</h2>
+
+<p>Since we can transpile ES6 code to ES5 and start using it everywhere now, it doesn&rsquo;t hurt to get it set up in our build process, so that we can just start using it without having to think twice about it. Luckily, this is really easy to do with Babel.</p>
+
+<p>It&rsquo;s beyond the scope of this miniseries to get into all the variations of what you might encounter in getting ES6 into your build process, but you probably won&rsquo;t have much trouble adding it as a step in your existing build process.</p>
+
+<p>There&rsquo;s a Babel plugin available for just about every build setup, including Grunt, Gulp, and Broccoli, and whether you&rsquo;re using Browserify or RequireJS. It even has a built in <a href="https://babeljs.io/docs/usage/jsx/">JSX transpiler</a>, making it really easy to use with React. There&rsquo;s a full list of build tools and how to use them [on the Babel website] (<a href="http://babeljs.io/docs/using-babel">http://babeljs.io/docs/using-babel</a>).</p>
+
+<p>You may also want to make use of the <a href="https://babeljs.io/docs/usage/runtime/">babel-runtime</a> package. This is an optional transformer that prevents duplication of common functions during compilation. It also sandboxes your code, aliasing many globals to <code>core-js</code> to avoid polluting the global namespace.</p>
+
+<h3>With Browswerify + NPM Scripts</h3>
+
+<p>Here&rsquo;s a look at how you might add Babel into an existing client-side JS project, using <a href="http://browserify.org/">Browserify</a> and the <a href="https://github.com/babel/babelify">Babelify</a> transform module.</p>
+
+<p>In <code>package.json</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="s2">&quot;scripts&quot;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="s2">&quot;postinstall&quot;</span><span class="o">:</span> <span class="s2">&quot;browserify --debug --standalone MyApp assets/js/index.js --transform [ babelify --optional babel-runtime ] --outfile build/my-app.js&quot;</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>  <span class="s2">&quot;dependencies&quot;</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="s2">&quot;babel-runtime&quot;</span><span class="o">:</span> <span class="s2">&quot;^5.0.12&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;babelify&quot;</span><span class="o">:</span> <span class="s2">&quot;^6.0.2&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;browserify&quot;</span><span class="o">:</span> <span class="s2">&quot;^9.0.7&quot;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that by defining the build script under the <code>postinstall</code> property, it will be run automatically after the package is installed. This might be handy when deploying to <a href="https://www.engineyard.com/">Engine Yard</a>, as it will prevent you from having to explicitly call a build in your deploy script.</p>
+
+<h2>Let&rsquo;s Do It</h2>
+
+<p>Now that you&rsquo;ve gotten ES6 set up in your build, you can just start writing it whenever you&rsquo;re developing. Or, if you don&rsquo;t feel like it, you can just fall back to ES5. Remember, it&rsquo;s all valid ES6!</p>
+
+<p>In this post, we talked about the upcoming transition to ES6 everywhere that JavaScript is written. We’ve looked at which ES6 features are currently supported and how to get ES6 into your projects so you can start using it right away.</p>
+
+<p>Make sure to tune tomorrow for part two of this miniseries, where we’ll walk through some of the easiest places to start using ES6 in a typical front-end <a href="https://blog.engineyard.com/2015/integrating-react-with-backbone">Backbone + React</a> project.</p>
+
+<p>Until then, happy hacking!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-06-09T06:28:25-06:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2015/06/09/a-smooth-transition-to-ecmascript-6-first-steps/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2015/06/09/a-smooth-transition-to-ecmascript-6-first-steps/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/05/26/happy/" title="Previous Post: Happy, Sad, Evil, Weird: Putting Use Case Planning Into Practice">&laquo; Happy, Sad, Evil, Weird: Putting Use Case Planning Into Practice</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/06/10/a-smooth-transition-to-ecmascript-6-using-new-features/" title="Next Post: A Smooth Transition to ECMAScript 6: Using New Features">A Smooth Transition to ECMAScript 6: Using New Features &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/testing-flux-applications/">Testing Flux Applications</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/27/how-i-deployed-my-first-app-to-deis/">How I Deployed My First App To Deis</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/07/01/goodbye-mvp/">Goodbye MVP, Hello v1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/10/a-smooth-transition-to-ecmascript-6-using-new-features/">A Smooth Transition to ECMAScript 6: Using New Features</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/09/a-smooth-transition-to-ecmascript-6-first-steps/">A Smooth Transition to ECMAScript 6: First Steps</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

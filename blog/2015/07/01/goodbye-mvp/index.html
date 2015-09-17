@@ -1,0 +1,311 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Goodbye MVP, Hello v1 - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="This post originally appeared on Engine Yard Introduction You&rsquo;ve done it! It all started with an idea and two people in your garage. After &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2015/07/01/goodbye-mvp">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Goodbye MVP, Hello V1</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-07-01T06:28:45-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2015/goodbye-minimum-viable-product-hello-v1">Engine Yard</a></p>
+
+<h2>Introduction</h2>
+
+<p>You&rsquo;ve done it! It all started with an idea and two people in your garage. After weeks of coding and tweaking, you&rsquo;ve proven that your business idea is the greatest thing since sliced bread. You used <a href="http://steveblank.com/2015/05/06/build-measure-learn-throw-things-against-the-wall-and-see-if-they-work/">the Build, Measure, Learn cycle</a> to find out what your customers want, and you&rsquo;re pretty sure you have a product market fit.</p>
+
+<p>Now what?</p>
+
+<p>It&rsquo;s time to build your V1. In the post, we&rsquo;ll look at how to take the most important lessons from the information you&rsquo;ve gleaned during the MVP stage of your product&rsquo;s lifecycle and apply them to building the first full release of your product.</p>
+
+<h2>V0: Minimum Viable Product</h2>
+
+<p>If you&rsquo;re interested in building the V1 of your project, you&rsquo;ve probably already spent a good amount of time iterating on features, measuring customer feedback, and learning more about what the market wants in your problem space. If you haven&rsquo;t started building an MVP, or are still working on it, check out <a href="https://blog.engineyard.com/2015/actually-mvp">my thoughts on MVP</a> and come back to this article when you think you&rsquo;re sure that your product is ready to be scaled.</p>
+
+<p>If you <em>have</em> been using an MVP process, and you feel that you&rsquo;ve validated your assumptions, that people would like to use and pay for your product, you&rsquo;re probably ready to start thinking about building your V1. It&rsquo;s time to take all of the metrics and feedback you&rsquo;ve been gathering and put it together to make the first <em>complete</em> version of your product.</p>
+
+<p>Before we continue, make sure you&rsquo;ve answered these questions. What are your target demographic and platform? Which features make up the core of your offering? Which have resulted in the most clicks and positive feedback?</p>
+
+<p>With all of these things in hand, let&rsquo;s turn our attention to what it takes to release a V1.</p>
+
+<h2>V1: The Final Frontier</h2>
+
+<p>If you think about it, V1 is kind of a funny concept. If you&rsquo;ve been releasing MVP features for a while, you probably already have a functioning product. It might even be <em>complete</em>, in the sense that customers use it and pay for it, and aren&rsquo;t missing anything that they need to releave their pain points.</p>
+
+<p>Yet it&rsquo;s definitely possible to draw a line in the sand between <em>beta</em> and <em>V1</em>. According to Wikipedia&rsquo;s definition of <a href="http://en.wikipedia.org/wiki/Software_versioning">Software Versioning</a>, the free-software community tends to define 1.0 as a &ldquo;major milestone, indicating that the software is &lsquo;complete&rsquo;, that it has all major features, and is considered reliable enough for general release&rdquo;.</p>
+
+<p>Of course, we know better. After releasing a piece software, there will always changes big and small: security concerns corrected, features added, previously undiscovered instabilities fixed. To plan all of our features, set a date, and keep everything shrouded in secrecy until then is a hopelessly waterfall-esque approach that leads to a far more costly product.</p>
+
+<p>In many ways, the distinction between beta and V1 is largely a marketing concern. As you iterate on an MVP, those brave souls known as <a href="">early adopters</a> are by your side, helping light the way. But once you tell the world that what you&rsquo;re offering is now a &ldquo;real&rdquo; product, you begin to see what the less brave among us are willing to buy. You&rsquo;ve potentially expanded your market greatly, by giving birth to &ldquo;The New (your product name here)&rdquo;.</p>
+
+<p>Do you think your product has what it takes to convert this new audience to your cause? As my friend and colleague <a href="http://justinjackson.ca/">Justin Jackson</a> puts it, &ldquo;the real question is: can you profitably acquire new customers every month?&rdquo; MVP should show that you have some initial traction. V1 should show that you actually have a business.</p>
+
+<p>Let&rsquo;s take a look at some strategies you can use to make your transition from MVP to V1 a successful one.</p>
+
+<h4>Build A Roadmap</h4>
+
+<p>Before you start writing stories for the big release, pause for a second and question your assumptions. You might be excited, because you think you&rsquo;ve got a handle on what your customers want, and you&rsquo;re ready to give it to them as soon as you can!</p>
+
+<p>Stop. Take a breath. Think. How does what you&rsquo;re about to build fit in with the plans you have for your <em>business</em>?</p>
+
+<p>If you don&rsquo;t have a roadmap, you should make one as soon as possible. It doesn&rsquo;t have to be an all-day exercise, but you should be able to answer some basic questions.</p>
+
+<p>Do you know <em>which</em> features you&rsquo;re going to build? What about funding? If you don&rsquo;t have investors, does what you&rsquo;re about to build have the ability to attract them? If you do, are there certain things they&rsquo;re hoping you will build? Do you have a plan for scaling your development team? What about marketing? If all else fails, do you know how to pivot?</p>
+
+<h3>Set A Deadline</h3>
+
+<p>It&rsquo;s tempting to think of V1 as the chance to sit back, take your time, and do the waterfall thing. You&rsquo;ve moved fast and broken things to prove that you have a market fit, and now you can spend as long as you need to build the first stable version. That&rsquo;s a mistake. Getting to V1 is just a high-pressure as finding an MVP that proves its value.</p>
+
+<p>You might have an initial MVP that&rsquo;s proven it has traction, put your head down for eight months to build V1, and by the time you release it, find out that you&rsquo;ve made a big mistake. Maybe the features you focused on building out turned out to be ones that customers wanted &ndash; it&rsquo;s just that they weren&rsquo;t willing to <em>pay</em> for them. Maybe another company beat you to market. Maybe you overlooked a key integration with another service that would have allowed you to <em>take off</em>. These are the kind of mistakes that you can&rsquo;t afford to make as a business.</p>
+
+<p>Taking too long to get to V1 is just as bad as taking too long to build MVP. Make sure that you know where you&rsquo;re headed and when you&rsquo;ll get there.</p>
+
+<h4>Identify Your Target Market</h4>
+
+<p>If you&rsquo;re about to outgrow your MVP, you probably think you know your target market. But take a closer look. Your excitement <em>could</em> by hiding some assumptions. Can you get more granular about the different subdivisions that make up your user base, and use that information to find out more about who you&rsquo;re targeting?</p>
+
+<p>Have you figured out <em>which</em> customers you should be listening to? Hint: <em>it&rsquo;s the ones that would actually</em> pay <em>for your service</em>. When you were building an MVP, you proved that you could find paying customers. In V1, you want to prove that you can <em>consistently</em> pick up new customers that will pay you more than it costs you to provide your service to them.</p>
+
+<p><a href="http://justinjackson.ca/ultimate-validation/">Justin Jackson</a> weighs in again: &ldquo;To be successful, a product needs customers that are easy to reach, cheap to convert, and undemanding to support&rdquo;.</p>
+
+<p>To dig deeper into these questions, I highly recommend going through a <a href="https://quickleft.com/packages/ux-design/">User Experience (UX) discovery process</a>. You should create <a href="http://www.usability.gov/how-to-and-tools/methods/personas.html">personas</a> and think about the emotional response that you are hoping to evoke. UX discovery can help answer important questions, like: &ldquo;should we move to mobile?&rdquo; and &ldquo;what are our key features?&rdquo;</p>
+
+<h4>Identify Your Key Features And Cut The Rest</h4>
+
+<p>A huge part of the MVP process is measuring customer engagement with the different features you&rsquo;re testing. Pull out all of our customer interviews and surveys. Read through the reports in your analytics software. Make a list of all the features that you&rsquo;ve had success with, and rank them. Which ones were the most popular?</p>
+
+<p>Your V1 should focus on your core features <em>only</em>. Cut the rest. Remember, for each feature you add, you have to think not only about the feature, but also tests, regressions, and bugs. <em>Plus</em>, you&rsquo;ll be dealing with scaling your business. Employees, culture, and performance are going to be concerns in a way that they weren&rsquo;t during the MVP process. Keep it simple.</p>
+
+<h3>Build A Strong Cultural Foundation</h3>
+
+<p>The business you build when you&rsquo;re going to V1 sets stage for everything that will come after. Now is the time to think about what kind of company you want to create. You will want to make decisions that build a strong foundation for what&rsquo;s to come.</p>
+
+<p>You will be hiring new developers. The culture you inspire and the process you set up for five developers are the blueprints that will be followed when you get to fifty. The process you use to acquire new customers had better be scalable, or you could find your pipeline going dry a few months down the road.</p>
+
+<p>Take the time to think through what kind of place you would like to work in, and try to manifest that reality as you build your V1.</p>
+
+<h3>Build A Strong Technical Foundation</h3>
+
+<p>If you&rsquo;ve done a good job of building MVP features at a minimal cost, you probably already have some technical debt that needs to be paid down. This is the time to switch out stopgap measures for a scalable tech stack.</p>
+
+<p>Maybe you proved your concept with a simple WordPress site, an email list, or one of the other simple MVP approaches I discussed in <a href="https://blog.engineyard.com/2015/actually-mvp">my MVP article</a>. These are all great ways to get started, but they&rsquo;re not very customizable. If you&rsquo;re stuck with the features that you get with a certain WordPress plugin, you might find yourself unable to extend or change your features in a timely and stable manner down the road. Plus, moving away from plugins often cuts out the middleman and allows you to recover some capital that you were spending on things you can provide in-house.</p>
+
+<p>Take the time to consider what kind of tech stack will meet your needs. Take the time to understand the tradeoffs between different technologies in the market, and find the ones that best meet your business&rsquo;s needs. It can be useful to do a <a href="https://quickleft.com/packages/discovery-sprint/">discovery sprint</a> to find out what options are available to you.</p>
+
+<p>Find ways to ensure that your code remains working and stable. I highly recommend following a <a href="https://quickleft.com/blog/how-to-write-tests-first/">Test-Driven Development process</a>, writing functional tests, signing up for <a href="https://codeclimate.com/">Code Climate</a>, setting up a continuous integration service like <a href="http://wercker.com/">Wercker</a>, <a href="https://travis-ci.org/">TravisCI</a>, or <a href="https://circleci.com/">CircleCI</a>, and deploying to a staging server before releasing things to production. These safeguards will protect you and your team from accidentally breaking your application, and be the canary in the coal mine to let you know when things are about to go wrong.</p>
+
+<p>Finally, make sure you&rsquo;re thinking about scale. If you&rsquo;re hoping to get tons of new users you&rsquo;ll want to have infrastructure in place that will allow you to serve a heavy load of users. If you&rsquo;re using <a href="https://www.engineyard.com">Engine Yard</a>, it&rsquo;s easy to upgrade your servers from your dashboard with a few clicks, plus they&rsquo;re always monitoring your app for emerging issues, and their support team is immediately available to support you as you respond to a high volume of requests.</p>
+
+<p>As you start building your first release, make sure that you&rsquo;re investing in technologies that will support your business as it grows.</p>
+
+<h2>Conclusion</h2>
+
+<p>The move from MVP to V1 is a moment of transition for your business. It&rsquo;s vital to consider the norms that you&rsquo;re about to set up, which will have far-reaching effects into the future. You have to be smart. Know your customers, know your features, and don&rsquo;t delay. But also build a strong foundation, culturally and technically. Finally, set a deadline and stick to it. This lets you build the buzz, keep your team focused, and provides a great excuse to throw a big party. Just don&rsquo;t forget to invite me!</p>
+
+<p>Until then, best of luck with your business.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-07-01T06:28:45-06:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2015/07/01/goodbye-mvp/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2015/07/01/goodbye-mvp/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/06/10/a-smooth-transition-to-ecmascript-6-using-new-features/" title="Previous Post: A Smooth Transition to ECMAScript 6: Using New Features">&laquo; A Smooth Transition to ECMAScript 6: Using New Features</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/08/27/how-i-deployed-my-first-app-to-deis/" title="Next Post: How I Deployed My First App To Deis">How I Deployed My First App To Deis &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/testing-flux-applications/">Testing Flux Applications</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/27/how-i-deployed-my-first-app-to-deis/">How I Deployed My First App To Deis</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/07/01/goodbye-mvp/">Goodbye MVP, Hello v1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/10/a-smooth-transition-to-ecmascript-6-using-new-features/">A Smooth Transition to ECMAScript 6: Using New Features</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/09/a-smooth-transition-to-ecmascript-6-first-steps/">A Smooth Transition to ECMAScript 6: First Steps</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

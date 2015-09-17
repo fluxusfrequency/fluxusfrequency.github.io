@@ -1,0 +1,698 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>A Smooth Transition to ECMAScript 6: Using New Features - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="This post originally appeared on Engine Yard Introduction In part one of this miniseries, we talked about the timeline for ES6 rollout, feature &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2015/06/10/a-smooth-transition-to-ecmascript-6-using-new-features">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">A Smooth Transition to ECMAScript 6: Using New Features</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-06-10T06:28:33-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2015/smooth-transition-ecmascript-6-new-features">Engine Yard</a></p>
+
+<h2>Introduction</h2>
+
+<p>In <a href="https://blog.engineyard.com/2015/smooth-transition-ecmascript-6-integration">part one of this miniseries</a>, we talked about the timeline for ES6 rollout, feature compatibility in existing environments and transpilers, and how to get ES6 set up in your build process.</p>
+
+<p>Today, we’ll continue the conversation, looking at some of the easiest places to start using ES6 in a typical front-end <a href="https://blog.engineyard.com/2015/integrating-react-with-backbone">Backbone + React</a> project. Even if that&rsquo;s not your stack, read on! There&rsquo;s something for everyone here.</p>
+
+<p>If you want to try out the examples, you can use a sandboxed ES6 environment at <a href="http://www.es6fiddle.net/">ES6 Fiddle</a>.</p>
+
+<h2>New Features</h2>
+
+<h3>Classes, Shorthand Methods, and Shorthand Properties</h3>
+
+<p>A lot of client-side JS code is object-oriented. If you&rsquo;re <a href="http://mikefowler.me/2014/06/11/backbone-with-es6/">using Backbone</a>, just about every Model, Collection, View, or Router you ever write will be a subclass of a core library Class. With ES6, extending these objects is a breeze. We can just call <code>class MySubclass extends MyClass</code> and we get object inheritance. We get access to a <code>constructor</code> method, and we can call <code>super</code> from within any method to apply the parent class&rsquo;s method of the same name. This prevents us from having to write things like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Backbone</span><span class="p">.</span><span class="nx">Collection</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">initialize</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We also get some handy shorthands for defining methods and properties. Note the pattern I&rsquo;m using to call <code>initialize</code> instead of <code>initialize: function(args) {}</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">class</span> <span class="nx">UserView</span> <span class="kr">extends</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">initialize</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kr">super</span><span class="p">(</span><span class="nx">options</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We can also define properties using a nice new shorthand. The code below sets an <code>app</code> property on the <code>Injector</code> that points to the instance of <code>App</code> we create on the second line. In other words, it&rsquo;s the same as doing <code>this.app = app;</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">let</span> <span class="nx">App</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{};</span> <span class="c1">// we&#39;ll look at &#39;let&#39; in just a second.</span>
+</span><span class='line'><span class="kd">let</span> <span class="nx">app</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">App</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">let</span> <span class="nx">Injector</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">app</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Let</h3>
+
+<p>The new <code>let</code> keyword is probably the easiest win that you can possibly get in using ES6. If you do nothing else, just start replacing <code>var</code> with <code>let</code> everywhere. What&rsquo;s the difference, you ask? Well, <code>var</code> is scoped to the closest enclosing <em>function</em>, while <code>let</code> is scoped to the closest enclosing <em>block</em>.</p>
+
+<p>In essence, variables defined with <code>let</code> aren&rsquo;t visible outside of <code>if</code> blocks and <code>for</code> loops, so there&rsquo;s less likelihood for a naming collision. There are other benefits. See <a href="http://stackoverflow.com/questions/762011/javascript-let-keyword-vs-var-keyword">this Stack Overflow answer</a> for more details.</p>
+
+<p>You can use it pretty much everywhere, but here&rsquo;s a good example of somewhere that it actually makes a difference in preventing a naming collision. The <code>userName</code>s inside of the <code>for</code> loop don&rsquo;t clash with the current user&rsquo;s <code>userName</code> defined just above it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">let</span> <span class="nx">UserList</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="nx">render</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">let</span> <span class="nx">userName</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">current</span>
+</span><span class='line'>    <span class="c1">// See the Fat Arrow section below</span>
+</span><span class='line'>    <span class="kd">let</span> <span class="nx">userComponents</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">users</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">user</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>      <span class="kd">let</span> <span class="nx">userName</span> <span class="o">=</span> <span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;userName&#39;</span><span class="p">);</span>
+</span><span class='line'>      <span class="k">return</span> <span class="o">&lt;</span><span class="nx">UserComponent</span> <span class="nx">displayName</span><span class="o">=</span><span class="p">{</span><span class="nx">userName</span><span class="p">}</span> <span class="o">/&gt;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>    <span class="k">return</span> <span class="p">(</span>
+</span><span class='line'>    <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">className</span><span class="o">=</span><span class="s2">&quot;user-list&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="nx">Welcome</span> <span class="nx">back</span><span class="p">,</span> <span class="p">{</span><span class="nx">userName</span><span class="p">}</span><span class="o">!&lt;</span><span class="err">/h1&gt;</span>
+</span><span class='line'>      <span class="p">{</span><span class="nx">userComponents</span><span class="p">}</span>
+</span><span class='line'>    <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Const</h3>
+
+<p>As you might guess from the name, <code>const</code> defines a read-only (constant) variable. It should be pretty easy to guess where to use this. For example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="nx">DEFAULT_MAP_CENTER</span> <span class="o">=</span> <span class="p">[</span><span class="mf">48.1667</span><span class="p">,</span> <span class="o">-</span><span class="mf">100.1667</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">class</span> <span class="nx">MapView</span> <span class="kr">extends</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">centerMap</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">map</span><span class="p">.</span><span class="nx">panTo</span><span class="p">(</span><span class="nx">DEFAULT_MAP_CENTER</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>The Fat Arrow</h3>
+
+<p>You&rsquo;ve probably already heard about the fat arrow, or used it before if you&rsquo;ve written any CoffeeScript. The fat arrow, <code>=&gt;</code>, is a new way to define a function. It preserves the value of <code>this</code> from the surrounding context, so you don&rsquo;t have to use workarounds like <code>var self = this;</code> or <code>bind</code>. It comes in really handy when dealing with nested functions. Plus it looks really cool.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">let</span> <span class="nx">Toggle</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">componentDidMount</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// iOS</span>
+</span><span class='line'>    <span class="nx">setTimeout</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">$el</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#&#39;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">id</span> <span class="o">+</span> <span class="s1">&#39;_label&#39;</span><span class="p">);</span>
+</span><span class='line'>      <span class="nx">$el</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;touchstart&#39;</span><span class="p">,</span> <span class="nx">e</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>        <span class="kd">let</span> <span class="nx">$checkbox</span> <span class="o">=</span> <span class="nx">$el</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s1">&#39;input[type=&quot;checkbox&quot;]&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">$checkbox</span><span class="p">.</span><span class="nx">prop</span><span class="p">(</span><span class="s2">&quot;checked&quot;</span><span class="p">,</span> <span class="o">!</span><span class="nx">$checkbox</span><span class="p">.</span><span class="nx">prop</span><span class="p">(</span><span class="s2">&quot;checked&quot;</span><span class="p">));</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>    <span class="p">},</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">},</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Template Strings</h3>
+
+<p>Do you ever get sick of doing string concatenation in JavaScript? I sure do! Well, good news! We can finally do string interpolation. This will come in very handy all over the place. I&rsquo;m especially excited about using it in React <code>render</code> calls like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">let</span> <span class="nx">ProductList</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="nx">render</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">let</span> <span class="nx">links</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">products</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">product</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="p">(</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">li</span><span class="o">&gt;</span>
+</span><span class='line'>          <span class="o">&lt;</span><span class="nx">a</span> <span class="nx">href</span><span class="o">=</span><span class="p">{</span><span class="err">`</span><span class="o">/</span><span class="nx">products</span><span class="o">/</span><span class="nx">$</span><span class="p">{</span><span class="nx">product</span><span class="p">.</span><span class="nx">id</span><span class="p">}</span><span class="err">`</span><span class="p">}</span><span class="o">&gt;</span><span class="p">{</span><span class="nx">product</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)}</span><span class="o">&lt;</span><span class="err">/a&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="err">/li&gt;</span>
+</span><span class='line'>      <span class="p">);</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span><span class="p">(</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">className</span><span class="o">=</span><span class="s2">&quot;product-list&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">ul</span><span class="o">&gt;</span>
+</span><span class='line'>          <span class="p">{</span><span class="nx">links</span><span class="p">}</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="err">/ul&gt;</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>    <span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>String Sugar</h3>
+
+<p>It&rsquo;s always been kind of a pain to check for substrings in JavaScript. <code>if (myString.indexOf(mySubstring) !== -1)</code>? Give me a break! ES6 finally gives us some sugar to make this a little easier. We can call <code>startsWith</code>, <code>endsWith</code>, <code>includes</code>, and <code>repeat</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// Clean up all the AngularJS elements</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span><span class="s1">&#39;body&#39;</span><span class="p">).</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">node</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kd">let</span> <span class="nx">$node</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="nx">node</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nx">$node</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">).</span><span class="nx">startsWith</span><span class="p">(</span><span class="s1">&#39;ng&#39;</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">$node</span><span class="p">.</span><span class="nx">remove</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Pluralize</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">Pluralize</span><span class="p">(</span><span class="nx">word</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">word</span><span class="p">.</span><span class="nx">endsWith</span><span class="p">(</span><span class="s1">&#39;s&#39;</span><span class="p">)</span> <span class="o">?</span> <span class="nx">word</span> <span class="o">:</span> <span class="err">`</span><span class="nx">$</span><span class="p">{</span><span class="nx">word</span><span class="p">}</span><span class="nx">s</span><span class="err">`</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Check for spam</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">let</span> <span class="nx">spamMessages</span> <span class="o">=</span> <span class="p">[];</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">$</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/messages&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">messages</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">spamMessages</span> <span class="o">=</span> <span class="nx">messages</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">message</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>    <span class="o">!</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">().</span><span class="nx">includes</span><span class="p">(</span><span class="s1">&#39;sweepstakes&#39;</span><span class="p">));</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Sing the theme song</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">let</span> <span class="nx">sound</span> <span class="o">=</span> <span class="s1">&#39;na&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="nx">sound</span><span class="p">.</span><span class="nx">repeat</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span> <span class="c1">// &#39;nananananananananana&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Argument Defaults</h3>
+
+<p>Languages like Ruby and Python have long allowed you to define argument defaults in your method and function signatures. With the addition of this feature to ES6, writing Backbone views requires one less line of boilerplate.</p>
+
+<p>By setting options to an argument default, we don&rsquo;t have to worry about cases where nothing is passed in. No more <code>options = options || {};</code> statements!</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">class</span> <span class="nx">BaseView</span> <span class="kr">extends</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">initialize</span><span class="p">(</span><span class="nx">options</span><span class="o">=</span><span class="p">{})</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Spread and Rest</h3>
+
+<p>Sometimes function calls that take multiple arguments can get really messy to deal with. Like when you&rsquo;re calling them from a <code>bind</code> that&rsquo;s being triggered by an event listener.</p>
+
+<p>For example, check out this event listener from a Backbone view in a recent project I was working on. Because of the method signature of <code>_resizeProductBox</code>, I have to pass all those null arguments into <code>bind</code> and it gets kind of ugly.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">class</span> <span class="nx">ProductView</span> <span class="kr">extends</span> <span class="nx">BaseView</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">initialize</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">listenTo</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">breakpointEvents</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_resizeProductBox</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">true</span><span class="p">));</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">_resizeProductBox</span><span class="p">(</span><span class="nx">height</span><span class="p">,</span> <span class="nx">width</span><span class="p">,</span> <span class="nx">shouldRefresh</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In ES6, we can clean this up a bit with <em>spread</em>. We&rsquo;ll just prepend an array of default arguments with a <code>...</code>  to send them through as arguments to the method call.</p>
+
+<p>Here&rsquo;s how you&rsquo;d do it using <em>spread</em>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">const</span> <span class="nx">BREAKPOINT_RESIZE_ARGUMENTS</span> <span class="o">=</span> <span class="p">[</span><span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">true</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">class</span> <span class="nx">ProductView</span> <span class="kr">extends</span> <span class="nx">BaseView</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">initialize</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">listenTo</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">breakpointEvents</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">_</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_resizeProductBox</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="p">...</span><span class="nx">BREAKPONT_RESIZE_ARGUMENTS</span><span class="p">));</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">_resizeProductBox</span><span class="p">(</span><span class="nx">height</span><span class="p">,</span> <span class="nx">width</span><span class="p">,</span> <span class="nx">shouldRefresh</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>On the other side of the coin is <em>rest</em>, which lets us accept any number of arguments in a method signature instead of at invocation time, as you can do with the <em>splat</em> in Ruby. For example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">function</span> <span class="nx">cleanupViews</span><span class="p">(...</span><span class="nx">views</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">views</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">view</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">view</span><span class="p">.</span><span class="nx">remove</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Array Destructuring</h3>
+
+<p>Sometimes I find myself having to access all of the elements of an array-like object with square brackets. It&rsquo;s kind of a bummer. Luckily, ES6 lets me use array destructuring instead. It makes it easy to do things like splitting latitude and longitude from an array into two variables, as I do here. (Note that I also could have used <em>spread</em>.)</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">let</span> <span class="nx">markers</span> <span class="o">=</span> <span class="p">[];</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">listings</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">listing</span><span class="p">,</span> <span class="nx">index</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kd">let</span> <span class="nx">lat</span><span class="p">,</span> <span class="nx">lng</span> <span class="o">=</span> <span class="nx">listing</span><span class="p">.</span><span class="nx">latlng</span><span class="p">;</span> <span class="c1">// looks like: [39.719121, -105.191969]</span>
+</span><span class='line'>  <span class="kd">let</span> <span class="nx">listingMarker</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">google</span><span class="p">.</span><span class="nx">maps</span><span class="p">.</span><span class="nx">Marker</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">position</span><span class="o">:</span> <span class="k">new</span> <span class="nx">google</span><span class="p">.</span><span class="nx">maps</span><span class="p">.</span><span class="nx">LatLng</span><span class="p">(</span><span class="nx">lat</span><span class="p">,</span> <span class="nx">lng</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>  <span class="nx">markers</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">listingMarker</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Promises</h3>
+
+<p>It seems like every project I work on these days uses promises. Native promises have landed in ES6, so we can all rely on the same API from here on out. Both promise instances and static methods like <code>Promise.all</code> are provided. Here&rsquo;s an example of a <code>userService</code> from an Angular app that returns a promise from <code>$http</code> if the user is online, and a native promise otherwise.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;myApp&#39;</span><span class="p">).</span><span class="nx">factory</span><span class="p">(</span><span class="s1">&#39;userService&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$http</span><span class="p">,</span> <span class="nx">offlineStorage</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">updateSettings</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">promise</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="nx">offlineStorage</span><span class="p">.</span><span class="nx">isOffline</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">promise</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="nx">resolve</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">toJSON</span><span class="p">());</span>
+</span><span class='line'>        <span class="p">});</span>
+</span><span class='line'>      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">promise</span> <span class="o">=</span> <span class="nx">$http</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s1">&#39;/api/users/&#39;</span> <span class="o">+</span> <span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nx">user</span><span class="p">.</span><span class="nx">settings</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="nx">result</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">});</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">return</span> <span class="nx">promise</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">data</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="k">new</span> <span class="nx">User</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>A Note On Modules</h2>
+
+<p>You may have noticed that I didn&rsquo;t cover modules, importing, or exporting in this miniseries. Although modules are one of the higher profile features in ES6, and they&rsquo;re easy to get started with, they still have a lot of edge cases that need to be worked out as ES6 is rolled out.</p>
+
+<p>Specifically, ES6 modules have a <code>default</code> export and named exports. CommonJS and AMD only support a single export, and traditionally handle named exports by exporting an object with the named exports as properties. The different ES6 module libraries have different ways of reconciling the differences, so you have to use only default exports or named exports if CommonJS might use the module. How these differences will be reconciled remains to be seen.</p>
+
+<p>That said, the easiest way to start requiring modules is to switch from:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="err">‘</span><span class="nx">lodash</span><span class="err">’</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>`</p>
+
+<p>To the new syntax:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">import</span> <span class="nx">_</span> <span class="nx">from</span> <span class="err">‘</span><span class="nx">lodash</span><span class="err">’</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Similarly, you can import relative files using:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">import</span> <span class="nx">Router</span> <span class="nx">from</span> <span class="err">‘</span><span class="p">..</span><span class="o">/</span><span class="nx">router</span><span class="err">’</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When exporting, you can switch from:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">App</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">export</span> <span class="k">default</span> <span class="nx">App</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There’s a bit more to using modules (such as named exports), which we won’t cover today. If you want to learn more, take a look at <a href="https://babeljs.io/docs/learn-es6/#modules">this overview</a>.</p>
+
+<h2>Conclusion</h2>
+
+<p>In this miniseries, we took a look at some real-world examples of how you would use ES6 in a client-side JavaScript app. We took a quick look at setting up an ES6 transpile step in your build process, and examined many of the easy-to-use features you can start using right away.</p>
+
+<p>Before you know it, ES6 will be the standard language in use across the web and on servers and personal computers everywhere. Hopefully, this walkthrough will help you get started with a minimum of fuss.</p>
+
+<p>If you&rsquo;re feeling excited about ES6, and you want to learn more, I would suggest reading through <a href="https://babeljs.io/docs/learn-es6/">this overview</a>. Or if you&rsquo;re feeling really enthusiastic, try <a href="https://github.com/getify/You-Dont-Know-JS/tree/master/es6%20%26%20beyond">this book</a>.</p>
+
+<p>Until next time, happy coding!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-06-10T06:28:33-06:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2015/06/10/a-smooth-transition-to-ecmascript-6-using-new-features/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2015/06/10/a-smooth-transition-to-ecmascript-6-using-new-features/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/06/09/a-smooth-transition-to-ecmascript-6-first-steps/" title="Previous Post: A Smooth Transition to ECMAScript 6: First Steps">&laquo; A Smooth Transition to ECMAScript 6: First Steps</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/07/01/goodbye-mvp/" title="Next Post: Goodbye MVP, Hello v1">Goodbye MVP, Hello v1 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/testing-flux-applications/">Testing Flux Applications</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/27/how-i-deployed-my-first-app-to-deis/">How I Deployed My First App To Deis</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/07/01/goodbye-mvp/">Goodbye MVP, Hello v1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/10/a-smooth-transition-to-ecmascript-6-using-new-features/">A Smooth Transition to ECMAScript 6: Using New Features</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/09/a-smooth-transition-to-ecmascript-6-first-steps/">A Smooth Transition to ECMAScript 6: First Steps</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

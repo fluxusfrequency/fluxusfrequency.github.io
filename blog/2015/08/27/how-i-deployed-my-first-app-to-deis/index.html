@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How I Deployed My First App To Deis - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="This post originally appeared on The Deis Blog Introduction Have you ever felt the pain that comes when your app runs fine on development, but breaks &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2015/08/27/how-i-deployed-my-first-app-to-deis">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">How I Deployed My First App to Deis</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-08-27T06:30:43-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This post originally appeared on <a href="http://deis.com/blog/2015/how-deployed-my-first-app-to-deis">The Deis Blog</a></p>
+
+<h2>Introduction</h2>
+
+<p>Have you ever felt the pain that comes when your app runs fine on development, but breaks terribly in production? Maybe your CI build has been red for days, but you haven&rsquo;t had time to figure out how the CI server is misconfigured?</p>
+
+<p>With containers, you can easily rid yourself of such dependency woes. If the app runs in a container on one machine, it will most likely run in the same container on another.</p>
+
+<p>Once you&rsquo;ve bought into a container-based development workflow, the question soon arises: how can I get my production server to run my application in a container without the difficulty of having to provision a bare server with all of the other services, writing deploy tasks, and handling scaling issues on my own? In short, can I have a managed production environment that also supports containers?</p>
+
+<p>The answer is yes. Using <a href="http://deis.io/">Deis</a>, an open source Platform as a Service, you can host and manage your Docker-based application using your own Amazon Web Services (AWS) servers, without the hassle of configuring a bare Linux server.</p>
+
+<p>I recently deployed a simple Rails app to Deis, and took notes along the way. In this post, I&rsquo;ll share the steps I took to set up a <a href="https://try.deis.com/">Deis Pro</a> account and deploy a new application.</p>
+
+<h2>Setting Up AWS</h2>
+
+<p>Deis applications run on a cluster of servers tied to your AWS account. This allows you to control your settings with Amazon, and takes the middle man out of the billing process for server resources. Since I didn&rsquo;t have an AWS account, I had to create one. To do this, I followed <a href="https://support.cloud.engineyard.com/hc/en-us/articles/205501008-Before-You-Begin-Set-Up-Your-AWS-Account-and-User">this guide from Engine Yard</a>. Here&rsquo;s a quick run down of what I did.</p>
+
+<p>First, I visisted <a href="http://aws.amazon.com">aws.amazon.com</a> and clicked on &ldquo;Create a Free Account&rdquo;. I walked through the signup process, entering my credentials and credit card information.</p>
+
+<p>Once my account was all set up and I was logged in, I visited the &ldquo;Identity &amp; Access Management&rdquo; page, then clicked &ldquo;Groups&rdquo; on the sidebar. I then created a group called &ldquo;DeisAdminGroup&rdquo;.</p>
+
+<p>Next, I created a user called &ldquo;deis_user&rdquo; under the &ldquo;Users&rdquo; tab. When I created it, Amazon asked me to download the user credentials in a CSV file, which I saved. Finally, I went back to &ldquo;Groups&rdquo;, selected my group, clicked &ldquo;Add Users to Group&rdquo;, and added &ldquo;deis_user&rdquo; to the group.</p>
+
+<p>With these steps completed, I had my AWS user and security group set up. Next I turned my attention to setting up a Deis Pro account.</p>
+
+<h2>Signing Up For Deis PRO</h2>
+
+<p>Before I could deploy my app to Deis Pro, I had to <a href="https://try.deis.com/">sign up for an account</a>.</p>
+
+<p>I filled out the form, and a few minutes later I got a verification email. I clicked the link in the email, then entered my billing information. Deis then asked for my AWS credentials. I entered the information saved in the CSV I downloaded when I was setting up AWS, and I was ready to go.</p>
+
+<h2>Creating the Cluster</h2>
+
+<p>Now that I was signed in to my Deis PRO account, I began to set up some server resources that I could deploy my application to. Here are the steps I followed to get them ready.</p>
+
+<p>First, I visited my dashboard and clicked &ldquo;Create Environment&rdquo;. Since I didn&rsquo;t need any special performance resources or customizations, I just used the default options for server size and memory allocations. I created an administrator username and password.</p>
+
+<p>Next, I created three servers on AWS using the Deis PRO UI as part of the &ldquo;create environment&rdquo; process. For me, this process failed the first time, but when I tried again, the servers eventually came online. The last thing before leaving the Deis PRO site was to make note of my Deis endpoint name (it looks like deis.1ab2345.my.ey.io) so that I could use it to configure my app from the command line.</p>
+
+<h2>Installing Deis Locally</h2>
+
+<p>After setting up my AWS and Deis accounts, I turned my attention to getting the <a href="http://docs.deis.io/en/latest/using_deis/install-client/">Deis command line client</a> installed on my development machine. It was as simple as running this <code>curl</code> command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -sSL http://deis.io/deis-cli/install.sh | sh -s 1.7.3</span></code></pre></td></tr></table></div></figure>
+
+
+<p>From there, I needed to put the <code>deis</code> executable into my <code>$PATH</code>. Although I could have used a symlink, I opted to move it directly to <code>usr/local/bin</code> with <code>mv deis /usr/local/bin/deis</code> instead. After running these two commands, I was able to run <code>deis -h</code>.</p>
+
+<p>As a last step before setting up an app, I also needed to login to the server cluster I&rsquo;d created and add the SSH key from my local machine to it. I logged into my Deis endpoint using <code>deis login deis.1ab2345.my.ey.io</code>. The endpoint name was the one I got from the Deis Pro website when I was setting up my resources. I found the username and password for the cluster in the Deis PRO UI. After I logged in, I added my local SSH key with <code>deis keys:add</code>.</p>
+
+<p>With the Deis CLI set up and connected to my server cluster, I was ready to begin deploying my application.</p>
+
+<h2>Deploying The App</h2>
+
+<p>When I was finishing bootcamp, I wrote an application called <a href="https://github.com/fluxusfrequency/12stepper">Twelve Stepper</a> to help 12 Step Program participants interact with friends, find meetings, and work with the steps. Since it&rsquo;s a fairly simple application, I thought it would be a good one to use for my first Deis deploy.</p>
+
+<p>I cloned it down from GitHub, bundled my gems and ran migrations as I would for any other Rails project. I also made a <code>Dockerfile</code> and got the app running in a container locally. Then I set up a Deis project by running <code>deis create 12stepper</code> from within the project folder.</p>
+
+<p>After that, I tried to deploy using <code>git push deis master</code>, but I ran into an error: <code>tar: invalid tar magic</code>. After doing a little research, I found that I had forgotten to include a <code>Procfile</code>, so I created one. After adding it to <code>git</code> and pushing again, my app successfully deployed.</p>
+
+<p>I ran <code>deis open</code>, and there was my app, up and running on the web!</p>
+
+<h2>Wrapping Up</h2>
+
+<p>Getting Twelve Stepper set up on a Deis PRO cluster was pretty easy, all told. Most of my time was spent setting up accounts on AWS and Deis PRO and installing the Deis CLI. But these were one-time tasks. From here on out, deploying apps to Deis will be as easy as creating a new server cluster from my Deis PRO dashboard, then running <code>deis create &lt;appname&gt;</code> and <code>git push deis master</code> from my project folder.</p>
+
+<p>I was surprised how easy it was to get my app up and running on a managed production environment using a container with Deis. If you&rsquo;re using a container-based development environment, I would definitely recommend checking Deis out as a hosting and deployment solution. Good luck!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-08-27T06:30:43-06:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2015/08/27/how-i-deployed-my-first-app-to-deis/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2015/08/27/how-i-deployed-my-first-app-to-deis/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/07/01/goodbye-mvp/" title="Previous Post: Goodbye MVP, Hello v1">&laquo; Goodbye MVP, Hello v1</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/09/17/testing-flux-applications/" title="Next Post: Testing Flux Applications">Testing Flux Applications &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/testing-flux-applications/">Testing Flux Applications</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/27/how-i-deployed-my-first-app-to-deis/">How I Deployed My First App To Deis</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/07/01/goodbye-mvp/">Goodbye MVP, Hello v1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/10/a-smooth-transition-to-ecmascript-6-using-new-features/">A Smooth Transition to ECMAScript 6: Using New Features</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/09/a-smooth-transition-to-ecmascript-6-first-steps/">A Smooth Transition to ECMAScript 6: First Steps</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

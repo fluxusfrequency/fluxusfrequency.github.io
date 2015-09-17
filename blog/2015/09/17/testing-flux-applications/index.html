@@ -1,0 +1,958 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Testing Flux Applications - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="This post originally appeared on The Quick Left Blog Introduction A lot of people in the JavaScript community are pretty excited about Facebook&rsquo &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2015/09/17/testing-flux-applications">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Testing Flux Applications</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-09-17T06:29:28-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This post originally appeared on <a href="https://quickleft.com/blog/testing-flux-applications/">The Quick Left Blog</a></p>
+
+<h2>Introduction</h2>
+
+<p>A lot of people in the JavaScript community are pretty excited about Facebook&rsquo;s <a href="http://facebook.github.io/react/">React</a> library, and associated <a href="http://facebook.github.io/flux/">Flux</a> architecture. We&rsquo;ve been using quite a bit of these tools in our client-side projects at Quick Left. It can be a little hard to wrap your mind around the way the data flows at first, but once you get used to it, you come to appreciate how clean it can be.</p>
+
+<p>As with any development, test-driving features is the way to go in a Flux app. As I&rsquo;ve been learning this technology, I&rsquo;ve been collecting some of the less obvious patterns that make testing easier. In this post, we&rsquo;ll take a look at some of these strategies, to make it easier for you to build the next big thing.</p>
+
+<h2>Setup</h2>
+
+<h3>Project Structure</h3>
+
+<p>Since Flux is a more of an idea than a framework, there&rsquo;s no convention as to how to structure your project. I personally like to break it down in a fairly obvious fashion, with the different Flux objects grouped together by folder.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>app/
+</span><span class='line'>├── actions
+</span><span class='line'>├── collections
+</span><span class='line'>├── dispatchers
+</span><span class='line'>├── lib
+</span><span class='line'>├── models
+</span><span class='line'>├── stores
+</span><span class='line'>└── views</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are a couple of places to put the tests, but I&rsquo;ve been leaning toward a pattern where the tests live right alongside their corresponding files. This makes it easy to find the test for a given module. It also keeps the directory structures from getting out of sync, as they might if you put everything into a separate <code>test/</code> folder. Here&rsquo;s an example of what this might look like.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>app/
+</span><span class='line'>├── actions
+</span><span class='line'>|   |── user-actions.js
+</span><span class='line'>|   |── user-actions-test.js
+</span><span class='line'>├── collections
+</span><span class='line'>├── dispatchers
+</span><span class='line'>├── lib
+</span><span class='line'>├── models
+</span><span class='line'>├── stores
+</span><span class='line'>|   |── users-store.js
+</span><span class='line'>|   |── users-store-test.js
+</span><span class='line'>└── views
+</span><span class='line'>    |── login.js
+</span><span class='line'>    |── login-test.js</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When we find the files to run in our test suite, we can just use <a href="https://www.npmjs.com/package/glob">globbing</a> to find them all, so it doesn&rsquo;t really present any problems for setting up our tests.</p>
+
+<h3>Testing Dependencies</h3>
+
+<p>Facebook recommends using their testing tool, <a href="https://facebook.github.io/jest/">Jest</a>, to test React and Flux components. Although I totally respect Jest, <a href="https://github.com/facebook/jest/issues/139">it doesn&rsquo;t run in the browser</a>, plus I&rsquo;m pretty used to the toolchain I&rsquo;m about to describe, so I go about things a slightly different way.</p>
+
+<h4>Mocha + Chai</h4>
+
+<p>When it comes to testing frameworks, I&rsquo;m a big fan of <a href="http://mochajs.org/">Mocha</a>. It gives us <code>describe</code> and all of the other <a href="">BDD-style</a> assertions we could want when combined with <a href="http://chaijs.com/">ChaiJS</a>.</p>
+
+<h4>Sinon</h4>
+
+<p>Since there are a lot of dependencies in a Flux app, we&rsquo;ll probably be doing a lot of stubbing. I like to use <a href="">SinonJS</a> for this purpose. It gives us stubs and spies, and its API provides the ability to drill down into how functions were called and with what arguments with a level of granularity that can come in really useful.</p>
+
+<h4>Karma</h4>
+
+<p>When it comes to test runners, there are many viable choices. Lately, I&rsquo;ve been leaning toward <a href="">Karma</a> for most of my needs, because it&rsquo;s easy to get set up, and it can be hooked into a coverage tool with ease.</p>
+
+<p>Here&rsquo;s an example <code>karma.conf</code> file for a Flux app in ES6 with <a href="">Browserify</a> and <a href="">Babel</a>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">config</span><span class="p">.</span><span class="nx">set</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">frameworks</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;mocha&#39;</span><span class="p">,</span> <span class="s1">&#39;browserify&#39;</span><span class="p">],</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">files</span><span class="o">:</span> <span class="p">[</span> <span class="s1">&#39;app/**/*-test.js&#39;</span> <span class="p">],</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">preprocessors</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="s1">&#39;app/**/*.js&#39;</span><span class="o">:</span> <span class="p">[</span> <span class="s1">&#39;browserify&#39;</span> <span class="p">]</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">browserify</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">debug</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">files</span><span class="o">:</span> <span class="p">[</span>
+</span><span class='line'>        <span class="s1">&#39;app/**/*-test.js&#39;</span>
+</span><span class='line'>      <span class="p">],</span>
+</span><span class='line'>      <span class="nx">transform</span><span class="o">:</span> <span class="p">[</span>
+</span><span class='line'>        <span class="p">[</span><span class="s1">&#39;babelify&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">sourceMapRelative</span><span class="o">:</span> <span class="s1">&#39;./app&#39;</span> <span class="p">}]</span>
+</span><span class='line'>      <span class="p">]</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">browsers</span><span class="o">:</span> <span class="p">[</span> <span class="s1">&#39;Chrome&#39;</span> <span class="p">],</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">singleRun</span><span class="o">:</span> <span class="kc">true</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Coverage</h4>
+
+<p>If you&rsquo;re interesting in setting up a coverage tool to see how well-tested your code base is, check out my post <a href="https://quickleft.com/blog/measuring-clientside-javascript-test-coverage-istanbul/">Measuring Clientside JavaScript Test Coverage With Istanbul</a>.</p>
+
+<h4>NPM Build Scripts</h4>
+
+<p>As far as running tasks, you can rely on Grunt or Gulp, or you can just set a test script up in your <code>package.json</code> file. Doing it this way, running tests is as simple as typing <code>npm test</code>. Here&rsquo;s what to put into <code>package.json</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="s2">&quot;scripts&quot;</span><span class="err">:</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nt">&quot;test&quot;</span><span class="p">:</span> <span class="s2">&quot;NODE_ENV=test ./node_modules/karma/bin/karma start&quot;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With these dependencies set up, you&rsquo;re all ready to start writing tests. Let&rsquo;s take a look at some of the testing specifics.</p>
+
+<h2>Actually Writing Tests</h2>
+
+<p>There are four parts to a Flux app: <code>Actions</code>, <code>Stores</code>, <code>Views</code>, and <code>Dispatchers</code>.</p>
+
+<p>As mentioned above, Flux is more of a pattern than a framework. Although several people have released experimental frameworks built in its image, there is only one official Facebook package, called <code>flux</code>. Ironically, it only contains a <code>Dispatcher</code>. You can find the source code <a href="https://github.com/facebook/flux">here</a>. Since this package works well and is tested externally, so we won&rsquo;t be looking at testing <code>Dispatchers</code> in this post.</p>
+
+<p>Before we get into looking at the remaining parts of Flux in depth, here are a couple of tips that come in handy in all cases.</p>
+
+<h3>Any Object</h3>
+
+<h4>Setting Up A Sandbox</h4>
+
+<p>Sinon sandboxes are a great way to use stubs and spies without having to restore the objects they&rsquo;re touching later. You can clean things up automatically by setting up a new sandbox before each test and tearing it down afterwards.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">sinon</span> <span class="o">=</span> <span class="nx">sinon</span><span class="p">.</span><span class="nx">sandbox</span><span class="p">.</span><span class="nx">create</span><span class="p">();</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">afterEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">sinon</span><span class="p">.</span><span class="nx">restore</span><span class="p">();</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Getting Dependencies</h4>
+
+<p>Sometimes it can be a pain to pull in and/or stub a bunch of dependencies for an object you&rsquo;re testing. There&rsquo;s an easy way to grab what you need from within the test: using <a href="https://github.com/jhnns/rewire">Rewire</a>, which exposes a special <code>__get__</code> method you can use to access whatever you need from the top level scope of the module. You can then stub out methods and properties on those modules. Here&rsquo;s how to leverage it to your advantage.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">sinon</span> <span class="o">=</span> <span class="nx">sinon</span><span class="p">.</span><span class="nx">sandbox</span><span class="p">.</span><span class="nx">create</span><span class="p">();</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">todos</span> <span class="o">=</span> <span class="nx">MyAction</span><span class="p">.</span><span class="nx">__get__</span><span class="p">(</span><span class="s1">&#39;todos&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;something related to todos&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;doesnt have to care about todos&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">sinon</span><span class="p">.</span><span class="nx">stub</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">todos</span><span class="p">,</span> <span class="s1">&#39;getAll&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="c1">// do something else that calls this.todos.getAll without worrying about the result</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As a note, you don&rsquo;t even need to use Rewire unless you need access to instance variables on your objects. Since Flux uses plain objects, multiple calls to <code>require</code> will always return the same object. This means that you can just spy on or stub out a method on one of your <code>Actions</code> or <code>Stores</code> directly after requiring them.</p>
+
+<h3>Actions</h3>
+
+<h4>Testing Event Dispatching</h4>
+
+<p>When you&rsquo;re writing a Flux action, it typically sends some kind of event and payload to the <code>AppDispatcher</code> to trigger events registered elsewhere in the application. It&rsquo;s easy to spy on the <code>AppDispatcher</code> and test that it&rsquo;s called with the right arguments to ensure that your <code>Action</code> is working properly.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// my-action.js</span>
+</span><span class='line'><span class="kr">import</span> <span class="nx">myCollection</span> <span class="nx">from</span> <span class="s1">&#39;../collections/my-collection&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="kr">import</span> <span class="nx">AppDispatcher</span> <span class="nx">from</span> <span class="s1">&#39;../dispatchers/app-dispatcher&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">let</span> <span class="nx">MyAction</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">loadModels</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">myCollection</span><span class="p">.</span><span class="nx">fetch</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">AppDispatcher</span><span class="p">.</span><span class="nx">dispatch</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">actionType</span><span class="o">:</span> <span class="s1">&#39;COLLECTION_LOAD&#39;</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">export</span> <span class="k">default</span> <span class="nx">MyAction</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// my-action-test.js</span>
+</span><span class='line'><span class="kr">import</span> <span class="nx">MyAction</span> <span class="nx">from</span> <span class="s1">&#39;./my-action&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="kr">import</span> <span class="nx">AppDispatcher</span> <span class="nx">from</span> <span class="s1">&#39;../dispatchers/app-dispatcher&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="kr">import</span> <span class="nx">Backbone</span> <span class="nx">from</span> <span class="s1">&#39;backbone&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;dispatches an event&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">spy</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">sinon</span><span class="p">.</span><span class="nx">spy</span><span class="p">(</span><span class="nx">AppDispatcher</span><span class="p">,</span> <span class="s1">&#39;dispatch&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">collection</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Collection</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">MyAction</span><span class="p">.</span><span class="nx">loadModels</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">collection</span><span class="p">);</span>
+</span><span class='line'>  <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">sinon</span><span class="p">.</span><span class="nx">assert</span><span class="p">.</span><span class="nx">calledOnce</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">spy</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">done</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">},</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Testing Promises</h4>
+
+<p>We often load data from a remote server in our <code>Action</code> objects, so there are typically a lot of promises involved in its internals. When testing these methods, it&rsquo;s often useful to stub out these promises. It&rsquo;s pretty easy to do using native promises in ES6. Note that we use <code>setTimeout</code> and <code>done</code> to ensure that the promise is fully resolved before testing our assertion and moving on to the next test.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// search-action.js</span>
+</span><span class='line'><span class="kr">import</span> <span class="nx">searchClient</span> <span class="nx">from</span> <span class="s1">&#39;../lib/search&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="kr">import</span> <span class="nx">AppDispatcher</span> <span class="nx">from</span> <span class="s1">&#39;../dispatchers/app-dispatcher&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">let</span> <span class="nx">SearchAction</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">search</span><span class="p">(</span><span class="nx">query</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">AppDispatcher</span><span class="p">.</span><span class="nx">dispatch</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">actionType</span><span class="o">:</span> <span class="s1">&#39;SEARCH_START&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">query</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>    <span class="nx">searchClient</span><span class="p">.</span><span class="nx">search</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">results</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">AppDispatcher</span><span class="p">.</span><span class="nx">dispatch</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">actionType</span><span class="o">:</span> <span class="s1">&#39;SEARCH_SUCCESS&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">payload</span><span class="o">:</span> <span class="nx">results</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">export</span> <span class="k">default</span> <span class="nx">SearchAction</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// search-action-test.js</span>
+</span><span class='line'><span class="kr">import</span> <span class="nx">SearchAction</span> <span class="nx">from</span> <span class="s1">&#39;./search-action&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;search&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">success</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">resolve</span><span class="p">(</span><span class="s1">&#39;results&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">failure</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">reject</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">searchStub</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">sinon</span><span class="p">.</span><span class="nx">stub</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">searchClient</span><span class="p">,</span> <span class="s1">&#39;search&#39;</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;dispatches a SEARCH_SUCCESS event&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">appDispatcher</span> <span class="o">=</span> <span class="nx">SearchActions</span><span class="p">.</span><span class="nx">__get__</span><span class="p">(</span><span class="s1">&#39;AppDispatcher&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">dispatchStub</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">sinon</span><span class="p">.</span><span class="nx">stub</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">appDispatcher</span><span class="p">,</span> <span class="s1">&#39;dispatch&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">searchStub</span><span class="p">.</span><span class="nx">returns</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">success</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">SearchAction</span><span class="p">.</span><span class="nx">search</span><span class="p">(</span><span class="s1">&#39;my_search&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>      <span class="nx">sinon</span><span class="p">.</span><span class="nx">assert</span><span class="p">.</span><span class="nx">calledWith</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">dispatchStub</span><span class="p">,</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">actionType</span><span class="o">:</span> <span class="s1">&#39;SEARCH_SUCCESS&#39;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">payload</span><span class="o">:</span> <span class="s1">&#39;results&#39;</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>      <span class="nx">done</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">},</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Stores</h3>
+
+<p>In my own Flux projects, I have tried to keep the external API of <code>stores</code> as &ldquo;dumb&rdquo; as possible. They are meant to be simple repositories for business objects that expose an interface for other objects to subscribe to change events. I typically define methods named <code>emitChange</code>, <code>addChangeListener</code>, and <code>removeEventListener</code> for each store.</p>
+
+<p>Despite their relatively simple API, it is vitally important to test your <code>stores</code>. They&rsquo;re usually the place where the business logic lives. Plus, they&rsquo;re responsible for loading data from the server into the client-side app. For these reasons, we want to make sure they work properly. Here are a couple of tricks that can be helpful.</p>
+
+<h4>Using Internals</h4>
+
+<p>Given that <code>stores</code> are only supposed to accept data through the callback they register with the <code>dispatcher</code>, it can be tricky to send mocked data into them while testing. Facebook has one suggested way of doing it <a href="https://facebook.github.io/react/blog/2014/09/24/testing-flux-applications.html#testing-stores">with Jest</a>, or you can try <a href="http://bensmithett.com/testing-flux-stores-without-jest/">this approach</a> with Mocha or Jasmine. Alternatively, another nice way to hide the implementation a store uses to fetch its data is to wrap the fetch implementation in an <code>internals</code> object and test that instead. Here&rsquo;s what it looks like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">import</span> <span class="nx">_</span> <span class="nx">from</span> <span class="s1">&#39;lodash&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="kr">import</span> <span class="p">{</span><span class="nx">EventEmitter</span><span class="p">}</span> <span class="nx">from</span> <span class="s1">&#39;events;</span>
+</span><span class='line'><span class="s1">import Widgets from &#39;</span><span class="p">..</span><span class="o">/</span><span class="nx">collections</span><span class="o">/</span><span class="nx">widgets</span><span class="s1">&#39;;</span>
+</span><span class='line'><span class="s1">import AppDispatcher from &#39;</span><span class="p">..</span><span class="o">/</span><span class="nx">dispatchers</span><span class="o">/</span><span class="nx">app</span><span class="o">-</span><span class="nx">dispatcher</span><span class="s1">&#39;;</span>
+</span><span class='line'>
+</span><span class='line'><span class="s1">let WidgetStore = _.extend({}, EventEmitter.prototype, {</span>
+</span><span class='line'><span class="s1">  emitChange() {</span>
+</span><span class='line'><span class="s1">    this.emit(&#39;</span><span class="nx">change</span><span class="s1">&#39;);</span>
+</span><span class='line'><span class="s1">  },</span>
+</span><span class='line'>
+</span><span class='line'><span class="s1">  addChangeListener(callback) {</span>
+</span><span class='line'><span class="s1">    this.on(&#39;</span><span class="nx">change</span><span class="s1">&#39;, callback);</span>
+</span><span class='line'><span class="s1">  },</span>
+</span><span class='line'>
+</span><span class='line'><span class="s1">  removeChangeListener(callback) {</span>
+</span><span class='line'><span class="s1">    this.removeListener(&#39;</span><span class="nx">change</span><span class="s1">&#39;, callback);</span>
+</span><span class='line'><span class="s1">  },</span>
+</span><span class='line'>
+</span><span class='line'><span class="s1">  getAll() {</span>
+</span><span class='line'><span class="s1">    return this.widgets.toJSON();</span>
+</span><span class='line'><span class="s1">  }</span>
+</span><span class='line'><span class="s1">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="s1">WidgetStore.internals = {</span>
+</span><span class='line'><span class="s1">  init() {</span>
+</span><span class='line'><span class="s1">    this.widgets = new Widgets();</span>
+</span><span class='line'><span class="s1">    return this.widgets.fetch().then(() =&gt; {</span>
+</span><span class='line'><span class="s1">      this.emitChange();</span>
+</span><span class='line'><span class="s1">    });</span>
+</span><span class='line'><span class="s1">  }</span>
+</span><span class='line'><span class="s1">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="s1">AppDispatcher.register((action) =&gt; {</span>
+</span><span class='line'><span class="s1">  switch(action.actionType) {</span>
+</span><span class='line'><span class="s1">    case &#39;</span><span class="nx">INIT_WIDGETS</span><span class="err">&#39;</span><span class="o">:</span>
+</span><span class='line'>      <span class="nx">WidgetStore</span><span class="p">.</span><span class="nx">internals</span><span class="p">.</span><span class="nx">init</span><span class="p">();</span>
+</span><span class='line'>      <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>      <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">export</span> <span class="k">default</span> <span class="nx">WidgetStore</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When it comes to testing this <code>internals</code> object, we can test that the <code>internals</code> methods are behaving as expected. For example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;internals&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">widgets</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Collection</span><span class="p">();</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">widgets</span><span class="p">.</span><span class="nx">fetch</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="k">new</span> <span class="nx">Promise</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">resolve</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">resolve</span><span class="p">([</span><span class="s1">&#39;widget1&#39;</span><span class="p">,</span> <span class="s1">&#39;widget2&#39;</span><span class="p">]);</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;init&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;returns a promise&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">WidgetStore</span><span class="p">.</span><span class="nx">internals</span><span class="p">.</span><span class="nx">init</span><span class="p">();</span>
+</span><span class='line'>      <span class="nx">setTimeout</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">expect</span><span class="p">(</span><span class="nx">WidgetStore</span><span class="p">.</span><span class="nx">widgets</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">equal</span><span class="p">([</span><span class="s1">&#39;widget1&#39;</span><span class="p">,</span> <span class="s1">&#39;widget2&#39;</span><span class="p">]);</span>
+</span><span class='line'>        <span class="nx">done</span><span class="p">()</span>
+</span><span class='line'>      <span class="p">},</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Using Dependency Injection</h4>
+
+<p>If you write your <code>stores</code> in an object-oriented way, you can pass a reference to the <code>dispatcher</code> directly into them. This makes it easier to test that different dispatching events trigger the correct callbacks to produce the behavior that is desired. Here&rsquo;s an example (thanks to <a href="http://jaysoo.ca/2015/03/09/on-flux-stores-and-actions/">Jack Hsu</a> for the inspiration for this tip).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">class</span> <span class="nx">WidgetStore</span> <span class="kr">extends</span> <span class="nx">Store</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">constructor</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">widgets</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Collection</span><span class="p">();</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">dispatcher</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">dispatcher</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">dispatcher</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">onWidgetAdded</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">onWidgetAdded</span><span class="p">(</span><span class="nx">action</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">widgets</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">action</span><span class="p">.</span><span class="nx">payload</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;change&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And now testing the store is simple. We can just inject a dispatcher and use it to trigger the events we want to test.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;WidgetStore&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">dispatcher</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Dispatcher</span><span class="p">();</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">widgetStore</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">WidgetStore</span><span class="p">({</span> <span class="nx">dispatcher</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">dispatcher</span> <span class="p">});</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;WIDGET_ADDED&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">let</span> <span class="nx">widget</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Model</span><span class="p">();</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">dispatcher</span><span class="p">.</span><span class="nx">dispatch</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">actionType</span><span class="o">:</span> <span class="s1">&#39;WIDGET_ADDED&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">payload</span><span class="o">:</span> <span class="nx">widget</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>    <span class="nx">expect</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">widgetStore</span><span class="p">.</span><span class="nx">widgets</span><span class="p">.</span><span class="nx">toJSON</span><span class="p">()).</span><span class="nx">to</span><span class="p">.</span><span class="nx">haveLength</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>View Components</h3>
+
+<p>Finally we come to the view layer. If you&rsquo;ve played with React, writing these view components should come naturally.</p>
+
+<p>When it comes to testing, there are a lot of things you can safely skip, since testing them would just be verifying that React works as expected. For example, checking that <code>onClick</code> handlers fire is pointless, since we know that React will call them. On the other hand, it can be useful that the behavior we want them to cause is actually carried out.</p>
+
+<h4>Wrap Components With StubRouterContext</h4>
+
+<p>It&rsquo;s usually a good idea to wrap your components in a stubbed out context, to make it easier to force them to behave the way you want within your tests. If you don&rsquo;t, it can be hard to get them to render and behave as expected.</p>
+
+<p>To get this to happen, I recommend using the <a href="https://gist.github.com/cmain/69aee0b5d9cab96589d7">stub-router-context</a> module from the <a href="https://github.com/rackt/react-router">react-router project</a>. It&rsquo;s useful for wrapping the context of all kinds of components aside from the React Router. Although I tend to stick to the name &ldquo;Stub Router Context&rdquo;, it would perhaps be more accurate to just call it &ldquo;stub context&rdquo;, since you can use it to stub out any context.</p>
+
+<p>I also like to add a ref to the stub in the component that&rsquo;s returned in <code>render</code>, to make it easier to get hold of the component being wrapped by the component returned by <code>stub-router-context</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">render</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="o">&lt;</span><span class="nx">Component</span> <span class="nx">ref</span><span class="o">=</span><span class="s1">&#39;stub&#39;</span> <span class="p">{...</span><span class="nx">props</span><span class="p">}</span> <span class="o">/&gt;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here&rsquo;s how it looks when you include it in your test. Note how the ref I included makes it easy to grab the child and call <code>setState</code> on it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">import</span> <span class="nx">React</span> <span class="nx">from</span> <span class="s1">&#39;react&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="kr">import</span> <span class="nx">stubRouterContext</span> <span class="nx">from</span> <span class="s1">&#39;../lib/stub-router-context&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="kr">import</span> <span class="nx">Search</span> <span class="nx">from</span> <span class="s1">&#39;./search&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="kd">let</span> <span class="nx">TestUtils</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">addons</span><span class="p">.</span><span class="nx">TestUtils</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kd">let</span> <span class="nx">Component</span> <span class="o">=</span> <span class="nx">stubRouterContext</span><span class="p">(</span><span class="nx">Search</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">component</span> <span class="o">=</span> <span class="nx">TestUtils</span><span class="p">.</span><span class="nx">renderIntoDocument</span><span class="p">(</span><span class="o">&lt;</span><span class="nx">Component</span><span class="o">/&gt;</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;does the thing when the state is such&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">component</span><span class="p">.</span><span class="nx">refs</span><span class="p">.</span><span class="nx">stub</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">isLoading</span><span class="o">:</span> <span class="kc">false</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Use the React TestUtils</h4>
+
+<p>When it comes to rendering your component into a test DOM, checking whether classes are being dynamically added or removed, or whether input values are are changing in response to user interactions, the React TestUtils can&rsquo;t be beat. Get to know <a href="https://facebook.github.io/react/docs/test-utils.html">the TestUtils API</a>, and use it to test your view components. It makes things much less painful.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">import</span> <span class="nx">React</span> <span class="nx">from</span> <span class="s1">&#39;react&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="kr">import</span> <span class="nx">WidgetRepeater</span> <span class="nx">from</span> <span class="s1">&#39;./widget-repeater&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="kr">import</span> <span class="nx">stubRouterContext</span> <span class="nx">from</span> <span class="s1">&#39;../lib/stub-router-context&#39;</span><span class="p">;</span>
+</span><span class='line'><span class="kd">let</span> <span class="nx">TestUtils</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">addons</span><span class="p">.</span><span class="nx">TestUtils</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;WidgetRepeater&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">let</span> <span class="nx">Component</span> <span class="o">=</span> <span class="nx">stubRouterContext</span><span class="p">(</span><span class="nx">WidgetRepeater</span><span class="p">);</span>
+</span><span class='line'>    <span class="c1">// Add 10 midgets to the repeater</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">component</span> <span class="o">=</span> <span class="nx">TestUtils</span><span class="p">.</span><span class="nx">renderIntoDocument</span><span class="p">(</span><span class="o">&lt;</span><span class="nx">Component</span><span class="o">/&gt;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;shows the widgets&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">let</span> <span class="nx">widgets</span> <span class="o">=</span> <span class="nx">TestUtils</span><span class="p">.</span><span class="nx">scryRenderedDOMComponentsWithClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">component</span><span class="p">,</span> <span class="s1">&#39;widget&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="nx">expect</span><span class="p">(</span><span class="nx">widgets</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">have</span><span class="p">.</span><span class="nx">length</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;sets the first widget active&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">let</span> <span class="nx">activeWidgets</span> <span class="o">=</span> <span class="nx">TestUtils</span><span class="p">.</span><span class="nx">scryRenderedDOMComponentsWithClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">component</span><span class="p">,</span> <span class="s1">&#39;active&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="nx">expect</span><span class="p">(</span><span class="nx">activeWidgets</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">have</span><span class="p">.</span><span class="nx">length</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;changes widgets to active on click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">let</span> <span class="nx">widgets</span> <span class="o">=</span> <span class="nx">TestUtils</span><span class="p">.</span><span class="nx">scryRenderedDOMComponentsWithClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">component</span><span class="p">,</span> <span class="s1">&#39;widget&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="kd">let</span> <span class="nx">secondWidget</span> <span class="o">=</span> <span class="nx">widgets</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nx">findDOMNode</span><span class="p">();</span>
+</span><span class='line'>    <span class="nx">TestUtils</span><span class="p">.</span><span class="nx">Simulate</span><span class="p">.</span><span class="nx">click</span><span class="p">(</span><span class="nx">secondWidget</span><span class="p">);</span>
+</span><span class='line'>    <span class="kd">let</span> <span class="nx">activeWidgets</span> <span class="o">=</span> <span class="nx">TestUtils</span><span class="p">.</span><span class="nx">scryRenderedDOMComponentsWithClass</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">component</span><span class="p">,</span> <span class="s1">&#39;active&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="nx">expect</span><span class="p">(</span><span class="nx">activeWidgets</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">have</span><span class="p">.</span><span class="nx">length</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Conclusion</h2>
+
+<p>Committing to a test-driven development approach in client-side JavaScript applications can sometimes be a hard sell. Aside from problems with testing DOM manipulation and asynchronous code, it can also be hard to test patterns that are new to the team, like Flux. But with the right tools, it can become second nature to test some of these things. Once your team has the confidence that they can effectively test these components, it&rsquo;s a lot easier to approach all feature development with a TDD mindset.</p>
+
+<p>In this post, we explored how to better test Flux applications. We took a look at some of the JS testing tools that can be helpful to get setup in your build process. We talked about some testing tips that are useful across all of the different Flux objects. Then we drilled down into testing tips specific to <code>Actions</code>, <code>Stores</code>, and <code>View Components</code>.</p>
+
+<p>I hope that some of these tips come in useful for your team as you build your cutting-edge web application. Best of luck!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-09-17T06:29:28-06:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2015/09/17/testing-flux-applications/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2015/09/17/testing-flux-applications/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/08/27/how-i-deployed-my-first-app-to-deis/" title="Previous Post: How I Deployed My First App To Deis">&laquo; How I Deployed My First App To Deis</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/testing-flux-applications/">Testing Flux Applications</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/27/how-i-deployed-my-first-app-to-deis/">How I Deployed My First App To Deis</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/07/01/goodbye-mvp/">Goodbye MVP, Hello v1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/10/a-smooth-transition-to-ecmascript-6-using-new-features/">A Smooth Transition to ECMAScript 6: Using New Features</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/09/a-smooth-transition-to-ecmascript-6-first-steps/">A Smooth Transition to ECMAScript 6: First Steps</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

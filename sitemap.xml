@@ -1,6 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://fluxusfrequency.github.io/blog/2015/09/17/testing-flux-applications/</loc>
+    <lastmod>2015-09-17T06:29:28-06:00</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>http://fluxusfrequency.github.io/blog/2015/08/27/how-i-deployed-my-first-app-to-deis/</loc>
+    <lastmod>2015-08-27T06:30:43-06:00</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>http://fluxusfrequency.github.io/blog/2015/07/01/goodbye-mvp/</loc>
+    <lastmod>2015-07-01T06:28:45-06:00</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>http://fluxusfrequency.github.io/blog/2015/06/10/a-smooth-transition-to-ecmascript-6-using-new-features/</loc>
+    <lastmod>2015-06-10T06:28:33-06:00</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>http://fluxusfrequency.github.io/blog/2015/06/09/a-smooth-transition-to-ecmascript-6-first-steps/</loc>
+    <lastmod>2015-06-09T06:28:25-06:00</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>http://fluxusfrequency.github.io/blog/2015/05/26/happy/</loc>
     <lastmod>2015-05-26T06:11:59-06:00</lastmod>
     <priority>0.8</priority>
@@ -282,19 +307,19 @@
   </url>
   <url>
     <loc>http://fluxusfrequency.github.io/blog/archives/</loc>
-    <lastmod>2015-05-29T06:19:19-06:00</lastmod>
+    <lastmod>2015-09-17T06:43:50-06:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>http://fluxusfrequency.github.io/</loc>
-    <lastmod>2015-05-29T06:19:19-06:00</lastmod>
+    <lastmod>2015-09-17T06:43:50-06:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>http://fluxusfrequency.github.io/about/</loc>
-    <lastmod>2015-05-29T06:19:19-06:00</lastmod>
+    <lastmod>2015-09-17T06:43:50-06:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
