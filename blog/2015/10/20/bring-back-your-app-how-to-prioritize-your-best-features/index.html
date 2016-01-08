@@ -1,0 +1,277 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Bring Back Your App: How To Prioritize Your Best Features - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="This post originally appeared on The Quick Left Blog Introduction The tech world moves fast. It&rsquo;s not uncommon for a startup to scale from two &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2015/10/20/bring-back-your-app-how-to-prioritize-your-best-features">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Bring Back Your App: How to Prioritize Your Best Features</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-10-20T20:52:44-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This post originally appeared on <a href="https://quickleft.com/blog/bring-back-app-prioritize-best-features/">The Quick Left Blog</a></p>
+
+<p><img src="https://quickleft.com/wp-content/uploads/priritize-tasks-300x202.gif" alt="how to prioritize your best features"/></p>
+
+<h2>Introduction</h2>
+
+<p>The tech world moves fast. It&rsquo;s not uncommon for a startup to scale from two people in a coworking space to a team of thirty or more in a matter of months. Just as often, the team shrinks again due to sudden market changes or errant developers moving on to the next big thing.</p>
+
+<p>When you&rsquo;re getting ready to rebuild your business, it can be hard to know where to begin. There are so many things to do, from marketing, to onboarding a new team, to deciding what to build next.</p>
+
+<p>In <a href="http://quickleft.com/blog/ramping-up-developers-on-code">part one of this series</a>, we talked about some of things you can do on the technical side to get your dev team up and running with a minimum of fuss.</p>
+
+<p>In this, the second and final part of this series, we&rsquo;ll focus on how to prioritize your best features. We&rsquo;ll look at how to decide what you should get rid of and what you should pull out into its own codebase. Then we&rsquo;ll tackle the question: what to build next?</p>
+
+<h2>Finding Your Strategic Direction</h2>
+
+<p>Assuming your development team is all ready to go, you might start to ask yourself: &ldquo;what do we build next?&rdquo;</p>
+
+<p>But before you assume that you&rsquo;re ready to start prototyping and shipping new features, you should take a hard look at what&rsquo;s already there. Then, ask yourself if you shouldn&rsquo;t do a little housekeeping first.</p>
+
+<h3>Take An Inventory</h3>
+
+<p>It&rsquo;s a good idea to take an inventory of the workflows and features that are already in your application. Make a list of ways that users interact with the system. You could even consider <a href="https://blog.engineyard.com/2015/happy-sad-evil-weird-feature-planning">writing user stories</a> for the functionality that&rsquo;s already there.</p>
+
+<h3>Consider Removing Features</h3>
+
+<p>Here&rsquo;s a fun exercise. Once you&rsquo;ve created a list of your use cases, go through and assign a value to each based on how important you think it is to your users. Then check out your analytics tool and compare your assumptions to the <em>actual</em> engagement of each feature.</p>
+
+<p>When you&rsquo;ve completed this process, you can begin to reprioritize. Are there secondary features that aren&rsquo;t seeing much traffic? Maybe they were failed attempts to grow your user base that you never got around to pulling out. Maybe there are features that used to be popular, but a competing technology rendered them obsolete. Can you identify any parts of the app that require a lot of upkeep, but aren&rsquo;t really serving your users? Here&rsquo;s the tough question: what can you remove?</p>
+
+<p>Think about <a href="https://basecamp.com/">Basecamp</a>. They used to be <a href="http://37signals.com/">37Signals</a>, but in February 2014, they announced that they were dropping support for all of their applications aside from Basecamp. They whittled it down to what they knew was successful so that they could focus all of their resources on it.</p>
+
+<p>You can do the same thing on a smaller scale. Focus on the part(s) of your application that made the business a success in the first place. Do your marketing and landing pages drive users to interact with that feature? Is it easy to get to? Is it easy to <em>use</em>? Are there other features or workflows that are getting in the way of users finding their way there?</p>
+
+<p>If you can identify some features that you can lose, you can focus your resources on the things that bring users to your site. You free up energy to refine them and make sure they&rsquo;re solid and bug-proof. It also gives you room to experiment with <em>new</em> secondary features without overwhelming your users. I know one company with a well-established product that follows this rule: &ldquo;you can&rsquo;t add a feature unless you remove one.&rdquo;</p>
+
+<p><a href="https://gettingreal.37signals.com/ch05_Start_With_No.php">Don&rsquo;t build yet</a>, even if you have customers clamoring for it. Remove the cruft first. Think of it as refactoring at an application level.</p>
+
+<h3>Consider Splitting Out Services</h3>
+
+<p>In <a href="http://quickleft.com/blog/ramping-up-developers-on-code">part one of this series</a>, we talked a bit about refactoring your application code. If you do a little bit of refactoring, and find yourself getting into this whole code extraction thing, maybe you want to go whole hog. Talk with your engineers about whether it makes sense to extract an entire part of your app into a separate service. Some good candidates include: <a href="http://fluxusfrequency.github.io/blog/2015/03/01/serving-custom-json-from-your-rails-api-with-activemodel-serializers/">exposing a REST API</a>, <a href="https://blog.engineyard.com/2014/wrapping-your-api-in-a-ruby-gem">creating a gem</a> to talk to your API, <a href="https://quickleft.com/blog/how-to-create-and-expire-list-items-in-redis/">storing data that&rsquo;s shared with other applications</a>, or integrating with an Elastic Search service.</p>
+
+<p>In some cases, starting a whole new code base can take a lot of time, and might not be worth it. On the other hand, if it&rsquo;s hard to make changes in the code you&rsquo;ve already got, sometimes extracting a service can actually speed things up. With a smaller surface area, and code written by people who <em>currently</em> work for your company, it&rsquo;s easier for folks to grok what&rsquo;s going on. This leads to faster development.</p>
+
+<p>If you do go down the road of extracting services, your team should take the time to define clear boundaries between the old app and the new one, and describe how they will interact in detail. For example, if you&rsquo;re pulling out an API, you might want to come up with a sample JSON response and the HTTP Status Codes that will be used <em>before</em> you build it. Defining the limitations and structure beforehand can keep a project like this from dragging on endlessly.</p>
+
+<h3>Use MVP To Figure Out Where To Go Next</h3>
+
+<p>A lot of people don&rsquo;t realize it, but a Minimum Viable Product (MVP) isn&rsquo;t just the first version of the thing you&rsquo;re building. It&rsquo;s actually a process. A way of testing out the market to find out whether things you <em>think</em> that people will like are <em>actually</em> things that people will like.</p>
+
+<p>If you haven&rsquo;t tried driving your business this way, you should! Instead of just guessing what you should build next, or building whatever customers ask for, you can actually find out using research and numbers. Customer requests are great, but spiking on new features and getting information from analytics and customer feedback can really help you hit a home run.</p>
+
+<p>Here&rsquo;s basic gist of MVP. You start with an idea. It might be an app. It might be a feature. Either way, you build <em>just enough</em> to find out whether it makes sense to invest further in your idea. How do you find out? Measure user response with clicks and sign-ups that actually go nowhere, and use analytics, questionnaires, interviews, and emails. When you&rsquo;ve got data, analyze it. Do they love it? Keep going! Was it a partial success? Ask yourself: what can I keep, what can I lose? Otherwise, pivot or abandon your idea. Build something else. Measure its success. Analyze your data. Repeat.</p>
+
+<p>For a more specific walk-through of using MVP to drive your business direction, check out my <a href="https://blog.engineyard.com/2015/actually-mvp">Actually MVP post</a>.</p>
+
+<p>Assuming you&rsquo;re getting ready to scale up your app, you probably already have some ideas about what you want to build. Stop for a second, and consider adding a couple of months of MVP-driven development to your roadmap instead.</p>
+
+<h2>Wrapping Up</h2>
+
+<p>In this post, we looked at ways to find your strategic direction when beginning work on a product that&rsquo;s been on ice for a while. We talked about how to decide what to remove, what to extract, and what to build next. Hopefully, the process I&rsquo;ve outlined here has got you thinking about how to prioritize your best features. Now, it&rsquo;s up to you to build <em>the next big thing</em>. Best of luck!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-10-20T20:52:44-06:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2015/10/20/bring-back-your-app-how-to-prioritize-your-best-features/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2015/10/20/bring-back-your-app-how-to-prioritize-your-best-features/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/10/05/bring-back-your-app-ramping-developers-up-on-code/" title="Previous Post: Bring Back Your App: Ramping Up Developers On Code">&laquo; Bring Back Your App: Ramping Up Developers On Code</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/10/28/what-it-takes-to-be-a-software-consultant/" title="Next Post: What It Takes To Be A Software Consultant">What It Takes To Be A Software Consultant &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/12/17/how-to-write-a-technical-blog-post-part-3/">How To Write A Technical Blog Post: Part 3</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/17/how-to-write-a-technical-blog-post-part-2/">How To Write A Technical Blog Post: Part 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/12/how-to-write-a-technical-blog-post-part-1/">How To Write A Technical Blog Post: Part 1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/28/what-it-takes-to-be-a-software-consultant/">What It Takes To Be A Software Consultant</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/20/bring-back-your-app-how-to-prioritize-your-best-features/">Bring Back Your App: How To Prioritize Your Best Features</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
