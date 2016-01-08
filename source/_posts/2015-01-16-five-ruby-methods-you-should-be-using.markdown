@@ -6,7 +6,8 @@ comments: true
 categories:
 ---
 
-This post was the top featured article in [Ruby Weekly #229](http://rubyweekly.com/issues/229).
+This post was featured as one of Ruby Weekly's [Best Links of 2015](http://rubyweekly.com/issues/279).
+Before that, it was the top featured article in [Ruby Weekly #229](http://rubyweekly.com/issues/229).
 It was also the top featured article in issue #15.1 of the [Pointer.io](http://www.pointer.io/) newsletter.
 
 It was originally published on [Engine Yard](https://blog.engineyard.com/2015/five-ruby-methods-you-should-be-using) and also appeared on the [Quick Left Blog](https://quickleft.com/blog/five-ruby-methods-you-should-be-using/).
