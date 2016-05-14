@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Why We Use Test-Driven Development (TDD) - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="When you’re getting ready to build an application, there are many choices to be made. Will you choose to build it as cheaply as possible, then hope &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2016/02/29/why-we-use-test-driven-development-tdd">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Why We Use Test-Driven Development (TDD)</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-02-29T04:25:52-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>When you’re getting ready to build an application, there are many choices to be made. Will you choose to build it as cheaply as possible, then hope that things work out down the line? Or do you need something more resilient?  If so, spending the time and money to build a quality application will pay off.  Code written with craftsmanship will withstand the tests of time, changing business requirements, and user error.</p>
+
+<p>At Quick Left, we believe that it&rsquo;s worth taking the time to build things right. A well-written codebase saves time and money, and withstands the test of time. On the other hand, we&rsquo;re also interested in doing things efficiently. If there&rsquo;s a way to write quality code <em>and</em> save time and money, that&rsquo;s the kind of service we want to provide for our clients. That&rsquo;s why we use Test-Driven Development.</p>
+
+<h2>What Is TDD?</h2>
+
+<p>Test-Driven Development is an approach to writing software in which the developer uses specifications to shape the way she implements a feature. For short, we describe it as the &ldquo;red-green-refactor cycle&rdquo;. Before writing any code adding new functionality to an application, she first writes an automated test describing how the new code should behave, and watches it turn red (fail to pass). She then writes the code to the specification, and the test turns green (it passes). Finally, the developer takes a little time to make sure that the code just written is as clean as possible (refactor).</p>
+
+<p>If you&rsquo;d like to get a sense of what Test-Driven Development looks like in action, read my post about <a href="https://quickleft.com/blog/wrapping-your-api-in-a-custom-ruby-gem/">creating a custom Ruby gem</a>, where I walk through the process step by step.</p>
+
+<p>TDD has long been a favorite approach of organizations that follow <a href="http://www.extremeprogramming.org/">Extreme Programming</a> and Agile principles. In 2003, Kent Beck wrote <a href="http://www.amazon.com/Test-Driven-Development-By-Example/dp/0321146530">the book</a> on this approach. In the years since, TDD has enjoyed enormous success, being elevated to near-dogmatic status.</p>
+
+<p>In the past couple years, some have raised concerns that the programming community is being too strict in its demand for TDD. Most notably David Heinemeier Hansson (creator of Ruby on Rails), wrote a blog post entitled <a href="http://david.heinemeierhansson.com/2014/tdd-is-dead-long-live-testing.html">TDD is dead. Long live testing.</a>, which was met with passionate reactions from people on both sides of the argument.</p>
+
+<p>At Quick Left, we continue to use TDD in our daily work. Experience has shown that it&rsquo;s the fastest, most reliable way to set our clients up for success. TDD consistently produces well-structured codebases that are well-structured, resilient, and easy to make changes to as business requirements evolve.</p>
+
+<h2>What Are The Benefits?</h2>
+
+<p>What are the specific ways that a test-driven approach can benefit your business?</p>
+
+<ol>
+<li>It Works The Way You Wanted It To</li>
+</ol>
+
+
+<p>If computer systems built themselves, they would probably be perfect. Unfortunately, computers need people to tell them what to do, which means humans have to communicate to get software written. If you&rsquo;ve worked in tech for any length of time, you&rsquo;ve probably experienced the frustration of a mismatch between what was envisioned in planning and how an app actually behaves in the wild.</p>
+
+<p>TDD helps alleviate this problem, because the test serves as a specification for what the code to be written should <em>do</em>. As long as you&rsquo;re <a href="https://blog.engineyard.com/2015/happy-sad-evil-weird-feature-planning">writing good stories</a>, your development team should be able to build exactly what you asked for. If your team agrees to use <a href="https://en.wikipedia.org/wiki/Test-driven_development#TDD_and_ATDD">Acceptance Test-Driven Development</a>, you can even write tests that describe how you want it to work in plain English!</p>
+
+<ol>
+<li>Your Code Will Read Like Poetry</li>
+</ol>
+
+
+<p>Because <a href="http://fluxusfrequency.github.io/blog/2014/01/10/refactoring-1-extract-method/">refactoring code</a> is a built-in step in TDD, you end up with a much cleaner codebase as you go. Apps built with TDD tend to have less duplication, fewer edge cases that aren&rsquo;t thought through, and a better overall architecture.</p>
+
+<p>Why should you care if the code is pretty or not? It makes it easier to add features, fix bugs, and get up to speed. Every time you <a href="https://quickleft.com/">hire a consultant</a> or new developer, they have to spend a certain amount of time understanding how the different parts of your application interact. This <a href="https://quickleft.com/blog/ramping-up-developers-on-code/">ramping up process</a> takes much less time when the code is well-structured. Similarly, programmers can make changes (whether features or bugs) much more quickly when there&rsquo;s less mental overhead to struggle with.</p>
+
+<ol>
+<li>You Can See Trouble A Mile Away</li>
+</ol>
+
+
+<p>Whether you decide to adopt TDD for the quality behavior or the squeaky-clean code, you&rsquo;ll enjoy this nice side benefit as well: you&rsquo;ll have a comprehensive test suite! That means that just about every line of code in your application will be covered by a test, and the entire thing can be checked automatically in a matter of minutes.</p>
+
+<p>The benefit of a comprehensive test suite is that it alerts you to changes early. For example, if your checkout flow stops charging users&#8217; credit cards (eek!), you&rsquo;ll know it right away, because the tests will fail. It also means that if somone makes a mistake and something doesn&rsquo;t work the way it was supposed to, it will be obvious. That&rsquo;s good, because it will give you a chance to fix it before it goes to production. If it becomes necessary down the road, you can even start a campaign of deep refactoring without fear, because you&rsquo;ll have an ironclad test suite that will remain green.</p>
+
+<ol>
+<li>It Saves You Money</li>
+</ol>
+
+
+<p>In my experience working with <a href="https://quickleft.com/casestudies/">our clients</a>, companies often spend a lot more money adding features to their application than is really necessary.</p>
+
+<p>One of the main causes of slow development is miscommuncation between product owners and developers. Too often, we experience the reality of mismatched expectations, and it feels like this cartoon:</p>
+
+<p><img src="http://www.cvr-it.com/images/PM_Build_Swing.gif" alt="" /></p>
+
+<p>The PO asks for one thing, the developer builds something else. Then cycles are wasted going back to fix the feature, when it could have just been built correctly in the first place. By translating business requirements into specs before writing any code, you can ensure that what you want is actually what gets built.</p>
+
+<p>Another huge time sink in development is an over-complicated codebase making it difficult to make changes safely. When code is complicated, it gets much harder to get anything done, because one little change over here can result in a big problem over there. When following TDD, developers can make changes with confidence and your QA team will catch fewer regressions.</p>
+
+<p>Both of these time sucks cost our industry innumerable amounts of money every year. If we just adopted a TDD approach, much of this money could be spent on new innovations instead.</p>
+
+<h2>Conclusion</h2>
+
+<p>Hopefully you now have a better idea of what the red-green-refactor cycle is, and why we use Test-Driven Development at Quick Left. There&rsquo;s no better way to save time and money <em>while</em> making sure that you have a codebase that&rsquo;s maintainable, extensible, and resistant to change. Whatever you&rsquo;re cooking up, I hope you seriously consider making TDD a part of your company&rsquo;s culture, because the benefits are so numerous and strong!</p>
+
+<p>Best of luck.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-02-29T04:25:52-07:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2016/02/29/why-we-use-test-driven-development-tdd/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2016/02/29/why-we-use-test-driven-development-tdd/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2016/02/12/five-hacks-to-level-up-your-learning-as-a-developer/" title="Previous Post: Five Hacks To Level Up Your Learning As A Developer">&laquo; Five Hacks To Level Up Your Learning As A Developer</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2016/04/25/how-to-choose-the-right-tech-stack-for-your-app/" title="Next Post: How To Choose The Right Tech Stack For Your App">How To Choose The Right Tech Stack For Your App &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/04/25/how-to-choose-the-right-tech-stack-for-your-app/">How To Choose The Right Tech Stack For Your App</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/02/29/why-we-use-test-driven-development-tdd/">Why We Use Test-Driven Development (TDD)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/02/12/five-hacks-to-level-up-your-learning-as-a-developer/">Five Hacks To Level Up Your Learning As A Developer</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/02/08/how-to-learn-best-as-a-developer/">How To Learn Best As A Developer</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/17/how-to-write-a-technical-blog-post-part-3/">How To Write A Technical Blog Post: Part 3</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

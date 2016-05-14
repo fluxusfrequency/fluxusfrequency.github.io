@@ -1,6 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://fluxusfrequency.github.io/blog/2016/04/25/how-to-choose-the-right-tech-stack-for-your-app/</loc>
+    <lastmod>2016-04-25T05:26:07-06:00</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>http://fluxusfrequency.github.io/blog/2016/02/29/why-we-use-test-driven-development-tdd/</loc>
+    <lastmod>2016-02-29T04:25:52-07:00</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>http://fluxusfrequency.github.io/blog/2016/02/12/five-hacks-to-level-up-your-learning-as-a-developer/</loc>
+    <lastmod>2016-02-12T04:25:29-07:00</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>http://fluxusfrequency.github.io/blog/2016/02/08/how-to-learn-best-as-a-developer/</loc>
+    <lastmod>2016-02-08T04:25:12-07:00</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>http://fluxusfrequency.github.io/blog/2015/12/17/how-to-write-a-technical-blog-post-part-3/</loc>
     <lastmod>2015-12-17T19:53:19-07:00</lastmod>
     <priority>0.8</priority>
@@ -337,19 +357,19 @@
   </url>
   <url>
     <loc>http://fluxusfrequency.github.io/blog/archives/</loc>
-    <lastmod>2016-01-07T20:06:44-07:00</lastmod>
+    <lastmod>2016-05-14T05:30:32-06:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>http://fluxusfrequency.github.io/</loc>
-    <lastmod>2016-01-07T20:06:44-07:00</lastmod>
+    <lastmod>2016-05-14T05:30:32-06:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>http://fluxusfrequency.github.io/about/</loc>
-    <lastmod>2016-01-07T20:06:44-07:00</lastmod>
+    <lastmod>2016-05-14T05:30:32-06:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
