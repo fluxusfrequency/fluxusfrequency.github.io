@@ -4,7 +4,7 @@
   <title><![CDATA[Fluxus Frequency]]></title>
   <link href="http://fluxusfrequency.github.io/atom.xml" rel="self"/>
   <link href="http://fluxusfrequency.github.io/"/>
-  <updated>2016-09-30T20:34:10-06:00</updated>
+  <updated>2016-09-30T20:35:21-06:00</updated>
   <id>http://fluxusfrequency.github.io/</id>
   <author>
     <name><![CDATA[Ben Lewis]]></name>
@@ -22,8 +22,6 @@
     <id>http://fluxusfrequency.github.io/blog/2016/08/29/how-to-write-code-with-style-7-tips-for-cleaner-code</id>
     
     <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2016/how-to-write-code-with-style-7-tips-cleaner-code">Engine Yard</a></p>
-
-<h1>How To Write Code With Style: 7 Tips For Cleaner Code</h1>
 
 <h2>Say What You Mean, Mean What You Say</h2>
 
@@ -169,8 +167,6 @@
     <id>http://fluxusfrequency.github.io/blog/2016/08/15/how-to-clean-up-your-javascript-build-with-tree-shaking</id>
     
     <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2016/tree-shaking">Engine Yard</a></p>
-
-<h1>How To Clean Up Your JavaScript Build With Tree Shaking</h1>
 
 <p>The world of JavaScript development can be maddening and exciting. Every day, new libraries and modules are published, and it can feel overwhelming to try to keep up. On the other hand, all of this change has its benefits. As a community, we&rsquo;re heading more and more toward an ecosystem that&rsquo;s easier to work in and reason about. We keep getting new candy, and it makes our lives better!</p>
 
