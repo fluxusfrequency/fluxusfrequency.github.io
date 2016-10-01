@@ -9,7 +9,7 @@
   <meta name="author" content="Ben Lewis">
 
   
-  <meta name="description" content="Yesterday marked the beginning of gSchool for myself and 25 comrades. We were thrown into the fire on Monday with a full day of improv provdied by &hellip;">
+  <meta name="description" content="We&rsquo;re now into the second week of gSchool. It has been an intense six days thus far. The Jumpstart Lab crew has really thrown us into the deep &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -72,6 +72,303 @@
   <header>
   
     
+      <h1 class="entry-title"><a href="/blog/2013/09/17/learning-tdd/">Learning TDD</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-17T06:01:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>We&rsquo;re now into the second week of gSchool. It has been an intense six days thus far. The Jumpstart Lab crew has really thrown us into the deep end, expecting us to have completed five tutorials already. One more, <a href="http://tutorials.jumpstartlab.com/projects/event_reporter.html">EventReporter</a>, is due at the beginning of day nine.</p>
+
+<p>What we&rsquo;ve already done:</p>
+
+<ul>
+<li><a href="http://tutorials.jumpstartlab.com/projects/ruby_in_100_minutes.html">Ruby In 100 Minutes</a></li>
+<li><a href="http://tutorials.jumpstartlab.com/projects/eventmanager.html">EventManager</a></li>
+<li><a href="http://tutorials.jumpstartlab.com/projects/encryptor.html">Encryptor</a></li>
+<li><a href="http://tutorials.jumpstartlab.com/projects/microblogger.html">MicroBlogger</a></li>
+<li><a href="http://tutorials.jumpstartlab.com/academy/workshops/testing_event_manager.html">TDD With MiniTest And EventManager</a></li>
+</ul>
+
+
+<p>This last tutorial was yesterday&rsquo;s project. I was really excited to get into writing some tests. We talked about testing in class, and the consensus was that Test Driven Development did lots of good things for programmers. Some of the students&#8217; explanations of testing included: it helps make sure the application is working, it helps guide the developer to the next features that need to be implemented, it describes the application. I am excited to start including it in my workflow, because all of the error-driven clicking and typing I&rsquo;ve been doing up until now is getting really old.</p>
+
+<p>Before bootcamp started, I worked through all of these tutorials on my own, and wrote <a href="https://github.com/fluxusfrequency/treebook.git">my own copy</a> of the Treebook tutorial on <a href="http://www.teamtreehouse.com">Treehouse</a> as well. While completing Treebook, Jason Siefer walks you through a lot of TDD, first using MiniTest, and later Rspec and the Shoulda gem. Now that I&rsquo;m digging into testing without the support of a tutorial, I&rsquo;m trying to decide which syntax I like best for testing. Although it is the simplest, I&rsquo;m not a huge fan of code like this:</p>
+
+<figure class='code'><figcaption><span>EventReporter MiniTest</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/autorun&#39;</span>
+</span><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;../lib/event_reporter.rb&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">HappyPathTest</span> <span class="o">&lt;</span> <span class="no">MiniTest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>  <span class="kp">attr_accessor</span> <span class="ss">:reporter</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">setup</span>
+</span><span class='line'>    <span class="vi">@reporter</span> <span class="o">=</span> <span class="no">EventReporter</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_queue_count_defaults_to_zero</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">0</span><span class="p">,</span> <span class="n">reporter</span><span class="o">.</span><span class="n">queue_count</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_responds_to_find_by_first_name</span>
+</span><span class='line'>    <span class="n">reporter</span><span class="o">.</span><span class="n">find_by</span><span class="p">(</span><span class="ss">:first_name</span><span class="p">,</span> <span class="s2">&quot;John&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="mi">63</span><span class="p">,</span> <span class="n">reporter</span><span class="o">.</span><span class="n">queue_count</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The syntax is just ugly, to me. I prefer this Rspec code I wrote for Treebook:</p>
+
+<figure class='code'><figcaption><span>Treebook Friendship Decorator Test</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;test_helper&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">UserFriendshipDecoratorTest</span> <span class="o">&lt;</span> <span class="no">Draper</span><span class="o">::</span><span class="no">TestCase</span>
+</span><span class='line'>  <span class="n">context</span> <span class="s2">&quot;#sub_message&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">setup</span> <span class="k">do</span>
+</span><span class='line'>      <span class="vi">@friend</span> <span class="o">=</span> <span class="n">create</span><span class="p">(</span><span class="ss">:user</span><span class="p">,</span> <span class="ss">first_name</span><span class="p">:</span> <span class="s1">&#39;Fred&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">context</span> <span class="s2">&quot;with a pending user friendship&quot;</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">setup</span> <span class="k">do</span>
+</span><span class='line'>        <span class="vi">@user_friendship</span> <span class="o">=</span> <span class="n">create</span><span class="p">(</span><span class="ss">:pending_user_friendship</span><span class="p">,</span> <span class="ss">friend</span><span class="p">:</span> <span class="vi">@friend</span><span class="p">)</span>
+</span><span class='line'>        <span class="vi">@decorator</span> <span class="o">=</span> <span class="no">UserFriendshipDecorator</span><span class="o">.</span><span class="n">decorate</span><span class="p">(</span><span class="vi">@user_friendship</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">should</span> <span class="s2">&quot;return the correct message&quot;</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">assert_equal</span> <span class="s2">&quot;Friend request pending.&quot;</span><span class="p">,</span> <span class="vi">@decorator</span><span class="o">.</span><span class="n">sub_message</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I noticed last night that my fellow student, Katrina Engelstad, tweeted a link to this <a href="http://www.mattsears.com/articles/2011/12/10/minitest-quick-reference">blog post</a> by Matt Sears. It looks like a useful reference for MiniTest. Here&rsquo;s a block of code from that page which shows a way to make MiniTest behave like Rspec:</p>
+
+<figure class='code'><figcaption><span>Describe Hipster</span><a href='http://www.mattsears.com/articles/2011/12/10/minitest-quick-reference'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/autorun&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">describe</span> <span class="no">Hipster</span><span class="p">,</span> <span class="s2">&quot;Demonstration of MiniTest&quot;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">before</span> <span class="k">do</span>
+</span><span class='line'>    <span class="vi">@hipster</span> <span class="o">=</span> <span class="no">Hipster</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">after</span> <span class="k">do</span>
+</span><span class='line'>    <span class="vi">@hipster</span><span class="o">.</span><span class="n">destroy!</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">subject</span> <span class="k">do</span>
+</span><span class='line'>    <span class="nb">Array</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">tap</span> <span class="k">do</span> <span class="o">|</span><span class="n">attributes</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">attributes</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;silly hats&quot;</span>
+</span><span class='line'>      <span class="n">attributes</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;skinny jeans&quot;</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">let</span><span class="p">(</span><span class="ss">:list</span><span class="p">)</span> <span class="p">{</span> <span class="nb">Array</span><span class="o">.</span><span class="n">new</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">describe</span> <span class="s2">&quot;when asked about the font&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">it</span> <span class="s2">&quot;should be helvetica&quot;</span> <span class="k">do</span>
+</span><span class='line'>      <span class="vi">@hipster</span><span class="o">.</span><span class="n">preferred_font</span><span class="o">.</span><span class="n">must_equal</span> <span class="s2">&quot;helvetica&quot;</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">describe</span> <span class="s2">&quot;when asked about mainstream&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">it</span> <span class="s2">&quot;won&#39;t be mainstream&quot;</span> <span class="k">do</span>
+</span><span class='line'>      <span class="vi">@hipster</span><span class="o">.</span><span class="n">mainstream?</span><span class="o">.</span><span class="n">wont_equal</span> <span class="kp">true</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, I&rsquo;ve been tantalized by the possibilities of <a href="http://cukes.info/">Cucumber</a>. I haven&rsquo;t had time to dig into this testing approach yet, but the prospect of writing language like this is very appealing:</p>
+
+<figure class='code'><figcaption><span>How To Test With Cucumber</span><a href='https://github.com/plataformatec/devise/wiki/How-To:-Test-with-Cucumber'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Scenario</span> <span class="ss">Outline</span><span class="p">:</span> <span class="no">Creating</span> <span class="n">a</span> <span class="kp">new</span> <span class="n">account</span>
+</span><span class='line'>    <span class="no">Given</span> <span class="n">I</span> <span class="n">am</span> <span class="ow">not</span> <span class="n">authenticated</span>
+</span><span class='line'>    <span class="no">When</span> <span class="n">I</span> <span class="n">go</span> <span class="n">to</span> <span class="n">register</span> <span class="c1"># define this path mapping in features/support/paths.rb, usually as &#39;/users/sign_up&#39;</span>
+</span><span class='line'>    <span class="no">And</span> <span class="n">I</span> <span class="n">fill</span> <span class="k">in</span> <span class="s2">&quot;user_email&quot;</span> <span class="n">with</span> <span class="s2">&quot;&lt;email&gt;&quot;</span>
+</span><span class='line'>    <span class="no">And</span> <span class="n">I</span> <span class="n">fill</span> <span class="k">in</span> <span class="s2">&quot;user_password&quot;</span> <span class="n">with</span> <span class="s2">&quot;&lt;password&gt;&quot;</span>
+</span><span class='line'>    <span class="no">And</span> <span class="n">I</span> <span class="n">fill</span> <span class="k">in</span> <span class="s2">&quot;user_password_confirmation&quot;</span> <span class="n">with</span> <span class="s2">&quot;&lt;password&gt;&quot;</span>
+</span><span class='line'>    <span class="no">And</span> <span class="n">I</span> <span class="n">press</span> <span class="s2">&quot;Sign up&quot;</span>
+</span><span class='line'>    <span class="no">Then</span> <span class="n">I</span> <span class="n">should</span> <span class="n">see</span> <span class="s2">&quot;logged in as &lt;email&gt;&quot;</span> <span class="c1"># your work!</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="ss">Examples</span><span class="p">:</span>
+</span><span class='line'>      <span class="o">|</span> <span class="n">email</span>           <span class="o">|</span> <span class="n">password</span>   <span class="o">|</span>
+</span><span class='line'>      <span class="o">|</span> <span class="n">testing</span><span class="vi">@man</span><span class="o">.</span><span class="n">net</span> <span class="o">|</span> <span class="n">secretpass</span> <span class="o">|</span>
+</span><span class='line'>      <span class="o">|</span> <span class="n">foo</span><span class="vi">@bar</span><span class="o">.</span><span class="n">com</span>     <span class="o">|</span> <span class="n">fr33z3</span>     <span class="o">|</span>
+</span><span class='line'>
+</span><span class='line'><span class="ss">Scenario</span><span class="p">:</span> <span class="no">Willing</span> <span class="n">to</span> <span class="n">edit</span> <span class="n">my</span> <span class="n">account</span>
+</span><span class='line'>    <span class="no">Given</span> <span class="n">I</span> <span class="n">am</span> <span class="n">a</span> <span class="kp">new</span><span class="p">,</span> <span class="n">authenticated</span> <span class="n">user</span> <span class="c1"># beyond this step, your work!</span>
+</span><span class='line'>    <span class="no">When</span> <span class="n">I</span> <span class="n">want</span> <span class="n">to</span> <span class="n">edit</span> <span class="n">my</span> <span class="n">account</span>
+</span><span class='line'>    <span class="no">Then</span> <span class="n">I</span> <span class="n">should</span> <span class="n">see</span> <span class="n">the</span> <span class="n">account</span> <span class="n">initialization</span> <span class="n">form</span>
+</span><span class='line'>    <span class="no">And</span> <span class="n">I</span> <span class="n">should</span> <span class="n">see</span> <span class="s2">&quot;Your account has not been initialized yet. Do it now!&quot;</span>
+</span><span class='line'>    <span class="c1"># And more view checking stuff</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For now, even though I think it&rsquo;s ugly, I&rsquo;m going to stick to MiniTest for the &ldquo;TDD with MiniTest and EventManager&rdquo; and EventReporter tutorials, since I am still getting comfortable with TDD. Overlearning MiniTest will be a good foundation to have, even if I end up using Rspec or Cucumber in the future. So long for now! I&rsquo;m off to go implement some fifty odd tests for EventReporter.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/11/object-oriented-programming/">Object Oriented Programming</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-11T18:13:00-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Today, I hacked all day long at gSchool. The morning was spent working on the <a href="tutorials.jumpstartlab.com/projects/encryptor.html">Encryptor tutorial</a> with my classmate, Meeka Gayhart. I&rsquo;d worked through this tutorial before, and felt a lot more comfortable with it this time around. The first time I did it, I created a little command line <a href="https://github.com/fluxusfrequency/encryptor.git">program</a> for it, which was super fun. Unfortunately, Meeka and I didn&rsquo;t have enough time to do that this morning.</p>
+
+<p>In the afternoon, Rolen and I continued to work on the <a href="http://tutorials.jumpstartlab.com/projects/eventmanager.html">Event Manager tutorial</a> as a pair. We finished all of the iterations, then moved on to refactoring the code. Thanks to the Github forking and merging we figured out yesterday, we were able to switch off as the active coder throughout the afternoon, while the other collaborated over Screen Hero again. Unfortunately, I had to leave before we could finish, so we decided to finish up the refactoring separately. In the morning, we&rsquo;re going to compare our solutions.</p>
+
+<p>The place where we left off was particularly interesting. The tutorial ends after walking you through the creation of a very messy file that has all kinds of methods and variables in it. We opted to try splitting the whole project into separate class files that are then required by the main ruby file. It&rsquo;s my understanding that this is part of what Object Oriented Programming is all about. I&rsquo;m definitely still a noob, so this was a way to take things a little further and challenge myself. Our decision to use Github was also motivated by this desire.</p>
+
+<p>Toward the end of the day, Jeff led the class in a &ldquo;mini retrospective&rdquo;. I got a chance to hearing most of my classmates&#8217; reactions to the bootcamp so far. The process was a confirmation of my impressions: many of us are feeling like we&rsquo;ve been totally thrown into the deep end with these first couple of projects, but also feel like we&rsquo;re up for the challenge. Many also expressed being very impressed with the rest of the students. Everyone seems to be really intelligent, driven, personable, and fun to be around.</p>
+
+<p>I had a great experience today. Although I was super tired (insomnia!), the hours just flew by. I can&rsquo;t wait for tomorrow, when I&rsquo;ll do it all again.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
       <h1 class="entry-title"><a href="/blog/2013/09/10/first-two-days-of-gschool/">First Two Days of gSchool</a></h1>
       
       
@@ -127,6 +424,14 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/08/29/how-to-write-code-with-style-7-tips-for-cleaner-code/">How To Write Code With Style: 7 Tips For Cleaner Code</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/08/15/how-to-clean-up-your-javascript-build-with-tree-shaking/">How To Clean Up Your JavaScript Build With Tree Shaking</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/04/25/how-to-choose-the-right-tech-stack-for-your-app/">How To Choose The Right Tech Stack For Your App</a>
       </li>
     
@@ -136,14 +441,6 @@
     
       <li class="post">
         <a href="/blog/2016/02/12/five-hacks-to-level-up-your-learning-as-a-developer/">Five Hacks To Level Up Your Learning As A Developer</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/08/how-to-learn-best-as-a-developer/">How To Learn Best As A Developer</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/12/17/how-to-write-a-technical-blog-post-part-3/">How To Write A Technical Blog Post: Part 3</a>
       </li>
     
   </ul>

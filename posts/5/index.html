@@ -9,7 +9,7 @@
   <meta name="author" content="Ben Lewis">
 
   
-  <meta name="description" content="Today, in my latest journey on the Refactor Tractor, I&rsquo;ll be taking a look at a strategy called Move Method. Move Method is used to help remove &hellip;">
+  <meta name="description" content="We just finished up our penultimate project at gSchool, an application built using a Service Oriented Architecture (SOA). The project ideas were &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,917 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/14/service-oriented-architecture/">Service Oriented Architecture</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-14T06:40:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>We just finished up our penultimate project at gSchool, an application built using a Service Oriented Architecture (SOA). The project ideas were generated in small groups, and focused a the theme of health and wellness. Once the ideas were decided, our teacher Jeff Casimir generated a randomized list of the students, and we drafted projects.</p>
+
+<p>I went first, and selected an idea that was close to my heart: an app to help home vegetable gardeners plan out their beds for the season. Having spent several years as an organic farm worker, garden company owner, and home garden hobbyist, I was excited to use this app. Every spring, before the ground warms up, my partner and I sit down with a pencel and graph paper to plan out the different beds in my garden: what will go where, how it will be spaced, when it will be harvested, and what we&rsquo;ll plant there afterwards.</p>
+
+<p>I had big hopes for our project, dubbed <a href="http://plantingseason.tk">Planting Season</a> (<a href="https://github.com/VirginSoil">code</a>). A user would have several gardens, each with many beds. The app would keep track of her plans from month to month, and she would be able to click on a month to see what she&rsquo;d planned to plant there, which spots were empty, and which plants were ready for harvest. It would find her USDA Hardiness Zone and suggest plants well-suited to grow there. If there was impending frost, or a bed needed water, it would send her a text message, email, or a Google voice message.</p>
+
+<p>Ah, the dreams of the young and inexperienced&hellip;</p>
+
+<h2>Planting Season&rsquo;s Structure</h2>
+
+<p>Two of my group members had just completed <a href="https://github.com/foofoberry">FooFoBerry</a>, an SOA app that exposed and consumed APIs from various project management tools, such as GitHub, Travis, and Code Climate. With their experience setting up services, I figured that getting the project up and running would be a breeze. In practice, it was more challenging than I expected.</p>
+
+<p>I&rsquo;m a big fan of a &ldquo;lean startup&rdquo; / &ldquo;minimum viable product&rdquo; approach in my projects. I like to get a simple product up as fast as possible, then expand on it, adding value. Given that we had three weeks, we planned three iterations for Planting Season:</p>
+
+<p>Week 1 - Put up a landing page where users could enter their email to be notified when the app was ready.</p>
+
+<p>Week 2 - Change the landing page to allow users to sign up or sign in, then send them to a dashboard page, where they could add and remove plants from a single garden.</p>
+
+<p>Week 3 - Add functionality for multiple beds, text and email weather notifications, and a timeline for the garden through the year.</p>
+
+<p>With this functionality in mind, we decided to build the following services:</p>
+
+<ol>
+<li>Landing Page App</li>
+<li>User Authentication App</li>
+<li>Client-Facing Dashboard (&ldquo;Coordinator&rdquo;) App</li>
+<li>RESTful JSON API with Bed and Plant data</li>
+<li>A gem to facilitate communication between the Dashboard and the API</li>
+<li>External Services - Weather and Geolocation APIs</li>
+</ol>
+
+
+<p>Here&rsquo;s how the project ended up looking in the end:</p>
+
+<p><br /></p>
+
+<p><img class="center" src="http://s5.postimg.org/w893s8cuf/planting_season_graph.png" title="Planting Season Project Structure" alt="A web application diagram"></p>
+
+<h2>Project Management &amp; Workflow</h2>
+
+<p>Over the course of gSchool, I&rsquo;ve been learning a lot about the social aspect programming. I worked solo in my ealiest projects, then graduated to pairing, and later went on to work in groups of three or four. In the beginning, I was just doing my own thing, but as I started getting into the larger groups, project management became a key skill. I&rsquo;ve found myself in the role of Project Manager in many successive projects. The first couple of times were messy: I didn&rsquo;t make enough space for people to express how they were <em>feeling</em> at our standups, our iteration planning was nonexistent, and I didn&rsquo;t understand how to use Pivotal Tracker at all. As I learned from these experiences, I began to firmly value things like daily standups with technical <em>and</em> emotional checkins, persona and wireframing UX design, iteration planning, proper use of Pivotal Tracker, consistent version control practices, and continuous integration.</p>
+
+<p>We started Planting Season with the best of intentions, but this time around, it proved harder to practice these strategies than I hoped. At our checkins, it was clear that we were all feeling unfocused and pulled in different directions by job applications and interviews, burnout, and Jeff&rsquo;s absence after his wife gave birth to their latest addition to the family. We planned our iterations, but we didn&rsquo;t meet the first one because a couple of us were out of town or at interviews. Soon we fell behind. On top of that, Pivotal Tracker stopped letting us edit our stories, because our free trial was expired. The Travis CI specs wouldn&rsquo;t pass, because the specs couldn&rsquo;t talk to the API (more on this in a minute). Of all the agile practices we hoped to use, only the UX planning went well.</p>
+
+<h2>Nginx, Passenger, and VPS Woes</h2>
+
+<p>Our troubles were compounded by the difficulty of getting our services to talk to each other. Our plan was to run Foreman locally, booting our apps onto different ports on localhost, then use Nginx to route everything through different namespaced routes on port 8080. Getting Foreman up and running was easy enough, but Nginx was a bear to configure. Meanwhile, getting Phusion Passenger and Nginx to play nicely on our VPS was also a struggle. It turns out that you have to install Passenger first, then add Nginx as an extension to it. If you install Nginx first, you end up with two conflicting versions. Additionally, one of our team mates was having RVM issues, and had to reinstall Ruby and all of his gems twice.</p>
+
+<p>In the second week, we lost two solid days of of development time to the fight with the Nginx config file, Passenger, and RVM.</p>
+
+<p>For posterity&rsquo;s sake, here&rsquo;s a snapshot of the <code>nginx.conf</code> file that finally worked for local production:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>worker_processes  1<span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>error_log  logs/error.log<span class="p">;</span>
+</span><span class='line'><span class="c">#pid        logs/nginx.pid;</span>
+</span><span class='line'>
+</span><span class='line'>events <span class="o">{</span>
+</span><span class='line'>    worker_connections  1024<span class="p">;</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>http <span class="o">{</span>
+</span><span class='line'>    include       mime.types<span class="p">;</span>
+</span><span class='line'>    default_type  application/octet-stream<span class="p">;</span>
+</span><span class='line'>    <span class="c">#passenger_root /usr/local/opt/passenger/libexec/lib/phusion_passenger/locations.ini;</span>
+</span><span class='line'>    <span class="c">#passenger_ruby /usr/bin/ruby;</span>
+</span><span class='line'>
+</span><span class='line'>    server <span class="o">{</span>
+</span><span class='line'>        listen       8080<span class="p">;</span>
+</span><span class='line'>        server_name  localhost<span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># PLANTING SEASON</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># Landing Page</span>
+</span><span class='line'>        location / <span class="o">{</span>
+</span><span class='line'>          proxy_pass        http://127.0.0.1:3000<span class="p">;</span>
+</span><span class='line'>          proxy_set_header  X-Real-IP  <span class="nv">$remote_addr</span><span class="p">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># Auth</span>
+</span><span class='line'>        location /auth <span class="o">{</span>
+</span><span class='line'>          proxy_pass        http://127.0.0.1:3001<span class="p">;</span>
+</span><span class='line'>          proxy_set_header  X-Real-IP  <span class="nv">$remote_addr</span><span class="p">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># Coordinator</span>
+</span><span class='line'>        location /dashboard <span class="o">{</span>
+</span><span class='line'>          proxy_pass        http://127.0.0.1:3002<span class="p">;</span>
+</span><span class='line'>          proxy_set_header  X-Real-IP  <span class="nv">$remote_addr</span><span class="p">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># API</span>
+</span><span class='line'>        location /api <span class="o">{</span>
+</span><span class='line'>          proxy_pass        http://127.0.0.1:3003<span class="p">;</span>
+</span><span class='line'>          proxy_set_header  X-Real-IP  <span class="nv">$remote_addr</span><span class="p">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Testing Troubles</h2>
+
+<p>Once we had the services running on a single port, we figured everything would be gravy. We added the VCR gem to save the results of our API calls, and began testing. We covered the landing page, auth app, and our gem.</p>
+
+<p>Then I started to dig in on some Capybara tests for the coordinator app, and had some major headaches. In order to view the dashboard, I needed to set a signed cookie to simulate the authorization app. Easy enough. All you have to do is use:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">page</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">browser</span><span class="o">.</span><span class="n">set_cookie</span> <span class="s1">&#39;user_id=1&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That is, unless you&rsquo;re using Poltergeist for a JS driver. Then, you clearly use:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">page</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">set_cookie</span><span class="p">(</span><span class="s2">&quot;user_id&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But now, I had a different problem:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>Failure/Error: within <span class="s1">&#39;#bed-functions&#39;</span> <span class="k">do</span>
+</span><span class='line'>     Capybara::ElementNotFound:
+</span><span class='line'>       Unable to find css <span class="s2">&quot;#bed-functions&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Using the launchy gem and <code>save_and_open_page</code>, <code>#bed-functions</code> was there, all right. I could feel another configuration battle coming on as we headed into the third week.</p>
+
+<h2>Getting Back on the Horse</h2>
+
+<p>On Monday morning of the week the project was due, we had little to show for our two weeks of work. There were services, but they couldn&rsquo;t talk to each other on the server. There were mock-ups, but the CSS wasn&rsquo;t in the views yet. The tests were thin. We had a meeting with Jeff, and told him we planned to bolster the test coverage and solidify what we already had. His advice: &ldquo;that would be  a good idea if you had a thing, but right now you don&rsquo;t. You might want to make a thing first.&rdquo;</p>
+
+<p>So we saddled up, and the cowboy coding began.</p>
+
+<h2>jQuery Sparkle</h2>
+
+<p>The next two days were actually pretty fun, if a little painful (coding without tests makes me uncomfortable). We got the CSS hooked up, integrated with the weather service, and added a healthy dose of JavaScript to the dashboard. Although we would have liked to explore Ember.js, we decided to stick to plain old jQuery in the interest of time. We quickly coded 275 lines of jQuery sparkle, and we had a thing! If you&rsquo;re interested, go <a href="http://plantingseason.tk/">check out</a> what we made!</p>
+
+<p>My favorite part was adding the ability to click and drag on the garden bed squares for multi-selection. Here&rsquo;s what that looks like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">$</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nb">window</span><span class="p">.</span><span class="nx">isMouseDown</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;td&#39;</span><span class="p">).</span><span class="nx">mousedown</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span>
+</span><span class='line'>    <span class="nb">window</span><span class="p">.</span><span class="nx">isMouseDown</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">element</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">currentTarget</span><span class="p">);</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">thisClass</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">toggleSquare</span><span class="p">(</span><span class="nx">thisClass</span><span class="p">,</span> <span class="nx">element</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;td&#39;</span><span class="p">).</span><span class="nx">mouseenter</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">isMouseDown</span><span class="p">){</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">element</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">currentTarget</span><span class="p">);</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">thisClass</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">);</span>
+</span><span class='line'>      <span class="nx">toggleSquare</span><span class="p">(</span><span class="nx">thisClass</span><span class="p">,</span> <span class="nx">element</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">mouseup</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nb">window</span><span class="p">.</span><span class="nx">isMouseDown</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you want to see more of what we did with the JS, you can check out the <a href="https://github.com/VirginSoil/planting_season_coordinator/tree/master/app/assets/javascripts">code on GitHub</a>.</p>
+
+<h2>Conclusion</h2>
+
+<p>From the beginning of gSchool, the SOA project was one of the things I was looking forward to the most. Although Jeff said he thought that it was probably &ldquo;not a reasonable thing&rdquo; to start a project from the beginning with SOA, I set out with the highest of expectations. But the problems along the way were numerous.</p>
+
+<p>The job search was a distraction. But more troubling to me was the difficulty of testing. I&rsquo;ve gotten really comfortable with using Travis CI, and driving my development with Pivotal Tracker user stories translated into Capybara feature tests. It was really hard to do with services. Between setting up Passenger and Nginx and the testing troubles, we lost a <em>lot</em> of time on configuration.</p>
+
+<p>Reflecting on the experience, I&rsquo;d say that SOA is probably a practice better left until it is needed. If I were in charge building a new app for a startup, I would still start by iterate on delivering business value with successive MVPs. When I began to feel the pain of scaling, then I would think about splitting off services.</p>
+
+<p>However, it&rsquo;s possible that I&rsquo;ve only come to this conclusion because the process was so painful. There&rsquo;s another way of looking at this.</p>
+
+<p>Here&rsquo;s a lesson that I&rsquo;ve learned about programming again and again over the last six months:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">The</span> <span class="nx">first</span> <span class="nx">time</span> <span class="nx">you</span> <span class="k">do</span> <span class="nx">something</span> <span class="nx">it</span> <span class="nx">is</span> <span class="nx">hard</span> <span class="nx">and</span> <span class="nx">doesn</span><span class="err">&#39;</span><span class="nx">t</span> <span class="nx">make</span> <span class="nx">any</span> <span class="nx">sense</span><span class="p">.</span>
+</span><span class='line'><span class="nx">The</span> <span class="nx">second</span> <span class="nx">time</span> <span class="nx">you</span> <span class="k">do</span> <span class="nx">it</span><span class="p">,</span> <span class="nx">it</span> <span class="nx">seems</span> <span class="nx">vaguely</span> <span class="nx">familiar</span><span class="p">,</span> <span class="nx">and</span> <span class="nx">makes</span> <span class="nx">a</span> <span class="nx">little</span> <span class="nx">bit</span> <span class="nx">of</span> <span class="nx">sense</span><span class="p">.</span>
+</span><span class='line'><span class="nx">From</span> <span class="nx">then</span> <span class="nx">on</span><span class="p">,</span> <span class="nx">it</span> <span class="nx">makes</span> <span class="nx">sense</span> <span class="nx">and</span> <span class="nx">feels</span> <span class="nx">natural</span> <span class="nx">to</span> <span class="k">do</span> <span class="nx">it</span><span class="p">.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If this is true (which it seems to be for me), then it might actually make sense to build apps using services from the get go, if you expect them to have to scale down the road. I&rsquo;d love to nail down a workflow for getting Passenger, Foreman, and Nginx set up in less than 30 minutes. I&rsquo;d also like to learn how to better test services and get them set up with continuous integration. I think that if I understood these things, SOA would be a tool I&rsquo;d be a lot more likely to reach for.</p>
+
+<p>If you have any tips about these two aspects of services, let&rsquo;s talk! Tweet at me: @fluxusfrequency.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/01/31/building-a-binary-search/">Building a Binary Search</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-31T10:34:00-07:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>A couple of days ago I had an interview with a big startup in Boulder. I was really excited about the possibility of working there, because they solve some <em>really</em> hard problems on a daily basis, and because I&rsquo;ve heard great things about their office culture.</p>
+
+<p>It was just supposed to be a quick interview, but it ended up taking a few hours. First, I met up with the CTO. It all started off innocent enough. We went to a restaurant on Pearl Street for lunch. He asked me about my background and skills, and I asked him about the company. We shared personal stories about the flood last summer. After hearing about the way he treats his workers (like adults), and some of the technical details of what they were working on, I was even more excited about the company. We headed went to a coffee shop for a drink, then went back to the office.</p>
+
+<p>When we got there, he introduced me to the head of the team that the best fit for me if I worked there. The team lead, one of his coworkers and I headed back to the coffee shop. We chatted about Rails, <a href="http://www.exercism.io">Exercism</a>, TDD, and Ember.js, and life at their company. Pretty soon, the CTO came in again. Seeing that we were still talking, he asked the team lead to take me back and &ldquo;dig in technically&rdquo; a little bit.</p>
+
+<p>We went back to the office again, and found a conference room. He asked me to solve <a href="http://en.wikipedia.org/wiki/Fizz_buzz">FizzBuzz</a> in JavaScript. I fired up Jasmine-Node and built it with tests the whole way. That went fairly well, I thought. Then he asked me a couple of CSS questions. I answered them, and he said that I answered them better than many of the people he interviews.</p>
+
+<p>Finally, we came to some algorithm questions. Although I&rsquo;ve learned a lot at gSchool in the last five months, algorithms are something that I haven&rsquo;t spent as much time on, yet. I&rsquo;ve only had enough programming context to begin understanding them for the last two of those months. I&rsquo;ve played around with them as much as I could, solving Linked List, the Luhn Algorithm, Nth Prime Factor, Sum of Squares, and Binary Search Tree. I&rsquo;ve also had a go at writing the MD5 algorithm. But compared to someone with a four year CS degree, I haven&rsquo;t had much time to get comfortable with them.</p>
+
+<p>My interviewer drew an array on the board, and asked me how I would find a given element&rsquo;s position within 2-3 queries. I thought about it, made a guess that it had to do with bit operators, and finally conceded that I had no idea. My heart sunk. Things were going so well. When I asked for the solution, he told me that it was to use a Binary Search. I got excited, because I <em>had</em> done a Binary Search Tree. But no, this was just plain old Binary Search.</p>
+
+<p>Bitten that I didn&rsquo;t know how to do Binary Search, I set out to build it on my own. This rest of this post is a walkthrough of how I solved it.</p>
+
+<h2>Research</h2>
+
+<p>First, I visited Wikipedia and read up on <a href="http://en.wikipedia.org/wiki/Binary_search_algorithm">Binary Search</a>. It was pretty easy to follow. So easy, in fact, I decided to lift some of the text verbatim and translate it into a set of tests to drive my implementation. Here&rsquo;s what I found:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Searching a sorted collection is a common task. A dictionary is a sorted list of
+</span><span class='line'> word definitions. Given a word, one can find its definition. A telephone book
+</span><span class='line'> is a sorted list of people's names, addresses, and telephone numbers. Knowing
+</span><span class='line'> someone's name allows one to quickly find their telephone number and address.
+</span><span class='line'>
+</span><span class='line'>If the list to be searched contains more than a few items (a dozen, say) a
+</span><span class='line'>binary search will require far fewer comparisons than a linear search, but it
+</span><span class='line'>imposes the requirement that the list be sorted.
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>In computer science, a binary search or half-interval search algorithm finds
+</span><span class='line'>the position of a specified input value (the search "key") within an array
+</span><span class='line'>sorted by key value.
+</span><span class='line'>
+</span><span class='line'>In each step, the algorithm compares the search key value with the key value of
+</span><span class='line'>the middle element of the array.
+</span><span class='line'>
+</span><span class='line'>If the keys match, then a matching element has been found and its index, or
+</span><span class='line'>position, is returned.
+</span><span class='line'>
+</span><span class='line'>Otherwise, if the search key is less than the middle element's key, then the
+</span><span class='line'>algorithm repeats its action on the sub-array to the left of the middle element
+</span><span class='line'>or, if the search key is greater, on the sub-array to the right.
+</span><span class='line'>
+</span><span class='line'>If the remaining array to be searched is empty, then the key cannot be found in
+</span><span class='line'>the array and a special "not found" indication is returned.
+</span><span class='line'>
+</span><span class='line'>A binary search halves the number of items to check with each iteration, so
+</span><span class='line'>locating an item (or determining its absence) takes logarithmic time. A binary
+</span><span class='line'>search is a dichotomic divide and conquer search algorithm.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I decided to take this step-by-step description and turn each step into a test.</p>
+
+<h2>Setting Up the Binary Search Test &amp; Class</h2>
+
+<p>The first step was to create an object that knew about &ldquo;an array sorted by key value&rdquo;, or as I like to call it, a list. I wrote a test:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BinarySearchTest</span> <span class="o">&lt;</span> <span class="no">MiniTest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_it_has_list_data</span>
+</span><span class='line'>    <span class="n">binary</span> <span class="o">=</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">assert_equal</span> <span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="o">]</span><span class="p">,</span> <span class="n">binary</span><span class="o">.</span><span class="n">list</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And a class to make it pass:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BinarySearch</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:list</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@list</span> <span class="o">=</span> <span class="n">data</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That was easy! Next, it needed to be able to check whether the list was actually sorted, so I wrote a test to make sure it would throw an error if it wasn&rsquo;t:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">test_it_raises_error_for_unsorted_list</span>
+</span><span class='line'>  <span class="n">assert_raises</span> <span class="no">ArgumentError</span> <span class="k">do</span>
+</span><span class='line'>    <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To make it pass, I implemented the following check: compare the input with itself in sorted form. Not that elegant, but it worked:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BinarySearch</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:list</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">raise</span> <span class="no">ArgumentError</span> <span class="k">unless</span> <span class="n">data</span><span class="o">.</span><span class="n">sort</span> <span class="o">==</span> <span class="n">data</span>
+</span><span class='line'>    <span class="vi">@list</span> <span class="o">=</span> <span class="n">data</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>According to the Wikipedia article, the algorithm was going to have to find &ldquo;the key value of the middle element of the array&rdquo;. So I wrote a test to make sure that it knew where the middle of its list was:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">test_it_finds_position_of_middle_item</span>
+</span><span class='line'>  <span class="n">binary</span> <span class="o">=</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">assert_equal</span> <span class="mi">3</span><span class="p">,</span> <span class="n">binary</span><span class="o">.</span><span class="n">middle</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This was fairly trivial to solve:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BinarySearch</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:list</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Code omitted</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">middle</span>
+</span><span class='line'>    <span class="n">list</span><span class="o">.</span><span class="n">length</span><span class="o">/</span><span class="mi">2</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With the class all set up, I turned my attention to the actual search algorithm itself.</p>
+
+<h2>Building the Search Algorithm</h2>
+
+<p>The goal was to search for the index of a specific element, so I wrote a test for a method that did that:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">test_it_finds_position_of_search_data</span>
+</span><span class='line'>  <span class="n">binary</span> <span class="o">=</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">assert_equal</span> <span class="mi">5</span><span class="p">,</span> <span class="n">binary</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next came the hard part. I took the text from Wikipedia and broke it down into pseudo-code:</p>
+
+<ul>
+<li>Get the search value</li>
+<li>Find the middle element in the list</li>
+<li>Check if they are equal</li>
+<li>If they are equal, return the position of the middle element in the list</li>
+<li>If they are not equal, branch:</li>
+</ul>
+
+
+<p>If the search key is less than the middle index:</p>
+
+<ul>
+<li>Cut the list we&rsquo;re searching in half</li>
+<li>Instantiate a new BinarySearch</li>
+<li>Pass the first half of the list into it</li>
+<li>Call the search method on the new object, with the same search key</li>
+<li>Repeat until the keys are equal</li>
+<li>If they&rsquo;re never equal, raise &ldquo;Not Found&rdquo;</li>
+</ul>
+
+
+<p>If the search key is more than the middle index:</p>
+
+<ul>
+<li>Cut the list we&rsquo;re searching in half</li>
+<li>Instantiate a new BinarySearch</li>
+<li>Pass the second half of the list into it</li>
+<li>Call the search method on the new object, with the same search key</li>
+<li>Repeat until the keys are equal</li>
+<li>If they&rsquo;re never equal, raise &ldquo;Not Found&rdquo;</li>
+</ul>
+
+
+<p>With this plan in place, I started to build the method. First, I created the method and passed in the search key:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then I checked it against the middle element in the list, returning the index if they were equal:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">middle</span> <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">==</span> <span class="n">key</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The next thing on my to do list was to branch for the other two conditions: whether the key was less than or greater than the middle value:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">middle</span> <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">==</span> <span class="n">key</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">&gt;</span> <span class="n">key</span>
+</span><span class='line'>    <span class="c1"># ???</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="c1"># ???</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then I filled in the branches some more of my pseudo-code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">middle</span> <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">==</span> <span class="n">key</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">&gt;</span> <span class="n">key</span>
+</span><span class='line'>    <span class="c1"># Cut the list we&#39;re searching in half</span>
+</span><span class='line'>    <span class="c1"># Instantiate a new BinarySearch</span>
+</span><span class='line'>    <span class="c1"># Pass the first half of the list into it</span>
+</span><span class='line'>    <span class="c1"># Call the search on the new object, with the same search key</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="c1"># Cut the list we&#39;re searching in half</span>
+</span><span class='line'>    <span class="c1"># Instantiate a new BinarySearch</span>
+</span><span class='line'>    <span class="c1"># Pass the second half of the list into it</span>
+</span><span class='line'>    <span class="c1"># Call the search on the new object, with the same search key</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I filled them in with real code, one step at a time:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">middle</span> <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">==</span> <span class="n">key</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">&gt;</span> <span class="n">key</span>
+</span><span class='line'>    <span class="c1"># Cut the list we&#39;re searching in half</span>
+</span><span class='line'>    <span class="n">sublist</span> <span class="o">=</span> <span class="n">list</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.middle</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Instantiate a new BinarySearch</span>
+</span><span class='line'>    <span class="c1"># Pass the first half of the list into it</span>
+</span><span class='line'>    <span class="n">search</span> <span class="o">=</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Call the search on the new object, with the same search key</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">search</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="c1"># Cut the list we&#39;re searching in half</span>
+</span><span class='line'>    <span class="n">sublist</span> <span class="o">=</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">.</span><span class="n">.</span><span class="o">-</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Instantiate a new BinarySearch</span>
+</span><span class='line'>    <span class="c1"># Pass the first half of the list into it</span>
+</span><span class='line'>    <span class="n">search</span> <span class="o">=</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Call the search on the new object, with the same search key</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">search</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Seeing some duplication here, I went ahead and refactored:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">middle</span> <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">==</span> <span class="n">key</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">&gt;</span> <span class="n">key</span>
+</span><span class='line'>    <span class="n">sublist</span> <span class="o">=</span> <span class="n">list</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.middle</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="n">sublist</span> <span class="o">=</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">.</span><span class="n">.</span><span class="o">-</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Time to run the tests.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>Expected: 5
+</span><span class='line'>  Actual: 2
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Fail.</p>
+
+<p>Why? I did some <code>pry</code> action and discovered that I was getting back the index of the <em>new</em> list&rsquo;s middle element, not the <em>original</em> list&rsquo;s middle element. To fix this, I added the current list&rsquo;s middle to the recursive call. That meant undoing my refactor. I guess I refactored too soon.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">middle</span> <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">==</span> <span class="n">key</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">&gt;</span> <span class="n">key</span>
+</span><span class='line'>    <span class="n">sublist</span> <span class="o">=</span> <span class="n">list</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.middle</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">return</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="n">sublist</span> <span class="o">=</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">.</span><span class="n">.</span><span class="o">-</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">return</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="n">middle</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The tests were now passing. Good. Time to try with another example. This time looking for keys on both sides of the middle.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">test_it_finds_position_in_a_larger_list</span>
+</span><span class='line'>  <span class="n">binary</span> <span class="o">=</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">89</span><span class="p">,</span> <span class="mi">144</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">assert_equal</span> <span class="mi">1</span><span class="p">,</span> <span class="n">binary</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Whoops! <code>stack level too deep</code>! I forgot to change value of the search on line 3. I was getting an infinite loop when I searched for a bad value. I skipped this test and wrote one for the bad search condition, instead:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">test_it_raises_error_for_data_not_in_list</span>
+</span><span class='line'>  <span class="n">assert_raises</span> <span class="no">RuntimeError</span> <span class="k">do</span>
+</span><span class='line'>    <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="o">]</span><span class="p">)</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To make this pass, I had to validate that the search wasn&rsquo;t stuck looking through the same sublist over and over:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">middle</span> <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">==</span> <span class="n">key</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">]</span> <span class="o">&gt;</span> <span class="n">key</span>
+</span><span class='line'>    <span class="n">sublist</span> <span class="o">=</span> <span class="n">list</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.middle</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">raise</span> <span class="s2">&quot;Not Found&quot;</span> <span class="k">if</span> <span class="n">sublist</span> <span class="o">==</span> <span class="n">list</span>
+</span><span class='line'>    <span class="k">return</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="n">sublist</span> <span class="o">=</span> <span class="n">list</span><span class="o">[</span><span class="n">middle</span><span class="o">.</span><span class="n">.</span><span class="o">-</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">raise</span> <span class="s2">&quot;Not Found&quot;</span> <span class="k">if</span> <span class="n">sublist</span> <span class="o">==</span> <span class="n">list</span>
+</span><span class='line'>    <span class="k">return</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="n">middle</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It passed! I went back and rewrote the other test:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">test_it_finds_position_in_a_larger_list</span>
+</span><span class='line'>  <span class="n">binary</span> <span class="o">=</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">89</span><span class="p">,</span> <span class="mi">144</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">assert_equal</span> <span class="mi">1</span><span class="p">,</span> <span class="n">binary</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">assert_equal</span> <span class="mi">7</span><span class="p">,</span> <span class="n">binary</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="mi">55</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Passed again! How about one more for good measure? I also wanted to check if the middle was still coming out right when I passed in a list with an even number of elements. All the others had been of an odd length.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">test_it_finds_correct_position_in_a_list_with_an_even_number_of_elements</span>
+</span><span class='line'>  <span class="n">binary</span> <span class="o">=</span> <span class="no">BinarySearch</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">89</span><span class="p">,</span> <span class="mi">144</span><span class="p">,</span> <span class="mi">233</span><span class="p">,</span> <span class="mi">377</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">assert_equal</span> <span class="mi">5</span><span class="p">,</span> <span class="n">binary</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">assert_equal</span> <span class="mi">6</span><span class="p">,</span> <span class="n">binary</span><span class="o">.</span><span class="n">search_for</span><span class="p">(</span><span class="mi">34</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Ok! Green!</p>
+
+<h2>Conclusion</h2>
+
+<p>Even if I didn&rsquo;t know my stuff in the conference room at that moment, I&rsquo;m glad that my interviewer asked me about Binary Search. It was fun to learn, and it turned out to be a little easier than I expected. I always expect algorithms to be really hard to grasp, but maybe now that I&rsquo;ve done a few algorithms that use recursion, it&rsquo;s not such a jump for me to understand it.</p>
+
+<p>At any rate, it&rsquo;s pretty cool to be able to find an element in a list with so few queries. Lately, I&rsquo;ve really been enjoying pure math programming problems like this one. I&rsquo;m going to try to find a few more like this to do in the near future.</p>
+
+<h2>Footnote</h2>
+
+<p>Since I had already done all of the work, I went ahead and submitted this as a new exercise for <a href="http://www.exercism.io">Exercism.io</a>. So, if you use Exercism, and you enjoy doing algorithms, I&rsquo;d suggest giving Binary Search a go yourself. If you get stuck, you know where to find the answer!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -3599,185 +4510,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/12/06/multitenancy-and-legacy-code/">Multitenancy and Legacy Code</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-12-06T09:03:00-07:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This week at gSchool, we started a new rails project called <a href="http://tutorials.jumpstartlab.com/projects/fourth_meal.html">Fourth Meal</a>. The assignment&rsquo;s basic premise is to build a multi-tenant platform for restaurant ordering, along the lines of <a href="https://www.grubhub.com/">GrubHub</a>. This is our first time dealing with multi-tenancy. It&rsquo;s also the first time that we are building from a legacy code base - we&rsquo;re using our last projects. Mine was <a href="http://onoburrito.herokuapp.com">OnoBurrito</a>, and that&rsquo;s the project my group chose to build on for this assignment. Finally, this will also be the first time we optimize our apps for performance.</p>
-
-<h2>Project Management</h2>
-
-<p>We&rsquo;re using Pivotal Tracker very seriously in Fourth Meal, with our instructors pretending to be clients that have hired us to build this app. I&rsquo;ve found Tracker restrictive in the past. But I think I felt that way because I was using it as more of a to-do list than a project management tool. After having Jeff help us write about 13 clear stories yesterday, I feel a lot more positive about using it to drive my group&rsquo;s progress. At this point, Tracker is helping me feel more organized. I can translate stories into tests and use Capybara to drive development &ldquo;from the top down&rdquo;.</p>
-
-<h2>Legacy Code</h2>
-
-<p>Although we&rsquo;re working from code that I had a large part in writing, I feel like I&rsquo;m floundering to turn OnoBurrito into a platform. There are a lot of things I would do differently if I were to build the app over again. For example, the category views are stuck inside of the item views, making it really hard to separate them. We also used Active Admin before, so we&rsquo;ve had to rip it out and start the admin panel over again. My group decided to retrofit the admin part of Billy&rsquo;s restaurant onto Ono Burrito, and it&rsquo;s been kind of tricky to get everything working. Currently, I&rsquo;m having a lot of trouble getting carts and orders working. It&rsquo;s hard to decide which of the pieces to store in the session, application, and database.</p>
-
-<h2>Class Progress</h2>
-
-<p>We&rsquo;re now just past the halfway mark for gSchool. Although I can see how other programs would stop here and send their students out into the marketplace, I&rsquo;m very glad that we have some time left to practice proper Test Driven Development, learn about scaling and performance optimization, and hone our Rails chops.</p>
-
-<p>I do feel like I&rsquo;m starting to lose momentum a little bit. I was going full-bore every day (except weekends) up until now, but I could feel that burnout was around the corner. So I&rsquo;ve throttled back a little bit, taking time to cook, read, and exercise so I feel more balanced. I&rsquo;m still totally dedicated to being the best developer I can be by the end of the program, and I think that these changes will help me do that. Meanwhile, I feel like a lot of my classmates have been making amazing progress. No matter who I work with lately, I feel like I am collaborating with a confident, smart, and capable programmer.</p>
-
-<h2>Young Entrepreneurs</h2>
-
-<p>Last night we kicked off a project with Young Entrepreneurs. Several school-aged children came to Galvanize and met with us to get help building a website for their businesses. I&rsquo;m in a small group with Nathaniel and Meeka, two classmates that I really enjoy working with. We&rsquo;re helping a 15-year-old entrepreneur named Jonah, who runs a local snack company. It&rsquo;s a little disheartening that we won&rsquo;t be able to use Sinatra or Rails to help him him, because he&rsquo;ll need the ability to update his site, and we likely don&rsquo;t have time to build a content management system. We&rsquo;ll probably help him get going on <a href="http://www.wix.com">Wix</a>, or a similar platform.</p>
-
-<p>I feel a little conficted about this project. In a way, the kickoff was really bad timing, because I&rsquo;m feeling so overwhelmed by Fourth Meal. On the other hand, it&rsquo;s nice to get back to working with kids. That&rsquo;s the thing I miss most about my previous career as a teacher. More importantly to me, I&rsquo;ve been focusing on trying to find ways to be more generous, so this is a good opportunity to practice doing that.</p>
-
-<h2>New Mentor</h2>
-
-<p>I met my new mentor, Justin Smestad, this week. He&rsquo;s a maintainer of the <a href="https://github.com/hassox/warden">Warden</a> gem, a security specialist, and a musician. I think it&rsquo;s going to be a good fit. I&rsquo;ll miss my old mentor, Mike Pack, but I think that he&rsquo;s willing to keep working with me too. Now I&rsquo;ll have twice the support!</p>
-
-<h2>Overall</h2>
-
-<p>I&rsquo;m feeling really excited about web development. Thanksgiving break really helped me rest up and feel ready to tackle more. I am learning a lot of new things all the time, and I love it. On the other hand, I am feeling somewhat overwhelmed by Rails, and beginning to consider the job search makes me a little anxious. In the end, I&rsquo;m optimistic. I think that the coming weekend will help me get grounded, and I&rsquo;ll come back next week ready to get some good work done on Fourth Meal.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/12/01/practical-object-oriented-design-in-ruby-takeaways/">Practical Object-Oriented Design in Ruby - Takeaways</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-12-01T06:10:00-07:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><img class="right" src="http://s5.postimg.org/yh888oh3b/POODR.jpg" width="250" height="327" title="Practical Object-Oriented Design in Ruby" alt="The cover of a programming book"></p>
-
-<p>I just finished reading <a href="http://www.poodr.com/">Practical Object-Oriented Design in Ruby</a> by Sandi Metz.</p>
-
-<p>Here were my takeaways.</p>
-
-<h2>Object-Oriented Design</h2>
-
-<ul>
-<li>Plan your application structure around the messages, rather than the objects.</li>
-<li>Objects should be seen as black boxes that can receive and send specific messages.</li>
-<li>Use <a href="http://www.tracemodeler.com/articles/a_quick_introduction_to_uml_sequence_diagrams/">UML sequence diagrams</a> to help clarify architectural decisions before writing code.</li>
-<li>Defer design decisions as long as you can, waiting for more information. Having three concrete examples of an object before commiting to a solution is best.</li>
-</ul>
-
-
-<h3>Embracing Change</h3>
-
-<ul>
-<li>Write code that is: transparent, reasonable, usable, exemplary (TRUE).</li>
-<li>Write classes and methods that have only a single responsibility (Single Reponsibility Principle).</li>
-<li>Subtypes should be substitutable for their supertypes (Liskov Substitution Principle).</li>
-</ul>
-
-
-<h3>Dependencies</h3>
-
-<ul>
-<li>Dependencies are best managed through Injection, Isolation, and Reliance on Abstractions.</li>
-<li>Dependency Injection: when you have a dependency, inject it into your object as an attribute, without calling another class directly. Then your object can use any other (duck-typed) object that responds to the needed method call.</li>
-<li>Isolation: if you must keep a dependency, isolate it from other code to make it easy to spot and refactor.</li>
-<li>Reliance on Abstractions: objects should depend on things that change less than they do (abstractions).</li>
-</ul>
-
-
-<h3>Interfaces</h3>
-
-<ul>
-<li>Minimize an object&rsquo;s need for context to get its job done.</li>
-<li>Write public interfaces that are explicitly identified, are about <em>what</em> more than <em>how</em>, have names that will not change, and take initialization attributes in a hash (so that order and presence are not required).</li>
-<li>Law of Demeter: don’t reach through a class to get at another class’s data or methods.</li>
-</ul>
-
-
-<h3>Duck-Types</h3>
-
-<ul>
-<li>Sometimes an object expects many different subjects to all respond to the same method. Even if they are of different classes, they all respond. These are duck-types.</li>
-</ul>
-
-
-<h3>Three Approaches to OO Architecture</h3>
-
-<ol>
-<li><p>Use inheritance for <em>is-a</em> relationships. This means using classical inheritance and module mix-ins. With this approach, big changes can be made with little code, which is a double-edged sword. “Inheritance is specialization”. - Bertrand Meyer</p></li>
-<li><p>Use duck-types for <em>behaves-like-a</em> relationships. Use when there is a <em>role</em> that needs to be filled (e.g. <em>schedulable</em>).</p></li>
-<li><p>Use composition for <em>has-a</em> relationships. Composition is modular and flexible, but harder to comprehend all at once. “Use composition when the behavior is more than the sum of its parts”. - Grady Booch</p></li>
-</ol>
-
-
-<h3>Testing</h3>
-
-<ul>
-<li>Don’t write tightly coupled tests.</li>
-<li>Test the right thing only once, in the right place.</li>
-<li>Concentrate on incoming and outgoing messages that cross an object’s boundaries. That is, test its most stable part: its interface.</li>
-<li>Incoming messages should be tested for the state they return. Use <em>object doubles</em> for this, when appropriate.</li>
-<li>Outgoing command messages should be tested to ensure they are sent. Use <em>mocks</em> for this.</li>
-<li>Outgoing query essays should not be tested.</li>
-<li>Testing duck-types: write a module and mix it into the test for each of the duck-types.</li>
-</ul>
-
-
-<h2>Conclusion</h2>
-
-<p>I really liked this book. It clarified some of the little parts of writing code that had previously eluded me. I can&rsquo;t wait to put some of its principles into practice!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="6">&larr; Older</a>
@@ -3795,6 +4527,14 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/08/29/how-to-write-code-with-style-7-tips-for-cleaner-code/">How To Write Code With Style: 7 Tips For Cleaner Code</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/08/15/how-to-clean-up-your-javascript-build-with-tree-shaking/">How To Clean Up Your JavaScript Build With Tree Shaking</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/04/25/how-to-choose-the-right-tech-stack-for-your-app/">How To Choose The Right Tech Stack For Your App</a>
       </li>
     
@@ -3804,14 +4544,6 @@
     
       <li class="post">
         <a href="/blog/2016/02/12/five-hacks-to-level-up-your-learning-as-a-developer/">Five Hacks To Level Up Your Learning As A Developer</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/08/how-to-learn-best-as-a-developer/">How To Learn Best As A Developer</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/12/17/how-to-write-a-technical-blog-post-part-3/">How To Write A Technical Blog Post: Part 3</a>
       </li>
     
   </ul>

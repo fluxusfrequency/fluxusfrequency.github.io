@@ -1,0 +1,349 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How To Write Code With Style: 7 Tips For Cleaner Code - Fluxus Frequency</title>
+  <meta name="author" content="Ben Lewis">
+
+  
+  <meta name="description" content="This post originally appeared on Engine Yard How To Write Code With Style: 7 Tips For Cleaner Code Say What You Mean, Mean What You Say Code is &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://fluxusfrequency.github.io/blog/2016/08/29/how-to-write-code-with-style-7-tips-for-cleaner-code">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Fluxus Frequency" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">Fluxus Frequency</a></div>
+
+
+	<br><div class="header-subtitle">How I Hacked The Mainframe</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:fluxusfrequency.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">How to Write Code With Style: 7 Tips for Cleaner Code</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-08-29T20:29:38-06:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This post originally appeared on <a href="https://blog.engineyard.com/2016/how-to-write-code-with-style-7-tips-cleaner-code">Engine Yard</a></p>
+
+<h1>How To Write Code With Style: 7 Tips For Cleaner Code</h1>
+
+<h2>Say What You Mean, Mean What You Say</h2>
+
+<p>Code is communication. It has two audiences: the computer, and the future maintainer. How we communicate with the computer is rather objective: you either gave it the instructions to do what you really wanted, or you didn&rsquo;t.</p>
+
+<p>But people aren&rsquo;t so easy. As computer programmers, we channel our hopes, dreams, and moods into our writing. <a href="https://wordpress.org">WordPress</a> popularized the slogan &ldquo;Code is Poetry&rdquo;. To me, it reads as a true statement.</p>
+
+<p>There are as many ways to write code as there are programmers, and we all do it a little bit differently. There&rsquo;s beauty in this diversity, but it also makes it harder to be understood. And the harder it is to read code, the longer it takes to maintain and extend it. Time is money, so this is a bummer when it comes to building a tech business.</p>
+
+<p>How can we effectively communicate with other humans when we&rsquo;re programming? Write code with style! In this post, we&rsquo;ll explore seven rules of thumb that you can use to write cleaner code.</p>
+
+<h2>1. Business Value Comes First</h2>
+
+<p>There are many motivations that drive a programmer when she sits down to write code. Maybe she wants to be a <a href="https://news.ycombinator.com/item?id=1757059">rock star</a>. She&rsquo;s going to show everyone how smart she is by using the most arcane methods available in her language. Maybe she&rsquo;s interested in functional programming, and wants to see if she can find a legitimate use for <a href="http://ruby-doc.org/core-2.2.3/Proc.html#method-i-curry">Proc#curry</a> in a production Ruby app. Or maybe she&rsquo;s ready for the weekend, and all that&rsquo;s on her mind is &ldquo;ship it&rdquo;.</p>
+
+<p>Whatever might be simmering below the surface, when we sit down to write code, we should take a step back and look at <em>why</em> we&rsquo;re coding in the first place. Nine times out of ten, it&rsquo;s so that we can help make money for the band of misfits we run with. We should set aside our plans for world domination and adopt a view that asks &ldquo;how can I help us succeed as a business?&rdquo; After all, that&rsquo;s why we&rsquo;re writing code.</p>
+
+<p>Code has to work. Preferably under all kinds of conditions. The better our codebase can withstand edge cases, the less likely we are to lose business. So we should strive to write the most solid instructions to the computer that we can.</p>
+
+<h2>2. Do What You Came To Do</h2>
+
+<p>If you&rsquo;ve taken the time to open your editor and start writing code, there is a good reason that you&rsquo;re doing it. Whatever the specific problem you&rsquo;re trying to solve, it&rsquo;s best to stay focused on it. If your codebase is like most of the ones I&rsquo;ve seen, there&rsquo;s probably a lot of touching going on between modules, classes, services, etc.</p>
+
+<p>Sometimes when you&rsquo;re writing a feature, you can&rsquo;t resist going down a rabbit hole. You might think: &ldquo;if only we used Active Model Serializers, I would be able to change this API response with a single line of code. I&rsquo;ll just do a quick refactor and put it in.&rdquo;</p>
+
+<p>STOP. Maybe you&rsquo;re right. But do the thing you came to do. Make a note of your brilliant idea, and write a story for it when you&rsquo;re done with your feature so that you can give it your complete focus later.</p>
+
+<p>Don&rsquo;t leave TODOs littered throughout the code with things you&rsquo;d like to see done later (for example, <code># Need to pull this out into a background job</code>). Write stories instead. That&rsquo;s what tracking systems are for.</p>
+
+<p>Being present as you code can be threatened by many things. I&rsquo;ve already mentioned tempting code changes. Other threatening distractions include social media, checking the news, Slack or HipChat, and growl notifications.</p>
+
+<p>If you&rsquo;ve never tried timeboxing (for example, with Pomodoros), I highly recommend it. Combine them with an app like <a href="https://freedom.to/">Freedom</a> or <a href="https://selfcontrolapp.com/">SelfControl</a> to keep yourself from getting pulled away, and pretty soon you&rsquo;ll find yourself able to avoid context switching for good blocks of time.</p>
+
+<h2>3. Keep It Simple, Stupid</h2>
+
+<p>You&rsquo;ve heard the gospel before: premature optimization is evil. Don&rsquo;t begin by writing an abstract class and subclassing when you only have one use case! If I&rsquo;m reading your code, I would much rather see magic strings and duplication between files than five levels of indirection between service objects that will take an hour to decipher.</p>
+
+<p>When you&rsquo;re getting ready to introduce a new piece of functionality, try to solve it the easiest way you can think of first. It&rsquo;s classic TDD: red, green, refactor. That means when you&rsquo;re starting to solve a problem and you think &ldquo;this is a <em>horrible</em> way to do it&rdquo;, <em>stop yourself from trying to solve it the &ldquo;right way&rdquo;</em>. Write it horribly! Then you&rsquo;ll be able to step back and see exactly <em>why</em> it&rsquo;s horrible, and with the help of the tests you wrote along the way, you can rewrite it in a cleaner way.</p>
+
+<p>You also don&rsquo;t always have to worry about performance right out of the gate. Solve the problem first. If performance is <em>truly</em> a concern, run some benchmarks, choose a reasonable solution, and document it so that the next person will understand what you&rsquo;re doing.</p>
+
+<h2>4. Backspace Is Your Friend</h2>
+
+<p>The number one thing that clients pay me for is understanding their business. I spend countless hours grokking custom DSLs, following paths of indirection, and deciphering other complexities of code. The mental overhead is usually high for getting things done. To some degree, this is unavoidable. But there is an inexpensive way to make code easier to understand, and therefore save money: delete unused code.</p>
+
+<p>Don&rsquo;t be afraid to remove things that aren&rsquo;t getting used. If you&rsquo;re temporarily removing something, don&rsquo;t comment it out with a note like <code>TODO: put this back in after FooBar integration is complete</code>. If you&rsquo;re writing a bit of code that duplicates the functionality of something that&rsquo;s already there, pull out the old version when the new one is done. Just delete it. You can get it back, I promise. That&rsquo;s what Git is for.</p>
+
+<p>Why should you delete it? When there&rsquo;s old, dusty code hanging around that never gets called, it confuses and scares developers. We don&rsquo;t know whether we are supposed to be using it, and we are afraid to delete it because we don&rsquo;t want to break anything.</p>
+
+<p>If you have a decent test suite, you should be confident about pulling things out as they become unnecessary. If not, take the time to write a few integration cases. Just cover the workflows that are vital to your business. Doing so will pay huge dividends in the future, because you&rsquo;ll be able to remove dead code without fear, and keeping the project slim will make development faster in the future.</p>
+
+<h2>5. Be Understandable</h2>
+
+<p>Consider the following code:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>(function(w, d, s, l, i) {
+</span><span class='line'>   w[l] = w[l] || [];
+</span><span class='line'>   w[l].push({
+</span><span class='line'>     'service.start': new Date().getTime(),
+</span><span class='line'>     event: 'service'
+</span><span class='line'>   });
+</span><span class='line'>   var f = d.getElementsByTagName(s)[0],
+</span><span class='line'>   j = d.createElement(s),
+</span><span class='line'>   dl = l != 'dataMonitor' ? '&l=' + l : '';
+</span><span class='line'>   j.async = true;
+</span><span class='line'>   j.src = '//cdn.foobar.com/script.js?id=' + i + dl;
+</span><span class='line'>   f.parentNode.insertBefore(j, f);
+</span><span class='line'> })(window, document, 'script', dataMonitor, id);</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Wat?</p>
+
+<p>Just because you can write things succinctly doesn&rsquo;t mean you should. Code golf is fun as an exercise, but it&rsquo;s not fun to try to understand your minimal code when I&rsquo;m trying to build a business. You should name things with full words that accurately describe what is happening.</p>
+
+<p>Writing code that&rsquo;s easy to understand is both courteous and economical. I can&rsquo;t count the number of hours I&rsquo;ve spent trying to decipher terse and cryptic blocks of code. It may seen on the surface like it doesn&rsquo;t matter how you write code <em>as long as it works</em>. But when you consider the number of hours saved across a team when code is easily understood, it&rsquo;s clear that how you write it can actually make a big difference.</p>
+
+<h2>6. Follow The Style Guide</h2>
+
+<p>Conventions are ways of writing that lessen the burden on the reader of having to figure out what the author intended to say. All writers have a relationship to conventions, whether it&rsquo;s strict adherence, defiance, or complete ignorance.</p>
+
+<p>To communicate with an audience (which you are doing when you write code), knowing the conventions of your language is of the utmost importance. Writers of prose follow the strictures of Strunk and White&rsquo;s <a href="http://www.amazon.com/The-Elements-Style-William-Strunk/dp/1557427283">Elements of Style</a>.</p>
+
+<p>By the same token, programmers should have a basic understanding of the norms in their community. Rubyists have the <a href="https://github.com/bbatsov/ruby-style-guide">Ruby Style Guide</a>. JavaScripters are more contentious about conventions, but  the <a href="https://github.com/airbnb/javascript">AirBnB styleguide</a> and Doug Crockford&rsquo;s <a href="http://shop.oreilly.com/product/9780596517748.do">JavaScript: The Good Parts</a> are popular references. Those writing Python can run <a href="https://www.python.org/dev/peps/pep-0008/">Pep8</a> to make sure their formatting is on point automatically.</p>
+
+<p>Whatever your world, pay attention to the community around you. If you conform to what people expect, you&rsquo;re likely to get a lot more accomplished.</p>
+
+<h2>7. Always Include Documentation</h2>
+
+<p>As a consultant, I spend a lot of time reading through other people&rsquo;s code. Every few months I find myself in a new context, and unless I&rsquo;m building a greenfield project, I have to ramp up on a codebase with months to years of history.</p>
+
+<p>It&rsquo;s always surprising to me the extent to which teams rely on undocumented knowledge. When I&rsquo;m trying to get a project up and running, I always have to reach out to somebody else at the company to get past a certain snag in the set up process. The inevitable answer comes: &ldquo;oh yeah, you just need to <em>foobar</em> the <em>bazqux</em>, then it will work.&rdquo;</p>
+
+<p>While this process does get me where I need to go eventually, a lot of time and context-switching could be saved if the necessary hack were included in the README. With clear documentation, I probably could have figured it out on my own.</p>
+
+<p>The same thing goes for comments. In communicating the purpose complex function, class, or method, your first line of defense should be good naming and clearly written code. But when the going gets rough, a few well-placed comments can go a long way.</p>
+
+<p>Whatever you do, leave a trail of docs behind you. Doing so is a boon to the future maintainer of your code. And who knows, it might be you!</p>
+
+<h2>Write Code With Style and Compassion</h2>
+
+<p>It&rsquo;s hard to understand code. The developer that comes after you will have to dig through a complicated folder structure to find your files, and when they get there they&rsquo;ll have to decipher your variable names, dig through your dependencies to find magic values, <em>and</em> try to grok how what you&rsquo;ve written stands for a real business situation.</p>
+
+<p>To those of us writing modern, flexible languages, the possible ways to solve a problem are quite numerous. But we should realize that if we want to do our best to make our thoughts clear to whoever comes after us, our best bet is to write code as straightforwardly as we can.</p>
+
+<p>We should strive to be humble. Leave behind the desire to write the most clever or efficient algorithm if it means sacrificing clarity. Blazing fast code has a time and place. But generally speaking, the money your company will save when the next programmer understands your code immediately will more than make up for the hundred milliseconds you would have saved by using bitmasking instead of a dictionary.</p>
+
+<h2>Conclusion</h2>
+
+<p>In this post, we&rsquo;ve talked about seven things to consider integrating into the approach you take to writing code. It&rsquo;s my hope that you weigh them, and perhaps call them to mind as you&rsquo;re programming. If we all do our part by choosing to write code with style, the codebases of the world will be a little cleaner, and working with computers will be a little more fun for us all.</p>
+
+<p>Until next time, happy coding!</p>
+
+<ol type="a">
+<li><ol type="a">
+<li>If the topic of code and communication interests you, I highly recommend checking out Matt Ward&rsquo;s excellent post <a href="https://www.smashingmagazine.com/2010/05/the-poetics-of-coding/">The Poetics of Coding</a>.</li>
+</ol>
+</li>
+</ol>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ben Lewis</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-08-29T20:29:38-06:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://fluxusfrequency.github.io/blog/2016/08/29/how-to-write-code-with-style-7-tips-for-cleaner-code/" data-via="fluxusfrequency" data-counturl="http://fluxusfrequency.github.io/blog/2016/08/29/how-to-write-code-with-style-7-tips-for-cleaner-code/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2016/08/15/how-to-clean-up-your-javascript-build-with-tree-shaking/" title="Previous Post: How To Clean Up Your JavaScript Build With Tree Shaking">&laquo; How To Clean Up Your JavaScript Build With Tree Shaking</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/08/29/how-to-write-code-with-style-7-tips-for-cleaner-code/">How To Write Code With Style: 7 Tips For Cleaner Code</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/08/15/how-to-clean-up-your-javascript-build-with-tree-shaking/">How To Clean Up Your JavaScript Build With Tree Shaking</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/04/25/how-to-choose-the-right-tech-stack-for-your-app/">How To Choose The Right Tech Stack For Your App</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/02/29/why-we-use-test-driven-development-tdd/">Why We Use Test-Driven Development (TDD)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/02/12/five-hacks-to-level-up-your-learning-as-a-developer/">Five Hacks To Level Up Your Learning As A Developer</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 -  Ben Lewis <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

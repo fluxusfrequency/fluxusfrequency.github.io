@@ -4,7 +4,7 @@
   <title><![CDATA[Fluxus Frequency]]></title>
   <link href="http://fluxusfrequency.github.io/atom.xml" rel="self"/>
   <link href="http://fluxusfrequency.github.io/"/>
-  <updated>2016-05-14T05:30:32-06:00</updated>
+  <updated>2016-09-30T20:34:10-06:00</updated>
   <id>http://fluxusfrequency.github.io/</id>
   <author>
     <name><![CDATA[Ben Lewis]]></name>
@@ -12,6 +12,354 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    
+    <title type="html"><![CDATA[How To Write Code With Style: 7 Tips For Cleaner Code]]></title>
+    <link href="http://fluxusfrequency.github.io/blog/2016/08/29/how-to-write-code-with-style-7-tips-for-cleaner-code/"/>
+    
+    <updated>2016-08-29T20:29:38-06:00</updated>
+    <id>http://fluxusfrequency.github.io/blog/2016/08/29/how-to-write-code-with-style-7-tips-for-cleaner-code</id>
+    
+    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2016/how-to-write-code-with-style-7-tips-cleaner-code">Engine Yard</a></p>
+
+<h1>How To Write Code With Style: 7 Tips For Cleaner Code</h1>
+
+<h2>Say What You Mean, Mean What You Say</h2>
+
+<p>Code is communication. It has two audiences: the computer, and the future maintainer. How we communicate with the computer is rather objective: you either gave it the instructions to do what you really wanted, or you didn&rsquo;t.</p>
+
+<p>But people aren&rsquo;t so easy. As computer programmers, we channel our hopes, dreams, and moods into our writing. <a href="https://wordpress.org">WordPress</a> popularized the slogan &ldquo;Code is Poetry&rdquo;. To me, it reads as a true statement.</p>
+
+<p>There are as many ways to write code as there are programmers, and we all do it a little bit differently. There&rsquo;s beauty in this diversity, but it also makes it harder to be understood. And the harder it is to read code, the longer it takes to maintain and extend it. Time is money, so this is a bummer when it comes to building a tech business.</p>
+
+<p>How can we effectively communicate with other humans when we&rsquo;re programming? Write code with style! In this post, we&rsquo;ll explore seven rules of thumb that you can use to write cleaner code.</p>
+
+<h2>1. Business Value Comes First</h2>
+
+<p>There are many motivations that drive a programmer when she sits down to write code. Maybe she wants to be a <a href="https://news.ycombinator.com/item?id=1757059">rock star</a>. She&rsquo;s going to show everyone how smart she is by using the most arcane methods available in her language. Maybe she&rsquo;s interested in functional programming, and wants to see if she can find a legitimate use for <a href="http://ruby-doc.org/core-2.2.3/Proc.html#method-i-curry">Proc#curry</a> in a production Ruby app. Or maybe she&rsquo;s ready for the weekend, and all that&rsquo;s on her mind is &ldquo;ship it&rdquo;.</p>
+
+<p>Whatever might be simmering below the surface, when we sit down to write code, we should take a step back and look at <em>why</em> we&rsquo;re coding in the first place. Nine times out of ten, it&rsquo;s so that we can help make money for the band of misfits we run with. We should set aside our plans for world domination and adopt a view that asks &ldquo;how can I help us succeed as a business?&rdquo; After all, that&rsquo;s why we&rsquo;re writing code.</p>
+
+<p>Code has to work. Preferably under all kinds of conditions. The better our codebase can withstand edge cases, the less likely we are to lose business. So we should strive to write the most solid instructions to the computer that we can.</p>
+
+<h2>2. Do What You Came To Do</h2>
+
+<p>If you&rsquo;ve taken the time to open your editor and start writing code, there is a good reason that you&rsquo;re doing it. Whatever the specific problem you&rsquo;re trying to solve, it&rsquo;s best to stay focused on it. If your codebase is like most of the ones I&rsquo;ve seen, there&rsquo;s probably a lot of touching going on between modules, classes, services, etc.</p>
+
+<p>Sometimes when you&rsquo;re writing a feature, you can&rsquo;t resist going down a rabbit hole. You might think: &ldquo;if only we used Active Model Serializers, I would be able to change this API response with a single line of code. I&rsquo;ll just do a quick refactor and put it in.&rdquo;</p>
+
+<p>STOP. Maybe you&rsquo;re right. But do the thing you came to do. Make a note of your brilliant idea, and write a story for it when you&rsquo;re done with your feature so that you can give it your complete focus later.</p>
+
+<p>Don&rsquo;t leave TODOs littered throughout the code with things you&rsquo;d like to see done later (for example, <code># Need to pull this out into a background job</code>). Write stories instead. That&rsquo;s what tracking systems are for.</p>
+
+<p>Being present as you code can be threatened by many things. I&rsquo;ve already mentioned tempting code changes. Other threatening distractions include social media, checking the news, Slack or HipChat, and growl notifications.</p>
+
+<p>If you&rsquo;ve never tried timeboxing (for example, with Pomodoros), I highly recommend it. Combine them with an app like <a href="https://freedom.to/">Freedom</a> or <a href="https://selfcontrolapp.com/">SelfControl</a> to keep yourself from getting pulled away, and pretty soon you&rsquo;ll find yourself able to avoid context switching for good blocks of time.</p>
+
+<h2>3. Keep It Simple, Stupid</h2>
+
+<p>You&rsquo;ve heard the gospel before: premature optimization is evil. Don&rsquo;t begin by writing an abstract class and subclassing when you only have one use case! If I&rsquo;m reading your code, I would much rather see magic strings and duplication between files than five levels of indirection between service objects that will take an hour to decipher.</p>
+
+<p>When you&rsquo;re getting ready to introduce a new piece of functionality, try to solve it the easiest way you can think of first. It&rsquo;s classic TDD: red, green, refactor. That means when you&rsquo;re starting to solve a problem and you think &ldquo;this is a <em>horrible</em> way to do it&rdquo;, <em>stop yourself from trying to solve it the &ldquo;right way&rdquo;</em>. Write it horribly! Then you&rsquo;ll be able to step back and see exactly <em>why</em> it&rsquo;s horrible, and with the help of the tests you wrote along the way, you can rewrite it in a cleaner way.</p>
+
+<p>You also don&rsquo;t always have to worry about performance right out of the gate. Solve the problem first. If performance is <em>truly</em> a concern, run some benchmarks, choose a reasonable solution, and document it so that the next person will understand what you&rsquo;re doing.</p>
+
+<h2>4. Backspace Is Your Friend</h2>
+
+<p>The number one thing that clients pay me for is understanding their business. I spend countless hours grokking custom DSLs, following paths of indirection, and deciphering other complexities of code. The mental overhead is usually high for getting things done. To some degree, this is unavoidable. But there is an inexpensive way to make code easier to understand, and therefore save money: delete unused code.</p>
+
+<p>Don&rsquo;t be afraid to remove things that aren&rsquo;t getting used. If you&rsquo;re temporarily removing something, don&rsquo;t comment it out with a note like <code>TODO: put this back in after FooBar integration is complete</code>. If you&rsquo;re writing a bit of code that duplicates the functionality of something that&rsquo;s already there, pull out the old version when the new one is done. Just delete it. You can get it back, I promise. That&rsquo;s what Git is for.</p>
+
+<p>Why should you delete it? When there&rsquo;s old, dusty code hanging around that never gets called, it confuses and scares developers. We don&rsquo;t know whether we are supposed to be using it, and we are afraid to delete it because we don&rsquo;t want to break anything.</p>
+
+<p>If you have a decent test suite, you should be confident about pulling things out as they become unnecessary. If not, take the time to write a few integration cases. Just cover the workflows that are vital to your business. Doing so will pay huge dividends in the future, because you&rsquo;ll be able to remove dead code without fear, and keeping the project slim will make development faster in the future.</p>
+
+<h2>5. Be Understandable</h2>
+
+<p>Consider the following code:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>(function(w, d, s, l, i) {
+</span><span class='line'>   w[l] = w[l] || [];
+</span><span class='line'>   w[l].push({
+</span><span class='line'>     'service.start': new Date().getTime(),
+</span><span class='line'>     event: 'service'
+</span><span class='line'>   });
+</span><span class='line'>   var f = d.getElementsByTagName(s)[0],
+</span><span class='line'>   j = d.createElement(s),
+</span><span class='line'>   dl = l != 'dataMonitor' ? '&l=' + l : '';
+</span><span class='line'>   j.async = true;
+</span><span class='line'>   j.src = '//cdn.foobar.com/script.js?id=' + i + dl;
+</span><span class='line'>   f.parentNode.insertBefore(j, f);
+</span><span class='line'> })(window, document, 'script', dataMonitor, id);</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Wat?</p>
+
+<p>Just because you can write things succinctly doesn&rsquo;t mean you should. Code golf is fun as an exercise, but it&rsquo;s not fun to try to understand your minimal code when I&rsquo;m trying to build a business. You should name things with full words that accurately describe what is happening.</p>
+
+<p>Writing code that&rsquo;s easy to understand is both courteous and economical. I can&rsquo;t count the number of hours I&rsquo;ve spent trying to decipher terse and cryptic blocks of code. It may seen on the surface like it doesn&rsquo;t matter how you write code <em>as long as it works</em>. But when you consider the number of hours saved across a team when code is easily understood, it&rsquo;s clear that how you write it can actually make a big difference.</p>
+
+<h2>6. Follow The Style Guide</h2>
+
+<p>Conventions are ways of writing that lessen the burden on the reader of having to figure out what the author intended to say. All writers have a relationship to conventions, whether it&rsquo;s strict adherence, defiance, or complete ignorance.</p>
+
+<p>To communicate with an audience (which you are doing when you write code), knowing the conventions of your language is of the utmost importance. Writers of prose follow the strictures of Strunk and White&rsquo;s <a href="http://www.amazon.com/The-Elements-Style-William-Strunk/dp/1557427283">Elements of Style</a>.</p>
+
+<p>By the same token, programmers should have a basic understanding of the norms in their community. Rubyists have the <a href="https://github.com/bbatsov/ruby-style-guide">Ruby Style Guide</a>. JavaScripters are more contentious about conventions, but  the <a href="https://github.com/airbnb/javascript">AirBnB styleguide</a> and Doug Crockford&rsquo;s <a href="http://shop.oreilly.com/product/9780596517748.do">JavaScript: The Good Parts</a> are popular references. Those writing Python can run <a href="https://www.python.org/dev/peps/pep-0008/">Pep8</a> to make sure their formatting is on point automatically.</p>
+
+<p>Whatever your world, pay attention to the community around you. If you conform to what people expect, you&rsquo;re likely to get a lot more accomplished.</p>
+
+<h2>7. Always Include Documentation</h2>
+
+<p>As a consultant, I spend a lot of time reading through other people&rsquo;s code. Every few months I find myself in a new context, and unless I&rsquo;m building a greenfield project, I have to ramp up on a codebase with months to years of history.</p>
+
+<p>It&rsquo;s always surprising to me the extent to which teams rely on undocumented knowledge. When I&rsquo;m trying to get a project up and running, I always have to reach out to somebody else at the company to get past a certain snag in the set up process. The inevitable answer comes: &ldquo;oh yeah, you just need to <em>foobar</em> the <em>bazqux</em>, then it will work.&rdquo;</p>
+
+<p>While this process does get me where I need to go eventually, a lot of time and context-switching could be saved if the necessary hack were included in the README. With clear documentation, I probably could have figured it out on my own.</p>
+
+<p>The same thing goes for comments. In communicating the purpose complex function, class, or method, your first line of defense should be good naming and clearly written code. But when the going gets rough, a few well-placed comments can go a long way.</p>
+
+<p>Whatever you do, leave a trail of docs behind you. Doing so is a boon to the future maintainer of your code. And who knows, it might be you!</p>
+
+<h2>Write Code With Style and Compassion</h2>
+
+<p>It&rsquo;s hard to understand code. The developer that comes after you will have to dig through a complicated folder structure to find your files, and when they get there they&rsquo;ll have to decipher your variable names, dig through your dependencies to find magic values, <em>and</em> try to grok how what you&rsquo;ve written stands for a real business situation.</p>
+
+<p>To those of us writing modern, flexible languages, the possible ways to solve a problem are quite numerous. But we should realize that if we want to do our best to make our thoughts clear to whoever comes after us, our best bet is to write code as straightforwardly as we can.</p>
+
+<p>We should strive to be humble. Leave behind the desire to write the most clever or efficient algorithm if it means sacrificing clarity. Blazing fast code has a time and place. But generally speaking, the money your company will save when the next programmer understands your code immediately will more than make up for the hundred milliseconds you would have saved by using bitmasking instead of a dictionary.</p>
+
+<h2>Conclusion</h2>
+
+<p>In this post, we&rsquo;ve talked about seven things to consider integrating into the approach you take to writing code. It&rsquo;s my hope that you weigh them, and perhaps call them to mind as you&rsquo;re programming. If we all do our part by choosing to write code with style, the codebases of the world will be a little cleaner, and working with computers will be a little more fun for us all.</p>
+
+<p>Until next time, happy coding!</p>
+
+<ol type="a">
+<li><ol type="a">
+<li>If the topic of code and communication interests you, I highly recommend checking out Matt Ward&rsquo;s excellent post <a href="https://www.smashingmagazine.com/2010/05/the-poetics-of-coding/">The Poetics of Coding</a>.</li>
+</ol>
+</li>
+</ol>
+
+]]></content>
+    
+  </entry>
+  
+  <entry>
+    
+    <title type="html"><![CDATA[How To Clean Up Your JavaScript Build With Tree Shaking]]></title>
+    <link href="http://fluxusfrequency.github.io/blog/2016/08/15/how-to-clean-up-your-javascript-build-with-tree-shaking/"/>
+    
+    <updated>2016-08-15T20:29:23-06:00</updated>
+    <id>http://fluxusfrequency.github.io/blog/2016/08/15/how-to-clean-up-your-javascript-build-with-tree-shaking</id>
+    
+    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2016/tree-shaking">Engine Yard</a></p>
+
+<h1>How To Clean Up Your JavaScript Build With Tree Shaking</h1>
+
+<p>The world of JavaScript development can be maddening and exciting. Every day, new libraries and modules are published, and it can feel overwhelming to try to keep up. On the other hand, all of this change has its benefits. As a community, we&rsquo;re heading more and more toward an ecosystem that&rsquo;s easier to work in and reason about. We keep getting new candy, and it makes our lives better!</p>
+
+<p>One JavaScript improvement that&rsquo;s been getting some attention lately is the idea Tree Shaking. What&rsquo;s that, you ask? Simply put, it&rsquo;s a way to clean up your bundling process by excluding code you&rsquo;re not using. We all hate bloat in our projects. Unused code increases mental overhead and makes it much harder to understand what&rsquo;s going on. More importantly, it increases the size of the payload we&rsquo;re sending to users in front-end projects.</p>
+
+<p>In this post, we&rsquo;ll take a look at tree shaking - what it is, how it works, and how to get started using it. Let&rsquo;s create a cleaner build for your JavaScript project!</p>
+
+<h2>Where Did It Come From?</h2>
+
+<p>The idea of tree shaking has begun gaining traction in the JavaScript world thanks to John Doe&rsquo;s <a href="https://github.com/rollup/rollup">Rollup</a> project. Rollup is a JavaScript module bundler. From early on, it supported EcmaScript 6 (ES6) modules, which resulted in its creating smaller bundles. It also supports some sweet features like cyclical requires and export bindings.</p>
+
+<p>But perhaps the most unique feature of Rollup is the fact that it only requires modules that you&rsquo;ve actually imported somewhere. This means that unused code never makes it into the bundle. Note that this is slightly different than Dead Code Elimination. Roman Luitikov does a good job explaining this distinction in his <a href="https://medium.com/@roman01la/dead-code-elimination-and-tree-shaking-in-javascript-build-systems-fb8512c86edf#.arm0lxyhz">post about Tree Shaking</a>.</p>
+
+<p>At this moment, a lot of people in the JS community are coalescing around <a href="https://webpack.github.io/">Webpack</a> as a build tool. Webpack&rsquo;s maintainers are currently working on a Webpack 2 release. One of its interesting features is that it will support native ES6 modules without first transforming them into a CommonJS format. This is good, because tree shaking won&rsquo;t work with CommonJS modules.</p>
+
+<p>Recently, the estimable Dr. Axel Rauschmayer wrote a popular <a href="http://www.2ality.com/2015/12/webpack-tree-shaking.html">post</a> about setting up tree-shaking with Webpack 2. I decided to give it a try in my colleague <a href="https://twitter.com/omgwtfmarc">Marc Garreau</a>&rsquo;s <a href="https://github.com/marcgarreau/redux-starter">Redux Starter Kit</a>, to see what it would actually take to get tree shaking to work in a full project. You can see the result of my experiments on my <a href="https://github.com/fluxusfrequency/redux-starter/tree/tree-shaking">GitHub</a>.</p>
+
+<h2>How Does It Work?</h2>
+
+<p>The steps involved in tree shaking are fairly simple.</p>
+
+<p>You write your ES6 code as normal, importing and exporting modules as needed. When it comes time to create a bundle, Webpack grabs all of your modules and puts them into a single file, but removes the <code>export</code> from code that&rsquo;s not being imported anywhere. Next, you run a minification process, resulting in a bundle that excludes any dead code found along the way. If you&rsquo;re curious, check Dr. Rauschmayer&rsquo;s <a href="http://www.2ality.com/2015/12/webpack-tree-shaking.html">post</a> for more details.</p>
+
+<h2>Setting It Up</h2>
+
+<p>Since Webpack 2 is still in beta, you&rsquo;ll need to update your <code>package.json</code> to point at the beta version. But before we do that let&rsquo;s also talk about our Babel preset. Typically, I use the <code>es2015</code> preset, but this preset relies on the <code>transform-es2015-modules-commonjs</code> plugin, which won&rsquo;t work for tree shaking. Dr. Rauschmayer pointed this out in his post. At the time of his writing, the best workaround was to copypasta all of the plugins in that preset except <code>transform-es2015-modules-commonjs</code>.</p>
+
+<p>Thankfully, we can now get around this copy-pasta&#8217;ing by including the <code>es2015-native-modules</code> or <code>es2015-webpack</code> preset instead. Both of these presets support native ES6 modules.</p>
+
+<p>Let&rsquo;s install Webpack 2 and the <code>es2015-native-modules</code> Babel preset by running <code>npm install --save babel-preset-es2015-native-modules webpack@2.0.1-beta</code>.</p>
+
+<p>You should see these packages appear in your <code>package.json</code> dependencies section:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"dependencies": {
+</span><span class='line'>  "babel-preset-es2015-native-modules": "^6.6.0",
+</span><span class='line'>  "webpack": "^2.0.1-beta"
+</span><span class='line'>  // etc.
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You&rsquo;ll also need to update your <code>.babelrc</code> file to use the new preset:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{
+</span><span class='line'>  presets: ["es2015-native-modules", "react"]
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Remember that we need to run a minification step during our bundle in order to take advantage of dead code elemination. Change the build script to use the <code>--optimize-minimize</code> flag on our call to the Webpack executable:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>// package.json
+</span><span class='line'>...
+</span><span class='line'>  "scripts": {
+</span><span class='line'>    "build": "webpack --optimize-minimize",
+</span><span class='line'>    // etc.
+</span><span class='line'>  },
+</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, update your Webpack config to make sure we&rsquo;re only listing one loader for at a time. This is for compatibility with Webpack 2, since it expects a slightly different syntax in the config.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>// webpack.config.js
+</span><span class='line'>...
+</span><span class='line'>loaders: [
+</span><span class='line'>  {
+</span><span class='line'>    test: /\.jsx?$/,
+</span><span class='line'>    exclude: /node_modules/,
+</span><span class='line'>    loader: 'babel',
+</span><span class='line'>    include: __dirname
+</span><span class='line'>  },
+</span><span class='line'>]</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Taking It For A Spin</h2>
+
+<p>Now we have everything we need in place to run a build with tree shaking. Let&rsquo;s try it out!</p>
+
+<p>To make sure everything is working, we&rsquo;ll need to export some modules that we&rsquo;re not importing. In my example, I decided to create some useless functions.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>// place-order.js
+</span><span class='line'>
+</span><span class='line'>export function makeMeASandwich() {
+</span><span class='line'>  return 'make sandwich: operation not permitted';
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>export function sudoMakeMeASandwich() {
+</span><span class='line'>  return 'one open faced club sandwich coming right up';
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then in my actual project code, I only imported and used one of them.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>// index.js
+</span><span class='line'>
+</span><span class='line'>import { sudoMakeMeASandwich } from './place-order.js';
+</span><span class='line'>sudoMakeMeASandwich();
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When we run <code>npm run build</code>, we should end up with a minified build that excludes the <code>makeMeASandwich</code> code. When you run this command, you&rsquo;ll see an output that accounts for removed modules. In my example, I saw a bunch of warnings from dependencies such as React and Webpack Hot Middleware. I left a few of them in the pasted output below, but the line that&rsquo;s of most interest of us is <code>Dropping unused function makeMeASandwich</code>, since that&rsquo;s the code we&rsquo;re checking on.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>WARNING in bundle.js from UglifyJs
+</span><span class='line'>...
+</span><span class='line'>Dropping unused function makeMeASandwich [./src/place-order.js:1,16]
+</span><span class='line'>...
+</span><span class='line'>Dropping unused variable DOCUMENT_FRAGMENT_NODE_TYPE [./~/react/lib/ReactEventListener.js:26,0]
+</span><span class='line'>Condition always true [./~/style-loader!./~/css-loader!./~/sass-loader!./src/assets/stylesheets/base.scss:10,0]
+</span><span class='line'>Condition always false [(webpack)-hot-middleware/process-update.js:9,0]
+</span><span class='line'>Dropping unreachable code [(webpack)-hot-middleware/process-update.js:10,0]</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now if we open up the minified bundle and search for the contents of the <code>makeMeASandwich</code> function, we won&rsquo;t be able to find it. Indeed, searching for <code>make sandwich: operation not permitted</code> yields no results. It works for <code>one open faced club sandwich coming right up</code>, though. Success!</p>
+
+<h2>Going Further: Shaking Dependencies</h2>
+
+<p>Removing your own unused code is all well and good, but it&rsquo;s probably only going to be a drop in the bucket of your overall bundle. The place where tree shaking really shines is in helping remove usused code from dependencies. If you&rsquo;re pulling in a whole package, but only using a single export from it, why would you send the rest of the package to your users?</p>
+
+<p>Roman Luitikov&rsquo;s <a href="https://medium.com/@roman01la/dead-code-elimination-and-tree-shaking-in-javascript-build-systems-fb8512c86edf#.42821257h">post</a> did a great job of walking through what it looks like to tree shake a dependency by showing what happens if you pull in Lodash, but only import and use the <code>first</code> function. The rest of Lodash gets thrown out, and the resulting build is much smaller!</p>
+
+<p>Since Roman has already covered this, I won&rsquo;t go into the details of what that looks like here, but you can see it in my <a href="https://github.com/fluxusfrequency/redux-starter/commit/6ba1ee1455935a8aec054c3a587b0a93d683be5c#diff-1fdf421c05c1140f6d71444ea2b27638R20">example</a> if you&rsquo;re curious.</p>
+
+<p>The main point to understand is that when you consider the sizeable amount of unused code that ends up in a typical JS project when you run <code>npm install</code>, removing it with tree shaking can yield huge savings on bundle size.</p>
+
+<h2>Conclusion</h2>
+
+<p>Being a front-end JavaScript developer comes with a specific set of concerns. Because you&rsquo;re sending a large amount of code execution off onto your user&rsquo;s browser, the size of your payload can get really large. We do our users a huge service by being sensitive to the amount of data that we&rsquo;re sending them.</p>
+
+<p>Tree shaking offers a great way to cut down on your bundle size, and it&rsquo;s easy to get set up in your existing project. I&rsquo;m excited to see how this practice evolves as more of the community begins to embrace it and Webpack 2 is released. In the meantime, I would recommend reading up on some other <a href="https://github.com/webpack/webpack/tree/master/examples/harmony-unused">examples of tree shaking</a> and more of the <a href="https://gist.github.com/sokra/27b24881210b56bbaff7">features coming in Webpack 2</a>.</p>
+
+<p>Until next time, happy coding!</p>
+
+<ol type="a">
+<li><ol type="a">
+<li>If you decide to give tree shaking a try in your existing project, we&rsquo;d love to hear how it goes. Leave us a comment!</li>
+</ol>
+</li>
+</ol>
+
+]]></content>
+    
+  </entry>
   
   <entry>
     
@@ -2953,1238 +3301,6 @@ If you&rsquo;re spinning something that&rsquo;s already out there, ask: would pe
 <p>In the software industry, a lot of people pay lip service to the idea of a Minimum Viable Product. But for many of us, it&rsquo;s not what you think it is.</p>
 
 <p>If you&rsquo;re thinking: I know what people want, and I&rsquo;m going to build it, you&rsquo;ve already misunderstood the process. MVPs are experiments, research. How you use them differs a little bit depending on your situation, but the basic premise is the same. Build a small thing, measure the way it&rsquo;s used, learn from it, repeat.</p>
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[Seven Unusual Ruby Datastores]]></title>
-    <link href="http://fluxusfrequency.github.io/blog/2015/04/07/seven-unusual-ruby-datastores/"/>
-    
-    <updated>2015-04-07T06:30:04-06:00</updated>
-    <id>http://fluxusfrequency.github.io/blog/2015/04/07/seven-unusual-ruby-datastores</id>
-    
-    <content type="html"><![CDATA[<p>This post appeared in <a href="http://rubyweekly.com/issues/240">Ruby Weekly #240</a>. It was also included in issue #27.1 of the <a href="http://www.pointer.io/">Pointer.io</a> newsletter. It originally appeared on the <a href="https://blog.engineyard.com/2015/seven-unusual-ruby-datastores">Engine Yard Blog</a></p>
-
-<h2>Introduction</h2>
-
-<p>Admit it: you like the unusual. We all do. Despite constant warnings against premature optimization, an emphasis on &ldquo;readable code&rdquo;, and the old aphorism, &ldquo;keep it simple, stupid&rdquo;, we just can&rsquo;t help ourselves. As programmers, we love exploring new things.</p>
-
-<p>In that spirit, let&rsquo;s go on an adventure. In this post, we&rsquo;ll take a look at seven lesser-known ways to store data in the Ruby language.</p>
-
-<h2>The Ones We Already Know</h2>
-
-<p>Before we get started, we&rsquo;ll set a baseline. What are the ways to store data in Ruby that we use every day? Well, these are the ones that come to mind for me: string, array, hash, CSV, JSON, and the filesystem.</p>
-
-<p>We can skip all of these.</p>
-
-<p>So what are some of the other ways to store data in Ruby? Let&rsquo;s find out.</p>
-
-<h2>Struct</h2>
-
-<h3>What Is It?</h3>
-
-<p>A struct is a way of bundling together a group of variables under a single name. If you&rsquo;ve done any C programming, you&rsquo;ve probably come across structs before.</p>
-
-<p>A struct is similar to a class. At its most basic, it&rsquo;s a group of bundled attributes with accessor methods. You can also define methods that instances of the struct will respond to.</p>
-
-<p>In Ruby, structs inherit from Enumerable, so they come with all kinds of great behavior, like <code>to_a</code>, <code>each</code>, <code>map</code>, and member access with <code>[]</code>.</p>
-
-<p>You can define a struct object by setting a constant equal to <code>Struct.new</code> and passing in some default attribute names. From there, you can create any number of instances of the struct, passing in attribute values for that instance.</p>
-
-<p>Let’s explore one:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Cat</span> <span class="o">=</span> <span class="no">Struct</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:name</span><span class="p">,</span> <span class="ss">:breed</span><span class="p">,</span> <span class="ss">:hair_length</span><span class="p">)</span> <span class="k">do</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">meow</span>
-</span><span class='line'>    <span class="s2">&quot;m-e-o-w-w&quot;</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">tabby</span> <span class="o">=</span> <span class="no">Cat</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;Tabitha&quot;</span><span class="p">,</span> <span class="s2">&quot;Russian Blue&quot;</span><span class="p">,</span> <span class="s2">&quot;short&quot;</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">tabby</span><span class="o">.</span><span class="n">name</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;Tabitha&quot;</span>
-</span><span class='line'><span class="n">tabby</span><span class="o">.</span><span class="n">meow</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;m-e-o-w-w&quot;</span>
-</span><span class='line'><span class="n">tabby</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;Tabitha&quot;</span>
-</span><span class='line'><span class="n">tabby</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">attribute</span><span class="o">|</span>
-</span><span class='line'>  <span class="nb">puts</span> <span class="n">attribute</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'><span class="s2">&quot;Tabitha&quot;</span>
-</span><span class='line'><span class="s2">&quot;Russian Blue&quot;</span>
-</span><span class='line'><span class="s2">&quot;short&quot;</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;struct Cat name=&quot;Tabitha&quot;, breed=&quot;Russian Blue&quot;, hair_length=&quot;short&quot;&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>When Would You Use It?</h3>
-
-<p>If you want to quickly define a class that has easily accessible attributes and little other behavior, structs are a great choice. Since they also respond to enumerable methods, they are great for use as stubs in tests.</p>
-
-<p>If you want to stub a class and send it a message in a test, but you don&rsquo;t want to use <a href="https://relishapp.com/rspec/rspec-mocks/v/3-2/docs/verifying-doubles/using-an-instance-double">a double</a>, you can fake it with a struct in a single line of code.</p>
-
-<p>Look how simple that is:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">fake_stripe_charge</span> <span class="o">=</span> <span class="no">Struct</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:create</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Next we&rsquo;ll take a look at <code>Struct</code>&rsquo;s close cousin, <code>OpenStruct</code>.</p>
-
-<h2>OpenStruct</h2>
-
-<h3>What Is It?</h3>
-
-<p>An OpenStruct is somewhat like a hash. It&rsquo;s a data structure that you can use to store and access key-value pairs. In fact, it really <em>is</em> a hash. Under the hood, each OpenStruct uses a hash for data storage. It also defines getters and setters automatically using <code>method_missing</code> and <code>define_method</code>.</p>
-
-<p>There are three main differences between a struct and an open struct.</p>
-
-<p>The first is that when you initialize a struct, you get back a class that inherits from <code>Struct</code>, which you must further instantiate, whereas calling <code>new</code> on an OpenStruct gives you back an <code>OpenStruct</code> object.</p>
-
-<p>Secondly, OpenStructs don&rsquo;t allow you to define behaviors by passing a block to the initializer as we did with the struct above.</p>
-
-<p>Finally, OpenStructs must be passed an argument that responds to <code>each_pair</code> (such as a hash), whereas stucts expect a list of strings or symbols (to define their attribute names).</p>
-
-<p>In the end, an OpenStruct is a much simpler than a struct.</p>
-
-<p>OpenStruct lives in the Ruby Standard Library, so to use it in your code, you&rsquo;ll have to <code>require 'ostruct'</code>.</p>
-
-<p>Let’s explore one:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">luke</span> <span class="o">=</span> <span class="no">OpenStruct</span><span class="o">.</span><span class="n">new</span><span class="p">({</span>
-</span><span class='line'>  <span class="ss">home</span><span class="p">:</span> <span class="s2">&quot;Tatooine&quot;</span><span class="p">,</span>
-</span><span class='line'>  <span class="ss">side</span><span class="p">:</span> <span class="ss">:light</span><span class="p">,</span>
-</span><span class='line'>  <span class="ss">weapon</span><span class="p">:</span> <span class="ss">:light_saber</span>
-</span><span class='line'><span class="p">})</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">luke</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;OpenStruct home=&quot;Tatooine&quot;, side=:light, weapon=:light_saber&gt;</span>
-</span><span class='line'><span class="n">luke</span><span class="o">.</span><span class="n">home</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;Tatooine&quot;</span>
-</span><span class='line'><span class="n">luke</span><span class="o">.</span><span class="n">side</span> <span class="o">=</span> <span class="ss">:dark</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="ss">:dark</span>
-</span><span class='line'><span class="n">luke</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;OpenStruct home=&quot;Tatooine&quot;, side=:dark, weapon=:light_saber&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>When Would You Use It?</h3>
-
-<p>As with Structs, I like to use OpenStructs as test stubs. Unfortunately, the metaprogramming used behind the scenes makes OpenStructs <a href="http://ruby-doc.org/stdlib-1.9.3/libdoc/ostruct/rdoc/OpenStruct.html#class-OpenStruct-label-Implementation-3A">much slower than hashes</a>, and they also respond to far fewer methods, so they aren&rsquo;t as flexible for everyday use. However, their built-in getters make them really useful anywhere that you need to inject an object that responds to a certain method.</p>
-
-<h2>Marshalling</h2>
-
-<h3>What Is It?</h3>
-
-<p>Marshaling is way to serialize Ruby objects into a binary format. It converts them into a bytestream that can be saved and reconstituted later.</p>
-
-<p>You marshal objects by calling <code>Marshal.dump</code> and <code>Marshal.load</code>.</p>
-
-<p>Here’s an example:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">SpaceCaptain</span> <span class="o">=</span> <span class="no">Struct</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:name</span><span class="p">,</span> <span class="ss">:rank</span><span class="p">,</span> <span class="ss">:affiliation</span><span class="p">)</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="no">SpaceCaptain</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">picard</span> <span class="o">=</span> <span class="no">SpaceCaptain</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;Jean-Luc Picard&quot;</span><span class="p">,</span> <span class="s2">&quot;Captain&quot;</span><span class="p">,</span> <span class="s2">&quot;United Federation of Planets&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;struct SpaceCaptain name=&quot;Jean-Luc Picard&quot;, rank=&quot;Captain&quot;, affiliation=&quot;United Federation of Planets&quot;&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">saved_picard</span> <span class="o">=</span> <span class="no">Marshal</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">picard</span><span class="p">)</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="s2">&quot;</span><span class="se">\x04\b</span><span class="s2">S:</span><span class="se">\x11</span><span class="s2">SpaceCaptain</span><span class="se">\b</span><span class="s2">:</span><span class="se">\t</span><span class="s2">nameI</span><span class="se">\&quot;\x14</span><span class="s2">Jean-Luc Picard</span><span class="se">\x06</span><span class="s2">:</span><span class="se">\x06</span><span class="s2">ET:</span><span class="se">\t</span><span class="s2">rankI</span><span class="se">\&quot;\f</span><span class="s2">Captain</span><span class="se">\x06</span><span class="s2">;</span><span class="se">\a</span><span class="s2">T:</span><span class="se">\x10</span><span class="s2">affiliationI</span><span class="se">\&quot;</span><span class="s2">!United Federation of Planets</span><span class="se">\x06</span><span class="s2">;</span><span class="se">\a</span><span class="s2">T&quot;</span>
-</span><span class='line'><span class="c1"># Write to disk</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">loaded_picard</span> <span class="o">=</span> <span class="no">Marshal</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">saved_picard</span><span class="p">)</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;struct SpaceCaptain name=&quot;Jean-Luc Picard&quot;, rank=&quot;Captain&quot;, affiliation=&quot;United Federation of Planets&quot;&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>When Would You Use it?</h3>
-
-<p>There are plenty of use cases for serializing code running in memory and saving it for later reuse. For example, if you were writing a video game and you wanted to make it possible for a player to save their game for later, you could marshal the objects in memory (e.g. the player, her location in a map, and any enemies that are nearby) and persist them. You could then load them up again when the player is ready to continue.</p>
-
-<p>Although there are other data serialization formats available, such as JSON, XML, and YAML (which we&rsquo;ll look at next), marshalling is <a href="http://www.skorks.com/2010/04/serializing-and-deserializing-objects-with-ruby/">by far the fastest option</a> available in Ruby. That makes it particularly well-suited to situations where you dealing with large volumes of data or processing it at high speed.</p>
-
-<h2>YAML</h2>
-
-<h3>What is It?</h3>
-
-<p>YAML, which stands for YAML Ain&rsquo;t Markup Language, is a widely-used format for serializing data in a human-readable format. It&rsquo;s available in many languages, of which Ruby is only one. The most widely-used Ruby YAML parser, <a href="https://github.com/tenderlove/psych">psych</a>, is a wrapper around <code>libyaml</code>, the C language parser.</p>
-
-<p>YAML lives in the Ruby Standard Library, so to use it in your code, you&rsquo;ll have to <code>require 'yaml'</code>. You can use the <a href="http://ruby-doc.org/stdlib-2.2.1/libdoc/yaml/rdoc/YAML/Store.html">YAML::Store library</a> to easily save data to disk.</p>
-
-<p>Here’s an example of how to use that library:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;yaml/store&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">Database</span>
-</span><span class='line'>  <span class="no">DATABASE</span> <span class="o">=</span> <span class="no">YAML</span><span class="o">::</span><span class="no">Store</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;my_database&#39;</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">save_person</span><span class="p">(</span><span class="n">user_data</span><span class="p">)</span>
-</span><span class='line'>    <span class="no">DATABASE</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
-</span><span class='line'>      <span class="no">DATABASE</span><span class="o">[</span><span class="s2">&quot;people&quot;</span><span class="o">]</span> <span class="o">||=</span> <span class="o">[]</span>
-</span><span class='line'>      <span class="no">DATABASE</span><span class="o">[</span><span class="s2">&quot;people&quot;</span><span class="o">]</span> <span class="o">&lt;&lt;</span> <span class="n">user_data</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">bilbo</span> <span class="o">=</span> <span class="p">{</span>
-</span><span class='line'>  <span class="ss">race</span><span class="p">:</span> <span class="ss">:hobbit</span><span class="p">,</span>
-</span><span class='line'>  <span class="ss">aliases</span><span class="p">:</span> <span class="o">[</span><span class="s2">&quot;Bilba Labingi&quot;</span><span class="o">]</span><span class="p">,</span>
-</span><span class='line'>  <span class="ss">home</span><span class="p">:</span> <span class="s2">&quot;The Shire&quot;</span><span class="p">,</span>
-</span><span class='line'>  <span class="ss">inventory</span><span class="p">:</span> <span class="o">[</span><span class="ss">:the_one_ring</span><span class="p">,</span> <span class="ss">:arkenstone</span><span class="o">]</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="no">Database</span><span class="o">.</span><span class="n">save_person</span><span class="p">(</span><span class="n">bilbo</span><span class="p">)</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="o">[</span><span class="p">{</span><span class="ss">:race</span><span class="o">=&gt;</span><span class="ss">:hobbit</span><span class="p">,</span> <span class="ss">:aliases</span><span class="o">=&gt;[</span><span class="s2">&quot;Bilba Labingi&quot;</span><span class="o">]</span><span class="p">,</span> <span class="ss">:home</span><span class="o">=&gt;</span><span class="s2">&quot;The Shire&quot;</span><span class="p">,</span> <span class="ss">:inventory</span><span class="o">=&gt;[</span><span class="ss">:the_one_ring</span><span class="p">,</span> <span class="ss">:arkenstone</span><span class="o">]</span><span class="p">},</span> <span class="p">{</span><span class="ss">:race</span><span class="o">=&gt;</span><span class="ss">:hobbit</span><span class="p">,</span> <span class="ss">:aliases</span><span class="o">=&gt;[</span><span class="s2">&quot;Bilba Labingi&quot;</span><span class="o">]</span><span class="p">,</span> <span class="ss">:home</span><span class="o">=&gt;</span><span class="s2">&quot;The Shire&quot;</span><span class="p">,</span> <span class="ss">:inventory</span><span class="o">=&gt;[</span><span class="ss">:the_one_ring</span><span class="p">,</span> <span class="ss">:arkenstone</span><span class="o">]</span><span class="p">}</span><span class="o">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Here&rsquo;s what <code>my_database</code> would look like after running this code:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="nn">---</span>
-</span><span class='line'><span class="l-Scalar-Plain">people</span><span class="p-Indicator">:</span>
-</span><span class='line'><span class="p-Indicator">-</span> <span class="l-Scalar-Plain">:race</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">:hobbit</span>
-</span><span class='line'>  <span class="l-Scalar-Plain">:aliases</span><span class="p-Indicator">:</span>
-</span><span class='line'>  <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bilba Labingi</span>
-</span><span class='line'>  <span class="l-Scalar-Plain">:home</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">The Shire</span>
-</span><span class='line'>  <span class="l-Scalar-Plain">:inventory</span><span class="p-Indicator">:</span>
-</span><span class='line'>  <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">:the_one_ring</span>
-</span><span class='line'>  <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">:arkenstone</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>When Would You Use it?</h3>
-
-<p>YAML serves the same function as marshaling: it&rsquo;s a way to serialize Ruby objects for storage. It&rsquo;s quite a bit slower, but it&rsquo;s human-readable.</p>
-
-<p>YAML is working behind the scenes when ActiveRecord is used to <a href="http://apidock.com/rails/ActiveRecord/Base/serialize/class">serialize a record attribute</a> containing a hash or an array and save it to a text column in the database. When the attribute is retrieved, ActiveRecord deserializes it back from YAML into a Ruby object of its original data type.</p>
-
-<h2>Set</h2>
-
-<h3>What Is It?</h3>
-
-<p>If you&rsquo;re familiar with mathematical <a href="http://en.wikipedia.org/wiki/Set_theory">set theory</a>, the <code>Set</code> class should be pretty intuitive. Sets respond to <code>intersection</code>, <code>difference</code>, <code>merge</code>, and many other Set operations.</p>
-
-<p>It allows you to define a data structure that behaves like an unordered array that can only contain unique members. It exposes many of the same methods available when accessing arrays, but with a faster lookup. Like OpenStruct, Set uses hash under the hood.</p>
-
-<p>Sets can be saved in <a href="http://redis.io/">redis</a>, which makes it possible to look them up very quickly.</p>
-
-<p>Set lives in the Ruby Standard Library, so to use it in your code you&rsquo;ll have to <code>require 'set'</code>.</p>
-
-<p>Here’s an example:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;set&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">basic_lands</span> <span class="o">=</span> <span class="no">Set</span><span class="o">.</span><span class="n">new</span>
-</span><span class='line'><span class="o">[</span><span class="ss">:swamp</span><span class="p">,</span> <span class="ss">:island</span><span class="p">,</span> <span class="ss">:forest</span><span class="p">,</span> <span class="ss">:mountain</span><span class="p">,</span> <span class="ss">:plains</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">land</span><span class="o">|</span>
-</span><span class='line'>  <span class="n">basic_lands</span> <span class="o">&lt;&lt;</span> <span class="n">land</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">basic_lands</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;Set: {:swamp, :island, :forest, :mountain, :plains}&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">basic_lands</span> <span class="o">&lt;&lt;</span> <span class="ss">:swamp</span>
-</span><span class='line'><span class="c1"># does nothing</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;Set: {:swamp, :island, :forest, :mountain, :plains}&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">fires_lands</span> <span class="o">=</span> <span class="no">Set</span><span class="o">.</span><span class="n">new</span>
-</span><span class='line'><span class="o">[</span><span class="ss">:forest</span><span class="p">,</span> <span class="ss">:mountain</span><span class="p">,</span> <span class="ss">:city_of_brass</span><span class="p">,</span> <span class="ss">:karplusan_forest</span><span class="p">,</span> <span class="ss">:rishadan_port</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">land</span><span class="o">|</span>
-</span><span class='line'>  <span class="n">fires_lands</span> <span class="o">&lt;&lt;</span> <span class="n">land</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'><span class="n">fires_lands</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;Set: {:forest, :mountain, :city_of_brass, :karplusan_forest, :rishadan_port}&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">basic_lands</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">fires_lands</span><span class="p">)</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;Set: {:forest, :mountain}&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">basic_lands</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">fires_lands</span><span class="p">)</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;Set: {:swamp, :island, :plains}&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">basic_lands</span><span class="o">.</span><span class="n">subset?</span><span class="p">(</span><span class="n">fires_lands</span><span class="p">)</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="kp">false</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">basic_lands</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">fires_lands</span><span class="p">)</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="c1">#&lt;Set: {:swamp, :island, :forest, :mountain, :plains, :city_of_brass, :karplusan_forest, :rishadan_port}&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>When Would You Use it?</h3>
-
-<p>Sets are great for situations where you need to make sure that a given element isn&rsquo;t contained in a collection more than once. For example, if you were using tags in an application that was not backed by a database.</p>
-
-<p>They&rsquo;re also great for comparing the equality of two lists without caring about their order (as an array would). You could use this feature to check whether the data stored in memory is in sync with another collection fetched from a remote server.</p>
-
-<h2>Queue</h2>
-
-<h3>What Is It?</h3>
-
-<p>A <a href="http://ruby-doc.org/core-2.2.1/Queue.html">Queue</a> is a place that can be used hold values that you want to share between threads. It&rsquo;s basically a stack that is visible to all of the concurrently running thread process in a given Ruby environment.</p>
-
-<p>If you want to limit the amount of data that can be shared, you can use a <a href="http://ruby-doc.org/core-2.2.1/SizedQueue.html">SizedQueue</a>.</p>
-
-<p>Here’s an example:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;thread&#39;</span>
-</span><span class='line'><span class="n">chess_moves</span> <span class="o">=</span> <span class="no">Queue</span><span class="o">.</span><span class="n">new</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">player_moves</span> <span class="o">=</span> <span class="no">Thread</span><span class="o">.</span><span class="n">new</span> <span class="k">do</span>
-</span><span class='line'>  <span class="n">chess_moves</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;e4&quot;</span>
-</span><span class='line'>  <span class="nb">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-</span><span class='line'>  <span class="n">chess_moves</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;e5&quot;</span>
-</span><span class='line'>  <span class="nb">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-</span><span class='line'>  <span class="n">chess_moves</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;f4&quot;</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">game_board</span> <span class="o">=</span> <span class="no">Thread</span><span class="o">.</span><span class="n">new</span> <span class="k">do</span>
-</span><span class='line'>  <span class="k">while</span> <span class="n">chess_moves</span><span class="o">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
-</span><span class='line'>    <span class="n">move</span> <span class="o">=</span> <span class="n">chess_moves</span><span class="o">.</span><span class="n">pop</span>
-</span><span class='line'>    <span class="c1"># update the ui with the move</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>When Would You Use it?</h3>
-
-<p>Queues are extremely helpful in any application that runs code concurrently. For example, background processing libraries like <a href="https://github.com/resque/resque">Redis</a> <a href="https://github.com/resque/resque/blob/master/lib/resque/queue.rb">make use of a queue</a> to check for the latest jobs and instruct workers to run them.</p>
-
-<h2>ObjectSpace</h2>
-
-<h3>What Is It?</h3>
-
-<p>The ObjectSpace module is a collection of methods that can be used to interact with all of the living objects in the current Ruby environment, as well as the garbage collector.</p>
-
-<p>You can use it to check out all of the objects currently living in memory, look up objects by the object ID reference, and trigger garbage collector runs. You can also define a hook to be triggered when any object of a given class is removed from the ObjectSpace using <code>ObjectSpace#define_finalizer</code>.</p>
-
-<p>How is ObjectSpace a data store? Well, it&rsquo;s the highest-level data store (that hasn&rsquo;t been interpreted or compiled yet) in any place that you can run Ruby code. Any time you define or remove an object from memory, you are changing what is visible in the ObjectSpace.</p>
-
-<p>Let&rsquo;s take a look at everything that&rsquo;s available in an IRB session.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">object_counts</span> <span class="o">=</span> <span class="no">Hash</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-</span><span class='line'><span class="no">ObjectSpace</span><span class="o">.</span><span class="n">each_object</span> <span class="k">do</span> <span class="o">|</span><span class="n">o</span><span class="o">|</span>
-</span><span class='line'>  <span class="n">object_counts</span><span class="o">[</span><span class="n">o</span><span class="o">.</span><span class="n">class</span><span class="o">]</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">require</span> <span class="s2">&quot;pp&quot;</span>
-</span><span class='line'><span class="n">pp</span> <span class="n">object_counts</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>  <span class="nb">String</span><span class="o">=&gt;</span><span class="mi">67073</span><span class="p">,</span>
-</span><span class='line'>  <span class="nb">Array</span><span class="o">=&gt;</span><span class="mi">14474</span><span class="p">,</span>
-</span><span class='line'>  <span class="no">Regexp</span><span class="o">=&gt;</span><span class="mi">164</span><span class="p">,</span>
-</span><span class='line'>  <span class="no">Gem</span><span class="o">::</span><span class="no">Specification</span><span class="o">=&gt;</span><span class="mi">299</span><span class="p">,</span>
-</span><span class='line'>  <span class="no">Hash</span><span class="o">=&gt;</span><span class="mi">1023</span><span class="p">,</span>
-</span><span class='line'>  <span class="c1"># and many more...</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If we create a new object, it ends up in the ObjectSpace.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s2">&quot;ostruct&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="no">ObjectSpace</span><span class="o">.</span><span class="n">each_object</span><span class="p">(</span><span class="no">OpenStruct</span><span class="p">)</span><span class="o">.</span><span class="n">count</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="mi">0</span>
-</span><span class='line'><span class="n">spidey</span> <span class="o">=</span> <span class="no">OpenStruct</span><span class="o">.</span><span class="n">new</span><span class="p">({</span> <span class="nb">name</span><span class="p">:</span> <span class="s2">&quot;Peter Parker&quot;</span><span class="p">,</span> <span class="ss">species</span><span class="p">:</span> <span class="s2">&quot;Human Mutate&quot;</span> <span class="p">})</span>
-</span><span class='line'>
-</span><span class='line'><span class="no">ObjectSpace</span><span class="o">.</span><span class="n">each_object</span><span class="p">(</span><span class="no">OpenStruct</span><span class="p">)</span><span class="o">.</span><span class="n">count</span>
-</span><span class='line'><span class="o">=&gt;</span> <span class="mi">1</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>When Would You Use it?</h3>
-
-<p>Although you already use the ObjectSpace all the time, whether you realize it or not, knowing about the methods it exposes opens up a lot of possibilities for investigating and improving the performance of your code.</p>
-
-<p>The best use I&rsquo;ve seen for ObjectSpace so far is using it to detect memory leaks. <a href="https://cirw.in/blog/find-references">This article</a> shows an interesting way to map the objects in your object space to create a graph that is useful in tracking down and fixing memory leaks.</p>
-
-<h2>Conclusion</h2>
-
-<p>Ruby is such a fun language to write because there are so many ways to say the same thing. It doesn&rsquo;t stop at writing statements and expressions, though. You can also store data in a huge number of ways.</p>
-
-<p>In this post, we looked at seven fairly unusual ways to handle data in Ruby. Hopefully, reading through them has given you some ideas for how to handle persistence or in-memory storage in your own applications.</p>
-
-<p>Until next time, happy coding!</p>
-
-<ol type="a">
-<li><ol type="a">
-<li>We know that there are other unusual datastores out there. What are some of your favorites and how do you use them? Leave us a comment!</li>
-</ol>
-</li>
-</ol>
-
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[Integrating React With Backbone]]></title>
-    <link href="http://fluxusfrequency.github.io/blog/2015/04/01/integrating-react-with-backbone/"/>
-    
-    <updated>2015-04-01T06:29:54-06:00</updated>
-    <id>http://fluxusfrequency.github.io/blog/2015/04/01/integrating-react-with-backbone</id>
-    
-    <content type="html"><![CDATA[<p>This post originally appeared on <a href="https://blog.engineyard.com/2015/integrating-react-with-backbone">Engine Yard</a>.</p>
-
-<h2>Introduction</h2>
-
-<p>There are so many JS frameworks! <a href="http://www.allenpike.com/2015/javascript-framework-fatigue/">It can get tiring</a> to keep up to date with them all.</p>
-
-<p>But like any developer who writes JavaScript, I try to keep abreast of the trends. I like to tinker with new things, and rebuild <a href="http://todomvc.com/">TodoMVC</a> as often as possible.</p>
-
-<p>Joking aside, when it comes to choosing frameworks for a project, emerging frameworks just haven&rsquo;t been battle-tested enough for me to recommend to clients in most cases.</p>
-
-<p>But like much of the community, I feel pretty confident in the future of <a href="http://facebook.github.io/react/index.html">React</a>. It&rsquo;s well documented, makes reasoning about data easy, and it&rsquo;s performant.</p>
-
-<p>Since React only provides the view layer of a client-side <a href="http://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller">MVC application</a>, I still have to find a way to wrap the rest of the application. When it comes to choosing a library that I&rsquo;m confident in, I still reach for <a href="http://backbonejs.org/">BackboneJS</a>. A company that bets on Backbone won&rsquo;t have trouble finding people who can work on their code base. It&rsquo;s been around for a long time, is unopionated enough to be adaptable to many different situations. And as an added bonus, it plays well with React.</p>
-
-<p>In this post, we&rsquo;ll explore the relationship between Backbone and React, by looking at one way to structure a project that uses them together.</p>
-
-<h2>A Note About Setting Up Dependencies</h2>
-
-<p>I won&rsquo;t go over setting up all of the package dependencies for the project here, since I&rsquo;ve covered this process in <a href="http://fluxusfrequency.github.io/blog/2015/02/04/setting-up-a-client-side-javascript-project-with-gulp-and-browserify/">a previous post</a>. For the purposes of this article, you can assume that we&rsquo;re using <a href="http://browserify.org/">Browserify</a>.</p>
-
-<p>One package that is worth noting, though, is <a href="https://github.com/clayallsopp/react.backbone">ReactBackbone</a>. It will allow us to trigger an automatic update of our React components whenever Backbone model or collection data changes. You can get it with <code>npm install --save react.backbone</code>.</p>
-
-<p>We&rsquo;ll also be making use of <a href="https://www.npmjs.com/package/backbone-route-control">backbone-route-control</a> to make it easier to split our URL routes into logically encapsulated controllers. See &ldquo;caching the controller call&rdquo; in <a href="http://fluxusfrequency.github.io/blog/2014/12/09/caching-asynchronous-queries-in-backbone/">this article</a> for more information about how to set this package up.</p>
-
-<h2>Project Structure</h2>
-
-<p>There are many ways to structure the directories for a client-side JS application, and every project lends itself to a slightly different setup. Today we&rsquo;ll be creating our directory structure in a fairly typical fashion for a Backbone project. But we&rsquo;ll also be introducing the concept of <em>screens</em> to our application, so we&rsquo;ll also be extending it slightly.</p>
-
-<p>Here&rsquo;s what we&rsquo;ll need:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>assets/
-</span><span class='line'>  |- js/
-</span><span class='line'>     |- collections/
-</span><span class='line'>     |- components/
-</span><span class='line'>     |- controllers/
-</span><span class='line'>     |- models/
-</span><span class='line'>     |- screens/
-</span><span class='line'>     |- vendor/
-</span><span class='line'>     |- app.js
-</span><span class='line'>     |- base-view.js
-</span><span class='line'>     |- index.js
-</span><span class='line'>     |- router.js</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Much of this is standard Backbone boilerplate. The <code>collections/</code>, <code>models/</code>, and <code>vendor/</code> directories are self-explanatory. We&rsquo;ll store reusable UI components, such as pagination, pills, and toggles, in <code>components/</code>.</p>
-
-<p>The heart of our app will live in the <code>screens/</code> directory. Here, we&rsquo;ll write React components that will handle the display logic, taking the place of traditional Backbone views and templates. However, we&rsquo;ll still include thin Backbone views to render these components.</p>
-
-<p>We&rsquo;ll talk more about screens in a moment. For now, let&rsquo;s take a look at the how a request will flow through the application, starting from the macro level.</p>
-
-<h2>The Application</h2>
-
-<p>We&rsquo;ll begin by writing a root-level <code>index.js file</code>, which will be the source of the <code>require</code> tree that Browserify will use.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nb">window</span><span class="p">.</span><span class="nx">$</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">jQuery</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;jquery&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">Application</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./app&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">window</span><span class="p">.</span><span class="nx">app</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Application</span><span class="p">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>What is this <code>Application</code>, you may ask? Simply put, it&rsquo;s the function we&rsquo;ll use to bootstrap the entire project. Its purpose is to get all of the dependencies set up, instantiate the controllers and router, kick off Backbone history, and render the main view.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Backbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">Router</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./router&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">MainView</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./screens/main/index&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">UsersController</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./controllers/users-controller&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">Backbone</span><span class="p">.</span><span class="nx">$</span> <span class="o">=</span> <span class="nx">$</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">Application</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">initialize</span><span class="p">();</span>
-</span><span class='line'><span class="p">};</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">Application</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">initialize</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">controllers</span> <span class="o">=</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">users</span><span class="o">:</span> <span class="k">new</span> <span class="nx">UsersController</span><span class="p">({</span> <span class="nx">app</span><span class="o">:</span> <span class="k">this</span> <span class="p">})</span>
-</span><span class='line'>  <span class="p">};</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">router</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Router</span><span class="p">({</span>
-</span><span class='line'>    <span class="nx">app</span><span class="o">:</span> <span class="k">this</span><span class="p">,</span>
-</span><span class='line'>    <span class="nx">controllers</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">controllers</span>
-</span><span class='line'>  <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">mainView</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">MainView</span><span class="p">({</span>
-</span><span class='line'>    <span class="nx">el</span><span class="o">:</span> <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#app&#39;</span><span class="p">),</span>
-</span><span class='line'>    <span class="nx">router</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">router</span>
-</span><span class='line'>  <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">showApp</span><span class="p">();</span>
-</span><span class='line'><span class="p">};</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">Application</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">showApp</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">mainView</span><span class="p">.</span><span class="nx">render</span><span class="p">();</span>
-</span><span class='line'>  <span class="nx">Backbone</span><span class="p">.</span><span class="nx">history</span><span class="p">.</span><span class="nx">start</span><span class="p">({</span> <span class="nx">pushState</span><span class="o">:</span> <span class="kc">true</span> <span class="p">});</span>
-</span><span class='line'><span class="p">};</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">Application</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Router</h3>
-
-<p>Once the application has been booted up, we&rsquo;ll want to be able to accept requests. When one comes in, our app will need to be able to take a look at the URL path in the navigation bar and decide what to do. This is where the router comes in. It&rsquo;s a pretty standard part of any Backbone project, so it probably won&rsquo;t look too out of the ordinary, especially if you&rsquo;ve used <code>backbone-route-control</code> before.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Backbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">BackboneRouteControl</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone-route-control&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">Router</span> <span class="o">=</span> <span class="nx">BackboneRouteControl</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
-</span><span class='line'>  <span class="nx">routes</span><span class="o">:</span> <span class="p">{</span>
-</span><span class='line'>    <span class="s1">&#39;&#39;</span><span class="o">:</span>          <span class="s1">&#39;users#index&#39;</span><span class="p">,</span>
-</span><span class='line'>    <span class="s1">&#39;users&#39;</span><span class="o">:</span>     <span class="s1">&#39;users#index&#39;</span><span class="p">,</span>
-</span><span class='line'>    <span class="s1">&#39;users/:id&#39;</span><span class="o">:</span> <span class="s1">&#39;users#show&#39;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">Router</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>When one of these routes is hit, the router will take a look at the controllers we passed into it during app initialization, find the controller with the name to the left of the <code>#</code> and try to call the method name to the right of the <code>#</code> in the string defined for that route.</p>
-
-<h3>Controllers</h3>
-
-<p>Now that the request has been routed through one of the routes, the router will take a look in the matching controller for the method that is to be called. Note that these controllers are not a part of Backbone, but Plain Old JavaScript Objects.</p>
-
-<p>For the purposes of this post, we&rsquo;ll just have a <code>UsersController</code> with two actions.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">UsersCollection</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../collections/users-collection&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">UserModel</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../models/user&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">UsersIndexView</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../screens/users/index&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">UserShowView</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../screens/users/show&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">UsersController</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">app</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">return</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">index</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>      <span class="kd">var</span> <span class="nx">usersCollection</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">UsersCollection</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="nx">usersCollection</span><span class="p">.</span><span class="nx">fetch</span><span class="p">().</span><span class="nx">done</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>        <span class="kd">var</span> <span class="nx">usersView</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">UsersIndexView</span><span class="p">({</span>
-</span><span class='line'>          <span class="nx">users</span><span class="o">:</span> <span class="nx">usersCollection</span>
-</span><span class='line'>        <span class="p">});</span>
-</span><span class='line'>        <span class="nx">app</span><span class="p">.</span><span class="nx">mainView</span><span class="p">.</span><span class="nx">pageRender</span><span class="p">(</span><span class="nx">usersView</span><span class="p">);</span>
-</span><span class='line'>      <span class="p">});</span>
-</span><span class='line'>    <span class="p">},</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nx">show</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="kd">var</span> <span class="nx">user</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">UserModel</span><span class="p">({</span>
-</span><span class='line'>        <span class="nx">id</span><span class="o">:</span> <span class="nx">id</span>
-</span><span class='line'>      <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="nx">user</span><span class="p">.</span><span class="nx">fetch</span><span class="p">().</span><span class="nx">done</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>        <span class="kd">var</span> <span class="nx">userView</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">UserShowView</span><span class="p">({</span>
-</span><span class='line'>          <span class="nx">user</span><span class="o">:</span> <span class="nx">user</span>
-</span><span class='line'>        <span class="p">});</span>
-</span><span class='line'>        <span class="nx">app</span><span class="p">.</span><span class="nx">mainView</span><span class="p">.</span><span class="nx">pageRender</span><span class="p">(</span><span class="nx">userView</span><span class="p">);</span>
-</span><span class='line'>      <span class="p">});</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>  <span class="p">};</span>
-</span><span class='line'><span class="p">};</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">UsersController</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This controller loads the <code>User</code> model and collection, and uses them to display the user index and show screens. It instantiates a Backbone collection or model, depending on the route, fetches its data from the server, loads it into the screen (which we&rsquo;ll get to momentarily), then shows that screen in the app&rsquo;s <code>mainView</code> container.</p>
-
-<h2>Screens</h2>
-
-<p>At this point, we&rsquo;ve accepted a request, routed it through a controller action, decided what kind of collection or model we are dealing with, and fetched the data from the server. We&rsquo;re ready to render a Backbone view. In this case, it will do little more than pass the data on to the React component.</p>
-
-<h3>The Base View</h3>
-
-<p>Since there&rsquo;s going to be a lot of repeated boilerplate in our Backbone views, it makes sense to abstract it out into a <code>BaseView</code>, which child views will extend from.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">React</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">Backbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">BaseView</span> <span class="o">=</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
-</span><span class='line'>  <span class="nx">initialize</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="p">{};</span>
-</span><span class='line'>  <span class="p">},</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nx">component</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="kc">null</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">},</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">React</span><span class="p">.</span><span class="nx">renderComponent</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">component</span><span class="p">(),</span> <span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">BaseView</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This base view sets any options passed in as properties on itself, and defines a <code>render()</code> method that renders whatever React component is defined in the <code>component()</code> method.</p>
-
-<h3>The Main View</h3>
-
-<p>In order to switch between screens without doing a page re-render, we&rsquo;ll wrap all of our screens in an outer screen called the <code>mainView</code>. This view acts as a sort of &ldquo;picture frame&rdquo; for the other screens in the app, displaying, hiding, and cleaning them up.</p>
-
-<p>As with all of our screens, it will consist of two parts: a Backbone view, defined in <code>screens/main/index.js</code>, and a React component, defined in <code>screens/main/component.js</code>.</p>
-
-<h4>Backbone View</h4>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">Backbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">BaseView</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../base-view&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">MainComponent</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./component&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">MainView</span> <span class="o">=</span> <span class="nx">BaseView</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
-</span><span class='line'>  <span class="nx">component</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nx">MainComponent</span><span class="p">({</span>
-</span><span class='line'>      <span class="nx">router</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">router</span>
-</span><span class='line'>    <span class="p">});</span>
-</span><span class='line'>  <span class="p">},</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nx">pageRender</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">view</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#main-container&#39;</span><span class="p">).</span><span class="nx">html</span><span class="p">(</span><span class="nx">view</span><span class="p">.</span><span class="nx">render</span><span class="p">().</span><span class="nx">$el</span><span class="p">);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">MainView</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Since we passed <code>#app</code> as the element for this view to attach to back in <code>app.js</code>, it will render itself there. Thinking through what <code>render</code> actually means, we know that it will call the code defined in the <code>BaseView</code>, which means it will render the whatever&rsquo;s returned by the <code>component()</code> function. In this case, it&rsquo;s the React <code>MainComponent</code>. We&rsquo;ll take a look at that in a moment.</p>
-
-<p>The other special thing this view does is to render any subviews passed to <code>pageRender</code> in the <code>#main-container</code> element found within <code>#app</code>. As I said, it&rsquo;s basically just a frame for whatever else is going to happen.</p>
-
-<h4>React Component</h4>
-
-<p>Now let&rsquo;s take a look at that <code>MainComponent</code>. It&rsquo;s a very simple React component that does nothing more than render the &ldquo;container&rdquo; into the DOM.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="cm">/** @jsx React.DOM */</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">React</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">ReactBackbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react.backbone&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">MainComponent</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createBackboneClass</span><span class="p">({</span>
-</span><span class='line'>  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="p">(</span>
-</span><span class='line'>      <span class="o">&lt;</span><span class="nx">div</span><span class="o">&gt;</span>
-</span><span class='line'>        <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">id</span><span class="o">=</span><span class="s2">&quot;main-container&quot;</span><span class="o">&gt;&lt;</span><span class="err">/div&gt;</span>
-</span><span class='line'>      <span class="o">&lt;</span><span class="err">/div&gt;</span>
-</span><span class='line'>    <span class="p">);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">MainComponent</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That&rsquo;s it, the whole <code>MainView</code>. Since it&rsquo;s so simple, it makes a good introduction to how we can render components in this project.</p>
-
-<p>Now let&rsquo;s take a look at something a little more advanced.</p>
-
-<h3>User Show View</h3>
-
-<p>We&rsquo;ll start by taking a look at how we might write a React component for a user show page.</p>
-
-<h4>Backbone View</h4>
-
-<p>First, we&rsquo;ll define the <code>UserShowView</code> we referenced back in the <code>UsersController</code>. It should live at <code>screens/users/show/index.js</code>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">BaseView</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../../base-view&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">UserScreen</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./component&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">UserView</span> <span class="o">=</span> <span class="nx">BaseView</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
-</span><span class='line'>  <span class="nx">component</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nx">UserScreen</span><span class="p">({</span>
-</span><span class='line'>      <span class="nx">user</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">user</span>
-</span><span class='line'>    <span class="p">});</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">UsersView</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That&rsquo;s it. Mostly just boilerplate. In fact, pretty much all of our Backbone views will look like this. A simple extension of <code>BaseView</code> that defines a <code>component()</code> method. That method instantiates a React component and returns it to the <code>render()</code> method in the <code>BaseView</code>, which in turn is called by the <code>mainView</code>&rsquo;s <code>pageRender()</code> method.</p>
-
-<h4>React Component</h4>
-
-<p>Now, let&rsquo;s dig into the meat of user show screen: the <code>UserScreen</code> component. It will live at <code>screens/users/show/component.js</code>.</p>
-
-<p>We&rsquo;ll imagine that we can &ldquo;like&rdquo; users. We want to be able to increment a user&rsquo;s <code>likes</code> attribute by clicking a button. Here&rsquo;s how we&rsquo;d write this component to handle that behavior.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="cm">/** @jsx React.DOM */</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">React</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">Backbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">ReactBackbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react.backbone&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">User</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../../models/user&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">UserShowScreen</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createBackboneClass</span><span class="p">({</span>
-</span><span class='line'>  <span class="nx">mixins</span><span class="o">:</span> <span class="p">[</span>
-</span><span class='line'>     <span class="nx">React</span><span class="p">.</span><span class="nx">BackboneMixin</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;change&#39;</span><span class="p">),</span>
-</span><span class='line'>  <span class="p">],</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nx">getInitialState</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nx">liked</span><span class="o">:</span> <span class="kc">false</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>  <span class="p">},</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nx">handleLike</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">e</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">currentLikes</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;likesCount&#39;</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">save</span><span class="p">({</span> <span class="nx">likesCount</span><span class="o">:</span> <span class="nx">currentLikes</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">});</span>
-</span><span class='line'>  <span class="p">},</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">user</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">user</span><span class="p">;</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">username</span> <span class="o">=</span> <span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">);</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">avatar</span> <span class="o">=</span> <span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;avatar&#39;</span><span class="p">).</span><span class="nx">url</span><span class="p">;</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">likesCount</span> <span class="o">=</span> <span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;likesCount&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">return</span> <span class="p">(</span>
-</span><span class='line'>      <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">className</span><span class="o">=</span><span class="s2">&quot;user-container&quot;</span><span class="o">&gt;</span>
-</span><span class='line'>        <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="p">{</span><span class="nx">username</span><span class="p">}</span><span class="err">&#39;</span><span class="nx">s</span> <span class="nx">Profile</span><span class="o">&lt;</span><span class="err">/h1&gt;</span>
-</span><span class='line'>        <span class="o">&lt;</span><span class="nx">img</span> <span class="nx">src</span><span class="o">=</span><span class="p">{</span><span class="nx">avatar</span><span class="p">}</span> <span class="nx">alt</span><span class="o">=</span><span class="p">{</span><span class="nx">username</span><span class="p">}</span> <span class="o">/&gt;</span>
-</span><span class='line'>        <span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="p">{</span><span class="nx">likesCount</span><span class="p">}</span> <span class="nx">likes</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
-</span><span class='line'>        <span class="o">&lt;</span><span class="nx">button</span> <span class="nx">className</span><span class="o">=</span><span class="s2">&quot;like-button&quot;</span> <span class="nx">onClick</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">handleLike</span><span class="p">}</span><span class="o">&gt;</span>
-</span><span class='line'>          <span class="nx">Like</span>
-</span><span class='line'>        <span class="o">&lt;</span><span class="err">/button&gt;</span>
-</span><span class='line'>      <span class="o">&lt;</span><span class="err">/div&gt;</span>
-</span><span class='line'>    <span class="p">);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">UserShowScreeen</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You may have noticed that curious <code>mixins</code> property. What is that? <code>react.backbone</code> gives us some niceties here, since we&rsquo;re calling <code>React.createBackboneClass</code> instead of <code>React.createClass</code>. Whenever the <code>user</code> prop that was passed into this component fires a <code>change</code> event, the component&rsquo;s <code>render()</code> method will be called. For more information, take a look at <a href="https://github.com/clayallsopp/react.backbone">the package on GitHub</a>.</p>
-
-<p>When we click that like button, we&rsquo;re incrementing the <code>likesCount</code> attribute on the user, and saving it to the server with our <code>save()</code> call. When the result of that <code>sync</code> comes back, our view will automatically re-render, and the likes count indication will update! Pretty sweet!</p>
-
-<h3>Users Index Screen</h3>
-
-<p>Before we conclude this post, lets take a look at one more case: the index screen. Here, we&rsquo;ll see how using React can make it easier to render repetitive subcomponents.</p>
-
-<h4>Backbone View</h4>
-
-<p>The view for this screen will live at <code>/screens/users/index/index.js</code>, and look similar to the <code>UserShowView</code>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">BaseView</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../../../base-view&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">UsersIndexScreen</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./component&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">UsersIndexScreen</span> <span class="o">=</span> <span class="nx">BaseView</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
-</span><span class='line'>  <span class="nx">component</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nx">UsersIndexScreen</span><span class="p">({</span>
-</span><span class='line'>      <span class="nx">users</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">users</span>
-</span><span class='line'>    <span class="p">});</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">UsersIndexView</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Backbone Component</h4>
-
-<p>The <code>UsersIndexScreen</code> component will also be fairly similar to the <code>UserShowScreen</code> one, but with one key difference: since we&rsquo;re going to be rendering the same DOM elements repeatedly, we can leverage subcomponents.</p>
-
-<p>Here&rsquo;s the main component, which lives at <code>screens/users/index/component.js</code></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="cm">/** @jsx React.DOM */</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">React</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">ReactBackbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react.backbone&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">UserBlock</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;.user-block&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">UsersIndexScreen</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createBackboneClass</span><span class="p">({</span>
-</span><span class='line'>  <span class="nx">mixins</span><span class="o">:</span> <span class="p">[</span>
-</span><span class='line'>     <span class="nx">React</span><span class="p">.</span><span class="nx">BackboneMixin</span><span class="p">(</span><span class="s1">&#39;users&#39;</span><span class="p">,</span> <span class="s1">&#39;change&#39;</span><span class="p">)</span>
-</span><span class='line'>  <span class="p">],</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">userBlocks</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">users</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="o">&lt;</span><span class="nx">UserBlock</span> <span class="nx">user</span><span class="o">=</span><span class="p">{</span><span class="nx">user</span><span class="p">}</span> <span class="o">/&gt;</span>
-</span><span class='line'>    <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">return</span> <span class="p">(</span>
-</span><span class='line'>      <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">className</span><span class="o">=</span><span class="s2">&quot;users-container&quot;</span><span class="o">&gt;</span>
-</span><span class='line'>        <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="nx">Users</span><span class="o">&lt;</span><span class="err">/h1&gt;</span>
-</span><span class='line'>        <span class="p">{</span><span class="nx">userBlocks</span><span class="p">}</span>
-</span><span class='line'>      <span class="o">&lt;</span><span class="err">/div&gt;</span>
-</span><span class='line'>    <span class="p">);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">UsersIndexScreen</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>We&rsquo;re just looping through the users that were passed into the component, and wrapping each one in a <code>UserBlock</code> React component. This component can be defined in a file that lives right alongside <code>index.js</code> and <code>component.js</code>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="cm">/** @jsx React.DOM */</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">React</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">Backbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;backbone&#39;</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">ReactBackbone</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react.backbone&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">var</span> <span class="nx">MemberBlock</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createBackboneClass</span><span class="p">({</span>
-</span><span class='line'>  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">user</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">user</span><span class="p">;</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">username</span> <span class="o">=</span> <span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">);</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">avatar</span> <span class="o">=</span> <span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;avatar&#39;</span><span class="p">).</span><span class="nx">url</span><span class="p">;</span>
-</span><span class='line'>    <span class="kd">var</span> <span class="nx">link</span> <span class="o">=</span> <span class="s1">&#39;/users/&#39;</span> <span class="o">+</span> <span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">return</span> <span class="p">(</span>
-</span><span class='line'>      <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">className</span><span class="o">=</span><span class="s2">&quot;user-block&quot;</span><span class="o">&gt;</span>
-</span><span class='line'>        <span class="o">&lt;</span><span class="nx">a</span> <span class="nx">href</span><span class="o">=</span><span class="p">{</span><span class="nx">link</span><span class="p">}</span><span class="o">&gt;</span>
-</span><span class='line'>          <span class="o">&lt;</span><span class="nx">h2</span><span class="o">&gt;</span><span class="p">{</span><span class="nx">username</span><span class="p">}</span><span class="o">&lt;</span><span class="err">/h2&gt;</span>
-</span><span class='line'>          <span class="o">&lt;</span><span class="nx">img</span> <span class="nx">src</span><span class="o">=</span><span class="p">{</span><span class="nx">avatar</span><span class="p">}</span> <span class="nx">alt</span><span class="o">=</span><span class="p">{</span><span class="nx">username</span><span class="p">}</span> <span class="o">/&gt;</span>
-</span><span class='line'>        <span class="o">&lt;</span><span class="err">/a&gt;</span>
-</span><span class='line'>      <span class="o">&lt;</span><span class="err">/div&gt;</span>
-</span><span class='line'>    <span class="p">);</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">UserBlock</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Voila! An index view at <code>/users</code> that shows all of our users&#8217; beautiful faces and links to their show pages. It was pretty painless, thanks to React!</p>
-
-<h2>Wrapping Up</h2>
-
-<p>We&rsquo;ve now traced the entire series of events that happens when someone loads up our application and requests a route. After going through the router and controller, the fetched data is injected through a Backbone view into a React component, which is then rendered by the app&rsquo;s <code>mainView</code>.</p>
-
-<p>We only barely scratched the surface of what React is capable of here. If you haven&rsquo;t checked out the <a href="http://facebook.github.io/react/docs/component-api.html">React component API docs</a>, I highly suggest doing so. Once I began to fully harness the power it gave me, I found my projects&#8217; view layers much cleaner. Plus, I get all of the React <a href="http://facebook.github.io/react/docs/advanced-performance.html">performance benefits</a> for free!</p>
-
-<p>I hope that this post has helped make it more obvious how to get started with integrating React into a Backbone app. To me, it always seemed like a good idea, but I didn’t know where to begin. Once I got a sense of the pattern, though, it became pretty easy to do.</p>
-
-<p>P.S. Do you have a different pattern for using React in your Backbone app? Want to talk about using React in Ember or Angular? Leave us a note in the comments!</p>
 ]]></content>
     
   </entry>
