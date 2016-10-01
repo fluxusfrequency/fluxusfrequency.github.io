@@ -1,6 +1,7 @@
 ---
 layout: nil
 ---
+
 User-agent: *
 Disallow:
 
